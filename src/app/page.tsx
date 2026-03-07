@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Preloader from "@/components/Preloader";
 import SmoothScroll from "@/components/SmoothScroll";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import TextReveal from "@/components/TextReveal";
 import Stats from "@/components/Stats";
+
+const BookShowcase = dynamic(() => import("@/components/BookShowcase"), {
+  ssr: false,
+});
 import Programs from "@/components/Programs";
 import Testimonials from "@/components/Testimonials";
 import Team from "@/components/Team";
@@ -28,6 +33,7 @@ export default function Home() {
           <Navigation />
           <Hero />
           <TextReveal />
+          <BookShowcase />
           <Stats />
           <Programs />
           <Testimonials />
