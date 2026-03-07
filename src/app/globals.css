@@ -1,22 +1,35 @@
 @import "tailwindcss";
 
 @theme {
+  /* ─── Ethereal Brutalism Palette ─── */
+  --color-void: #050505;
+  --color-void-light: #0A0A0A;
+  --color-void-surface: #111111;
+
   --color-saffron: #E8751A;
   --color-saffron-light: #F59E4B;
   --color-saffron-dark: #C45E0A;
+  --color-gold: #D4A843;
+
   --color-teal: #1A5C5E;
   --color-teal-light: #2A8A8C;
-  --color-gold: #D4A843;
+
   --color-cream: #FFF9F0;
   --color-cream-dark: #FFF3E0;
+
+  --color-offwhite: #F5F5F5;
+  --color-muted: #888888;
   --color-charcoal: #2D2D2D;
   --color-warm-gray: #6B6B6B;
 
+  /* ─── Typography ─── */
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Space Grotesk", "Inter", system-ui, sans-serif;
 }
 
-/* Base styles — no scroll-behavior: smooth, Lenis handles it */
+/* ═══════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════ */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,13 +37,47 @@ html {
 
 body {
   font-family: var(--font-sans);
-  color: var(--color-charcoal);
-  background-color: #0a0a0a;
+  color: var(--color-offwhite);
+  background-color: var(--color-void);
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
 }
 
-/* GPU-accelerated animation hints */
+/* ═══════════════════════════════════════
+   TYPOGRAPHY SYSTEM
+   ═══════════════════════════════════════ */
+
+/* Dramatic serif display — h1, h2 */
+h1, h2 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+/* Architectural sans-serif — labels, metadata, UI */
+.label,
+.label-ui {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.4);
+}
+
+.label-saffron {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-saffron);
+}
+
+/* ═══════════════════════════════════════
+   GPU ACCELERATION
+   ═══════════════════════════════════════ */
 .hero-line,
 .will-change-transform {
   will-change: transform;
@@ -38,35 +85,45 @@ body {
   backface-visibility: hidden;
 }
 
-/* Custom scrollbar */
+/* ═══════════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════════ */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--color-void);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-saffron);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
-/* Selection color */
+/* ═══════════════════════════════════════
+   SELECTION
+   ═══════════════════════════════════════ */
 ::selection {
   background-color: var(--color-saffron);
   color: white;
 }
 
-/* Glassmorphism utility */
+/* ═══════════════════════════════════════
+   GLASSMORPHISM
+   ═══════════════════════════════════════ */
 .glass {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(5, 5, 5, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-/* Text gradient utility */
+/* ═══════════════════════════════════════
+   SAFFRON GLOW SYSTEM — emissive utilities
+   ═══════════════════════════════════════ */
+
+/* Gradient text */
 .text-gradient-saffron {
   background: linear-gradient(135deg, var(--color-saffron), var(--color-gold));
   -webkit-background-clip: text;
@@ -74,13 +131,62 @@ body {
   background-clip: text;
 }
 
-/* Glow effect for CTA */
+/* Emissive text glow — applies a saffron light bleed */
+.text-glow-saffron {
+  text-shadow:
+    0 0 20px rgba(232, 117, 26, 0.4),
+    0 0 60px rgba(232, 117, 26, 0.15),
+    0 0 100px rgba(232, 117, 26, 0.05);
+}
+
+/* Emissive box glow — for buttons, cards */
+.glow-saffron {
+  box-shadow:
+    0 0 15px rgba(232, 117, 26, 0.25),
+    0 0 45px rgba(232, 117, 26, 0.1),
+    0 0 80px rgba(232, 117, 26, 0.05);
+}
+
+.glow-saffron-strong {
+  box-shadow:
+    0 0 20px rgba(232, 117, 26, 0.4),
+    0 0 60px rgba(232, 117, 26, 0.2),
+    0 0 120px rgba(232, 117, 26, 0.08);
+}
+
+/* Emissive border glow */
+.border-glow-saffron {
+  border: 1px solid rgba(232, 117, 26, 0.3);
+  box-shadow:
+    inset 0 0 20px rgba(232, 117, 26, 0.05),
+    0 0 30px rgba(232, 117, 26, 0.08);
+}
+
+/* Background emissive radial — for sections */
+.bg-glow-saffron {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 117, 26, 0.06) 0%,
+    transparent 70%
+  );
+}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════ */
+
+/* CTA glow pulse */
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(232, 117, 26, 0.3), 0 0 40px rgba(232, 117, 26, 0.1);
+    box-shadow:
+      0 0 20px rgba(232, 117, 26, 0.3),
+      0 0 40px rgba(232, 117, 26, 0.1);
   }
   50% {
-    box-shadow: 0 0 30px rgba(232, 117, 26, 0.5), 0 0 60px rgba(232, 117, 26, 0.2);
+    box-shadow:
+      0 0 30px rgba(232, 117, 26, 0.5),
+      0 0 60px rgba(232, 117, 26, 0.2),
+      0 0 100px rgba(232, 117, 26, 0.05);
   }
 }
 

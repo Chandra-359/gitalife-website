@@ -134,14 +134,14 @@ export default function Programs() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="programs" className="relative bg-[#0a0a0a]">
+    <section ref={sectionRef} id="programs" className="relative bg-void">
       {/* Section header */}
       <div className="px-6 pt-24 pb-12 md:pb-0">
         <div className="mx-auto max-w-7xl">
-          <p className="text-sm tracking-widest uppercase text-saffron">
+          <p className="label-saffron">
             Our Programs
           </p>
-          <h2 className="mt-3 font-serif text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+          <h2 className="mt-3 text-4xl text-offwhite sm:text-5xl lg:text-6xl">
             Find Your Path
           </h2>
         </div>
@@ -167,13 +167,13 @@ export default function Programs() {
 
               {/* Content */}
               <div className="relative flex h-full min-h-[350px] flex-col justify-end p-8 sm:p-10 md:min-h-0">
-                <span className="mb-3 inline-block w-fit rounded-full border border-white/20 px-3 py-1 text-xs tracking-wider uppercase text-white/60">
+                <span className="label mb-3 inline-block w-fit rounded-full border border-white/10 px-3 py-1">
                   {program.tag}
                 </span>
-                <h3 className="font-serif text-3xl font-bold text-white sm:text-4xl">
+                <h3 className="font-serif text-3xl font-bold text-offwhite sm:text-4xl">
                   {program.title}
                 </h3>
-                <p className="mt-3 max-w-md text-base leading-relaxed text-white/60">
+                <p className="mt-3 max-w-md font-sans text-base leading-relaxed text-offwhite/50">
                   {program.description}
                 </p>
               </div>
@@ -184,12 +184,12 @@ export default function Programs() {
           ))}
 
           {/* CTA card at the end */}
-          <div className="program-card flex flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[#111] p-12 md:h-[70vh] md:w-[40vw]">
+          <div className="program-card flex flex-shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-void-surface p-12 md:h-[70vh] md:w-[40vw]">
             <div className="text-center">
-              <h3 className="font-serif text-3xl font-bold text-white sm:text-4xl">
+              <h3 className="font-serif text-3xl font-bold text-offwhite sm:text-4xl">
                 Ready to join?
               </h3>
-              <p className="mt-4 text-lg text-white/50">
+              <p className="mt-4 font-sans text-lg text-offwhite/40">
                 Tell us about yourself and we&apos;ll find the perfect program
                 for you.
               </p>

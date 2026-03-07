@@ -45,7 +45,7 @@ export default function Navigation() {
           <Link href="/" className="group">
             <span
               className={`font-serif text-xl font-bold tracking-wider transition-all duration-300 ${
-                scrolled ? "text-white" : "text-white/80"
+                scrolled ? "text-offwhite" : "text-offwhite/80"
               }`}
             >
               GITA{" "}
@@ -59,14 +59,14 @@ export default function Navigation() {
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="text-sm font-medium tracking-wide text-white/60 transition-colors duration-300 hover:text-white"
+                className="font-sans text-xs font-medium tracking-[0.15em] uppercase text-offwhite/50 transition-colors duration-300 hover:text-offwhite"
               >
                 {item}
               </a>
             ))}
             <Link
               href="/get-connected"
-              className="rounded-full bg-saffron px-5 py-2 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-saffron-light hover:shadow-lg hover:shadow-saffron/20"
+              className="glow-saffron rounded-full bg-saffron px-5 py-2 font-sans text-xs font-semibold tracking-wider uppercase text-white transition-all duration-300 hover:scale-105 hover:bg-saffron-light"
             >
               Get Connected
             </Link>
@@ -98,7 +98,7 @@ export default function Navigation() {
 
         {/* Mobile menu overlay */}
         <div
-          className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/95 transition-all duration-500 md:hidden ${
+          className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-void/98 transition-all duration-500 md:hidden ${
             menuOpen
               ? "pointer-events-auto opacity-100"
               : "pointer-events-none opacity-0"
@@ -109,7 +109,7 @@ export default function Navigation() {
               key={item}
               href={`#${item.toLowerCase()}`}
               onClick={() => setMenuOpen(false)}
-              className="py-4 font-serif text-3xl text-white/80 transition-colors hover:text-saffron"
+              className="py-4 font-serif text-3xl text-offwhite/80 transition-colors hover:text-saffron"
               style={{ transitionDelay: `${i * 75}ms` }}
             >
               {item}

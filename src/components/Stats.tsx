@@ -68,7 +68,7 @@ export default function Stats() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-[#0a0a0a] py-24"
+      className="relative bg-void py-24"
     >
       {/* Subtle top border glow */}
       <div className="absolute top-0 left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-saffron/30 to-transparent" />
@@ -79,7 +79,7 @@ export default function Stats() {
             <div className="flex items-baseline justify-center">
               <span
                 ref={(el) => { numberRefs.current[i] = el; }}
-                className="font-serif text-6xl font-bold text-white sm:text-7xl lg:text-8xl"
+                className="font-serif text-6xl font-bold text-offwhite sm:text-7xl lg:text-8xl"
               >
                 0
               </span>
@@ -87,7 +87,7 @@ export default function Stats() {
                 {stat.suffix}
               </span>
             </div>
-            <p className="mt-3 text-sm tracking-widest uppercase text-white/40">
+            <p className="label mt-3">
               {stat.label}
             </p>
           </div>

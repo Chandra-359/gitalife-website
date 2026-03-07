@@ -72,12 +72,12 @@ export default function TextReveal() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center bg-[#0d0d0d] px-6 py-32"
+      className="relative flex min-h-screen items-center justify-center bg-void px-6 py-32"
     >
       <div className="mx-auto max-w-4xl">
         <p
           ref={textRef}
-          className="font-serif text-3xl leading-relaxed font-light text-white sm:text-4xl lg:text-5xl lg:leading-relaxed"
+          className="font-serif text-3xl leading-relaxed font-light text-offwhite sm:text-4xl lg:text-5xl lg:leading-relaxed"
         >
           Gita Life NYC is a community of young seekers exploring the Bhagavad
           Gita&apos;s timeless wisdom — through weekly discussions, kirtans,

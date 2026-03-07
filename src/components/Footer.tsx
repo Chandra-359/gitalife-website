@@ -48,15 +48,15 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-[#050505] px-6 pt-20 pb-8">
+    <footer className="border-t border-white/5 bg-void px-6 pt-20 pb-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <span className="font-serif text-2xl font-bold text-white">
+            <span className="font-serif text-2xl font-bold text-offwhite">
               GITA <span className="text-gradient-saffron">LIFE</span>
             </span>
-            <p className="mt-4 text-sm leading-relaxed text-white/40">
+            <p className="mt-4 font-sans text-sm leading-relaxed text-offwhite/30">
               A community initiative under ISKCON, bringing the timeless wisdom
               of the Bhagavad Gita to young seekers in New York City.
             </p>
@@ -64,7 +64,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold tracking-wider uppercase text-white/60">
+            <h4 className="label">
               Quick Links
             </h4>
             <ul className="mt-4 space-y-3">
@@ -72,7 +72,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/40 transition-colors hover:text-saffron"
+                    className="font-sans text-sm text-offwhite/30 transition-colors hover:text-saffron"
                   >
                     {link.label}
                   </Link>
@@ -83,13 +83,13 @@ export default function Footer() {
 
           {/* Programs */}
           <div>
-            <h4 className="text-sm font-semibold tracking-wider uppercase text-white/60">
+            <h4 className="label">
               Programs
             </h4>
             <ul className="mt-4 space-y-3">
               {programLinks.map((label) => (
                 <li key={label}>
-                  <span className="text-sm text-white/40">{label}</span>
+                  <span className="font-sans text-sm text-offwhite/30">{label}</span>
                 </li>
               ))}
             </ul>
@@ -97,7 +97,7 @@ export default function Footer() {
 
           {/* Connect */}
           <div>
-            <h4 className="text-sm font-semibold tracking-wider uppercase text-white/60">
+            <h4 className="label">
               Connect
             </h4>
             <div className="mt-4 flex gap-4">
@@ -106,13 +106,13 @@ export default function Footer() {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white/40 transition-all duration-300 hover:scale-110 hover:bg-saffron/20 hover:text-saffron"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-offwhite/30 transition-all duration-300 hover:scale-110 hover:bg-saffron/20 hover:text-saffron"
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
-            <p className="mt-6 text-sm text-white/40">
+            <p className="mt-6 font-sans text-sm text-offwhite/30">
               contact@gitalifenyc.com
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-16 border-t border-white/5 pt-8 text-center">
-          <p className="text-xs text-white/30">
+          <p className="font-sans text-xs text-offwhite/20">
             &copy; {new Date().getFullYear()} Gita Life NYC. Made with love in
             New York City.
           </p>

@@ -68,7 +68,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       ref={curtainRef}
-      className="fixed inset-0 z-[100] bg-[#0a0a0a]"
+      className="fixed inset-0 z-[100] bg-void"
     >
       <div
         ref={containerRef}
@@ -76,7 +76,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       >
         <div ref={contentRef} className="relative text-center">
           {/* Brand name — small, understated */}
-          <p className="mb-6 text-xs font-medium tracking-[0.3em] uppercase text-white/30">
+          <p className="label mb-6">
             GITA LIFE NYC
           </p>
 
@@ -84,14 +84,12 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           <div className="flex items-baseline justify-center">
             <span
               ref={counterRef}
-              className="text-[8rem] font-bold leading-none tracking-[-0.04em] text-white sm:text-[12rem] lg:text-[16rem]"
-              style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+              className="font-sans text-[8rem] font-bold leading-none tracking-[-0.04em] text-offwhite sm:text-[12rem] lg:text-[16rem]"
             >
               0
             </span>
             <span
-              className="ml-1 text-2xl font-light text-white/30 sm:text-4xl"
-              style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+              className="ml-1 font-sans text-2xl font-light text-offwhite/30 sm:text-4xl"
             >
               %
             </span>

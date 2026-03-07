@@ -99,7 +99,7 @@ export default function Hero() {
         className="relative z-10 px-6 text-center"
       >
         <div>
-          <h1 className="font-serif text-5xl font-bold leading-[0.95] tracking-[-0.02em] text-white sm:text-7xl lg:text-8xl xl:text-9xl">
+          <h1 className="text-5xl text-offwhite sm:text-7xl lg:text-8xl xl:text-9xl">
             <span className="hero-line block overflow-hidden">
               <span className="block will-change-transform">DISCOVER</span>
             </span>
@@ -115,7 +115,7 @@ export default function Hero() {
           </h1>
         </div>
 
-        <p className="hero-cta mx-auto mt-6 max-w-md text-lg text-white/50 sm:text-xl font-light">
+        <p className="hero-cta mx-auto mt-6 max-w-md font-sans text-lg font-light text-offwhite/40 sm:text-xl">
           Weekly programs, retreats, and a community that feels like family —
           right here in NYC.
         </p>
@@ -123,13 +123,13 @@ export default function Hero() {
         <div className="hero-cta mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/get-connected"
-            className="glow-pulse rounded-full bg-saffron px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-saffron-light"
+            className="glow-pulse glow-saffron rounded-full bg-saffron px-8 py-4 font-sans text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-saffron-light"
           >
             Get Connected
           </Link>
           <a
             href="#programs"
-            className="rounded-full border border-white/20 px-8 py-4 text-lg font-medium text-white/80 transition-all duration-300 hover:border-white/40 hover:text-white"
+            className="rounded-full border border-white/10 px-8 py-4 font-sans text-lg font-medium text-offwhite/60 transition-all duration-300 hover:border-white/30 hover:text-offwhite"
           >
             Explore Programs
           </a>
@@ -137,8 +137,8 @@ export default function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="scroll-indicator absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-white/40">
-        <span className="text-xs tracking-widest uppercase">
+      <div className="scroll-indicator absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-offwhite/30">
+        <span className="label">
           Scroll to explore
         </span>
         <svg

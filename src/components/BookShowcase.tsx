@@ -75,7 +75,7 @@ export default function BookShowcase() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[120vh] bg-[#0a0a0a] py-24 lg:py-32"
+      className="relative min-h-[120vh] bg-void py-24 lg:py-32"
     >
       {/* Layout: side-by-side on desktop, stacked on mobile */}
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-12 px-6 lg:flex-row lg:gap-16">
@@ -138,12 +138,12 @@ export default function BookShowcase() {
 
         {/* Right — Text content */}
         <div className="flex flex-col items-start lg:w-1/2">
-          <p className="mb-4 text-xs font-medium tracking-[0.3em] uppercase text-saffron/60">
+          <p className="label-saffron mb-4">
             The Sacred Text
           </p>
 
           <div ref={headingRef}>
-            <h2 className="font-serif text-4xl font-bold leading-[1.05] tracking-[-0.02em] text-white sm:text-5xl lg:text-6xl">
+            <h2 className="text-4xl text-offwhite sm:text-5xl lg:text-6xl">
               <span className="book-heading-line block overflow-hidden">
                 <span className="block">Bhagavad Gita</span>
               </span>
@@ -155,7 +155,7 @@ export default function BookShowcase() {
 
           <p
             ref={subtitleRef}
-            className="mt-6 max-w-md text-base leading-relaxed text-white/40 sm:text-lg"
+            className="mt-6 max-w-md font-sans text-base leading-relaxed text-offwhite/35 sm:text-lg"
           >
             The definitive guide to life&apos;s deepest questions — translated with
             original Sanskrit text, transliteration, word-for-word meanings, and
@@ -163,16 +163,16 @@ export default function BookShowcase() {
             Prabhupāda.
           </p>
 
-          <div className="mt-4 flex items-center gap-6 text-white/20">
-            <span className="text-sm font-light">18 Chapters</span>
-            <span className="text-white/10">|</span>
-            <span className="text-sm font-light">700 Verses</span>
-            <span className="text-white/10">|</span>
-            <span className="text-sm font-light">5,000+ Years</span>
+          <div className="mt-4 flex items-center gap-6 text-offwhite/20">
+            <span className="font-sans text-sm font-light">18 Chapters</span>
+            <span className="text-offwhite/10">|</span>
+            <span className="font-sans text-sm font-light">700 Verses</span>
+            <span className="text-offwhite/10">|</span>
+            <span className="font-sans text-sm font-light">5,000+ Years</span>
           </div>
 
           {/* Interaction hint */}
-          <p className="mt-10 text-xs tracking-wide text-white/20">
+          <p className="label mt-10">
             ← Drag to spin the book
           </p>
         </div>

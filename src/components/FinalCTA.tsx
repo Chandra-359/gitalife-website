@@ -66,23 +66,23 @@ export default function FinalCTA() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-[#050505] px-6"
+      className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-void px-6"
     >
       {/* Subtle radial gradient background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(232,117,26,0.08)_0%,_transparent_60%)]" />
 
       <div className="relative z-10 text-center">
-        <h2 className="cta-text font-serif text-5xl font-bold text-white sm:text-6xl lg:text-7xl">
+        <h2 className="cta-text text-5xl text-offwhite sm:text-6xl lg:text-7xl">
           Ready to begin?
         </h2>
-        <p className="cta-text mt-6 text-xl text-white/40">
+        <p className="cta-text mt-6 font-sans text-xl text-offwhite/40">
           Your journey starts with a single step.
         </p>
         <div className="cta-text mt-12">
           <Link
             ref={buttonRef}
             href="/get-connected"
-            className="glow-pulse inline-block rounded-full bg-saffron px-12 py-5 text-xl font-semibold text-white transition-colors duration-300 hover:bg-saffron-light"
+            className="glow-pulse glow-saffron inline-block rounded-full bg-saffron px-12 py-5 font-sans text-xl font-semibold text-white transition-colors duration-300 hover:bg-saffron-light"
           >
             Get Connected
           </Link>

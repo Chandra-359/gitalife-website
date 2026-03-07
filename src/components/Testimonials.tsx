@@ -116,7 +116,7 @@ export default function Testimonials() {
     <section
       ref={sectionRef}
       id="testimonials"
-      className="relative flex min-h-screen items-center justify-center bg-[#080808] px-6 py-24"
+      className="relative flex min-h-screen items-center justify-center bg-void px-6 py-24"
     >
       {/* Large decorative quote mark */}
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-serif text-[20rem] leading-none text-saffron/5 sm:text-[30rem]">
@@ -124,18 +124,18 @@ export default function Testimonials() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
-        <p className="mb-16 text-sm tracking-widest uppercase text-saffron">
+        <p className="label-saffron mb-16">
           What People Say
         </p>
 
         <div ref={quoteRef}>
-          <blockquote className="font-serif text-2xl leading-relaxed font-light text-white/90 sm:text-3xl lg:text-4xl lg:leading-relaxed">
+          <blockquote className="font-serif text-2xl leading-relaxed font-light text-offwhite/90 sm:text-3xl lg:text-4xl lg:leading-relaxed">
             &ldquo;{t.quote}&rdquo;
           </blockquote>
 
           <div className="mt-10">
-            <p className="text-lg font-medium text-white">{t.name}</p>
-            <p className="mt-1 text-sm text-saffron">{t.program}</p>
+            <p className="font-sans text-lg font-medium text-offwhite">{t.name}</p>
+            <p className="label-saffron mt-2">{t.program}</p>
           </div>
         </div>
 

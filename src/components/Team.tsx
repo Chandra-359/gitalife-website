@@ -93,19 +93,19 @@ export default function Team() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative bg-[#0a0a0a] px-6 py-32"
+      className="relative bg-void px-6 py-32"
     >
       <div className="mx-auto max-w-7xl">
         {/* About text */}
         <div className="about-text mx-auto max-w-3xl text-center">
-          <p className="text-sm tracking-widest uppercase text-saffron">
+          <p className="label-saffron">
             About Us
           </p>
-          <h2 className="mt-4 font-serif text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+          <h2 className="mt-4 text-4xl text-offwhite sm:text-5xl lg:text-6xl">
             The People Behind
             <span className="text-gradient-saffron"> Gita Life</span>
           </h2>
-          <p className="mt-6 text-lg leading-relaxed text-white/50">
+          <p className="mt-6 font-sans text-lg leading-relaxed text-offwhite/40">
             Guided by the teachings of His Divine Grace A.C. Bhaktivedanta Swami
             Prabhupada and the ISKCON tradition, our team of dedicated mentors
             and volunteers brings ancient wisdom to modern life in New York City.
@@ -131,10 +131,10 @@ export default function Team() {
                   </svg>
                 </div>
               </div>
-              <h3 className="mt-4 text-sm font-medium text-white transition-colors group-hover:text-saffron">
+              <h3 className="mt-4 font-sans text-sm font-medium text-offwhite transition-colors group-hover:text-saffron">
                 {member.name}
               </h3>
-              <p className="mt-1 text-xs text-white/40">{member.role}</p>
+              <p className="mt-1 font-sans text-xs text-offwhite/30">{member.role}</p>
             </div>
           ))}
         </div>
