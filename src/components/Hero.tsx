@@ -15,36 +15,38 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Staggered text reveal on load
+      // Smooth staggered text reveal with clip-path mask
       const lines = textRef.current?.querySelectorAll(".hero-line");
       if (lines) {
         gsap.fromTo(
           lines,
-          { y: 80, opacity: 0, rotateX: -15 },
           {
+            clipPath: "inset(100% 0% 0% 0%)",
+            y: 40,
+          },
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
             y: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 1.2,
-            stagger: 0.15,
-            ease: "power4.out",
-            delay: 0.3,
+            duration: 1.4,
+            stagger: 0.12,
+            ease: "power3.out",
+            delay: 0.2,
           }
         );
       }
 
-      // CTA button fade in
+      // CTA elements fade in smoothly
       gsap.fromTo(
         ".hero-cta",
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 1.2 }
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.2, ease: "power2.out", delay: 1 }
       );
 
       // Scroll indicator
       gsap.fromTo(
         ".scroll-indicator",
         { opacity: 0 },
-        { opacity: 1, duration: 1, delay: 2 }
+        { opacity: 1, duration: 1.5, ease: "power2.out", delay: 2 }
       );
 
       // Parallax on scroll — text rises, video zooms, overlay darkens
@@ -96,16 +98,12 @@ export default function Hero() {
         className="relative z-10 px-6 text-center"
         style={{ perspective: "1000px" }}
       >
-        <div className="overflow-hidden">
-          <h1 className="font-serif text-5xl font-bold leading-tight tracking-tight text-white sm:text-7xl lg:text-8xl xl:text-9xl">
-            <span className="hero-line block">DISCOVER</span>
-            <span className="hero-line block text-gradient-saffron">
-              THE GITA.
-            </span>
-            <span className="hero-line block">TRANSFORM</span>
-            <span className="hero-line block text-gradient-saffron">
-              YOUR LIFE.
-            </span>
+        <div>
+          <h1 className="font-serif text-5xl font-bold leading-[0.95] tracking-[-0.02em] text-white sm:text-7xl lg:text-8xl xl:text-9xl">
+            <span className="hero-line block overflow-hidden"><span className="block">DISCOVER</span></span>
+            <span className="hero-line block overflow-hidden text-gradient-saffron"><span className="block">THE GITA.</span></span>
+            <span className="hero-line block overflow-hidden"><span className="block">TRANSFORM</span></span>
+            <span className="hero-line block overflow-hidden text-gradient-saffron"><span className="block">YOUR LIFE.</span></span>
           </h1>
         </div>
 

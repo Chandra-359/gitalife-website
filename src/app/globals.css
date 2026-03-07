@@ -19,6 +19,8 @@
 /* Base styles */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -26,6 +28,15 @@ body {
   color: var(--color-charcoal);
   background-color: #0a0a0a;
   overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+
+/* GPU-accelerated animation hints */
+.hero-line,
+[style*="clip-path"] {
+  will-change: clip-path, transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Custom scrollbar */

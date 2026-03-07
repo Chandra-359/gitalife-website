@@ -23,34 +23,20 @@ export default function Stats() {
         const el = numberRefs.current[i];
         if (!el) return;
 
-        // Number scramble effect
         const obj = { val: 0 };
-        const scrambleChars = "0123456789";
 
         gsap.to(obj, {
           val: stat.value,
-          duration: 2,
-          ease: "power2.out",
+          duration: 2.4,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 70%",
             toggleActions: "play none none none",
           },
           onUpdate: () => {
-            const progress = obj.val / stat.value;
-            if (progress < 0.7) {
-              // Scramble phase
-              let scrambled = "";
-              const digits = String(stat.value).length;
-              for (let d = 0; d < digits; d++) {
-                scrambled +=
-                  scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-              }
-              el.textContent = scrambled;
-            } else {
-              // Settle into final value
-              el.textContent = String(Math.round(obj.val));
-            }
+            // Smooth count-up, no scramble flickering
+            el.textContent = String(Math.round(obj.val));
           },
           onComplete: () => {
             el.textContent = String(stat.value);
