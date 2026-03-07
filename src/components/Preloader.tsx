@@ -98,7 +98,7 @@ function ScrambleLine({
 
   return (
     <div className="overflow-hidden">
-      <span className="inline-block font-mono">{display || scramble(text, 0)}</span>
+      <span className="inline-block font-mono">{display || "\u00A0"}</span>
     </div>
   );
 }
