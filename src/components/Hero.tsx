@@ -15,53 +15,55 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Smooth staggered text reveal with clip-path mask
-      const lines = textRef.current?.querySelectorAll(".hero-line");
-      if (lines) {
-        gsap.fromTo(
-          lines,
-          {
-            clipPath: "inset(100% 0% 0% 0%)",
-            y: 40,
-          },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            y: 0,
-            duration: 1.4,
-            stagger: 0.12,
-            ease: "power3.out",
-            delay: 0.2,
-          }
-        );
+      // Staggered clip-mask reveal — each line slides up from behind its mask
+      const lineWrappers = textRef.current?.querySelectorAll(".hero-line");
+      if (lineWrappers) {
+        const innerSpans = textRef.current?.querySelectorAll(".hero-line > span");
+        if (innerSpans) {
+          gsap.fromTo(
+            innerSpans,
+            {
+              yPercent: 110,
+            },
+            {
+              yPercent: 0,
+              duration: 1.4,
+              stagger: 0.1,
+              ease: "power4.out",
+              delay: 0.1,
+            }
+          );
+        }
       }
 
-      // CTA elements fade in smoothly
+      // CTA elements — smooth fade up
       gsap.fromTo(
         ".hero-cta",
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.2, ease: "power2.out", delay: 1 }
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.2, ease: "power4.out", delay: 0.9 }
       );
 
       // Scroll indicator
       gsap.fromTo(
         ".scroll-indicator",
         { opacity: 0 },
-        { opacity: 1, duration: 1.5, ease: "power2.out", delay: 2 }
+        { opacity: 1, duration: 1.5, ease: "power4.out", delay: 1.8 }
       );
 
-      // Parallax on scroll — text rises, video zooms, overlay darkens
+      // Parallax on scroll — text fades, video scales DOWN (premium feel)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          scrub: 0.6,
         },
       });
 
-      tl.to(textRef.current, { y: -150, opacity: 0, ease: "none" }, 0);
-      tl.to(videoRef.current, { scale: 1.2, ease: "none" }, 0);
-      tl.to(overlayRef.current, { opacity: 0.85, ease: "none" }, 0);
+      tl.to(textRef.current, { y: -120, opacity: 0, ease: "none" }, 0);
+      // Scale DOWN from 1 to 0.9 — the Locomotive-style "receding" parallax
+      tl.to(videoRef.current, { scale: 0.9, ease: "none" }, 0);
+      tl.to(overlayRef.current, { opacity: 0.9, ease: "none" }, 0);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -79,10 +81,9 @@ export default function Hero() {
         muted
         loop
         playsInline
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full scale-[1.05] object-cover"
         poster="/hero-poster.jpg"
       >
-        {/* Replace with actual video */}
         <source src="/hero-video.mp4" type="video/mp4" />
       </video>
 
@@ -96,18 +97,25 @@ export default function Hero() {
       <div
         ref={textRef}
         className="relative z-10 px-6 text-center"
-        style={{ perspective: "1000px" }}
       >
         <div>
           <h1 className="font-serif text-5xl font-bold leading-[0.95] tracking-[-0.02em] text-white sm:text-7xl lg:text-8xl xl:text-9xl">
-            <span className="hero-line block overflow-hidden"><span className="block">DISCOVER</span></span>
-            <span className="hero-line block overflow-hidden text-gradient-saffron"><span className="block">THE GITA.</span></span>
-            <span className="hero-line block overflow-hidden"><span className="block">TRANSFORM</span></span>
-            <span className="hero-line block overflow-hidden text-gradient-saffron"><span className="block">YOUR LIFE.</span></span>
+            <span className="hero-line block overflow-hidden">
+              <span className="block will-change-transform">DISCOVER</span>
+            </span>
+            <span className="hero-line block overflow-hidden">
+              <span className="block will-change-transform text-gradient-saffron">THE GITA.</span>
+            </span>
+            <span className="hero-line block overflow-hidden">
+              <span className="block will-change-transform">TRANSFORM</span>
+            </span>
+            <span className="hero-line block overflow-hidden">
+              <span className="block will-change-transform text-gradient-saffron">YOUR LIFE.</span>
+            </span>
           </h1>
         </div>
 
-        <p className="hero-cta mx-auto mt-6 max-w-md text-lg text-white/60 sm:text-xl">
+        <p className="hero-cta mx-auto mt-6 max-w-md text-lg text-white/50 sm:text-xl font-light">
           Weekly programs, retreats, and a community that feels like family —
           right here in NYC.
         </p>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Preloader from "@/components/Preloader";
+import SmoothScroll from "@/components/SmoothScroll";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import TextReveal from "@/components/TextReveal";
@@ -18,21 +19,23 @@ export default function Home() {
   return (
     <main>
       <Preloader onComplete={() => setPreloaderDone(true)} />
-      <div
-        className={`transition-opacity duration-700 ${
-          preloaderDone ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <Navigation />
-        <Hero />
-        <TextReveal />
-        <Stats />
-        <Programs />
-        <Testimonials />
-        <Team />
-        <FinalCTA />
-        <Footer />
-      </div>
+      <SmoothScroll>
+        <div
+          className={`transition-opacity duration-700 ${
+            preloaderDone ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <Navigation />
+          <Hero />
+          <TextReveal />
+          <Stats />
+          <Programs />
+          <Testimonials />
+          <Team />
+          <FinalCTA />
+          <Footer />
+        </div>
+      </SmoothScroll>
     </main>
   );
 }

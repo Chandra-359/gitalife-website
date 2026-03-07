@@ -16,9 +16,8 @@
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
-/* Base styles */
+/* Base styles — no scroll-behavior: smooth, Lenis handles it */
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -33,8 +32,8 @@ body {
 
 /* GPU-accelerated animation hints */
 .hero-line,
-[style*="clip-path"] {
-  will-change: clip-path, transform;
+.will-change-transform {
+  will-change: transform;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -97,4 +96,14 @@ body {
 
 .scroll-bounce {
   animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+/* Preloader progress bar fill */
+@keyframes preloader-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.preloader-bar {
+  animation: preloader-fill 2.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
