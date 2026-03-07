@@ -59,7 +59,7 @@ export default function Navigation() {
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="font-sans text-xs font-medium tracking-[0.15em] uppercase text-offwhite/50 transition-colors duration-300 hover:text-offwhite"
+                className="font-sans text-xs font-medium tracking-[0.15em] uppercase text-offwhite/40 transition-colors duration-300 hover:text-saffron"
               >
                 {item}
               </a>

@@ -75,7 +75,7 @@ export default function BookShowcase() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[120vh] bg-void py-24 lg:py-32"
+      className="section-warm relative min-h-[120vh] py-24 lg:py-32"
     >
       {/* Layout: side-by-side on desktop, stacked on mobile */}
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-12 px-6 lg:flex-row lg:gap-16">

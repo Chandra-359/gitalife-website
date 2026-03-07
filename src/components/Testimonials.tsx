@@ -116,17 +116,29 @@ export default function Testimonials() {
     <section
       ref={sectionRef}
       id="testimonials"
-      className="relative flex min-h-screen items-center justify-center bg-void px-6 py-24"
+      className="section-dusk relative flex min-h-screen items-center justify-center px-6 py-24"
     >
+      {/* Atmospheric orbs */}
+      <div
+        className="pointer-events-none absolute top-1/4 right-1/4 h-[500px] w-[500px] rounded-full opacity-40"
+        style={{
+          background: "radial-gradient(circle, rgba(196,107,138,0.06) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute bottom-1/4 left-1/3 h-[400px] w-[400px] rounded-full opacity-40"
+        style={{
+          background: "radial-gradient(circle, rgba(232,117,26,0.04) 0%, transparent 70%)",
+        }}
+      />
+
       {/* Large decorative quote mark */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-serif text-[20rem] leading-none text-saffron/5 sm:text-[30rem]">
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-serif text-[20rem] leading-none text-saffron/[0.04] sm:text-[30rem]">
         &ldquo;
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
-        <p className="label-saffron mb-16">
-          What People Say
-        </p>
+        <p className="label-saffron mb-16">What People Say</p>
 
         <div ref={quoteRef}>
           <blockquote className="font-serif text-2xl leading-relaxed font-light text-offwhite/90 sm:text-3xl lg:text-4xl lg:leading-relaxed">
@@ -148,7 +160,7 @@ export default function Testimonials() {
               className={`h-2 rounded-full transition-all duration-500 ${
                 i === current
                   ? "w-8 bg-saffron"
-                  : "w-2 bg-white/20 hover:bg-white/40"
+                  : "w-2 bg-white/15 hover:bg-white/30"
               }`}
               aria-label={`Testimonial ${i + 1}`}
             />

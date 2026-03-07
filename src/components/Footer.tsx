@@ -48,7 +48,15 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-void px-6 pt-20 pb-8">
+    <footer
+      className="relative px-6 pt-20 pb-8"
+      style={{
+        background: `linear-gradient(180deg, var(--color-void-surface) 0%, var(--color-void) 100%)`,
+      }}
+    >
+      {/* Top divider */}
+      <div className="section-divider absolute top-0 left-0 w-full" />
+
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
@@ -56,7 +64,7 @@ export default function Footer() {
             <span className="font-serif text-2xl font-bold text-offwhite">
               GITA <span className="text-gradient-saffron">LIFE</span>
             </span>
-            <p className="mt-4 font-sans text-sm leading-relaxed text-offwhite/30">
+            <p className="mt-4 font-sans text-sm leading-relaxed text-offwhite/25">
               A community initiative under ISKCON, bringing the timeless wisdom
               of the Bhagavad Gita to young seekers in New York City.
             </p>
@@ -64,15 +72,13 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="label">
-              Quick Links
-            </h4>
+            <h4 className="label">Quick Links</h4>
             <ul className="mt-4 space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="font-sans text-sm text-offwhite/30 transition-colors hover:text-saffron"
+                    className="font-sans text-sm text-offwhite/25 transition-colors hover:text-saffron"
                   >
                     {link.label}
                   </Link>
@@ -83,13 +89,11 @@ export default function Footer() {
 
           {/* Programs */}
           <div>
-            <h4 className="label">
-              Programs
-            </h4>
+            <h4 className="label">Programs</h4>
             <ul className="mt-4 space-y-3">
               {programLinks.map((label) => (
                 <li key={label}>
-                  <span className="font-sans text-sm text-offwhite/30">{label}</span>
+                  <span className="font-sans text-sm text-offwhite/25">{label}</span>
                 </li>
               ))}
             </ul>
@@ -97,30 +101,28 @@ export default function Footer() {
 
           {/* Connect */}
           <div>
-            <h4 className="label">
-              Connect
-            </h4>
+            <h4 className="label">Connect</h4>
             <div className="mt-4 flex gap-4">
               {socials.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-offwhite/30 transition-all duration-300 hover:scale-110 hover:bg-saffron/20 hover:text-saffron"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.03] text-offwhite/25 transition-all duration-300 hover:scale-110 hover:border-saffron/30 hover:bg-saffron/10 hover:text-saffron"
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
-            <p className="mt-6 font-sans text-sm text-offwhite/30">
+            <p className="mt-6 font-sans text-sm text-offwhite/25">
               contact@gitalifenyc.com
             </p>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="mt-16 border-t border-white/5 pt-8 text-center">
-          <p className="font-sans text-xs text-offwhite/20">
+        <div className="mt-16 border-t border-white/[0.04] pt-8 text-center">
+          <p className="font-sans text-xs text-offwhite/15">
             &copy; {new Date().getFullYear()} Gita Life NYC. Made with love in
             New York City.
           </p>

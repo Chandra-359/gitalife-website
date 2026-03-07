@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Ethereal Brutalism Palette ─── */
-  --color-void: #050505;
-  --color-void-light: #0A0A0A;
-  --color-void-surface: #111111;
+  /* ─── Rich Dark Palette ─── */
 
+  /* Base darks — warm undertones, never flat */
+  --color-void: #06050A;           /* ink-black with violet tint */
+  --color-void-light: #0C0B12;     /* plum-black */
+  --color-void-surface: #13111C;   /* deep grape */
+
+  /* Atmospheric section backgrounds */
+  --color-midnight: #080C18;       /* deep navy */
+  --color-midnight-warm: #0E0A14;  /* warm indigo-black */
+  --color-dusk: #10080E;           /* muted burgundy-black */
+
+  /* Primary accent — saffron flame */
   --color-saffron: #E8751A;
   --color-saffron-light: #F59E4B;
   --color-saffron-dark: #C45E0A;
   --color-gold: #D4A843;
+  --color-ember: #B8461B;          /* deep warm red-orange */
 
-  --color-teal: #1A5C5E;
-  --color-teal-light: #2A8A8C;
+  /* Secondary accents */
+  --color-lotus: #C46B8A;          /* dusty rose */
+  --color-sage: #5E9E82;           /* muted sage green */
+  --color-teal: #1A6B5E;           /* warm teal */
+  --color-teal-light: #2A9A8C;
+  --color-indigo: #6366F1;         /* electric indigo */
+  --color-amethyst: #8B5CF6;       /* soft purple */
 
+  /* Text tones — warm-tinted */
   --color-cream: #FFF9F0;
   --color-cream-dark: #FFF3E0;
-
-  --color-offwhite: #F5F5F5;
-  --color-muted: #888888;
-  --color-charcoal: #2D2D2D;
-  --color-warm-gray: #6B6B6B;
+  --color-offwhite: #EDE8E0;       /* warm parchment white */
+  --color-muted: #8A8078;          /* warm gray */
+  --color-charcoal: #2D2828;       /* warm charcoal */
+  --color-warm-gray: #6B5F58;
 
   /* ─── Typography ─── */
   --font-serif: "Playfair Display", Georgia, serif;
@@ -63,7 +77,7 @@ h1, h2 {
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(245, 245, 245, 0.4);
+  color: rgba(237, 232, 224, 0.35);
 }
 
 .label-saffron {
@@ -113,17 +127,17 @@ h1, h2 {
    GLASSMORPHISM
    ═══════════════════════════════════════ */
 .glass {
-  background: rgba(5, 5, 5, 0.75);
+  background: rgba(6, 5, 10, 0.8);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(237, 232, 224, 0.04);
 }
 
 /* ═══════════════════════════════════════
-   SAFFRON GLOW SYSTEM — emissive utilities
+   GRADIENT TEXT SYSTEM
    ═══════════════════════════════════════ */
 
-/* Gradient text */
+/* Saffron → Gold (primary) */
 .text-gradient-saffron {
   background: linear-gradient(135deg, var(--color-saffron), var(--color-gold));
   -webkit-background-clip: text;
@@ -131,7 +145,27 @@ h1, h2 {
   background-clip: text;
 }
 
-/* Emissive text glow — applies a saffron light bleed */
+/* Saffron → Ember (warm) */
+.text-gradient-warm {
+  background: linear-gradient(135deg, #F59E4B, #E8751A, #B8461B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Lotus → Amethyst (accent) */
+.text-gradient-lotus {
+  background: linear-gradient(135deg, var(--color-lotus), var(--color-amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════
+   GLOW SYSTEM — emissive utilities
+   ═══════════════════════════════════════ */
+
+/* Emissive text glow */
 .text-glow-saffron {
   text-shadow:
     0 0 20px rgba(232, 117, 26, 0.4),
@@ -169,6 +203,74 @@ h1, h2 {
     rgba(232, 117, 26, 0.06) 0%,
     transparent 70%
   );
+}
+
+/* ═══════════════════════════════════════
+   SECTION ATMOSPHERE BACKGROUNDS
+   ═══════════════════════════════════════ */
+
+/* Deep navy with subtle purple nebula */
+.section-midnight {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+    var(--color-midnight);
+}
+
+/* Warm plum-dark with saffron glow */
+.section-warm {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232, 117, 26, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(196, 107, 138, 0.03) 0%, transparent 50%),
+    var(--color-midnight-warm);
+}
+
+/* Burgundy-dark with ember undertone */
+.section-dusk {
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(184, 70, 27, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 20%, rgba(212, 168, 67, 0.03) 0%, transparent 60%),
+    var(--color-dusk);
+}
+
+/* Deep grape with mixed accents */
+.section-deep {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(232, 117, 26, 0.03) 0%, transparent 50%),
+    var(--color-void-surface);
+}
+
+/* ═══════════════════════════════════════
+   CARD SYSTEM
+   ═══════════════════════════════════════ */
+
+/* Elevated card with subtle warm border */
+.card-elevated {
+  background: linear-gradient(
+    145deg,
+    rgba(19, 17, 28, 0.9) 0%,
+    rgba(12, 11, 18, 0.95) 100%
+  );
+  border: 1px solid rgba(237, 232, 224, 0.06);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(237, 232, 224, 0.03);
+}
+
+.card-elevated:hover {
+  border-color: rgba(232, 117, 26, 0.15);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(232, 117, 26, 0.05),
+    inset 0 1px 0 rgba(237, 232, 224, 0.05);
+}
+
+/* ═══════════════════════════════════════
+   DIVIDERS
+   ═══════════════════════════════════════ */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(237, 232, 224, 0.06) 20%, rgba(232, 117, 26, 0.15) 50%, rgba(237, 232, 224, 0.06) 80%, transparent);
 }
 
 /* ═══════════════════════════════════════

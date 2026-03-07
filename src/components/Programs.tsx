@@ -13,7 +13,8 @@ const programs = [
     description:
       "Weekly Bhagavad Gita study groups at NYU, Columbia, Rutgers, and more. Perfect for students seeking deeper meaning.",
     tag: "Various Campuses",
-    gradient: "from-orange-900/80 to-black/80",
+    gradient: "from-indigo-900/60 via-violet-900/40 to-void-surface/80",
+    borderAccent: "group-hover:border-indigo/30",
     image: "/programs/university.jpg",
   },
   {
@@ -21,7 +22,8 @@ const programs = [
     description:
       "Our flagship weekly gathering. Dive into Gita philosophy, enjoy kirtan, and connect with like-minded seekers every Monday evening.",
     tag: "Mondays · 7 PM",
-    gradient: "from-teal-900/80 to-black/80",
+    gradient: "from-saffron-dark/50 via-ember/30 to-void-surface/80",
+    borderAccent: "group-hover:border-saffron/30",
     image: "/programs/myf.jpg",
   },
   {
@@ -29,7 +31,8 @@ const programs = [
     description:
       "Step away from the city noise. Weekend retreats with meditation, philosophy workshops, nature walks, and soul-nourishing prasadam.",
     tag: "Monthly / Seasonal",
-    gradient: "from-amber-900/80 to-black/80",
+    gradient: "from-teal/40 via-emerald-900/30 to-void-surface/80",
+    borderAccent: "group-hover:border-teal/30",
     image: "/programs/retreats.jpg",
   },
   {
@@ -37,7 +40,8 @@ const programs = [
     description:
       "A dedicated space for women to explore spirituality, share experiences, and grow together in a supportive environment.",
     tag: "Weekly",
-    gradient: "from-rose-900/80 to-black/80",
+    gradient: "from-rose-900/50 via-pink-900/30 to-void-surface/80",
+    borderAccent: "group-hover:border-lotus/30",
     image: "/programs/girls.jpg",
   },
   {
@@ -45,7 +49,8 @@ const programs = [
     description:
       "Experience the joy of Janmashtami, Gaura Purnima, Ratha Yatra, and other vibrant Vedic festivals with hundreds of participants.",
     tag: "Throughout the Year",
-    gradient: "from-purple-900/80 to-black/80",
+    gradient: "from-amber-900/50 via-yellow-900/30 to-void-surface/80",
+    borderAccent: "group-hover:border-gold/30",
     image: "/programs/festivals.jpg",
   },
   {
@@ -53,7 +58,8 @@ const programs = [
     description:
       "Intimate gatherings in devotee homes across NYC. Home-cooked prasadam, small group discussions, and lasting friendships.",
     tag: "Various Locations",
-    gradient: "from-emerald-900/80 to-black/80",
+    gradient: "from-emerald-900/50 via-green-900/30 to-void-surface/80",
+    borderAccent: "group-hover:border-sage/30",
     image: "/programs/home.jpg",
   },
 ];
@@ -66,15 +72,12 @@ export default function Programs() {
     const ctx = gsap.context(() => {
       if (!trackRef.current || !sectionRef.current) return;
 
-      // Only apply horizontal scroll on desktop
       const mm = gsap.matchMedia();
 
       mm.add("(min-width: 768px)", () => {
         const track = trackRef.current!;
-        const cards = track.querySelectorAll(".program-card");
         const totalScroll = track.scrollWidth - window.innerWidth;
 
-        // Pin section and scroll horizontally
         gsap.to(track, {
           x: -totalScroll,
           ease: "none",
@@ -87,28 +90,8 @@ export default function Programs() {
             invalidateOnRefresh: true,
           },
         });
-
-        // Individual card animations
-        cards.forEach((card, i) => {
-          gsap.fromTo(
-            card,
-            { opacity: 0.5, scale: 0.92 },
-            {
-              opacity: 1,
-              scale: 1,
-              scrollTrigger: {
-                trigger: card,
-                containerAnimation: gsap.getById("horizontalScroll") || undefined,
-                start: "left 80%",
-                end: "left 20%",
-                scrub: true,
-              },
-            }
-          );
-        });
       });
 
-      // Mobile: simple stagger fade in
       mm.add("(max-width: 767px)", () => {
         const cards = trackRef.current!.querySelectorAll(".program-card");
         gsap.fromTo(
@@ -134,62 +117,60 @@ export default function Programs() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="programs" className="relative bg-void">
+    <section ref={sectionRef} id="programs" className="section-deep relative">
       {/* Section header */}
       <div className="px-6 pt-24 pb-12 md:pb-0">
         <div className="mx-auto max-w-7xl">
-          <p className="label-saffron">
-            Our Programs
-          </p>
+          <p className="label-saffron">Our Programs</p>
           <h2 className="mt-3 text-4xl text-offwhite sm:text-5xl lg:text-6xl">
-            Find Your Path
+            Find Your <span className="text-gradient-warm">Path</span>
           </h2>
         </div>
       </div>
 
       {/* Horizontal scroll track (desktop) / Vertical stack (mobile) */}
-      <div className="overflow-hidden md:h-screen md:flex md:items-center">
+      <div className="overflow-hidden md:flex md:h-screen md:items-center">
         <div
           ref={trackRef}
           className="flex flex-col gap-6 px-6 pb-24 md:flex-row md:gap-8 md:px-12 md:pb-0"
           style={{ willChange: "transform" }}
         >
-          {programs.map((program, i) => (
+          {programs.map((program) => (
             <div
               key={program.title}
-              className="program-card group relative flex-shrink-0 overflow-hidden rounded-2xl md:h-[70vh] md:w-[55vw]"
+              className={`program-card group relative flex-shrink-0 overflow-hidden rounded-2xl border border-white/[0.06] transition-all duration-500 md:h-[70vh] md:w-[55vw] ${program.borderAccent}`}
             >
-              {/* Placeholder background — replace with actual images */}
+              {/* Gradient background */}
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${program.gradient}`}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-void/95 via-void/30 to-transparent" />
 
               {/* Content */}
               <div className="relative flex h-full min-h-[350px] flex-col justify-end p-8 sm:p-10 md:min-h-0">
-                <span className="label mb-3 inline-block w-fit rounded-full border border-white/10 px-3 py-1">
+                <span className="label mb-3 inline-block w-fit rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                   {program.tag}
                 </span>
                 <h3 className="font-serif text-3xl font-bold text-offwhite sm:text-4xl">
                   {program.title}
                 </h3>
-                <p className="mt-3 max-w-md font-sans text-base leading-relaxed text-offwhite/50">
+                <p className="mt-3 max-w-md font-sans text-base leading-relaxed text-offwhite/45">
                   {program.description}
                 </p>
               </div>
 
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-saffron/0 transition-colors duration-500 group-hover:bg-saffron/10" />
+              {/* Hover glow overlay */}
+              <div className="absolute inset-0 bg-saffron/0 transition-colors duration-500 group-hover:bg-saffron/[0.06]" />
             </div>
           ))}
 
-          {/* CTA card at the end */}
-          <div className="program-card flex flex-shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-void-surface p-12 md:h-[70vh] md:w-[40vw]">
+          {/* CTA card */}
+          <div className="program-card card-elevated flex flex-shrink-0 items-center justify-center rounded-2xl p-12 md:h-[70vh] md:w-[40vw]">
             <div className="text-center">
               <h3 className="font-serif text-3xl font-bold text-offwhite sm:text-4xl">
                 Ready to join?
               </h3>
-              <p className="mt-4 font-sans text-lg text-offwhite/40">
+              <p className="mt-4 font-sans text-lg text-offwhite/35">
                 Tell us about yourself and we&apos;ll find the perfect program
                 for you.
               </p>

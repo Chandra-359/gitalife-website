@@ -10,13 +10,11 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const curtainRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Phase 1: 0→100% counter with smooth easing
   useEffect(() => {
     const obj = { val: 0 };
 
     const tl = gsap.timeline();
 
-    // Counter from 0 to 100
     tl.to(obj, {
       val: 100,
       duration: 2.6,
@@ -28,7 +26,6 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       },
     });
 
-    // Fade out the counter content before curtain
     tl.to(
       contentRef.current,
       {
@@ -40,7 +37,6 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       "-=0.3"
     );
 
-    // After counter completes, trigger curtain
     tl.call(() => setPhase("curtain"));
 
     return () => {
@@ -48,7 +44,6 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
     };
   }, []);
 
-  // Phase 2: Vertical curtain reveal — slides up
   useEffect(() => {
     if (phase !== "curtain" || !curtainRef.current) return;
 
@@ -68,17 +63,21 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       ref={curtainRef}
-      className="fixed inset-0 z-[100] bg-void"
+      className="fixed inset-0 z-[100]"
+      style={{
+        background: `
+          radial-gradient(ellipse at 50% 50%, rgba(232,117,26,0.06) 0%, transparent 50%),
+          var(--color-void)
+        `,
+      }}
     >
       <div
         ref={containerRef}
         className="flex h-full w-full items-center justify-center"
       >
         <div ref={contentRef} className="relative text-center">
-          {/* Brand name — small, understated */}
-          <p className="label mb-6">
-            GITA LIFE NYC
-          </p>
+          {/* Brand name */}
+          <p className="label mb-6">GITA LIFE NYC</p>
 
           {/* Big percentage counter */}
           <div className="flex items-baseline justify-center">
@@ -88,16 +87,14 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             >
               0
             </span>
-            <span
-              className="ml-1 font-sans text-2xl font-light text-offwhite/30 sm:text-4xl"
-            >
+            <span className="ml-1 font-sans text-2xl font-light text-saffron/40 sm:text-4xl">
               %
             </span>
           </div>
 
-          {/* Progress bar underneath */}
-          <div className="mx-auto mt-8 h-[1px] w-48 overflow-hidden bg-white/10">
-            <div className="preloader-bar h-full w-full origin-left bg-white/60" />
+          {/* Progress bar */}
+          <div className="mx-auto mt-8 h-[1px] w-48 overflow-hidden bg-white/[0.06]">
+            <div className="preloader-bar h-full w-full origin-left bg-gradient-to-r from-saffron/40 to-saffron" />
           </div>
         </div>
       </div>

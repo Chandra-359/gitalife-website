@@ -66,16 +66,21 @@ export default function FinalCTA() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-void px-6"
+      className="relative flex min-h-[80vh] items-center justify-center overflow-hidden px-6"
+      style={{
+        background: `
+          radial-gradient(ellipse at 30% 50%, rgba(232,117,26,0.08) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 50%, rgba(139,92,246,0.05) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 80%, rgba(196,107,138,0.04) 0%, transparent 50%),
+          var(--color-midnight-warm)
+        `,
+      }}
     >
-      {/* Subtle radial gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(232,117,26,0.08)_0%,_transparent_60%)]" />
-
       <div className="relative z-10 text-center">
         <h2 className="cta-text text-5xl text-offwhite sm:text-6xl lg:text-7xl">
-          Ready to begin?
+          Ready to <span className="text-gradient-warm">begin</span>?
         </h2>
-        <p className="cta-text mt-6 font-sans text-xl text-offwhite/40">
+        <p className="cta-text mt-6 font-sans text-xl text-offwhite/35">
           Your journey starts with a single step.
         </p>
         <div className="cta-text mt-12">

@@ -7,10 +7,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
-  { value: 500, suffix: "+", label: "Students Reached" },
-  { value: 10, suffix: "+", label: "Weekly Programs" },
-  { value: 20, suffix: "+", label: "Retreats Hosted" },
-  { value: 5, suffix: "+", label: "NYC Locations" },
+  { value: 500, suffix: "+", label: "Students Reached", accent: "text-saffron" },
+  { value: 10, suffix: "+", label: "Weekly Programs", accent: "text-sage" },
+  { value: 20, suffix: "+", label: "Retreats Hosted", accent: "text-gold" },
+  { value: 5, suffix: "+", label: "NYC Locations", accent: "text-lotus" },
 ];
 
 export default function Stats() {
@@ -35,7 +35,6 @@ export default function Stats() {
             toggleActions: "play none none none",
           },
           onUpdate: () => {
-            // Smooth count-up, no scramble flickering
             el.textContent = String(Math.round(obj.val));
           },
           onComplete: () => {
@@ -44,7 +43,6 @@ export default function Stats() {
         });
       });
 
-      // Fade in the section
       gsap.fromTo(
         sectionRef.current,
         { opacity: 0, y: 40 },
@@ -68,10 +66,10 @@ export default function Stats() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-void py-24"
+      className="section-warm relative py-32"
     >
-      {/* Subtle top border glow */}
-      <div className="absolute top-0 left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-saffron/30 to-transparent" />
+      {/* Top divider */}
+      <div className="section-divider absolute top-0 left-0 w-full" />
 
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-12 px-6 lg:grid-cols-4">
         {stats.map((stat, i) => (
@@ -83,7 +81,7 @@ export default function Stats() {
               >
                 0
               </span>
-              <span className="ml-1 text-3xl font-light text-saffron sm:text-4xl">
+              <span className={`ml-1 text-3xl font-light sm:text-4xl ${stat.accent}`}>
                 {stat.suffix}
               </span>
             </div>
@@ -93,6 +91,9 @@ export default function Stats() {
           </div>
         ))}
       </div>
+
+      {/* Bottom divider */}
+      <div className="section-divider absolute bottom-0 left-0 w-full" />
     </section>
   );
 }

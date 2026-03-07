@@ -10,32 +10,32 @@ const team = [
   {
     name: "Team Member 1",
     role: "Program Director",
-    color: "from-saffron/40 to-amber-900/40",
+    gradient: "from-saffron/30 via-ember/20 to-void-surface",
   },
   {
     name: "Team Member 2",
     role: "University Outreach Lead",
-    color: "from-teal/40 to-teal-900/40",
+    gradient: "from-indigo/30 via-violet-900/20 to-void-surface",
   },
   {
     name: "Team Member 3",
     role: "Girls' Preaching Coordinator",
-    color: "from-rose-500/40 to-rose-900/40",
+    gradient: "from-lotus/30 via-rose-900/20 to-void-surface",
   },
   {
     name: "Team Member 4",
     role: "Retreat Organizer",
-    color: "from-emerald-500/40 to-emerald-900/40",
+    gradient: "from-sage/30 via-emerald-900/20 to-void-surface",
   },
   {
     name: "Team Member 5",
     role: "MYF Host",
-    color: "from-purple-500/40 to-purple-900/40",
+    gradient: "from-amethyst/30 via-purple-900/20 to-void-surface",
   },
   {
     name: "Team Member 6",
     role: "Volunteer Coordinator",
-    color: "from-gold/40 to-amber-800/40",
+    gradient: "from-gold/30 via-amber-900/20 to-void-surface",
   },
 ];
 
@@ -44,7 +44,6 @@ export default function Team() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // About text parallax
       gsap.fromTo(
         ".about-text",
         { y: 60, opacity: 0 },
@@ -61,7 +60,6 @@ export default function Team() {
         }
       );
 
-      // Team photos — clip-path circle reveal
       const photos = sectionRef.current?.querySelectorAll(".team-photo");
       photos?.forEach((photo, i) => {
         gsap.fromTo(
@@ -93,19 +91,25 @@ export default function Team() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative bg-void px-6 py-32"
+      className="section-midnight relative px-6 py-32"
     >
+      {/* Atmospheric orb */}
+      <div
+        className="pointer-events-none absolute top-0 right-1/4 h-[600px] w-[600px] rounded-full opacity-30"
+        style={{
+          background: "radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)",
+        }}
+      />
+
       <div className="mx-auto max-w-7xl">
         {/* About text */}
         <div className="about-text mx-auto max-w-3xl text-center">
-          <p className="label-saffron">
-            About Us
-          </p>
+          <p className="label-saffron">About Us</p>
           <h2 className="mt-4 text-4xl text-offwhite sm:text-5xl lg:text-6xl">
             The People Behind
             <span className="text-gradient-saffron"> Gita Life</span>
           </h2>
-          <p className="mt-6 font-sans text-lg leading-relaxed text-offwhite/40">
+          <p className="mt-6 font-sans text-lg leading-relaxed text-offwhite/35">
             Guided by the teachings of His Divine Grace A.C. Bhaktivedanta Swami
             Prabhupada and the ISKCON tradition, our team of dedicated mentors
             and volunteers brings ancient wisdom to modern life in New York City.
@@ -116,14 +120,12 @@ export default function Team() {
         <div className="mt-20 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
           {team.map((member) => (
             <div key={member.name} className="group text-center">
-              {/* Photo placeholder — clip-path animated */}
               <div
-                className={`team-photo mx-auto aspect-square w-full overflow-hidden rounded-2xl bg-gradient-to-br ${member.color}`}
+                className={`team-photo mx-auto aspect-square w-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br ${member.gradient} transition-all duration-500 group-hover:border-white/10`}
               >
                 <div className="flex h-full items-center justify-center">
-                  {/* Replace with <Image> when photos are available */}
                   <svg
-                    className="h-12 w-12 text-white/20"
+                    className="h-12 w-12 text-white/15"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -134,7 +136,7 @@ export default function Team() {
               <h3 className="mt-4 font-sans text-sm font-medium text-offwhite transition-colors group-hover:text-saffron">
                 {member.name}
               </h3>
-              <p className="mt-1 font-sans text-xs text-offwhite/30">{member.role}</p>
+              <p className="mt-1 font-sans text-xs text-offwhite/25">{member.role}</p>
             </div>
           ))}
         </div>

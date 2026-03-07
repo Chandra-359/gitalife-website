@@ -30,7 +30,7 @@ export default function TextReveal() {
         "questions",
       ];
 
-      text.split(" ").forEach((word, i) => {
+      text.split(" ").forEach((word) => {
         const span = document.createElement("span");
         span.textContent = word + " ";
         span.className = "inline-block opacity-20 transition-none";
@@ -72,8 +72,16 @@ export default function TextReveal() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center bg-void px-6 py-32"
+      className="section-midnight relative flex min-h-screen items-center justify-center px-6 py-32"
     >
+      {/* Atmospheric gradient orb */}
+      <div
+        className="pointer-events-none absolute top-1/2 left-1/4 h-[600px] w-[600px] -translate-y-1/2 rounded-full opacity-30"
+        style={{
+          background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)",
+        }}
+      />
+
       <div className="mx-auto max-w-4xl">
         <p
           ref={textRef}
