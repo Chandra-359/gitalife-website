@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import "./globals.css";
+
+const CustomCursor = dynamic(() => import("@/components/CustomCursor"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: "Gita Life NYC — Discover the Timeless Wisdom of the Bhagavad Gita",
@@ -37,7 +42,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="cursor-none antialiased">
+        <CustomCursor />
+        {children}
+      </body>
     </html>
   );
 }
