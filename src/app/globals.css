@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-saffron: #E8751A;
+  --color-saffron-light: #F5A623;
+  --color-teal: #1A5C5E;
+  --color-teal-light: #2A7C7E;
+  --color-gold: #D4A843;
+  --color-cream: #FFF9F0;
+  --color-cream-dark: #FFF3E0;
+  --color-charcoal: #2D2D2D;
+  --color-warm-gray: #6B6B6B;
+
+  --font-heading: "Lora", serif;
+  --font-body: "Inter", sans-serif;
+}
