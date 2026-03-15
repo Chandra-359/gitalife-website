@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------ */
-/*  Gita Life NYC — Global Styles                                     */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/*  Gita Life NYC — Global Styles                                      */
+/*                                                                     */
+/*  Z-INDEX MAP (keep in sync with component comments):                */
+/*    z-0  — Mapbox GL canvas                                          */
+/*    z-10 — Loading overlay (fades out)                               */
+/*    z-20 — Mapbox attribution / logo                                 */
+/*    z-30 — ResetViewButton, ProgramPanel (UI overlays)               */
+/*    z-40 — Navbar (always on top)                                    */
+/* ================================================================== */
 
 :root {
   --background: #0a0a1a;
@@ -16,7 +23,9 @@
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
-/* Reset all scroll and overflow for the full-screen map */
+/* ------------------------------------------------------------------ */
+/*  Full-viewport reset — no scrollbars, map fills everything          */
+/* ------------------------------------------------------------------ */
 html,
 body {
   margin: 0;
@@ -29,7 +38,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Ensure no Mapbox control interferes with our layout */
+/* ------------------------------------------------------------------ */
+/*  Mapbox built-in controls — dim until hovered                       */
+/* ------------------------------------------------------------------ */
 .mapboxgl-ctrl-logo,
 .mapboxgl-ctrl-attrib {
   opacity: 0.4;
@@ -41,9 +52,14 @@ body {
   opacity: 1;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Marker pulse — radiating ring that fades out                      */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/*  MARKER ANIMATIONS                                                  */
+/*                                                                     */
+/*  Used by ProgramMarker.tsx via className="marker-pulse" etc.        */
+/*  Adjust durations / scales here to change the pulse feel.           */
+/* ================================================================== */
+
+/* ---- Pulse: radiating ring that expands and fades out ---- */
 @keyframes marker-pulse {
   0% {
     transform: scale(0.85);
@@ -63,9 +79,7 @@ body {
   animation: marker-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Marker breathe — subtle scale oscillation on the glow ring        */
-/* ------------------------------------------------------------------ */
+/* ---- Breathe: subtle scale oscillation on the inner glow ring ---- */
 @keyframes marker-breathe {
   0%,
   100% {

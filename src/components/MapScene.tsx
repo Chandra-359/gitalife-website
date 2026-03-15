@@ -1,5 +1,29 @@
 "use client";
 
+/**
+ * MapScene — Full-screen 3D Mapbox map with program markers & UI overlays
+ *
+ * This is the root client component that orchestrates the entire map experience.
+ * It renders the Mapbox GL map, program markers, detail panel, navbar, and
+ * the reset-view button.
+ *
+ * Z-INDEX HIERARCHY (reviewed & intentional):
+ * ├── z-0  — Mapbox GL canvas (base layer)
+ * │   └── Markers live inside the map container; Mapbox manages their stacking
+ * ├── z-10 — Loading overlay (fades to opacity-0 after load, then non-interactive)
+ * ├── z-20 — Mapbox attribution / logo (styled in globals.css)
+ * ├── z-30 — ResetViewButton & ProgramPanel (UI overlays above map)
+ * └── z-40 — Navbar (always on top, never obscured)
+ *
+ * CUSTOMIZATION GUIDE:
+ * ├── Map center / zoom ......... edit HOME_VIEW below
+ * ├── Map style ................. change the mapStyle prop on <Map>
+ * ├── Building colors ........... edit BUILDING_3D_LAYER paint stops
+ * ├── Fog / atmosphere .......... edit FOG_CONFIG
+ * ├── Fly-to feel ............... tweak FLY_TO_ZOOM, FLY_TO_PITCH, FLY_TO_DURATION
+ * └── Markers ................... edit src/data/programs.ts
+ */
+
 import { useCallback, useRef, useState } from "react";
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
@@ -9,27 +33,48 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import { PROGRAMS } from "@/data/programs";
 import type { Program } from "@/data/programs";
+import Navbar from "@/components/Navbar";
 import ProgramMarker from "@/components/ProgramMarker";
 import ProgramPanel from "@/components/ProgramPanel";
 import ResetViewButton from "@/components/ResetViewButton";
 
-/* ------------------------------------------------------------------ */
-/*  Mapbox access token                                                */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/*  CONFIGURATION — Edit these to change the map's look & feel         */
+/* ================================================================== */
+
+/**
+ * Mapbox access token — loaded from .env.local
+ * Get yours at https://account.mapbox.com/access-tokens/
+ */
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
-/* ------------------------------------------------------------------ */
-/*  Home camera — the wide establishing shot                           */
-/* ------------------------------------------------------------------ */
+/**
+ * HOME_VIEW — The default "establishing shot" camera position.
+ *
+ * This is what the user sees on first load and when they click "Overview".
+ * Centered over the Hudson River to capture both Manhattan and Jersey City.
+ *
+ * TODO: Adjust these coordinates if your programs are in a different area.
+ */
 const HOME_VIEW = {
-  center: [-74.02, 40.72] as [number, number],
-  zoom: 14.5,
-  pitch: 60,
-  bearing: -17.6,
+  center: [-74.02, 40.72] as [number, number],  // [lng, lat] — Hudson River
+  zoom: 14.5,                                    // city-level zoom
+  pitch: 60,                                     // degrees of tilt for 3D
+  bearing: -17.6,                                // slight rotation for drama
 };
 
 /* ------------------------------------------------------------------ */
-/*  3D building layer                                                  */
+/*  3D BUILDING LAYER                                                  */
+/*                                                                     */
+/*  Extrudes buildings from Mapbox's built-in "building" source-layer. */
+/*  Colors interpolate based on building height for visual depth.       */
+/*                                                                     */
+/*  Color stops (tweak to match your brand):                           */
+/*    0m   → #1a1a2e (deep navy)                                       */
+/*    50m  → #16213e                                                   */
+/*    100m → #0f3460                                                   */
+/*    200m → #533483 (purple)                                          */
+/*    300m → #e94560 (crimson — tallest towers)                        */
 /* ------------------------------------------------------------------ */
 const BUILDING_3D_LAYER: LayerSpecification = {
   id: "3d-buildings",
@@ -42,34 +87,21 @@ const BUILDING_3D_LAYER: LayerSpecification = {
       "interpolate",
       ["linear"],
       ["get", "height"],
-      0,
-      "#1a1a2e",
-      50,
-      "#16213e",
-      100,
-      "#0f3460",
-      200,
-      "#533483",
-      300,
-      "#e94560",
+      0,   "#1a1a2e",
+      50,  "#16213e",
+      100, "#0f3460",
+      200, "#533483",
+      300, "#e94560",
     ],
     "fill-extrusion-height": [
-      "interpolate",
-      ["linear"],
-      ["zoom"],
-      12,
-      0,
-      12.5,
-      ["get", "height"],
+      "interpolate", ["linear"], ["zoom"],
+      12,   0,
+      12.5, ["get", "height"],
     ],
     "fill-extrusion-base": [
-      "interpolate",
-      ["linear"],
-      ["zoom"],
-      12,
-      0,
-      12.5,
-      ["get", "min_height"],
+      "interpolate", ["linear"], ["zoom"],
+      12,   0,
+      12.5, ["get", "min_height"],
     ],
     "fill-extrusion-opacity": 0.85,
   },
@@ -77,7 +109,7 @@ const BUILDING_3D_LAYER: LayerSpecification = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Sky layer                                                          */
+/*  SKY LAYER — atmospheric gradient for depth                         */
 /* ------------------------------------------------------------------ */
 const SKY_LAYER: LayerSpecification = {
   id: "sky",
@@ -90,7 +122,10 @@ const SKY_LAYER: LayerSpecification = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Fog                                                                */
+/*  FOG — cinematic depth-of-field haze                                */
+/*                                                                     */
+/*  "star-intensity" adds subtle stars to the sky when pitched high.    */
+/*  Set to 0 to remove stars.                                          */
 /* ------------------------------------------------------------------ */
 const FOG_CONFIG = {
   range: [1, 12],
@@ -101,17 +136,21 @@ const FOG_CONFIG = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Cinematic fly-to settings                                          */
+/*  CINEMATIC FLY-TO SETTINGS                                          */
+/*                                                                     */
+/*  These control how the camera moves when a marker is clicked.       */
+/*  duration is in ms; curve controls the parabolic zoom arc.          */
 /* ------------------------------------------------------------------ */
 const FLY_TO_ZOOM = 15.8;
 const FLY_TO_PITCH = 65;
 const FLY_TO_DURATION = 2500;
 
 /**
- * Compute a bearing that makes the camera "orbit in" from the direction
- * of approach. The bearing shifts based on where the target sits
- * relative to the current map center, giving each fly-to a unique
- * drone-like sweep angle.
+ * Compute a unique approach bearing for each fly-to.
+ *
+ * Based on the angle from the current map center to the target,
+ * offset by 30° so the camera "orbits in" from the side —
+ * like a drone sweeping into the neighborhood.
  */
 function computeApproachBearing(
   mapRef: React.RefObject<MapRef | null>,
@@ -125,12 +164,13 @@ function computeApproachBearing(
   const dLng = targetLng - center.lng;
   const dLat = targetLat - center.lat;
 
-  // Angle from current center to target (degrees, 0 = north, CW positive)
   const angleDeg = (Math.atan2(dLng, dLat) * 180) / Math.PI;
-
-  // Offset the bearing so the camera sweeps in from the side
   return angleDeg + 30;
 }
+
+/* ================================================================== */
+/*  COMPONENT                                                          */
+/* ================================================================== */
 
 export default function MapScene() {
   const mapRef = useRef<MapRef>(null);
@@ -138,6 +178,7 @@ export default function MapScene() {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isFlying, setIsFlying] = useState(false);
 
+  /* ---- Map loaded callback — sets fog, reveals UI ---- */
   const onMapLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
@@ -149,9 +190,8 @@ export default function MapScene() {
   /* ---- Cinematic fly-to when a marker is clicked ---- */
   const handleSelectProgram = useCallback(
     (program: Program) => {
-      const deselecting = selectedProgram?.id === program.id;
-
-      if (deselecting) {
+      // Toggle off if clicking the already-selected marker
+      if (selectedProgram?.id === program.id) {
         setSelectedProgram(null);
         return;
       }
@@ -172,24 +212,23 @@ export default function MapScene() {
         bearing,
         duration: FLY_TO_DURATION,
         essential: true,
-        curve: 1.42,         // controls the zoom arc — higher = more dramatic
-        speed: 0.9,          // relative to duration — slightly under 1 for smoothness
+        curve: 1.42,
+        speed: 0.9,
       });
 
-      // Clear flying flag after the transition completes
       setTimeout(() => setIsFlying(false), FLY_TO_DURATION + 100);
     },
     [selectedProgram],
   );
 
-  /* ---- Click on empty map → deselect ---- */
+  /* ---- Click on empty map → deselect (ignored mid-flight) ---- */
   const handleMapClick = useCallback(() => {
     if (!isFlying) {
       setSelectedProgram(null);
     }
   }, [isFlying]);
 
-  /* ---- Reset View — fly back to the wide establishing shot ---- */
+  /* ---- Reset View — fly back to the establishing shot ---- */
   const handleResetView = useCallback(() => {
     setSelectedProgram(null);
     setIsFlying(true);
@@ -205,6 +244,7 @@ export default function MapScene() {
     setTimeout(() => setIsFlying(false), 2900);
   }, []);
 
+  /* ---- Missing token fallback ---- */
   if (!MAPBOX_TOKEN) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#0a0a1a] text-white">
@@ -226,20 +266,39 @@ export default function MapScene() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      {/* Loading overlay */}
+
+      {/* ============================================================ */}
+      {/*  LOADING OVERLAY (z-10)                                      */}
+      {/*  Dark screen that fades out once map tiles are loaded.        */}
+      {/*  pointer-events-none so it never blocks clicks after fade.    */}
+      {/* ============================================================ */}
       <div
         className={`pointer-events-none absolute inset-0 z-10 bg-[#0a0a1a] transition-opacity duration-1000 ${
           mapLoaded ? "opacity-0" : "opacity-100"
         }`}
       />
 
-      {/* Reset View button — top-left overlay */}
+      {/* ============================================================ */}
+      {/*  NAVBAR (z-40) — always on top                                */}
+      {/* ============================================================ */}
+      <Navbar />
+
+      {/* ============================================================ */}
+      {/*  RESET VIEW BUTTON (z-30)                                    */}
+      {/*  Visible only when a program is selected.                    */}
+      {/*  Positioned below navbar (top-20) on desktop.                */}
+      {/* ============================================================ */}
       <ResetViewButton
         visible={mapLoaded && selectedProgram !== null}
         onClick={handleResetView}
       />
 
-      {/* Program detail panel — slides in from right */}
+      {/* ============================================================ */}
+      {/*  PROGRAM DETAIL PANEL (z-30)                                 */}
+      {/*  Desktop: slides in from right, below navbar                 */}
+      {/*  Mobile: bottom sheet capped at 40vh                         */}
+      {/*  AnimatePresence mode="wait" ensures clean exit→enter         */}
+      {/* ============================================================ */}
       <AnimatePresence mode="wait">
         {selectedProgram && (
           <ProgramPanel
@@ -250,6 +309,13 @@ export default function MapScene() {
         )}
       </AnimatePresence>
 
+      {/* ============================================================ */}
+      {/*  MAPBOX GL MAP (z-0 base layer)                              */}
+      {/*                                                              */}
+      {/*  Map style: mapbox://styles/mapbox/dark-v11                  */}
+      {/*  TODO: For a fully custom look, create your own style at     */}
+      {/*        https://studio.mapbox.com and paste the URL here.     */}
+      {/* ============================================================ */}
       <Map
         ref={mapRef}
         initialViewState={{
@@ -269,6 +335,7 @@ export default function MapScene() {
         onClick={handleMapClick}
         terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
       >
+        {/* Terrain DEM source for 3D elevation */}
         <Source
           id="mapbox-dem"
           type="raster-dem"
@@ -277,9 +344,13 @@ export default function MapScene() {
           maxzoom={14}
         />
 
+        {/* 3D extruded buildings */}
         <Layer {...BUILDING_3D_LAYER} />
+
+        {/* Atmospheric sky */}
         <Layer {...SKY_LAYER} />
 
+        {/* ---- Program markers (rendered inside map for correct geo-positioning) ---- */}
         {PROGRAMS.map((program) => (
           <ProgramMarker
             key={program.id}
