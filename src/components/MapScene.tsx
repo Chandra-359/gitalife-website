@@ -50,52 +50,50 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 /**
  * HOME_VIEW — The default "establishing shot" camera position.
  *
- * This is what the user sees on first load and when they click "Overview".
  * Centered over the Hudson River to capture both Manhattan and Jersey City.
- *
- * TODO: Adjust these coordinates if your programs are in a different area.
+ * The high pitch + dramatic bearing creates a cinematic "drone reveal" feel.
  */
 const HOME_VIEW = {
   center: [-74.02, 40.72] as [number, number],  // [lng, lat] — Hudson River
-  zoom: 14.5,                                    // city-level zoom
-  pitch: 60,                                     // degrees of tilt for 3D
-  bearing: -17.6,                                // slight rotation for drama
+  zoom: 13.2,                                    // slightly wider to show more skyline
+  pitch: 62,                                     // steep tilt for dramatic 3D depth
+  bearing: -25,                                  // angled for golden light direction
 };
 
 /* ------------------------------------------------------------------ */
-/*  MAP BOUNDS — locks panning to the NYC / JC area                    */
+/*  MAP BOUNDS — locks panning to New Jersey + New York                */
 /*                                                                     */
 /*  Users cannot scroll beyond this bounding box.                      */
 /*  SW = southwest corner, NE = northeast corner.                      */
 /*                                                                     */
 /*  Coverage:                                                          */
-/*    West  → western Jersey City (incl. Newport, Journal Square)      */
-/*    East  → eastern Brooklyn / Queens border                         */
-/*    South → southern Brooklyn (Bay Ridge area)                       */
-/*    North → upper Manhattan (Washington Heights / Inwood)            */
-/*                                                                     */
-/*  TODO: Widen these if you add programs outside this area.           */
+/*    West  → western NJ border (Delaware River)                       */
+/*    East  → Long Island / CT coastline                               */
+/*    South → southern NJ (Cape May area)                              */
+/*    North → upstate NY (Adirondacks / Lake Champlain)                */
 /* ------------------------------------------------------------------ */
 const MAP_BOUNDS: [number, number, number, number] = [
-  -74.12, 40.57,  // SW corner [lng, lat]
-  -73.88, 40.85,  // NE corner [lng, lat]
+  -75.6, 38.9,   // SW corner [lng, lat] — southern NJ
+  -71.8, 45.1,   // NE corner [lng, lat] — upstate NY
 ];
 
-const MIN_ZOOM = 10.5;  // prevents zooming out far enough to see bound edges
+const MIN_ZOOM = 6;     // allows seeing all of NJ + NY at once
 const MAX_ZOOM = 18;    // close enough for 3D buildings, not so close textures break
 
 /* ------------------------------------------------------------------ */
-/*  3D BUILDING LAYER                                                  */
+/*  3D BUILDING LAYER — Golden Hour Palette                            */
 /*                                                                     */
 /*  Extrudes buildings from Mapbox's built-in "building" source-layer. */
-/*  Colors interpolate based on building height for visual depth.       */
+/*  Colors interpolate based on building height with warm golden tones  */
+/*  to match the golden hour atmosphere.                                */
 /*                                                                     */
-/*  Color stops (tweak to match your brand):                           */
-/*    0m   → #1a1a2e (deep navy)                                       */
-/*    50m  → #16213e                                                   */
-/*    100m → #0f3460                                                   */
-/*    200m → #533483 (purple)                                          */
-/*    300m → #e94560 (crimson — tallest towers)                        */
+/*  Color stops:                                                       */
+/*    0m   → #1a1520 (warm dark base)                                  */
+/*    30m  → #2a1a28 (warm shadow)                                     */
+/*    80m  → #6b3a2a (copper)                                          */
+/*    150m → #c4722a (amber)                                           */
+/*    250m → #d4944a (golden)                                          */
+/*    350m → #e8a85a (bright gold — tallest towers catch the sun)      */
 /* ------------------------------------------------------------------ */
 const BUILDING_3D_LAYER: LayerSpecification = {
   id: "3d-buildings",
@@ -108,11 +106,12 @@ const BUILDING_3D_LAYER: LayerSpecification = {
       "interpolate",
       ["linear"],
       ["get", "height"],
-      0,   "#1a1a2e",
-      50,  "#16213e",
-      100, "#0f3460",
-      200, "#533483",
-      300, "#e94560",
+      0,   "#1a1520",
+      30,  "#2a1a28",
+      80,  "#6b3a2a",
+      150, "#c4722a",
+      250, "#d4944a",
+      350, "#e8a85a",
     ],
     "fill-extrusion-height": [
       "interpolate", ["linear"], ["zoom"],
@@ -124,36 +123,52 @@ const BUILDING_3D_LAYER: LayerSpecification = {
       12,   0,
       12.5, ["get", "min_height"],
     ],
-    "fill-extrusion-opacity": 0.85,
+    "fill-extrusion-opacity": 0.88,
   },
   filter: ["==", "extrude", "true"],
 };
 
 /* ------------------------------------------------------------------ */
-/*  SKY LAYER — atmospheric gradient for depth                         */
+/*  SKY LAYER — Golden Hour Atmosphere                                 */
+/*                                                                     */
+/*  Sun positioned low on the horizon (5° elevation) facing west       */
+/*  (azimuth 280°) for a dramatic golden hour / sunset look.           */
+/*  High sun intensity washes the sky in warm amber and rose tones.    */
+/*                                                                     */
+/*  sky-atmosphere-color: the ambient sky color (warm peach)            */
+/*  sky-atmosphere-halo-color: glow ring around the sun (deep orange)   */
 /* ------------------------------------------------------------------ */
 const SKY_LAYER: LayerSpecification = {
   id: "sky",
   type: "sky",
   paint: {
     "sky-type": "atmosphere",
-    "sky-atmosphere-sun": [0.0, 90.0],
-    "sky-atmosphere-sun-intensity": 15,
+    "sky-atmosphere-sun": [280.0, 5.0],
+    "sky-atmosphere-sun-intensity": 8,
+    "sky-atmosphere-color": "#e8a060",
+    "sky-atmosphere-halo-color": "#d4602a",
   },
 };
 
 /* ------------------------------------------------------------------ */
-/*  FOG — cinematic depth-of-field haze                                */
+/*  FOG — Golden Hour Atmospheric Haze                                 */
 /*                                                                     */
-/*  "star-intensity" adds subtle stars to the sky when pitched high.    */
-/*  Set to 0 to remove stars.                                          */
+/*  Creates the cinematic "golden hour" look with warm amber fog at     */
+/*  ground level, transitioning to deep warm tones at the horizon.      */
+/*                                                                     */
+/*  color: ground-level haze (warm dark amber)                          */
+/*  high-color: upper atmosphere color (deep sunset rose/purple)        */
+/*  horizon-blend: how much fog blends at the horizon (higher = softer) */
+/*  star-intensity: faint stars visible when pitched high               */
+/*  space-color: color of the sky above the atmosphere                  */
 /* ------------------------------------------------------------------ */
 const FOG_CONFIG = {
-  range: [1, 12],
-  color: "#0a0a1a",
-  "high-color": "#1a0a2e",
-  "horizon-blend": 0.1,
-  "star-intensity": 0.15,
+  range: [0.5, 14],
+  color: "#1a1018",
+  "high-color": "#4a2040",
+  "horizon-blend": 0.08,
+  "star-intensity": 0.12,
+  "space-color": "#120a18",
 };
 
 /* ------------------------------------------------------------------ */
@@ -162,9 +177,9 @@ const FOG_CONFIG = {
 /*  These control how the camera moves when a marker is clicked.       */
 /*  duration is in ms; curve controls the parabolic zoom arc.          */
 /* ------------------------------------------------------------------ */
-const FLY_TO_ZOOM = 15.8;
+const FLY_TO_ZOOM = 15.5;
 const FLY_TO_PITCH = 65;
-const FLY_TO_DURATION = 2500;
+const FLY_TO_DURATION = 2800;
 
 /**
  * Compute a unique approach bearing for each fly-to.
@@ -272,16 +287,23 @@ export default function MapScene({ programs }: MapSceneProps) {
   /* ---- Missing token fallback ---- */
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#0a0a1a] text-white">
+      <div
+        className="flex h-screen w-screen items-center justify-center text-white"
+        style={{ background: "radial-gradient(ellipse at 60% 40%, #1a1018, #0a0810 60%, #060408)" }}
+      >
         <div className="max-w-md text-center">
+          <div
+            className="mx-auto mb-6 h-16 w-16 rounded-full"
+            style={{ background: "radial-gradient(circle, #E8751A33 0%, transparent 70%)" }}
+          />
           <h1 className="mb-4 text-2xl font-bold">Mapbox Token Required</h1>
-          <p className="text-gray-400">
+          <p className="text-white/50">
             Set{" "}
-            <code className="rounded bg-white/10 px-2 py-1">
+            <code className="rounded bg-white/10 px-2 py-1 text-[#E8751A]">
               NEXT_PUBLIC_MAPBOX_TOKEN
             </code>{" "}
             in your{" "}
-            <code className="rounded bg-white/10 px-2 py-1">.env.local</code>{" "}
+            <code className="rounded bg-white/10 px-2 py-1 text-[#E8751A]">.env.local</code>{" "}
             file to load the map.
           </p>
         </div>
@@ -294,14 +316,36 @@ export default function MapScene({ programs }: MapSceneProps) {
 
       {/* ============================================================ */}
       {/*  LOADING OVERLAY (z-10)                                      */}
-      {/*  Dark screen that fades out once map tiles are loaded.        */}
+      {/*  Warm gradient screen that fades out once map tiles load.     */}
       {/*  pointer-events-none so it never blocks clicks after fade.    */}
       {/* ============================================================ */}
       <div
-        className={`pointer-events-none absolute inset-0 z-10 bg-[#0a0a1a] transition-opacity duration-1000 ${
+        className={`pointer-events-none absolute inset-0 z-10 transition-opacity duration-[1500ms] ${
           mapLoaded ? "opacity-0" : "opacity-100"
         }`}
-      />
+        style={{
+          background: "radial-gradient(ellipse at 70% 50%, #1a1018 0%, #0a0810 60%, #060408 100%)",
+        }}
+      >
+        {/* Loading shimmer — warm golden pulse */}
+        {!mapLoaded && (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+            <div className="relative h-12 w-12">
+              <div
+                className="absolute inset-0 animate-ping rounded-full opacity-30"
+                style={{ background: "radial-gradient(circle, #E8751A 0%, transparent 70%)" }}
+              />
+              <div
+                className="absolute inset-2 animate-pulse rounded-full"
+                style={{ background: "radial-gradient(circle, #D4A843 0%, #E8751A 100%)" }}
+              />
+            </div>
+            <p className="animate-pulse text-xs font-medium uppercase tracking-[0.3em] text-white/30">
+              Loading Map
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* ============================================================ */}
       {/*  NAVBAR (z-40) — always on top                                */}
@@ -335,11 +379,25 @@ export default function MapScene({ programs }: MapSceneProps) {
       </AnimatePresence>
 
       {/* ============================================================ */}
+      {/*  CINEMATIC VIGNETTE (z-[5]) — warm edge darkening             */}
+      {/*  Adds a subtle gradient around the edges of the viewport      */}
+      {/*  for a filmic, golden-hour feel.                              */}
+      {/* ============================================================ */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{
+          background: [
+            "radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(10, 8, 16, 0.4) 100%)",
+            "linear-gradient(to top, rgba(10, 8, 16, 0.3) 0%, transparent 30%)",
+            "linear-gradient(to bottom, rgba(10, 8, 16, 0.15) 0%, transparent 15%)",
+          ].join(", "),
+        }}
+      />
+
+      {/* ============================================================ */}
       {/*  MAPBOX GL MAP (z-0 base layer)                              */}
       {/*                                                              */}
       {/*  Map style: mapbox://styles/mapbox/dark-v11                  */}
-      {/*  TODO: For a fully custom look, create your own style at     */}
-      {/*        https://studio.mapbox.com and paste the URL here.     */}
       {/* ============================================================ */}
       <Map
         ref={mapRef}

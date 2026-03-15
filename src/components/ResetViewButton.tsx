@@ -19,7 +19,7 @@ export default function ResetViewButton({ visible, onClick }: ResetViewButtonPro
     <button
       onClick={onClick}
       aria-label="Reset map to overview"
-      className={`absolute left-5 top-20 z-30 flex items-center gap-2 rounded-full border border-white/10 bg-[#0e0e24]/80 px-4 py-2.5 text-sm font-medium text-white/90 shadow-lg backdrop-blur-md transition-all duration-500 hover:border-[#E8751A]/40 hover:bg-[#0e0e24] hover:text-white hover:shadow-[0_0_20px_rgba(232,117,26,0.15)] active:scale-95 ${
+      className={`absolute left-5 top-20 z-30 flex items-center gap-2 rounded-full border border-white/[0.08] bg-[#0c0a14]/80 px-4 py-2.5 text-sm font-medium text-white/90 shadow-lg backdrop-blur-xl transition-all duration-500 hover:border-[#E8751A]/40 hover:bg-[#0c0a14] hover:text-white hover:shadow-[0_0_20px_rgba(232,117,26,0.2)] active:scale-95 ${
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none -translate-y-3 opacity-0"

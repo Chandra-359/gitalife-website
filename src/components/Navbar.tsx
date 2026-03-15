@@ -32,8 +32,13 @@ export default function Navbar() {
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* ---- Glassmorphism backdrop (spans full width) ---- */}
-      <div className="pointer-events-none absolute inset-0 border-b border-white/[0.06] bg-[#0a0a1a]/60 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
+      {/* ---- Glassmorphism backdrop with warm undertone ---- */}
+      <div className="pointer-events-none absolute inset-0 border-b border-white/[0.06] bg-[#0c0a14]/70 backdrop-blur-xl [-webkit-backdrop-filter:blur(24px)]" />
+      {/* Subtle warm gradient accent at the top edge */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[1px]"
+        style={{ background: "linear-gradient(90deg, transparent 10%, rgba(232, 117, 26, 0.15) 50%, transparent 90%)" }}
+      />
 
       {/* ---- Logo ---- */}
       {/*
@@ -121,7 +126,7 @@ export default function Navbar() {
 
       {/* ---- Mobile dropdown ---- */}
       <div
-        className={`absolute inset-x-0 top-full z-10 border-b border-white/[0.06] bg-[#0a0a1a]/90 backdrop-blur-xl transition-all duration-300 sm:hidden ${
+        className={`absolute inset-x-0 top-full z-10 border-b border-white/[0.06] bg-[#0c0a14]/90 backdrop-blur-xl transition-all duration-300 sm:hidden ${
           mobileOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
