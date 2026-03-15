@@ -17,7 +17,7 @@
 import { useCallback } from "react";
 import { Marker } from "react-map-gl/mapbox";
 import type { Program } from "@/data/programs";
-import { CATEGORY_COLORS } from "@/data/programs";
+import { getCategoryColor } from "@/data/programs";
 
 /* ------------------------------------------------------------------ */
 /*  Category → icon glyph                                              */
@@ -26,7 +26,7 @@ import { CATEGORY_COLORS } from "@/data/programs";
 /*  look. Example:                                                     */
 /*    "Kirtan & Prasadam": <MusicIcon className="h-3 w-3" />,         */
 /* ------------------------------------------------------------------ */
-const CATEGORY_ICON: Record<Program["category"], string> = {
+const CATEGORY_ICON: Record<string, string> = {
   "Kirtan & Prasadam": "♫",
   Retreat: "☀",
   "Wisdom Session": "☸",
@@ -40,7 +40,7 @@ interface ProgramMarkerProps {
 }
 
 export default function ProgramMarker({ program, isSelected, onSelect }: ProgramMarkerProps) {
-  const { bg, glow } = CATEGORY_COLORS[program.category];
+  const { bg, glow } = getCategoryColor(program.category);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -96,7 +96,7 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
             className="select-none text-white transition-all duration-300"
             style={{ fontSize: isSelected ? 15 : 11 }}
           >
-            {CATEGORY_ICON[program.category]}
+            {CATEGORY_ICON[program.category] ?? "●"}
           </span>
         </span>
 

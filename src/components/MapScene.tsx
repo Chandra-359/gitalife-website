@@ -31,7 +31,6 @@ import type { LayerSpecification } from "mapbox-gl";
 import { AnimatePresence } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { PROGRAMS } from "@/data/programs";
 import type { Program } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 import ProgramMarker from "@/components/ProgramMarker";
@@ -172,7 +171,11 @@ function computeApproachBearing(
 /*  COMPONENT                                                          */
 /* ================================================================== */
 
-export default function MapScene() {
+interface MapSceneProps {
+  programs: Program[];
+}
+
+export default function MapScene({ programs }: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
@@ -351,7 +354,7 @@ export default function MapScene() {
         <Layer {...SKY_LAYER} />
 
         {/* ---- Program markers (rendered inside map for correct geo-positioning) ---- */}
-        {PROGRAMS.map((program) => (
+        {programs.map((program) => (
           <ProgramMarker
             key={program.id}
             program={program}

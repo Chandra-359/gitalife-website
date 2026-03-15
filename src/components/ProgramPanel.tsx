@@ -20,14 +20,14 @@
 
 import { motion } from "framer-motion";
 import type { Program } from "@/data/programs";
-import { CATEGORY_COLORS } from "@/data/programs";
+import { getCategoryColor } from "@/data/programs";
 
 /* ------------------------------------------------------------------ */
 /*  Category → icon glyph                                              */
 /*  TODO: Replace with custom SVG icons or an icon library for          */
 /*        a more polished look. These are simple Unicode placeholders.  */
 /* ------------------------------------------------------------------ */
-const CATEGORY_ICON: Record<Program["category"], string> = {
+const CATEGORY_ICON: Record<string, string> = {
   "Kirtan & Prasadam": "♫",
   Retreat: "☀",
   "Wisdom Session": "☸",
@@ -107,7 +107,7 @@ interface ProgramPanelProps {
 }
 
 export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
-  const { bg, glow } = CATEGORY_COLORS[program.category];
+  const { bg, glow } = getCategoryColor(program.category);
 
   return (
     <motion.div
@@ -173,7 +173,7 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
               className="flex h-7 w-7 items-center justify-center rounded-full text-sm text-white shadow-lg"
               style={{ background: bg, boxShadow: `0 0 12px ${glow}` }}
             >
-              {CATEGORY_ICON[program.category]}
+              {CATEGORY_ICON[program.category] ?? "●"}
             </span>
             <span
               className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/90"
