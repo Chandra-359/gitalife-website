@@ -6,6 +6,10 @@ import type { MapRef } from "react-map-gl/mapbox";
 import type { LayerSpecification } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import { PROGRAMS } from "@/data/programs";
+import type { Program } from "@/data/programs";
+import ProgramMarker from "@/components/ProgramMarker";
+
 /* ------------------------------------------------------------------ */
 /*  Mapbox access token — set NEXT_PUBLIC_MAPBOX_TOKEN in .env.local  */
 /* ------------------------------------------------------------------ */
@@ -85,7 +89,7 @@ const SKY_LAYER: LayerSpecification = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Optional fog for cinematic depth                                  */
+/*  Fog for cinematic depth                                           */
 /* ------------------------------------------------------------------ */
 const FOG_CONFIG = {
   range: [1, 12],
@@ -98,15 +102,36 @@ const FOG_CONFIG = {
 export default function MapScene() {
   const mapRef = useRef<MapRef>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
 
   const onMapLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    // Add fog for cinematic depth-of-field effect
     map.setFog(FOG_CONFIG as Parameters<typeof map.setFog>[0]);
-
     setMapLoaded(true);
+  }, []);
+
+  /* ---- Select a program & fly camera toward it ---- */
+  const handleSelectProgram = useCallback(
+    (program: Program) => {
+      setSelectedProgram((prev) => (prev?.id === program.id ? null : program));
+
+      mapRef.current?.flyTo({
+        center: [program.longitude, program.latitude],
+        zoom: 15.5,
+        pitch: 62,
+        bearing: -10,
+        duration: 1800,
+        essential: true,
+      });
+    },
+    [],
+  );
+
+  /* ---- Click on empty map → deselect ---- */
+  const handleMapClick = useCallback(() => {
+    setSelectedProgram(null);
   }, []);
 
   if (!MAPBOX_TOKEN) {
@@ -143,6 +168,7 @@ export default function MapScene() {
         antialias
         projection={{ name: "globe" }}
         onLoad={onMapLoad}
+        onClick={handleMapClick}
         terrain={{ source: "mapbox-dem", exaggeration: 1.5 }}
       >
         {/* Mapbox DEM source for terrain */}
@@ -159,6 +185,16 @@ export default function MapScene() {
 
         {/* Atmospheric sky */}
         <Layer {...SKY_LAYER} />
+
+        {/* ---- Program markers ---- */}
+        {PROGRAMS.map((program) => (
+          <ProgramMarker
+            key={program.id}
+            program={program}
+            isSelected={selectedProgram?.id === program.id}
+            onSelect={handleSelectProgram}
+          />
+        ))}
       </Map>
     </div>
   );
