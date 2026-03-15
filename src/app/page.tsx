@@ -14,6 +14,9 @@ import { prisma } from "@/lib/prisma";
 import type { Program } from "@/data/programs";
 import MapScene from "@/components/MapScene";
 
+/** Always fetch fresh data so new programs appear immediately after admin adds them */
+export const dynamic = "force-dynamic";
+
 /** Hardcoded fallback data used when the database is unavailable */
 const FALLBACK_PROGRAMS: Program[] = [
   {
