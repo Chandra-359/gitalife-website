@@ -63,6 +63,28 @@ const HOME_VIEW = {
 };
 
 /* ------------------------------------------------------------------ */
+/*  MAP BOUNDS — locks panning to the NYC / JC area                    */
+/*                                                                     */
+/*  Users cannot scroll beyond this bounding box.                      */
+/*  SW = southwest corner, NE = northeast corner.                      */
+/*                                                                     */
+/*  Coverage:                                                          */
+/*    West  → western Jersey City (incl. Newport, Journal Square)      */
+/*    East  → eastern Brooklyn / Queens border                         */
+/*    South → southern Brooklyn (Bay Ridge area)                       */
+/*    North → upper Manhattan (Washington Heights / Inwood)            */
+/*                                                                     */
+/*  TODO: Widen these if you add programs outside this area.           */
+/* ------------------------------------------------------------------ */
+const MAP_BOUNDS: [number, number, number, number] = [
+  -74.12, 40.57,  // SW corner [lng, lat]
+  -73.88, 40.85,  // NE corner [lng, lat]
+];
+
+const MIN_ZOOM = 10.5;  // prevents zooming out far enough to see bound edges
+const MAX_ZOOM = 18;    // close enough for 3D buildings, not so close textures break
+
+/* ------------------------------------------------------------------ */
 /*  3D BUILDING LAYER                                                  */
 /*                                                                     */
 /*  Extrudes buildings from Mapbox's built-in "building" source-layer. */
@@ -331,6 +353,9 @@ export default function MapScene({ programs }: MapSceneProps) {
         mapboxAccessToken={MAPBOX_TOKEN}
         mapStyle="mapbox://styles/mapbox/dark-v11"
         style={{ width: "100%", height: "100%" }}
+        maxBounds={MAP_BOUNDS}
+        minZoom={MIN_ZOOM}
+        maxZoom={MAX_ZOOM}
         maxPitch={85}
         antialias
         projection={{ name: "globe" }}
