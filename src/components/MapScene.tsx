@@ -4,11 +4,13 @@ import { useCallback, useRef, useState } from "react";
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { LayerSpecification } from "mapbox-gl";
+import { AnimatePresence } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { PROGRAMS } from "@/data/programs";
 import type { Program } from "@/data/programs";
 import ProgramMarker from "@/components/ProgramMarker";
+import ProgramPanel from "@/components/ProgramPanel";
 import ResetViewButton from "@/components/ResetViewButton";
 
 /* ------------------------------------------------------------------ */
@@ -236,6 +238,17 @@ export default function MapScene() {
         visible={mapLoaded && selectedProgram !== null}
         onClick={handleResetView}
       />
+
+      {/* Program detail panel — slides in from right */}
+      <AnimatePresence mode="wait">
+        {selectedProgram && (
+          <ProgramPanel
+            key={selectedProgram.id}
+            program={selectedProgram}
+            onClose={handleResetView}
+          />
+        )}
+      </AnimatePresence>
 
       <Map
         ref={mapRef}
