@@ -63,3 +63,8 @@ body {
 .mapboxgl-marker {
   will-change: transform;
 }
+
+/* Hide scrollbar on carousel strip (all browsers) */
+.snap-x::-webkit-scrollbar {
+  display: none;
+}

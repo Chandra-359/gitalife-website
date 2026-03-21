@@ -25,7 +25,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { LayerSpecification } from "mapbox-gl";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import type { Program } from "@/data/programs";
@@ -33,7 +33,7 @@ import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 import HeroIntro from "@/components/HeroIntro";
 import ProgramMarker from "@/components/ProgramMarker";
-import ProgramPanel from "@/components/ProgramPanel";
+import ProgramCarousel from "@/components/ProgramCarousel";
 import ResetViewButton from "@/components/ResetViewButton";
 
 /* ================================================================== */
@@ -539,20 +539,17 @@ export default function MapScene({ programs }: MapSceneProps) {
       />
 
       {/* ============================================================ */}
-      {/*  PROGRAM DETAIL PANEL (z-30)                                 */}
-      {/*  Desktop: slides in from right, below navbar                 */}
-      {/*  Mobile: bottom sheet capped at 40vh                         */}
-      {/*  AnimatePresence mode="wait" ensures clean exit→enter         */}
+      {/*  PROGRAM CAROUSEL (z-30)                                     */}
+      {/*  Horizontally scrollable card strip at the bottom.            */}
+      {/*  Scroll/swipe between cards → camera flies to each location. */}
       {/* ============================================================ */}
-      <AnimatePresence mode="wait">
-        {selectedProgram && (
-          <ProgramPanel
-            key={selectedProgram.id}
-            program={selectedProgram}
-            onClose={handleResetView}
-          />
-        )}
-      </AnimatePresence>
+      <ProgramCarousel
+        programs={programs}
+        selectedProgram={selectedProgram}
+        onSelect={handleSelectProgram}
+        onClose={handleResetView}
+        visible={introExited && selectedProgram !== null}
+      />
 
       {/* ============================================================ */}
       {/*  MAPBOX GL MAP (z-0 base layer)                              */}
