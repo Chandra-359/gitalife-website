@@ -7,6 +7,11 @@
  * It renders the Mapbox GL map, program markers, detail panel, navbar, and
  * the reset-view button.
  *
+ * DESIGN CONCEPTS:
+ * ├── "Lamp Glow" — Diya/flame markers cast warm radial light on the dark map
+ * ├── "Golden Threads" — Animated connection lines (sūtra) between programs
+ * └── Together they create: "Spreading the light of Bhagavad Gita across NYC"
+ *
  * Z-INDEX HIERARCHY (reviewed & intentional):
  * ├── z-0  — Mapbox GL canvas (base layer)
  * │   └── Markers live inside the map container; Mapbox manages their stacking
@@ -14,17 +19,9 @@
  * ├── z-20 — Mapbox attribution / logo (styled in globals.css)
  * ├── z-30 — ResetViewButton & ProgramPanel (UI overlays above map)
  * └── z-40 — Navbar (always on top, never obscured)
- *
- * CUSTOMIZATION GUIDE:
- * ├── Map center / zoom ......... edit HOME_VIEW below
- * ├── Map style ................. change the mapStyle prop on <Map>
- * ├── Building colors ........... edit BUILDING_3D_LAYER paint stops
- * ├── Fog / atmosphere .......... edit FOG_CONFIG
- * ├── Fly-to feel ............... tweak FLY_TO_ZOOM, FLY_TO_PITCH, FLY_TO_DURATION
- * └── Markers ................... edit src/data/programs.ts
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { LayerSpecification } from "mapbox-gl";
@@ -32,6 +29,7 @@ import { AnimatePresence } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import type { Program } from "@/data/programs";
+import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 import ProgramMarker from "@/components/ProgramMarker";
 import ProgramPanel from "@/components/ProgramPanel";
@@ -50,39 +48,26 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 /**
  * HOME_VIEW — The default "establishing shot" camera position.
  *
- * This is what the user sees on first load and when they click "Overview".
- * Centered over the Hudson River to capture both Manhattan and Jersey City.
- *
- * TODO: Adjust these coordinates if your programs are in a different area.
+ * Centered to capture Jersey City, Newport, lower Manhattan, and Brooklyn.
  */
 const HOME_VIEW = {
-  center: [-74.02, 40.72] as [number, number],  // [lng, lat] — Hudson River
-  zoom: 14.5,                                    // city-level zoom
-  pitch: 60,                                     // degrees of tilt for 3D
-  bearing: -17.6,                                // slight rotation for drama
+  center: [-74.005, 40.72] as [number, number],  // [lng, lat] — between JC & Manhattan
+  zoom: 12.8,                                     // wider view to see all four areas
+  pitch: 55,                                      // 3D tilt
+  bearing: -15,                                   // slight rotation
 };
 
 /* ------------------------------------------------------------------ */
-/*  MAP BOUNDS — locks panning to the NYC / JC area                    */
-/*                                                                     */
-/*  Users cannot scroll beyond this bounding box.                      */
-/*  SW = southwest corner, NE = northeast corner.                      */
-/*                                                                     */
-/*  Coverage:                                                          */
-/*    West  → western Jersey City (incl. Newport, Journal Square)      */
-/*    East  → eastern Brooklyn / Queens border                         */
-/*    South → southern Brooklyn (Bay Ridge area)                       */
-/*    North → upper Manhattan (Washington Heights / Inwood)            */
-/*                                                                     */
-/*  TODO: Widen these if you add programs outside this area.           */
+/*  MAP BOUNDS — Tightened to: Jersey City, Newport, Manhattan,        */
+/*  and Brooklyn. No more wandering to Queens or the Bronx.            */
 /* ------------------------------------------------------------------ */
 const MAP_BOUNDS: [number, number, number, number] = [
-  -74.12, 40.57,  // SW corner [lng, lat]
-  -73.88, 40.85,  // NE corner [lng, lat]
+  -74.08, 40.63,   // SW corner — covers south Brooklyn + west Jersey City
+  -73.92, 40.80,   // NE corner — upper Manhattan (Harlem) + east Brooklyn
 ];
 
-const MIN_ZOOM = 10.5;  // prevents zooming out far enough to see bound edges
-const MAX_ZOOM = 18;    // close enough for 3D buildings, not so close textures break
+const MIN_ZOOM = 11;   // keeps the four-area view framed nicely
+const MAX_ZOOM = 18;
 
 /* ------------------------------------------------------------------ */
 /*  3D BUILDING LAYER                                                  */
@@ -157,10 +142,85 @@ const FOG_CONFIG = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  CINEMATIC FLY-TO SETTINGS                                          */
+/*  GOLDEN THREADS — Connection lines between program locations         */
 /*                                                                     */
-/*  These control how the camera moves when a marker is clicked.       */
-/*  duration is in ms; curve controls the parabolic zoom arc.          */
+/*  Inspired by "sūtra" (thread of wisdom). Golden animated lines      */
+/*  connect all programs, forming a constellation of knowledge.         */
+/* ------------------------------------------------------------------ */
+const THREAD_LINE_LAYER: LayerSpecification = {
+  id: "golden-threads",
+  type: "line",
+  source: "threads",
+  paint: {
+    "line-color": "#D4A843",
+    "line-width": [
+      "interpolate", ["linear"], ["zoom"],
+      11, 0.8,
+      15, 1.6,
+    ],
+    "line-opacity": 0.3,
+    "line-dasharray": [2, 4],
+  },
+};
+
+const THREAD_GLOW_LAYER: LayerSpecification = {
+  id: "golden-threads-glow",
+  type: "line",
+  source: "threads",
+  paint: {
+    "line-color": "#E8751A",
+    "line-width": [
+      "interpolate", ["linear"], ["zoom"],
+      11, 3,
+      15, 6,
+    ],
+    "line-opacity": 0.08,
+    "line-blur": 6,
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  LIGHT EMISSION — Warm radial glow from each program location       */
+/*                                                                     */
+/*  Each diya (lamp) casts light onto the dark city map, literally     */
+/*  illuminating the neighborhoods where programs take place.           */
+/* ------------------------------------------------------------------ */
+const GLOW_CIRCLE_LAYER: LayerSpecification = {
+  id: "program-glow",
+  type: "circle",
+  source: "program-glows",
+  paint: {
+    "circle-radius": [
+      "interpolate", ["linear"], ["zoom"],
+      11,  30,
+      14,  80,
+      17, 160,
+    ],
+    "circle-color": ["get", "color"],
+    "circle-opacity": 0.12,
+    "circle-blur": 1,
+  },
+};
+
+const GLOW_CIRCLE_OUTER_LAYER: LayerSpecification = {
+  id: "program-glow-outer",
+  type: "circle",
+  source: "program-glows",
+  paint: {
+    "circle-radius": [
+      "interpolate", ["linear"], ["zoom"],
+      11,  60,
+      14, 150,
+      17, 300,
+    ],
+    "circle-color": ["get", "color"],
+    "circle-opacity": 0.04,
+    "circle-blur": 1,
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  CINEMATIC FLY-TO SETTINGS                                          */
 /* ------------------------------------------------------------------ */
 const FLY_TO_ZOOM = 15.8;
 const FLY_TO_PITCH = 65;
@@ -202,6 +262,51 @@ export default function MapScene({ programs }: MapSceneProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isFlying, setIsFlying] = useState(false);
+
+  /* ---- Build GeoJSON for golden threads (connection lines) ---- */
+  const threadsGeoJSON = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const features: Array<{ type: "Feature"; geometry: any; properties: any }> = [];
+    for (let i = 0; i < programs.length; i++) {
+      for (let j = i + 1; j < programs.length; j++) {
+        const a = programs[i];
+        const b = programs[j];
+        // Only connect programs within ~10km of each other (roughly 0.1 degrees)
+        const dist = Math.sqrt(
+          (a.longitude - b.longitude) ** 2 + (a.latitude - b.latitude) ** 2
+        );
+        if (dist < 0.12) {
+          features.push({
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [a.longitude, a.latitude],
+                [b.longitude, b.latitude],
+              ],
+            },
+            properties: {},
+          });
+        }
+      }
+    }
+    return { type: "FeatureCollection" as const, features };
+  }, [programs]);
+
+  /* ---- Build GeoJSON for light emission circles ---- */
+  const glowGeoJSON = useMemo(() => {
+    const features = programs.map((p) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [p.longitude, p.latitude],
+      },
+      properties: {
+        color: getCategoryColor(p.category).bg,
+      },
+    }));
+    return { type: "FeatureCollection" as const, features };
+  }, [programs]);
 
   /* ---- Map loaded callback — sets fog, reveals UI ---- */
   const onMapLoad = useCallback(() => {
@@ -378,7 +483,24 @@ export default function MapScene({ programs }: MapSceneProps) {
         {/* Atmospheric sky */}
         <Layer {...SKY_LAYER} />
 
-        {/* ---- Program markers (rendered inside map for correct geo-positioning) ---- */}
+        {/* ============================================================ */}
+        {/*  LIGHT EMISSION — Warm radial glow from each diya/marker     */}
+        {/*  Rendered BELOW buildings so light bleeds onto the map floor  */}
+        {/* ============================================================ */}
+        <Source id="program-glows" type="geojson" data={glowGeoJSON}>
+          <Layer {...GLOW_CIRCLE_OUTER_LAYER} />
+          <Layer {...GLOW_CIRCLE_LAYER} />
+        </Source>
+
+        {/* ============================================================ */}
+        {/*  GOLDEN THREADS — Sūtra lines connecting program locations    */}
+        {/* ============================================================ */}
+        <Source id="threads" type="geojson" data={threadsGeoJSON}>
+          <Layer {...THREAD_GLOW_LAYER} />
+          <Layer {...THREAD_LINE_LAYER} />
+        </Source>
+
+        {/* ---- Program markers (diya flames rendered inside map) ---- */}
         {programs.map((program) => (
           <ProgramMarker
             key={program.id}
