@@ -1,19 +1,26 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/*  Gita Life NYC — Global Styles                                      */
+/*  Gita Life NYC — Vedic / Treta Yuga Global Styles                   */
 /*                                                                     */
-/*  Z-INDEX MAP (keep in sync with component comments):                */
+/*  Z-INDEX MAP:                                                       */
 /*    z-0  — Mapbox GL canvas                                          */
+/*    z-3  — Sacred geometry overlay                                   */
+/*    z-5  — Vedic parchment vignette                                  */
+/*    z-6  — Vedic ornamental border                                   */
 /*    z-10 — Loading overlay (fades out)                               */
 /*    z-20 — Mapbox attribution / logo                                 */
-/*    z-30 — ResetViewButton, ProgramPanel (UI overlays)               */
-/*    z-40 — Navbar (always on top)                                    */
+/*    z-30 — ResetViewButton, ProgramCarousel                          */
+/*    z-40 — Navbar                                                    */
 /* ================================================================== */
 
 :root {
-  --background: #0a0a1a;
-  --foreground: #ededed;
+  --background: #1a150e;
+  --foreground: #FFF8E1;
+  --vedic-gold: #D4A843;
+  --vedic-saffron: #E8751A;
+  --vedic-earth: #3d2b1a;
+  --vedic-sandstone: #8B6914;
 }
 
 @theme inline {
@@ -24,7 +31,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Full-viewport reset — no scrollbars, map fills everything          */
+/*  Full-viewport reset                                                */
 /* ------------------------------------------------------------------ */
 html,
 body {
@@ -39,32 +46,57 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Mapbox built-in controls — dim until hovered                       */
+/*  Mapbox controls — dimmed with warm tint                            */
 /* ------------------------------------------------------------------ */
 .mapboxgl-ctrl-logo,
 .mapboxgl-ctrl-attrib {
-  opacity: 0.4;
+  opacity: 0.3;
   transition: opacity 0.3s;
 }
 
 .mapboxgl-ctrl-logo:hover,
 .mapboxgl-ctrl-attrib:hover {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 /* ================================================================== */
-/*  MARKER & MAP ENHANCEMENTS                                          */
-/*                                                                     */
-/*  Marker animations are now handled by Framer Motion (GPU-accelerated */
-/*  physics-based animations). Only supplemental styles remain here.    */
+/*  VEDIC MAP ENHANCEMENTS                                              */
 /* ================================================================== */
 
-/* Mapbox marker containers — ensure Framer Motion transforms work */
+/* Marker containers — GPU-accelerated transforms */
 .mapboxgl-marker {
   will-change: transform;
 }
 
-/* Hide scrollbar on carousel strip (all browsers) */
+/* Hide scrollbar on carousel strip */
 .snap-x::-webkit-scrollbar {
   display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Vedic selection styling                                            */
+/* ------------------------------------------------------------------ */
+::selection {
+  background: rgba(212, 168, 67, 0.3);
+  color: #FFF8E1;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Scrollbar — ancient parchment style (for any scrollable areas)     */
+/* ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a150e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d2b1a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5c4022;
 }

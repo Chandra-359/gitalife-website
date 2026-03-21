@@ -33,7 +33,7 @@ export default function Navbar() {
       aria-label="Main navigation"
     >
       {/* ---- Glassmorphism backdrop (spans full width) ---- */}
-      <div className="pointer-events-none absolute inset-0 border-b border-white/[0.06] bg-[#0a0a1a]/60 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
+      <div className="pointer-events-none absolute inset-0 border-b border-[#D4A843]/[0.08] bg-[#1a150e]/70 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
 
       {/* ---- Logo ---- */}
       {/*
@@ -68,8 +68,8 @@ export default function Navbar() {
           />
         </svg>
 
-        <span className="text-base font-bold tracking-tight text-white sm:text-lg">
-          Gita Life <span className="text-[#E8751A]">NYC</span>
+        <span className="text-base font-bold tracking-tight text-[#FFF8E1] sm:text-lg">
+          Gita Life <span className="text-[#D4A843]">NYC</span>
         </span>
       </a>
 
@@ -121,7 +121,7 @@ export default function Navbar() {
 
       {/* ---- Mobile dropdown ---- */}
       <div
-        className={`absolute inset-x-0 top-full z-10 border-b border-white/[0.06] bg-[#0a0a1a]/90 backdrop-blur-xl transition-all duration-300 sm:hidden ${
+        className={`absolute inset-x-0 top-full z-10 border-b border-[#D4A843]/[0.08] bg-[#1a150e]/90 backdrop-blur-xl transition-all duration-300 sm:hidden ${
           mobileOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
