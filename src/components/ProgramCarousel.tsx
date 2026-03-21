@@ -74,12 +74,21 @@ const cardVariants = {
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
+/*  Temple card constants                                               */
+/* ------------------------------------------------------------------ */
+const TEMPLE_ID = "__iskcon_temple__";
+
 interface ProgramCarouselProps {
   programs: Program[];
   selectedProgram: Program | null;
   onSelect: (program: Program) => void;
   onClose: () => void;
   visible: boolean;
+  /** When true, the ISKCON temple card is the active (highlighted) card */
+  templeActive?: boolean;
+  /** Called when the temple card is clicked / scrolled-to */
+  onTempleSelect?: () => void;
 }
 
 export default function ProgramCarousel({
@@ -88,25 +97,38 @@ export default function ProgramCarousel({
   onSelect,
   onClose,
   visible,
+  templeActive = false,
+  onTempleSelect,
 }: ProgramCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll the selected card into view
+  // Scroll the active card into view (temple card is index 0, programs start at 1)
   useEffect(() => {
-    if (!selectedProgram || !scrollRef.current) return;
+    if (!scrollRef.current) return;
 
-    const idx = programs.findIndex((p) => p.id === selectedProgram.id);
+    let cardIdx: number;
+    if (templeActive) {
+      cardIdx = 0;
+    } else if (selectedProgram) {
+      const progIdx = programs.findIndex((p) => p.id === selectedProgram.id);
+      if (progIdx < 0) return;
+      cardIdx = progIdx + 1; // +1 because temple is at index 0
+    } else {
+      return;
+    }
+
     const container = scrollRef.current;
     const cards = container.children;
-    if (idx < 0 || !cards[idx]) return;
+    if (!cards[cardIdx]) return;
 
-    const card = cards[idx] as HTMLElement;
+    const card = cards[cardIdx] as HTMLElement;
     const scrollLeft = card.offsetLeft - container.offsetWidth / 2 + card.offsetWidth / 2;
 
     container.scrollTo({ left: scrollLeft, behavior: "smooth" });
-  }, [selectedProgram, programs]);
+  }, [selectedProgram, programs, templeActive]);
 
   // Handle snap-scroll end to detect which card is centered
+  // Index 0 = temple card, 1..N = program cards
   const handleScrollEnd = useCallback(() => {
     if (!scrollRef.current) return;
 
@@ -118,6 +140,8 @@ export default function ProgramCarousel({
 
     Array.from(container.children).forEach((child, i) => {
       const el = child as HTMLElement;
+      // Skip the right spacer (last child has no data-card attribute)
+      if (!el.dataset.card) return;
       const cardCenter = el.offsetLeft + el.offsetWidth / 2;
       const dist = Math.abs(cardCenter - centerX);
       if (dist < closestDist) {
@@ -126,11 +150,16 @@ export default function ProgramCarousel({
       }
     });
 
-    const snappedProgram = programs[closestIdx];
-    if (snappedProgram && snappedProgram.id !== selectedProgram?.id) {
-      onSelect(snappedProgram);
+    if (closestIdx === 0) {
+      // Temple card snapped — activate it
+      if (!templeActive) onTempleSelect?.();
+    } else {
+      const snappedProgram = programs[closestIdx - 1]; // -1 for temple offset
+      if (snappedProgram && snappedProgram.id !== selectedProgram?.id) {
+        onSelect(snappedProgram);
+      }
     }
-  }, [programs, selectedProgram, onSelect]);
+  }, [programs, selectedProgram, onSelect, templeActive, onTempleSelect]);
 
   // Debounced scroll handler
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -139,30 +168,46 @@ export default function ProgramCarousel({
     scrollTimerRef.current = setTimeout(handleScrollEnd, 150);
   }, [handleScrollEnd]);
 
-  // Nav arrow handlers
+  // Nav arrow handlers — temple is position 0, programs start at 1
+  // totalCount includes the temple card
+  const totalCount = programs.length + 1;
+
+  // Current position in the carousel: 0 = temple, 1..N = programs
+  const currentPos = templeActive
+    ? 0
+    : selectedProgram
+      ? programs.findIndex((p) => p.id === selectedProgram.id) + 1
+      : -1;
+
   const goNext = useCallback(() => {
-    if (!selectedProgram) {
+    if (templeActive) {
+      // From temple → first program
       onSelect(programs[0]);
+      return;
+    }
+    if (!selectedProgram) {
+      onTempleSelect?.();
       return;
     }
     const idx = programs.findIndex((p) => p.id === selectedProgram.id);
     const next = programs[Math.min(idx + 1, programs.length - 1)];
     onSelect(next);
-  }, [programs, selectedProgram, onSelect]);
+  }, [programs, selectedProgram, onSelect, templeActive, onTempleSelect]);
 
   const goPrev = useCallback(() => {
-    if (!selectedProgram) {
-      onSelect(programs[0]);
+    if (!selectedProgram && !templeActive) {
+      onTempleSelect?.();
       return;
     }
-    const idx = programs.findIndex((p) => p.id === selectedProgram.id);
-    const prev = programs[Math.max(idx - 1, 0)];
-    onSelect(prev);
-  }, [programs, selectedProgram, onSelect]);
-
-  const currentIdx = selectedProgram
-    ? programs.findIndex((p) => p.id === selectedProgram.id)
-    : -1;
+    if (templeActive) return; // already at the start
+    const idx = programs.findIndex((p) => p.id === selectedProgram!.id);
+    if (idx <= 0) {
+      // Go back to temple card
+      onTempleSelect?.();
+    } else {
+      onSelect(programs[idx - 1]);
+    }
+  }, [programs, selectedProgram, onSelect, templeActive, onTempleSelect]);
 
   return (
     <AnimatePresence>
@@ -180,7 +225,7 @@ export default function ProgramCarousel({
               {/* Prev arrow */}
               <button
                 onClick={goPrev}
-                disabled={currentIdx <= 0}
+                disabled={currentPos <= 0}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white/60 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30"
                 aria-label="Previous program"
               >
@@ -191,13 +236,13 @@ export default function ProgramCarousel({
 
               {/* Counter */}
               <span className="text-xs font-medium tracking-wider text-white/40">
-                {currentIdx >= 0 ? currentIdx + 1 : "–"} / {programs.length}
+                {currentPos >= 0 ? currentPos + 1 : "–"} / {totalCount}
               </span>
 
               {/* Next arrow */}
               <button
                 onClick={goNext}
-                disabled={currentIdx >= programs.length - 1}
+                disabled={currentPos >= totalCount - 1}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white/60 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30"
                 aria-label="Next program"
               >
@@ -230,6 +275,108 @@ export default function ProgramCarousel({
               WebkitOverflowScrolling: "touch",
             }}
           >
+            {/* ---- ISKCON Temple card (always first) ---- */}
+            <motion.div
+              key={TEMPLE_ID}
+              data-card="temple"
+              variants={cardVariants}
+              className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
+                templeActive
+                  ? "border-[#D4A843]/30 bg-[#0c0c20]/80 shadow-2xl"
+                  : "border-white/[0.06] bg-[#0c0c20]/50 shadow-lg hover:border-[#D4A843]/20 hover:bg-[#0c0c20]/65"
+              }`}
+              style={{
+                width: templeActive ? "min(340px, 85vw)" : "min(280px, 72vw)",
+                boxShadow: templeActive ? "0 8px 40px rgba(212, 168, 67, 0.3)" : undefined,
+              }}
+              onClick={() => onTempleSelect?.()}
+              whileHover={!templeActive ? { scale: 1.02, y: -2 } : undefined}
+              whileTap={{ scale: 0.98 }}
+              layout
+            >
+              {/* Header with divine gradient */}
+              <div className="relative h-28 w-full shrink-0 overflow-hidden md:h-32">
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(212, 168, 67, 0.3) 0%, rgba(232, 117, 26, 0.15) 40%, #0c0c20 100%)",
+                  }}
+                />
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                    backgroundSize: "20px 20px",
+                  }}
+                />
+
+                {/* Home base badge */}
+                <div className="absolute bottom-2 left-3 flex items-center gap-1.5">
+                  <span
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white shadow-md"
+                    style={{
+                      background: "linear-gradient(135deg, #D4A843, #E8751A)",
+                      boxShadow: "0 0 10px rgba(212, 168, 67, 0.5)",
+                    }}
+                  >
+                    🙏
+                  </span>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/90"
+                    style={{ background: "rgba(212, 168, 67, 0.35)" }}
+                  >
+                    Home Base
+                  </span>
+                </div>
+
+                {/* Om decoration */}
+                <span className="absolute right-3 top-2 text-xl text-white/[0.06]">ॐ</span>
+
+                {/* Active indicator */}
+                {templeActive && (
+                  <motion.div
+                    className="absolute inset-x-0 top-0 h-[2px]"
+                    style={{ background: "linear-gradient(90deg, #D4A843, #E8751A)" }}
+                    layoutId="activeIndicator"
+                    transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                  />
+                )}
+              </div>
+
+              {/* Card body */}
+              <div className="flex flex-col gap-2 p-4">
+                <h3 className={`font-bold leading-snug text-white ${templeActive ? "text-base" : "text-sm"}`}>
+                  ISKCON New York
+                </h3>
+
+                {/* Address */}
+                <div className="flex items-center gap-1.5 text-xs text-white/45">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                    <path d="M8 1C5 1 2.5 3.5 2.5 6.5C2.5 10.5 8 15 8 15s5.5-4.5 5.5-8.5C13.5 3.5 11 1 8 1Z" stroke="currentColor" strokeWidth="1.3" />
+                    <circle cx="8" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2" />
+                  </svg>
+                  305 Schermerhorn St, Brooklyn
+                </div>
+
+                {/* Description — only when active */}
+                <AnimatePresence>
+                  {templeActive && (
+                    <motion.p
+                      className="text-xs leading-relaxed text-white/60"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      The heart of Gita Life NYC. Founded in 1966 by His Divine Grace
+                      A.C. Bhaktivedanta Swami Prabhupāda — where the Hare Krishna
+                      movement began in the Western world.
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+
             {programs.map((program) => {
               const isActive = selectedProgram?.id === program.id;
               const { bg, glow } = getCategoryColor(program.category);
@@ -237,6 +384,7 @@ export default function ProgramCarousel({
               return (
                 <motion.div
                   key={program.id}
+                  data-card="program"
                   variants={cardVariants}
                   className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
                     isActive

@@ -33,7 +33,6 @@ import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 import HeroIntro from "@/components/HeroIntro";
 import TempleMarker from "@/components/TempleMarker";
-import TempleInfoCard from "@/components/TempleInfoCard";
 import ProgramMarker from "@/components/ProgramMarker";
 import ProgramCarousel from "@/components/ProgramCarousel";
 import ResetViewButton from "@/components/ResetViewButton";
@@ -366,22 +365,6 @@ export default function MapScene({ programs }: MapSceneProps) {
     }, 4700);
   }, []);
 
-  /* ---- Temple → Explore Programs: pull back to city overview ---- */
-  const handleExplorePrograms = useCallback(() => {
-    setTempleActive(false);
-    setIsFlying(true);
-
-    mapRef.current?.flyTo({
-      ...HOME_VIEW,
-      duration: 3500,
-      essential: true,
-      curve: 1.4,
-      speed: 0.6,
-    });
-
-    setTimeout(() => setIsFlying(false), 3700);
-  }, []);
-
   /* ---- Toggle temple info when temple marker is clicked ---- */
   const handleTempleClick = useCallback(() => {
     if (templeActive) {
@@ -571,18 +554,9 @@ export default function MapScene({ programs }: MapSceneProps) {
       />
 
       {/* ============================================================ */}
-      {/*  TEMPLE INFO CARD (z-30)                                     */}
-      {/*  Shown after camera lands at ISKCON temple on first load,    */}
-      {/*  and when the temple marker is clicked at any time.          */}
-      {/* ============================================================ */}
-      <TempleInfoCard
-        visible={templeActive}
-        onExplorePrograms={handleExplorePrograms}
-      />
-
-      {/* ============================================================ */}
       {/*  PROGRAM CAROUSEL (z-30)                                     */}
       {/*  Horizontally scrollable card strip at the bottom.            */}
+      {/*  ISKCON temple card is always the first card.                 */}
       {/*  Scroll/swipe between cards → camera flies to each location. */}
       {/* ============================================================ */}
       <ProgramCarousel
@@ -590,7 +564,9 @@ export default function MapScene({ programs }: MapSceneProps) {
         selectedProgram={selectedProgram}
         onSelect={handleSelectProgram}
         onClose={handleResetView}
-        visible={introExited && selectedProgram !== null}
+        visible={introExited && (selectedProgram !== null || templeActive)}
+        templeActive={templeActive}
+        onTempleSelect={handleTempleClick}
       />
 
       {/* ============================================================ */}
