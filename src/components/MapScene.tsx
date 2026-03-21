@@ -32,6 +32,8 @@ import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 import HeroIntro from "@/components/HeroIntro";
+import TempleMarker from "@/components/TempleMarker";
+import TempleInfoCard from "@/components/TempleInfoCard";
 import ProgramMarker from "@/components/ProgramMarker";
 import ProgramCarousel from "@/components/ProgramCarousel";
 import ResetViewButton from "@/components/ResetViewButton";
@@ -285,6 +287,7 @@ export default function MapScene({ programs }: MapSceneProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [introExited, setIntroExited] = useState(false);
+  const [templeActive, setTempleActive] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isFlying, setIsFlying] = useState(false);
 
@@ -341,17 +344,13 @@ export default function MapScene({ programs }: MapSceneProps) {
     setMapLoaded(true);
   }, []);
 
-  /* ---- Intro exit → two-phase cinematic camera sequence ---- */
-  /*                                                           */
-  /*  Phase 1: Swoop down to ISKCON temple (street level)      */
-  /*  Phase 2: Pull back to city overview (establishing shot)  */
-  /*                                                           */
+  /* ---- Intro exit → fly to ISKCON temple and stay there ---- */
   const handleIntroExit = useCallback(() => {
     setIntroVisible(false);
     setIntroExited(true);
     setIsFlying(true);
 
-    // Phase 1 — Dive into ISKCON temple at street level
+    // Cinematic dive into the ISKCON temple — camera stays here
     mapRef.current?.flyTo({
       ...ISKCON_TEMPLE,
       duration: 4500,
@@ -360,19 +359,51 @@ export default function MapScene({ programs }: MapSceneProps) {
       speed: 0.5,
     });
 
-    // Phase 2 — After landing at the temple, pull back to city overview
+    // After landing, show temple info card
     setTimeout(() => {
-      mapRef.current?.flyTo({
-        ...HOME_VIEW,
-        duration: 4000,
-        essential: true,
-        curve: 1.4,
-        speed: 0.6,
-      });
-
-      setTimeout(() => setIsFlying(false), 4200);
-    }, 5500); // start phase 2 after phase 1 completes + 1s pause at temple
+      setIsFlying(false);
+      setTempleActive(true);
+    }, 4700);
   }, []);
+
+  /* ---- Temple → Explore Programs: pull back to city overview ---- */
+  const handleExplorePrograms = useCallback(() => {
+    setTempleActive(false);
+    setIsFlying(true);
+
+    mapRef.current?.flyTo({
+      ...HOME_VIEW,
+      duration: 3500,
+      essential: true,
+      curve: 1.4,
+      speed: 0.6,
+    });
+
+    setTimeout(() => setIsFlying(false), 3700);
+  }, []);
+
+  /* ---- Toggle temple info when temple marker is clicked ---- */
+  const handleTempleClick = useCallback(() => {
+    if (templeActive) {
+      setTempleActive(false);
+      return;
+    }
+
+    // If a program is selected, deselect it first
+    setSelectedProgram(null);
+    setTempleActive(true);
+    setIsFlying(true);
+
+    mapRef.current?.flyTo({
+      ...ISKCON_TEMPLE,
+      duration: 2500,
+      essential: true,
+      curve: 1.42,
+      speed: 0.9,
+    });
+
+    setTimeout(() => setIsFlying(false), 2700);
+  }, [templeActive]);
 
   /* ---- Cinematic fly-to when a marker is clicked ---- */
   const handleSelectProgram = useCallback(
@@ -384,6 +415,7 @@ export default function MapScene({ programs }: MapSceneProps) {
       }
 
       setSelectedProgram(program);
+      setTempleActive(false); // dismiss temple card when navigating to a program
       setIsFlying(true);
 
       const bearing = computeApproachBearing(
@@ -539,6 +571,16 @@ export default function MapScene({ programs }: MapSceneProps) {
       />
 
       {/* ============================================================ */}
+      {/*  TEMPLE INFO CARD (z-30)                                     */}
+      {/*  Shown after camera lands at ISKCON temple on first load,    */}
+      {/*  and when the temple marker is clicked at any time.          */}
+      {/* ============================================================ */}
+      <TempleInfoCard
+        visible={templeActive}
+        onExplorePrograms={handleExplorePrograms}
+      />
+
+      {/* ============================================================ */}
       {/*  PROGRAM CAROUSEL (z-30)                                     */}
       {/*  Horizontally scrollable card strip at the bottom.            */}
       {/*  Scroll/swipe between cards → camera flies to each location. */}
@@ -611,6 +653,12 @@ export default function MapScene({ programs }: MapSceneProps) {
           <Layer {...THREAD_GLOW_LAYER} />
           <Layer {...THREAD_LINE_LAYER} />
         </Source>
+
+        {/* ---- ISKCON Temple marker (unique Krishna-themed) ---- */}
+        <TempleMarker
+          onClick={handleTempleClick}
+          isActive={templeActive}
+        />
 
         {/* ---- Program markers (diya flames rendered inside map) ---- */}
         {programs.map((program) => (
