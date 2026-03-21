@@ -25,12 +25,13 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { LayerSpecification } from "mapbox-gl";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
+import HeroIntro from "@/components/HeroIntro";
 import ProgramMarker from "@/components/ProgramMarker";
 import ProgramPanel from "@/components/ProgramPanel";
 import ResetViewButton from "@/components/ResetViewButton";
@@ -46,15 +47,25 @@ import ResetViewButton from "@/components/ResetViewButton";
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
 /**
- * HOME_VIEW — The default "establishing shot" camera position.
- *
- * Centered to capture Jersey City, Newport, lower Manhattan, and Brooklyn.
+ * INTRO_VIEW — Starting camera: high altitude, looking down.
+ * This plays behind the HeroIntro overlay so the map is loading tiles in the background.
+ */
+const INTRO_VIEW = {
+  center: [-74.005, 40.72] as [number, number],
+  zoom: 10.5,
+  pitch: 0,
+  bearing: 0,
+};
+
+/**
+ * HOME_VIEW — The "establishing shot" camera after the intro dissolves.
+ * Cinematic sweep from INTRO_VIEW → HOME_VIEW when user clicks "Explore the Map".
  */
 const HOME_VIEW = {
-  center: [-74.005, 40.72] as [number, number],  // [lng, lat] — between JC & Manhattan
-  zoom: 12.8,                                     // wider view to see all four areas
-  pitch: 55,                                      // 3D tilt
-  bearing: -15,                                   // slight rotation
+  center: [-74.005, 40.72] as [number, number],
+  zoom: 13,
+  pitch: 58,
+  bearing: -17,
 };
 
 /* ------------------------------------------------------------------ */
@@ -93,11 +104,11 @@ const BUILDING_3D_LAYER: LayerSpecification = {
       "interpolate",
       ["linear"],
       ["get", "height"],
-      0,   "#1a1a2e",
-      50,  "#16213e",
-      100, "#0f3460",
-      200, "#533483",
-      300, "#e94560",
+      0,   "#1a1520",       // warm dark base
+      50,  "#1e1830",       // slight purple warmth
+      100, "#2a1a3e",       // deep warm purple
+      200, "#5c3a1e",       // warm bronze for mid-rise
+      300, "#E8751A",       // saffron crowns on tallest buildings
     ],
     "fill-extrusion-height": [
       "interpolate", ["linear"], ["zoom"],
@@ -134,11 +145,11 @@ const SKY_LAYER: LayerSpecification = {
 /*  Set to 0 to remove stars.                                          */
 /* ------------------------------------------------------------------ */
 const FOG_CONFIG = {
-  range: [1, 12],
-  color: "#0a0a1a",
-  "high-color": "#1a0a2e",
-  "horizon-blend": 0.1,
-  "star-intensity": 0.15,
+  range: [1, 10],
+  color: "#0c0a14",                // slightly warmer dark
+  "high-color": "#1a0f1e",         // warm purple-brown horizon
+  "horizon-blend": 0.15,
+  "star-intensity": 0.2,           // slightly more stars for ambiance
 };
 
 /* ------------------------------------------------------------------ */
@@ -260,6 +271,8 @@ interface MapSceneProps {
 export default function MapScene({ programs }: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [introVisible, setIntroVisible] = useState(true);
+  const [introExited, setIntroExited] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isFlying, setIsFlying] = useState(false);
 
@@ -307,13 +320,31 @@ export default function MapScene({ programs }: MapSceneProps) {
     return { type: "FeatureCollection", features };
   }, [programs]);
 
-  /* ---- Map loaded callback — sets fog, reveals UI ---- */
+  /* ---- Map loaded callback — sets fog, map ready behind intro ---- */
   const onMapLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
     map.setFog(FOG_CONFIG as Parameters<typeof map.setFog>[0]);
     setMapLoaded(true);
+  }, []);
+
+  /* ---- Intro exit → cinematic camera sweep into the city ---- */
+  const handleIntroExit = useCallback(() => {
+    setIntroVisible(false);
+    setIntroExited(true);
+    setIsFlying(true);
+
+    // Cinematic fly-in: from high altitude to establishing shot
+    mapRef.current?.flyTo({
+      ...HOME_VIEW,
+      duration: 4000,
+      essential: true,
+      curve: 1.8,
+      speed: 0.6,
+    });
+
+    setTimeout(() => setIsFlying(false), 4200);
   }, []);
 
   /* ---- Cinematic fly-to when a marker is clicked ---- */
@@ -399,7 +430,6 @@ export default function MapScene({ programs }: MapSceneProps) {
       {/* ============================================================ */}
       {/*  LOADING OVERLAY (z-10)                                      */}
       {/*  Dark screen that fades out once map tiles are loaded.        */}
-      {/*  pointer-events-none so it never blocks clicks after fade.    */}
       {/* ============================================================ */}
       <div
         className={`pointer-events-none absolute inset-0 z-10 bg-[#0a0a1a] transition-opacity duration-1000 ${
@@ -408,9 +438,68 @@ export default function MapScene({ programs }: MapSceneProps) {
       />
 
       {/* ============================================================ */}
-      {/*  NAVBAR (z-40) — always on top                                */}
+      {/*  HERO INTRO (z-50) — Cinematic landing overlay                */}
+      {/*  Shows on first load, dissolves when user clicks "Explore"    */}
       {/* ============================================================ */}
-      <Navbar />
+      <HeroIntro
+        visible={introVisible && mapLoaded}
+        onEnter={handleIntroExit}
+      />
+
+      {/* ============================================================ */}
+      {/*  WARM VIGNETTE OVERLAY (z-5)                                  */}
+      {/*  Saffron/gold gradient edges make the dark map feel warm      */}
+      {/*  and intentional rather than empty. Fades in after intro.     */}
+      {/* ============================================================ */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-[5]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: introExited ? 1 : 0 }}
+        transition={{ duration: 2, delay: 0.5 }}
+      >
+        {/* Top edge — warm saffron glow */}
+        <div
+          className="absolute inset-x-0 top-0 h-48"
+          style={{
+            background: "linear-gradient(to bottom, rgba(232, 117, 26, 0.06) 0%, transparent 100%)",
+          }}
+        />
+        {/* Bottom edge — deeper warm glow */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-56"
+          style={{
+            background: "linear-gradient(to top, rgba(232, 117, 26, 0.08) 0%, rgba(212, 168, 67, 0.03) 40%, transparent 100%)",
+          }}
+        />
+        {/* Left edge */}
+        <div
+          className="absolute inset-y-0 left-0 w-32"
+          style={{
+            background: "linear-gradient(to right, rgba(10, 10, 26, 0.6) 0%, transparent 100%)",
+          }}
+        />
+        {/* Right edge */}
+        <div
+          className="absolute inset-y-0 right-0 w-32"
+          style={{
+            background: "linear-gradient(to left, rgba(10, 10, 26, 0.6) 0%, transparent 100%)",
+          }}
+        />
+      </motion.div>
+
+      {/* ============================================================ */}
+      {/*  NAVBAR (z-40) — fades in after intro exits                   */}
+      {/* ============================================================ */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{
+          opacity: introExited ? 1 : 0,
+          y: introExited ? 0 : -20,
+        }}
+        transition={{ duration: 0.8, delay: 1, ease: "easeOut" }}
+      >
+        <Navbar />
+      </motion.div>
 
       {/* ============================================================ */}
       {/*  RESET VIEW BUTTON (z-30)                                    */}
@@ -418,7 +507,7 @@ export default function MapScene({ programs }: MapSceneProps) {
       {/*  Positioned below navbar (top-20) on desktop.                */}
       {/* ============================================================ */}
       <ResetViewButton
-        visible={mapLoaded && selectedProgram !== null}
+        visible={introExited && mapLoaded && selectedProgram !== null}
         onClick={handleResetView}
       />
 
@@ -448,11 +537,11 @@ export default function MapScene({ programs }: MapSceneProps) {
       <Map
         ref={mapRef}
         initialViewState={{
-          longitude: HOME_VIEW.center[0],
-          latitude: HOME_VIEW.center[1],
-          zoom: HOME_VIEW.zoom,
-          pitch: HOME_VIEW.pitch,
-          bearing: HOME_VIEW.bearing,
+          longitude: INTRO_VIEW.center[0],
+          latitude: INTRO_VIEW.center[1],
+          zoom: INTRO_VIEW.zoom,
+          pitch: INTRO_VIEW.pitch,
+          bearing: INTRO_VIEW.bearing,
         }}
         mapboxAccessToken={MAPBOX_TOKEN}
         mapStyle="mapbox://styles/mapbox/dark-v11"
