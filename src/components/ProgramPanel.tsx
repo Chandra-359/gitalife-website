@@ -18,7 +18,7 @@
  * └── Category icons ........... Swap Unicode glyphs for SVG icons in CATEGORY_ICON
  */
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 
@@ -195,6 +195,7 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
           <motion.h2
             variants={childVariants}
             className="text-lg font-bold leading-tight text-white md:text-xl"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             {program.title}
           </motion.h2>
@@ -231,14 +232,26 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
           {/* ============================================================ */}
           <motion.button
             variants={childVariants}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{
+              scale: 1.03,
+              boxShadow: `0 6px 32px ${glow}, 0 0 60px ${glow}44`,
+            }}
             whileTap={{ scale: 0.97 }}
-            className="mt-1 w-full rounded-xl py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg transition-shadow hover:shadow-xl"
+            className="relative mt-1 w-full overflow-hidden rounded-xl py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg transition-shadow hover:shadow-xl"
             style={{
               background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
               boxShadow: `0 4px 24px ${glow}`,
             }}
           >
+            {/* Button shimmer */}
+            <motion.span
+              className="absolute inset-0 -z-10"
+              style={{
+                background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)",
+              }}
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 2, ease: "easeInOut" }}
+            />
             RSVP — Join This Program
           </motion.button>
         </div>

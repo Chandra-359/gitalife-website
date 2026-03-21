@@ -345,7 +345,10 @@ export default function ProgramCarousel({
 
               {/* Card body */}
               <div className="flex flex-col gap-2 p-4">
-                <h3 className={`font-bold leading-snug text-white ${templeActive ? "text-base" : "text-sm"}`}>
+                <h3
+                  className={`font-bold leading-snug text-white ${templeActive ? "text-base" : "text-sm"}`}
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
                   ISKCON New York
                 </h3>
 
@@ -445,7 +448,10 @@ export default function ProgramCarousel({
 
                   {/* ---- Card body ---- */}
                   <div className="flex flex-col gap-2 p-4">
-                    <h3 className={`font-bold leading-snug text-white ${isActive ? "text-base" : "text-sm"}`}>
+                    <h3
+                      className={`font-bold leading-snug text-white ${isActive ? "text-base" : "text-sm"}`}
+                      style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                    >
                       {program.title}
                     </h3>
 
@@ -478,7 +484,7 @@ export default function ProgramCarousel({
                     <AnimatePresence>
                       {isActive && (
                         <motion.button
-                          className="mt-1 w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg"
+                          className="relative mt-1 w-full overflow-hidden rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg"
                           style={{
                             background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
                             boxShadow: `0 4px 20px ${glow}`,
@@ -487,10 +493,18 @@ export default function ProgramCarousel({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ type: "spring", damping: 20, stiffness: 250 }}
-                          whileHover={{ scale: 1.03 }}
+                          whileHover={{ scale: 1.03, boxShadow: `0 6px 28px ${glow}, 0 0 50px ${glow}44` }}
                           whileTap={{ scale: 0.97 }}
                           onClick={(e) => e.stopPropagation()}
                         >
+                          <motion.span
+                            className="absolute inset-0 -z-10"
+                            style={{
+                              background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)",
+                            }}
+                            animate={{ x: ["-100%", "200%"] }}
+                            transition={{ duration: 3, repeat: Infinity, delay: 2, ease: "easeInOut" }}
+                          />
                           RSVP — Join This Program
                         </motion.button>
                       )}

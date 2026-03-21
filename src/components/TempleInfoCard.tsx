@@ -118,6 +118,7 @@ export default function TempleInfoCard({ visible, onExplorePrograms }: TempleInf
             <motion.h2
               variants={childVariants}
               className="text-lg font-bold leading-tight text-white md:text-xl"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
             >
               ISKCON New York
             </motion.h2>
@@ -150,18 +151,34 @@ export default function TempleInfoCard({ visible, onExplorePrograms }: TempleInf
             <motion.button
               variants={childVariants}
               onClick={onExplorePrograms}
-              className="group flex w-full items-center justify-between rounded-xl py-3 px-4 text-sm font-semibold text-white transition-colors"
+              className="group relative flex w-full items-center justify-between overflow-hidden rounded-xl py-3 px-4 text-sm font-semibold text-white transition-colors"
               style={{
                 background: "linear-gradient(135deg, #E8751A, #D4A843)",
                 boxShadow: "0 4px 24px rgba(232, 117, 26, 0.3)",
               }}
-              whileHover={{ scale: 1.02, boxShadow: "0 6px 32px rgba(232, 117, 26, 0.45)" }}
+              whileHover={{ scale: 1.02, boxShadow: "0 6px 32px rgba(232, 117, 26, 0.45), 0 0 60px rgba(232, 117, 26, 0.15)" }}
               whileTap={{ scale: 0.98 }}
             >
+              {/* Button shimmer */}
+              <motion.span
+                className="absolute inset-0 -z-10"
+                style={{
+                  background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)",
+                }}
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 1, ease: "easeInOut" }}
+              />
               <span className="uppercase tracking-wider">Explore Programs</span>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="transition-transform group-hover:translate-x-1">
+              <motion.svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                className="transition-transform group-hover:translate-x-1"
+                whileHover={{ x: 3 }}
+              >
                 <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              </motion.svg>
             </motion.button>
           </div>
         </motion.div>
