@@ -465,6 +465,17 @@ export default function ProgramCarousel({
                       {formatDate(program.date)}
                     </div>
 
+                    {/* Location */}
+                    {program.location && (
+                      <div className="flex items-center gap-1.5 text-xs text-white/35">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                          <path d="M8 1C5 1 2.5 3.5 2.5 6.5C2.5 10.5 8 15 8 15s5.5-4.5 5.5-8.5C13.5 3.5 11 1 8 1Z" stroke="currentColor" strokeWidth="1.3" />
+                          <circle cx="8" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.2" />
+                        </svg>
+                        {program.location}
+                      </div>
+                    )}
+
                     {/* Description — only show on active card */}
                     <AnimatePresence>
                       {isActive && (
@@ -483,8 +494,11 @@ export default function ProgramCarousel({
                     {/* RSVP button — only on active */}
                     <AnimatePresence>
                       {isActive && (
-                        <motion.button
-                          className="relative mt-1 w-full overflow-hidden rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg"
+                        <motion.a
+                          href={program.rsvpUrl || "#get-connected"}
+                          target={program.rsvpUrl ? "_blank" : undefined}
+                          rel={program.rsvpUrl ? "noopener noreferrer" : undefined}
+                          className="relative mt-1 block w-full overflow-hidden rounded-xl py-2.5 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg"
                           style={{
                             background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
                             boxShadow: `0 4px 20px ${glow}`,
@@ -505,8 +519,8 @@ export default function ProgramCarousel({
                             animate={{ x: ["-100%", "200%"] }}
                             transition={{ duration: 3, repeat: Infinity, delay: 2, ease: "easeInOut" }}
                           />
-                          RSVP — Join This Program
-                        </motion.button>
+                          {program.rsvpUrl ? "RSVP — Join This Program" : "Get Connected"}
+                        </motion.a>
                       )}
                     </AnimatePresence>
                   </div>

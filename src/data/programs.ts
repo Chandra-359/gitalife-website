@@ -18,10 +18,12 @@ export interface Program {
   title: string;
   category: string;      // e.g. "Kirtan & Prasadam", "Retreat", "Wisdom Session", "Youth Festival"
   description: string;
+  location: string | null; // human-readable address
   longitude: number;     // negative for NYC area (western hemisphere)
   latitude: number;      // positive for NYC area (northern hemisphere)
   date: string;          // ISO date string from the database
   imageUrl: string | null; // optional program photo URL
+  rsvpUrl: string | null;  // link to Google Sheet / form for RSVP
 }
 
 /**

@@ -5,8 +5,6 @@
  *
  * This script is idempotent — it uses upsert so running it multiple times
  * won't create duplicates.
- *
- * TODO: Replace these mock programs with your real events.
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -21,10 +19,12 @@ const SEED_PROGRAMS = [
     category: "Kirtan & Prasadam",
     description:
       "An evening of soul-stirring kirtan and home-cooked prasadam at the heart of Jersey City's Hamilton Park neighborhood.",
+    location: "Hamilton Park, Jersey City, NJ",
     longitude: -74.0445,
     latitude: 40.7265,
     date: new Date("2026-04-05T18:00:00Z"),
     imageUrl: null,
+    rsvpUrl: null,
   },
   {
     id: "jc-wisdom-exchange",
@@ -32,10 +32,12 @@ const SEED_PROGRAMS = [
     category: "Wisdom Session",
     description:
       "A deep-dive discussion circle exploring the Bhagavad Gita's practical wisdom for modern life. Held in a cozy Journal Square loft.",
+    location: "Journal Square, Jersey City, NJ",
     longitude: -74.0631,
     latitude: 40.7328,
     date: new Date("2026-04-12T17:00:00Z"),
     imageUrl: null,
+    rsvpUrl: null,
   },
 
   /* ---- Manhattan ---- */
@@ -45,10 +47,12 @@ const SEED_PROGRAMS = [
     category: "Youth Festival",
     description:
       "A high-energy gathering of hundreds of young seekers in the East Village — live music, philosophy talks, and an unforgettable feast.",
+    location: "East Village, Manhattan, NY",
     longitude: -73.9857,
     latitude: 40.7264,
     date: new Date("2026-04-19T14:00:00Z"),
     imageUrl: null,
+    rsvpUrl: null,
   },
   {
     id: "nyc-midtown-kirtan",
@@ -56,10 +60,12 @@ const SEED_PROGRAMS = [
     category: "Kirtan & Prasadam",
     description:
       "Escape the Midtown rush with an intimate kirtan session and vegetarian dinner near Bryant Park.",
+    location: "Bryant Park, Midtown, NY",
     longitude: -73.9845,
     latitude: 40.7536,
     date: new Date("2026-04-26T19:00:00Z"),
     imageUrl: null,
+    rsvpUrl: null,
   },
 
   /* ---- Upstate / Retreat ---- */
@@ -69,10 +75,12 @@ const SEED_PROGRAMS = [
     category: "Retreat",
     description:
       "A transformative weekend retreat in the Harriman State Park mountains — meditation at sunrise, philosophy by the campfire, and prasadam under the stars.",
+    location: "Harriman State Park, NY",
     longitude: -74.1077,
     latitude: 41.2273,
     date: new Date("2026-05-16T10:00:00Z"),
     imageUrl: null,
+    rsvpUrl: null,
   },
 ];
 

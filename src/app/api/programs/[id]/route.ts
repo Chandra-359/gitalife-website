@@ -1,8 +1,8 @@
 /**
- * /api/programs
+ * /api/programs/[id]
  *
- * GET  — Returns all programs (public, no auth required)
- * POST — Creates a new program (requires admin authentication)
+ * PUT    — Update a program (requires admin authentication)
+ * DELETE — Delete a program (requires admin authentication)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -12,57 +12,25 @@ import { auth } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 /* ------------------------------------------------------------------ */
-/*  GET — fetch all programs                                           */
+/*  PUT — update a program                                             */
 /* ------------------------------------------------------------------ */
-export async function GET() {
-  if (!prisma) {
-    return NextResponse.json(
-      { error: "Database not configured" },
-      { status: 503 },
-    );
-  }
-
-  try {
-    const programs = await prisma.program.findMany({
-      orderBy: { date: "asc" },
-    });
-
-    const serialized = programs.map((p) => ({
-      ...p,
-      date: p.date.toISOString(),
-    }));
-
-    return NextResponse.json(serialized);
-  } catch (error) {
-    console.error("Failed to fetch programs:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch programs" },
-      { status: 500 },
-    );
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  POST — create a new program (admin only)                           */
-/* ------------------------------------------------------------------ */
-export async function POST(request: NextRequest) {
-  // Auth check
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!prisma) {
-    return NextResponse.json(
-      { error: "Database not configured" },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }
+
+  const { id } = await params;
 
   try {
     const body = await request.json();
-
-    // Validate required fields
     const { title, category, description, date, latitude, longitude, imageUrl, location, rsvpUrl } = body;
 
     if (!title || !category || !description || !date || latitude == null || longitude == null) {
@@ -82,7 +50,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid longitude" }, { status: 400 });
     }
 
-    const program = await prisma.program.create({
+    const program = await prisma.program.update({
+      where: { id },
       data: {
         title: String(title),
         category: String(category),
@@ -96,15 +65,36 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      { ...program, date: program.date.toISOString() },
-      { status: 201 },
-    );
+    return NextResponse.json({ ...program, date: program.date.toISOString() });
   } catch (error) {
-    console.error("Failed to create program:", error);
-    return NextResponse.json(
-      { error: "Failed to create program" },
-      { status: 500 },
-    );
+    console.error("Failed to update program:", error);
+    return NextResponse.json({ error: "Failed to update program" }, { status: 500 });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  DELETE — remove a program                                          */
+/* ------------------------------------------------------------------ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!prisma) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  const { id } = await params;
+
+  try {
+    await prisma.program.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete program:", error);
+    return NextResponse.json({ error: "Failed to delete program" }, { status: 500 });
   }
 }

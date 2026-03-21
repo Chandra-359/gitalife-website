@@ -24,10 +24,12 @@ model Program {
   title       String
   category    String   // e.g. "Kirtan & Prasadam", "Retreat", "Wisdom Session", "Youth Festival"
   description String
+  location    String?  // human-readable address, e.g. "305 Schermerhorn St, Brooklyn, NY"
   latitude    Float
   longitude   Float
   date        DateTime
   imageUrl    String?  // nullable — optional program photo URL
+  rsvpUrl     String?  // nullable — link to Google Sheet / form for RSVP
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

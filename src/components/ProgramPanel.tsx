@@ -227,17 +227,18 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
           {/*  TODO: Wire this to your RSVP / booking flow.                */}
           {/*  Options:                                                    */}
           {/*    • Link to WhatsApp with pre-filled text                   */}
-          {/*    • Open a modal registration form                          */}
-          {/*    • Navigate to /get-connected?program={program.id}         */}
           {/* ============================================================ */}
-          <motion.button
+          <motion.a
             variants={childVariants}
+            href={program.rsvpUrl || "#get-connected"}
+            target={program.rsvpUrl ? "_blank" : undefined}
+            rel={program.rsvpUrl ? "noopener noreferrer" : undefined}
             whileHover={{
               scale: 1.03,
               boxShadow: `0 6px 32px ${glow}, 0 0 60px ${glow}44`,
             }}
             whileTap={{ scale: 0.97 }}
-            className="relative mt-1 w-full overflow-hidden rounded-xl py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg transition-shadow hover:shadow-xl"
+            className="relative mt-1 block w-full overflow-hidden rounded-xl py-3 text-center text-sm font-bold uppercase tracking-wider text-white shadow-lg transition-shadow hover:shadow-xl"
             style={{
               background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
               boxShadow: `0 4px 24px ${glow}`,
@@ -252,8 +253,8 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
               animate={{ x: ["-100%", "200%"] }}
               transition={{ duration: 3, repeat: Infinity, delay: 2, ease: "easeInOut" }}
             />
-            RSVP — Join This Program
-          </motion.button>
+            {program.rsvpUrl ? "RSVP — Join This Program" : "Get Connected"}
+          </motion.a>
         </div>
       </div>
 
