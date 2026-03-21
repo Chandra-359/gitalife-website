@@ -58,8 +58,20 @@ const INTRO_VIEW = {
 };
 
 /**
- * HOME_VIEW — The "establishing shot" camera after the intro dissolves.
- * Cinematic sweep from INTRO_VIEW → HOME_VIEW when user clicks "Explore the Map".
+ * ISKCON_TEMPLE — 305 Schermerhorn St, Brooklyn, NY 11217
+ * The camera swoops down to this landmark first, giving users
+ * a dramatic "arriving at the temple" moment.
+ */
+const ISKCON_TEMPLE = {
+  center: [-73.9817, 40.6867] as [number, number],  // 305 Schermerhorn St
+  zoom: 17,          // street-level close-up
+  pitch: 72,         // dramatic low angle looking up at the building
+  bearing: 40,       // angled approach
+};
+
+/**
+ * HOME_VIEW — The "establishing shot" after the temple fly-by.
+ * Camera pulls back to show all program locations across the city.
  */
 const HOME_VIEW = {
   center: [-74.005, 40.72] as [number, number],
@@ -329,22 +341,37 @@ export default function MapScene({ programs }: MapSceneProps) {
     setMapLoaded(true);
   }, []);
 
-  /* ---- Intro exit → cinematic camera sweep into the city ---- */
+  /* ---- Intro exit → two-phase cinematic camera sequence ---- */
+  /*                                                           */
+  /*  Phase 1: Swoop down to ISKCON temple (street level)      */
+  /*  Phase 2: Pull back to city overview (establishing shot)  */
+  /*                                                           */
   const handleIntroExit = useCallback(() => {
     setIntroVisible(false);
     setIntroExited(true);
     setIsFlying(true);
 
-    // Cinematic fly-in: from high altitude to establishing shot
+    // Phase 1 — Dive into ISKCON temple at street level
     mapRef.current?.flyTo({
-      ...HOME_VIEW,
-      duration: 4000,
+      ...ISKCON_TEMPLE,
+      duration: 4500,
       essential: true,
-      curve: 1.8,
-      speed: 0.6,
+      curve: 1.6,
+      speed: 0.5,
     });
 
-    setTimeout(() => setIsFlying(false), 4200);
+    // Phase 2 — After landing at the temple, pull back to city overview
+    setTimeout(() => {
+      mapRef.current?.flyTo({
+        ...HOME_VIEW,
+        duration: 4000,
+        essential: true,
+        curve: 1.4,
+        speed: 0.6,
+      });
+
+      setTimeout(() => setIsFlying(false), 4200);
+    }, 5500); // start phase 2 after phase 1 completes + 1s pause at temple
   }, []);
 
   /* ---- Cinematic fly-to when a marker is clicked ---- */
