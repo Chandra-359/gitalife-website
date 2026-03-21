@@ -264,9 +264,8 @@ export default function MapScene({ programs }: MapSceneProps) {
   const [isFlying, setIsFlying] = useState(false);
 
   /* ---- Build GeoJSON for golden threads (connection lines) ---- */
-  const threadsGeoJSON = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const features: Array<{ type: "Feature"; geometry: any; properties: any }> = [];
+  const threadsGeoJSON = useMemo((): GeoJSON.FeatureCollection => {
+    const features: GeoJSON.Feature[] = [];
     for (let i = 0; i < programs.length; i++) {
       for (let j = i + 1; j < programs.length; j++) {
         const a = programs[i];
@@ -277,9 +276,9 @@ export default function MapScene({ programs }: MapSceneProps) {
         );
         if (dist < 0.12) {
           features.push({
-            type: "Feature",
+            type: "Feature" as const,
             geometry: {
-              type: "LineString",
+              type: "LineString" as const,
               coordinates: [
                 [a.longitude, a.latitude],
                 [b.longitude, b.latitude],
@@ -290,22 +289,22 @@ export default function MapScene({ programs }: MapSceneProps) {
         }
       }
     }
-    return { type: "FeatureCollection" as const, features };
+    return { type: "FeatureCollection", features };
   }, [programs]);
 
   /* ---- Build GeoJSON for light emission circles ---- */
-  const glowGeoJSON = useMemo(() => {
-    const features = programs.map((p) => ({
-      type: "Feature",
+  const glowGeoJSON = useMemo((): GeoJSON.FeatureCollection => {
+    const features: GeoJSON.Feature[] = programs.map((p) => ({
+      type: "Feature" as const,
       geometry: {
-        type: "Point",
+        type: "Point" as const,
         coordinates: [p.longitude, p.latitude],
       },
       properties: {
         color: getCategoryColor(p.category).bg,
       },
     }));
-    return { type: "FeatureCollection" as const, features };
+    return { type: "FeatureCollection", features };
   }, [programs]);
 
   /* ---- Map loaded callback — sets fog, reveals UI ---- */

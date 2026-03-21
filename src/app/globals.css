@@ -53,90 +53,13 @@ body {
 }
 
 /* ================================================================== */
-/*  DIYA (OIL LAMP) MARKER ANIMATIONS                                  */
+/*  MARKER & MAP ENHANCEMENTS                                          */
 /*                                                                     */
-/*  Used by ProgramMarker.tsx — the "Lamp Glow" design concept.        */
-/*  Each program is a flickering diya casting light on the dark city.   */
+/*  Marker animations are now handled by Framer Motion (GPU-accelerated */
+/*  physics-based animations). Only supplemental styles remain here.    */
 /* ================================================================== */
 
-/* ---- Flame flicker: subtle sway and scale variation ---- */
-@keyframes diya-flicker {
-  0%, 100% {
-    transform: scaleY(1) scaleX(1) rotate(0deg);
-  }
-  15% {
-    transform: scaleY(1.04) scaleX(0.97) rotate(-1deg);
-  }
-  30% {
-    transform: scaleY(0.96) scaleX(1.02) rotate(0.5deg);
-  }
-  50% {
-    transform: scaleY(1.06) scaleX(0.95) rotate(-0.5deg);
-  }
-  65% {
-    transform: scaleY(0.98) scaleX(1.01) rotate(1deg);
-  }
-  80% {
-    transform: scaleY(1.03) scaleX(0.98) rotate(-0.5deg);
-  }
-}
-
-.diya-flicker {
-  animation: diya-flicker 2.5s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-
-/* ---- Halo: gentle breathing glow around the flame ---- */
-@keyframes diya-halo-breathe {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.15);
-    opacity: 0.3;
-  }
-}
-
-.diya-halo {
-  animation: diya-halo-breathe 3.5s ease-in-out infinite;
-}
-
-/* ---- Pulse: radiating light ring that expands and fades ---- */
-@keyframes diya-pulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.6;
-  }
-  70% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
-.diya-pulse {
-  animation: diya-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-/* ---- Golden thread shimmer (optional, for future use) ---- */
-@keyframes thread-shimmer {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-/* Legacy marker classes kept for backward compat if needed */
-.marker-pulse {
-  animation: diya-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.marker-breathe {
-  animation: diya-halo-breathe 3s ease-in-out infinite;
+/* Mapbox marker containers — ensure Framer Motion transforms work */
+.mapboxgl-marker {
+  will-change: transform;
 }
