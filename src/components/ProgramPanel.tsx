@@ -121,7 +121,7 @@ export default function ProgramPanel({ program, onClose }: ProgramPanelProps) {
         /*  MOBILE  (<md): full-width bottom sheet, max 40% height    */
         /* ---------------------------------------------------------- */
         "absolute z-30 flex flex-col overflow-hidden rounded-2xl " +
-        "border border-white/[0.08] bg-[#0c0c20]/70 shadow-2xl backdrop-blur-xl " +
+        "glass-panel glass-highlight noise-overlay " +
         /* Desktop positioning */
         "md:right-5 md:top-20 md:w-[370px] " +
         /* Mobile: anchor to bottom, full width with gutters, max 40vh */

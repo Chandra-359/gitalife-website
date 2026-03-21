@@ -280,10 +280,10 @@ export default function ProgramCarousel({
               key={TEMPLE_ID}
               data-card="temple"
               variants={cardVariants}
-              className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
+              className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl glass-highlight transition-all duration-300 ${
                 templeActive
-                  ? "border-[#D4A843]/30 bg-[#0c0c20]/80 shadow-2xl"
-                  : "border-white/[0.06] bg-[#0c0c20]/50 shadow-lg hover:border-[#D4A843]/20 hover:bg-[#0c0c20]/65"
+                  ? "glass-panel border-[#D4A843]/30 shadow-2xl"
+                  : "glass-panel-light shadow-lg hover:border-[#D4A843]/20"
               }`}
               style={{
                 width: templeActive ? "min(340px, 85vw)" : "min(280px, 72vw)",
@@ -389,10 +389,10 @@ export default function ProgramCarousel({
                   key={program.id}
                   data-card="program"
                   variants={cardVariants}
-                  className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
+                  className={`relative flex shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-2xl glass-highlight transition-all duration-300 ${
                     isActive
-                      ? "border-white/15 bg-[#0c0c20]/80 shadow-2xl"
-                      : "border-white/[0.06] bg-[#0c0c20]/50 shadow-lg hover:border-white/10 hover:bg-[#0c0c20]/65"
+                      ? "glass-panel border-white/15 shadow-2xl"
+                      : "glass-panel-light shadow-lg hover:border-white/10"
                   }`}
                   style={{
                     width: isActive ? "min(340px, 85vw)" : "min(280px, 72vw)",

@@ -62,7 +62,7 @@ export default function TempleInfoCard({ visible, onExplorePrograms }: TempleInf
           exit="exit"
           className={
             "absolute z-30 flex flex-col overflow-hidden rounded-2xl " +
-            "border border-white/[0.08] bg-[#0c0c20]/75 shadow-2xl backdrop-blur-xl " +
+            "glass-panel glass-highlight noise-overlay " +
             /* Desktop */
             "md:bottom-8 md:left-6 md:w-[380px] " +
             /* Mobile */

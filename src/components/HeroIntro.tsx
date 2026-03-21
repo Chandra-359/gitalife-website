@@ -224,41 +224,151 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
                 );
               })}
 
-              {/* Center diya flame */}
+              {/* === BLAZING FIRE === */}
+
+              {/* Fire gradients */}
+              <defs>
+                {/* Ring gradients */}
+                <linearGradient id="ringGradient" x1="0" y1="0" x2="120" y2="120">
+                  <stop offset="0%" stopColor="#E8751A" />
+                  <stop offset="100%" stopColor="#D4A843" />
+                </linearGradient>
+                <linearGradient id="ringGradient2" x1="120" y1="0" x2="0" y2="120">
+                  <stop offset="0%" stopColor="#D4A843" />
+                  <stop offset="100%" stopColor="#E8751A" />
+                </linearGradient>
+                {/* Fire gradients */}
+                <radialGradient id="heroFlameOuter" cx="50%" cy="75%" r="55%">
+                  <stop offset="0%" stopColor="#E8751A" />
+                  <stop offset="60%" stopColor="#E8751A" stopOpacity="0.7" />
+                  <stop offset="100%" stopColor="#8B2500" stopOpacity="0.3" />
+                </radialGradient>
+                <radialGradient id="heroFlameMid" cx="50%" cy="70%" r="50%">
+                  <stop offset="0%" stopColor="#FFD700" />
+                  <stop offset="50%" stopColor="#E8751A" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#E8751A" stopOpacity="0.5" />
+                </radialGradient>
+                <radialGradient id="heroFlameInner" cx="50%" cy="65%" r="45%">
+                  <stop offset="0%" stopColor="#FFF8DC" />
+                  <stop offset="40%" stopColor="#FFD700" />
+                  <stop offset="100%" stopColor="#FFA500" stopOpacity="0.7" />
+                </radialGradient>
+              </defs>
+
+              {/* Outer fire — large turbulent base */}
               <motion.path
-                d="M60 30c-4 8-12 16-12 24a12 12 0 0 0 24 0c0-8-8-16-12-24Z"
-                fill="url(#flameGradient)"
+                d="M60 24c-5 9-16 18-16 30a16 16 0 0 0 32 0c0-12-11-21-16-30Z"
+                fill="url(#heroFlameOuter)"
                 initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.9 }}
+                animate={{
+                  scale: 1,
+                  opacity: 0.9,
+                  scaleY: [1, 1.08, 0.93, 1.05, 0.96, 1],
+                  scaleX: [1, 0.95, 1.04, 0.97, 1.03, 1],
+                  rotate: [0, -2, 1.5, -1, 1.8, 0],
+                }}
                 transition={{
-                  duration: 1.2,
-                  delay: 1.2,
-                  ease: [0.16, 1, 0.3, 1],
+                  scale: { duration: 1.2, delay: 1.2, ease: [0.16, 1, 0.3, 1] },
+                  opacity: { duration: 1.2, delay: 1.2 },
+                  scaleY: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 },
+                  scaleX: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 },
+                  rotate: { duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 },
+                }}
+                style={{ transformOrigin: "60px 50px" }}
+              />
+
+              {/* Wispy tendril — left */}
+              <motion.path
+                d="M52 38c-2 4-4 8-3 12c1 3 3 3 4 1"
+                stroke="#E8751A"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                fill="none"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: [0, 0.3, 0.15, 0.25, 0],
+                  d: [
+                    "M52 38c-2 4-4 8-3 12c1 3 3 3 4 1",
+                    "M50 36c-3 5-5 9-4 13c1 3 4 3 5 1",
+                    "M52 38c-2 4-4 8-3 12c1 3 3 3 4 1",
+                  ],
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              />
+
+              {/* Wispy tendril — right */}
+              <motion.path
+                d="M68 38c2 4 4 8 3 12c-1 3-3 3-4 1"
+                stroke="#E8751A"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                fill="none"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: [0, 0.25, 0.1, 0.2, 0],
+                  d: [
+                    "M68 38c2 4 4 8 3 12c-1 3-3 3-4 1",
+                    "M70 36c3 5 5 9 4 13c-1 3-4 3-5 1",
+                    "M68 38c2 4 4 8 3 12c-1 3-3 3-4 1",
+                  ],
+                }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 2.2 }}
+              />
+
+              {/* Mid fire — brighter body */}
+              <motion.path
+                d="M60 30c-3 6-10 13-10 22a10 10 0 0 0 20 0c0-9-7-16-10-22Z"
+                fill="url(#heroFlameMid)"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  opacity: 0.85,
+                  scaleY: [1, 1.12, 0.88, 1.08, 0.93, 1],
+                  scaleX: [1, 0.93, 1.06, 0.95, 1.04, 1],
+                }}
+                transition={{
+                  scale: { duration: 1, delay: 1.4, ease: "easeOut" },
+                  opacity: { duration: 1, delay: 1.4 },
+                  scaleY: { duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: 1.6 },
+                  scaleX: { duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: 1.6 },
                 }}
                 style={{ transformOrigin: "60px 48px" }}
               />
+
+              {/* Inner fire — hot yellow-white */}
               <motion.path
-                d="M60 38c-2.5 5-7 10-7 15a7 7 0 0 0 14 0c0-5-4.5-10-7-15Z"
-                fill="#FFD700"
+                d="M60 36c-2 4-6 9-6 14a6 6 0 0 0 12 0c0-5-4-10-6-14Z"
+                fill="url(#heroFlameInner)"
                 initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.8 }}
-                transition={{ duration: 0.8, delay: 1.5, ease: "easeOut" }}
+                animate={{
+                  scale: 1,
+                  opacity: 0.9,
+                  scaleY: [1, 1.15, 0.85, 1.1, 0.9, 1],
+                  scaleX: [1, 0.9, 1.08, 0.93, 1.05, 1],
+                }}
+                transition={{
+                  scale: { duration: 0.8, delay: 1.6, ease: "easeOut" },
+                  opacity: { duration: 0.8, delay: 1.6 },
+                  scaleY: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 1.8 },
+                  scaleX: { duration: 1, repeat: Infinity, ease: "easeInOut", delay: 1.8 },
+                }}
                 style={{ transformOrigin: "60px 48px" }}
               />
-              {/* White-hot core with breathing */}
+
+              {/* White-hot core — rapid throb */}
               <motion.ellipse
                 cx="60"
                 cy="50"
-                rx="3"
-                ry="5"
+                rx="3.5"
+                ry="5.5"
                 fill="#FFF8E1"
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: [0, 1, 0.6, 1],
-                  scaleY: [1, 1.15, 0.95, 1],
+                  opacity: [0, 0.9, 0.6, 0.95, 0.7, 0.85],
+                  scale: [1, 1.2, 0.85, 1.15, 0.9, 1],
                 }}
                 transition={{
-                  duration: 2.5,
+                  duration: 1.2,
                   delay: 1.8,
                   repeat: Infinity,
                   ease: "easeInOut",
@@ -266,55 +376,77 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
                 style={{ transformOrigin: "60px 50px" }}
               />
 
+              {/* Flickering flame tip */}
+              <motion.circle
+                cx="60"
+                cy="28"
+                r="1.5"
+                fill="#FFF"
+                initial={{ opacity: 0 }}
+                animate={{
+                  cy: [28, 25, 29, 26, 28],
+                  opacity: [0, 0.6, 0.2, 0.5, 0],
+                  r: [1.5, 2.2, 1, 1.8, 1.5],
+                }}
+                transition={{ duration: 1, delay: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Rising sparks */}
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.circle
+                  key={`hero-spark-${i}`}
+                  cx={60 + ((i * 7) % 5) - 2}
+                  cy={30}
+                  r={1 + (i % 3) * 0.4}
+                  fill={i % 2 === 0 ? "#FFD700" : "#E8751A"}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    cy: [30, 15 - i * 3],
+                    cx: [60 + ((i * 7) % 5) - 2, 60 + ((i * 13) % 9) - 4],
+                    opacity: [0, 0.8, 0],
+                    r: [1 + (i % 3) * 0.4, 0.3],
+                  }}
+                  transition={{
+                    duration: 1.5 + i * 0.3,
+                    repeat: Infinity,
+                    delay: 2.5 + i * 0.4,
+                    ease: "easeOut",
+                  }}
+                />
+              ))}
+
               {/* Diya base */}
               <motion.ellipse
                 cx="60"
                 cy="56"
-                rx="8"
-                ry="2.5"
+                rx="9"
+                ry="3"
                 fill="#E8751A"
-                opacity="0.4"
+                opacity="0.45"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.5, delay: 1.4 }}
                 style={{ transformOrigin: "60px 56px" }}
               />
+              <motion.ellipse
+                cx="60"
+                cy="55.5"
+                rx="6"
+                ry="1.8"
+                fill="#FFD700"
+                opacity="0.15"
+                initial={{ scaleX: 0 }}
+                animate={{
+                  scaleX: 1,
+                  opacity: [0.1, 0.2, 0.1],
+                }}
+                transition={{
+                  scaleX: { duration: 0.5, delay: 1.4 },
+                  opacity: { duration: 2, delay: 2, repeat: Infinity, ease: "easeInOut" },
+                }}
+                style={{ transformOrigin: "60px 55.5px" }}
+              />
 
-              {/* Gradient definitions */}
-              <defs>
-                <linearGradient
-                  id="ringGradient"
-                  x1="0"
-                  y1="0"
-                  x2="120"
-                  y2="120"
-                >
-                  <stop offset="0%" stopColor="#E8751A" />
-                  <stop offset="100%" stopColor="#D4A843" />
-                </linearGradient>
-                <linearGradient
-                  id="ringGradient2"
-                  x1="120"
-                  y1="0"
-                  x2="0"
-                  y2="120"
-                >
-                  <stop offset="0%" stopColor="#D4A843" />
-                  <stop offset="100%" stopColor="#E8751A" />
-                </linearGradient>
-                <linearGradient
-                  id="flameGradient"
-                  x1="60"
-                  y1="30"
-                  x2="60"
-                  y2="55"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop offset="0%" stopColor="#FFD700" />
-                  <stop offset="50%" stopColor="#E8751A" />
-                  <stop offset="100%" stopColor="#D4A843" />
-                </linearGradient>
-              </defs>
             </svg>
 
             {/* Glow behind the lotus — larger and warmer */}
