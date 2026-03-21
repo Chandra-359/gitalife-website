@@ -53,45 +53,18 @@ body {
 }
 
 /* ================================================================== */
-/*  MARKER ANIMATIONS                                                  */
+/*  MARKER & MAP ENHANCEMENTS                                          */
 /*                                                                     */
-/*  Used by ProgramMarker.tsx via className="marker-pulse" etc.        */
-/*  Adjust durations / scales here to change the pulse feel.           */
+/*  Marker animations are now handled by Framer Motion (GPU-accelerated */
+/*  physics-based animations). Only supplemental styles remain here.    */
 /* ================================================================== */
 
-/* ---- Pulse: radiating ring that expands and fades out ---- */
-@keyframes marker-pulse {
-  0% {
-    transform: scale(0.85);
-    opacity: 0.7;
-  }
-  70% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
+/* Mapbox marker containers — ensure Framer Motion transforms work */
+.mapboxgl-marker {
+  will-change: transform;
 }
 
-.marker-pulse {
-  animation: marker-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-/* ---- Breathe: subtle scale oscillation on the inner glow ring ---- */
-@keyframes marker-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.25);
-    opacity: 0.25;
-  }
-}
-
-.marker-breathe {
-  animation: marker-breathe 3s ease-in-out infinite;
+/* Hide scrollbar on carousel strip (all browsers) */
+.snap-x::-webkit-scrollbar {
+  display: none;
 }
