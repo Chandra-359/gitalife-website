@@ -63,7 +63,7 @@ export default function SplitView({ programs }: SplitViewProps) {
 
       {/* Left panel — card list OR detail view */}
       <div
-        className={`relative w-full md:w-1/2 h-full overflow-hidden bg-gradient-to-b from-[#FFF9F0] to-[#FFF3E0] ${
+        className={`relative w-full md:w-1/2 h-full shrink-0 overflow-hidden bg-gradient-to-b from-[#FFF9F0] to-[#FFF3E0] ${
           isMobileMapView ? "hidden md:block" : ""
         }`}
       >
@@ -184,8 +184,8 @@ export default function SplitView({ programs }: SplitViewProps) {
 
       {/* Right panel — map */}
       <div
-        className={`w-full md:w-1/2 h-full relative overflow-hidden ${
-          isMobileMapView ? "" : "hidden md:block"
+        className={`w-full md:w-1/2 relative overflow-hidden ${
+          isMobileMapView ? "flex-1 h-full" : "hidden md:block md:h-full"
         }`}
       >
         <MapScene
