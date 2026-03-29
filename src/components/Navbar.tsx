@@ -33,7 +33,7 @@ export default function Navbar() {
       aria-label="Main navigation"
     >
       {/* ---- Glassmorphism backdrop (spans full width) ---- */}
-      <div className="pointer-events-none absolute inset-0 border-b border-gray-200/60 bg-white/80 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
+      <div className="pointer-events-none absolute inset-0 border-b border-[#E8751A]/10 bg-[#FFF9F0]/85 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
 
       {/* ---- Logo ---- */}
       {/*
