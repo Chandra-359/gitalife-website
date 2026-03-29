@@ -450,16 +450,16 @@ export default function MapScene({ programs, hoveredProgramId = null }: MapScene
   /* ---- Missing token fallback ---- */
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-[#0a0a1a] text-white">
+      <div className="flex h-full w-full items-center justify-center bg-white text-gray-900">
         <div className="max-w-md text-center">
           <h1 className="mb-4 text-2xl font-bold">Mapbox Token Required</h1>
-          <p className="text-gray-400">
+          <p className="text-gray-500">
             Set{" "}
-            <code className="rounded bg-white/10 px-2 py-1">
+            <code className="rounded bg-gray-100 px-2 py-1">
               NEXT_PUBLIC_MAPBOX_TOKEN
             </code>{" "}
             in your{" "}
-            <code className="rounded bg-white/10 px-2 py-1">.env.local</code>{" "}
+            <code className="rounded bg-gray-100 px-2 py-1">.env.local</code>{" "}
             file to load the map.
           </p>
         </div>
@@ -475,7 +475,7 @@ export default function MapScene({ programs, hoveredProgramId = null }: MapScene
       {/*  Dark screen that fades out once map tiles are loaded.        */}
       {/* ============================================================ */}
       <div
-        className={`pointer-events-none absolute inset-0 z-10 bg-[#0a0a1a] transition-opacity duration-1000 ${
+        className={`pointer-events-none absolute inset-0 z-10 bg-white transition-opacity duration-1000 ${
           mapLoaded ? "opacity-0" : "opacity-100"
         }`}
       />

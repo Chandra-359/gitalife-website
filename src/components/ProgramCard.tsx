@@ -39,19 +39,19 @@ export default function ProgramCard({
     <div
       className={`rounded-xl border px-5 py-4 transition-all duration-200 cursor-pointer ${
         isHovered
-          ? "bg-white/[0.08] border-white/20 shadow-lg shadow-white/[0.03]"
-          : "bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]"
+          ? "bg-gray-50 border-gray-300 shadow-md shadow-gray-200/60"
+          : "bg-white border-gray-100 hover:bg-gray-50"
       }`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
       {/* Date & time */}
-      <p className="text-[13px] font-semibold tracking-wide text-white/90">
+      <p className="text-[13px] font-semibold tracking-wide text-gray-900">
         {formatDate(program.date)} &middot; {formatTime(program.date)}
       </p>
 
       {/* Title */}
-      <h3 className="mt-1.5 text-[15px] font-medium leading-snug text-white">
+      <h3 className="mt-1.5 text-[15px] font-medium leading-snug text-gray-800">
         {program.title}
       </h3>
 
@@ -64,7 +64,7 @@ export default function ProgramCard({
       </span>
 
       {/* Description */}
-      <p className="mt-2 text-[13px] leading-relaxed text-white/50 line-clamp-2">
+      <p className="mt-2 text-[13px] leading-relaxed text-gray-500 line-clamp-2">
         {program.description}
       </p>
     </div>

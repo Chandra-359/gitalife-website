@@ -18,15 +18,15 @@ export default function SplitView({ programs }: SplitViewProps) {
       {/* Left panel — scrollable program list */}
       {/* Mobile: hidden when map is active. Desktop: always visible. */}
       <div
-        className={`w-full md:w-1/2 h-full overflow-y-auto bg-[#0a0a1a] ${
+        className={`w-full md:w-1/2 h-full overflow-y-auto bg-white ${
           isMobileMapView ? "hidden md:block" : ""
         }`}
       >
         <div className="px-5 py-6 pb-24 md:pb-6">
-          <h2 className="text-lg font-semibold text-white mb-1">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">
             Upcoming Programs
           </h2>
-          <p className="text-[13px] text-white/40 mb-5">
+          <p className="text-[13px] text-gray-400 mb-5">
             {programs.length} events near you
           </p>
           <div className="space-y-3">
@@ -56,7 +56,7 @@ export default function SplitView({ programs }: SplitViewProps) {
       {/* Mobile FAB — toggles between list and map view */}
       <button
         onClick={() => setIsMobileMapView((v) => !v)}
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:hidden flex items-center gap-2 rounded-full bg-[#1a1a2e] px-5 py-3 text-sm font-medium text-white shadow-lg shadow-black/40 border border-white/10 active:scale-95 transition-transform"
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:hidden flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-medium text-gray-900 shadow-lg shadow-black/15 border border-gray-200 active:scale-95 transition-transform"
       >
         {isMobileMapView ? (
           <>

@@ -12,8 +12,8 @@
 /* ================================================================== */
 
 :root {
-  --background: #0a0a1a;
-  --foreground: #ededed;
+  --background: #ffffff;
+  --foreground: #1a1a2e;
 }
 
 @theme inline {
