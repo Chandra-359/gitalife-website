@@ -25,15 +25,19 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Full-viewport reset — no scrollbars, map fills everything          */
+/*  Base reset — scrollable pages, programs route locks its own viewport */
 /* ------------------------------------------------------------------ */
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
