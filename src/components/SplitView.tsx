@@ -185,7 +185,9 @@ export default function SplitView({ programs }: SplitViewProps) {
       {/* Right panel — map */}
       <div
         className={`w-full md:w-1/2 relative overflow-hidden ${
-          isMobileMapView ? "flex-1 h-full" : "hidden md:block md:h-full"
+          isMobileMapView
+            ? "absolute inset-0 z-10 md:relative md:inset-auto md:z-auto"
+            : "hidden md:block md:h-full"
         }`}
       >
         <MapScene
