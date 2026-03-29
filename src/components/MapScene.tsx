@@ -279,9 +279,10 @@ function computeApproachBearing(
 
 interface MapSceneProps {
   programs: Program[];
+  hoveredProgramId?: string | null;
 }
 
-export default function MapScene({ programs }: MapSceneProps) {
+export default function MapScene({ programs, hoveredProgramId = null }: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
@@ -642,6 +643,7 @@ export default function MapScene({ programs }: MapSceneProps) {
             key={program.id}
             program={program}
             isSelected={selectedProgram?.id === program.id}
+            isHovered={hoveredProgramId === program.id}
             onSelect={handleSelectProgram}
           />
         ))}

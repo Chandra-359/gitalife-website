@@ -125,11 +125,13 @@ const labelVariants = {
 interface ProgramMarkerProps {
   program: Program;
   isSelected: boolean;
+  isHovered?: boolean;
   onSelect: (program: Program) => void;
 }
 
-export default function ProgramMarker({ program, isSelected, onSelect }: ProgramMarkerProps) {
+export default function ProgramMarker({ program, isSelected, isHovered = false, onSelect }: ProgramMarkerProps) {
   const { bg, glow } = getCategoryColor(program.category);
+  const highlighted = isSelected || isHovered;
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -160,8 +162,8 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
         <motion.span
           className="absolute rounded-full"
           style={{
-            width: isSelected ? 90 : 65,
-            height: isSelected ? 90 : 65,
+            width: highlighted ? 90 : 65,
+            height: highlighted ? 90 : 65,
             background: `radial-gradient(circle, ${glow} 0%, transparent 70%)`,
           }}
           variants={haloBreathe}
@@ -172,8 +174,8 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
         <motion.span
           className="absolute rounded-full"
           style={{
-            width: isSelected ? 54 : 40,
-            height: isSelected ? 54 : 40,
+            width: highlighted ? 54 : 40,
+            height: highlighted ? 54 : 40,
             background: glow,
           }}
           variants={pulseRing}
@@ -185,10 +187,12 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
           className="relative z-10 flex items-center justify-center"
           style={{
             transformOrigin: "center bottom",
-            filter: `drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 20px ${glow})`,
+            filter: highlighted
+              ? `drop-shadow(0 0 14px ${glow}) drop-shadow(0 0 28px ${glow})`
+              : `drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 20px ${glow})`,
           }}
           animate={{
-            scale: isSelected ? 1.35 : 1,
+            scale: highlighted ? 1.35 : 1,
             transition: { type: "spring", damping: 14, stiffness: 180 },
           }}
         >
@@ -235,9 +239,9 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
           </motion.svg>
         </motion.span>
 
-        {/* Layer 4 — Program title label */}
+        {/* Layer 4 — Program title label (shown on select or list hover) */}
         <AnimatePresence>
-          {isSelected && (
+          {highlighted && (
             <motion.span
               className="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg px-3 py-1 text-[11px] font-semibold tracking-wide"
               style={{
@@ -255,8 +259,8 @@ export default function ProgramMarker({ program, isSelected, onSelect }: Program
           )}
         </AnimatePresence>
 
-        {/* Hover label — only when not selected */}
-        {!isSelected && (
+        {/* Hover label — only when not highlighted */}
+        {!highlighted && (
           <span
             className="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg px-3 py-1 text-[11px] font-semibold tracking-wide opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 translate-y-1"
             style={{

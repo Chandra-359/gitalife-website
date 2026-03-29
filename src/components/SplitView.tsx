@@ -38,8 +38,8 @@ export default function SplitView({ programs }: SplitViewProps) {
       </div>
 
       {/* Right panel — map */}
-      <div className="w-full md:w-1/2 h-1/2 md:h-full relative">
-        <MapScene programs={programs} />
+      <div className="w-full md:w-1/2 h-1/2 md:h-full relative overflow-hidden">
+        <MapScene programs={programs} hoveredProgramId={hoveredProgramId} />
       </div>
     </div>
   );
