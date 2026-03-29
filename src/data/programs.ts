@@ -42,6 +42,24 @@ export const CATEGORY_COLORS: Record<string, { bg: string; glow: string }> = {
 /** Fallback for categories not in the map */
 export const DEFAULT_CATEGORY_COLOR = { bg: "#6b7280", glow: "rgba(107, 114, 128, 0.45)" };
 
+/**
+ * Category → icon mapping (Unicode)
+ * Used by ProgramCard to add visual identity to category badges.
+ */
+export const CATEGORY_ICONS: Record<string, string> = {
+  "Kirtan & Prasadam": "\uD83C\uDFB5",  // 🎵
+  Retreat:             "\u26F0\uFE0F",    // ⛰️
+  "Wisdom Session":    "\uD83D\uDCD6",   // 📖
+  "Youth Festival":    "\uD83C\uDF89",   // 🎉
+};
+
+export const DEFAULT_CATEGORY_ICON = "\u2728"; // ✨
+
+/** Helper to safely look up category icon */
+export function getCategoryIcon(category: string) {
+  return CATEGORY_ICONS[category] ?? DEFAULT_CATEGORY_ICON;
+}
+
 /** Helper to safely look up category colors */
 export function getCategoryColor(category: string) {
   return CATEGORY_COLORS[category] ?? DEFAULT_CATEGORY_COLOR;

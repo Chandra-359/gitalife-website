@@ -92,12 +92,40 @@ export default function MapScene({ programs, hoveredProgramId = null }: MapScene
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* Loading overlay */}
+      {/* Warm loading skeleton */}
       <div
-        className={`pointer-events-none absolute inset-0 z-10 bg-gray-50 transition-opacity duration-700 ${
+        className={`pointer-events-none absolute inset-0 z-10 bg-[#FFF9F0] transition-opacity duration-700 flex flex-col items-center justify-center ${
           mapLoaded ? "opacity-0" : "opacity-100"
         }`}
-      />
+      >
+        {!mapLoaded && (
+          <div className="flex flex-col items-center gap-3">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 28 28"
+              fill="none"
+              className="animate-lotus-pulse"
+            >
+              <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1.2" opacity="0.3" />
+              <path
+                d="M14 6c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"
+                fill="#E8751A"
+                opacity="0.6"
+              />
+              <path
+                d="M14 10c-1.2 2-3 4-3 5.8a3 3 0 0 0 6 0c0-1.8-1.8-3.8-3-5.8Z"
+                fill="#D4A843"
+                opacity="0.5"
+              />
+            </svg>
+            <p className="text-[13px] text-[#C4883A] tracking-wide">Loading map…</p>
+          </div>
+        )}
+      </div>
+
+      {/* Warm left-edge vignette for softer panel transition */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-[5] w-10 bg-gradient-to-r from-[#FFF9F0]/25 to-transparent hidden md:block" />
 
       <Map
         ref={mapRef}

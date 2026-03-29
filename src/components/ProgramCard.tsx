@@ -1,10 +1,12 @@
 "use client";
 
+import { motion } from "framer-motion";
 import type { Program } from "@/data/programs";
-import { getCategoryColor } from "@/data/programs";
+import { getCategoryColor, getCategoryIcon } from "@/data/programs";
 
 interface ProgramCardProps {
   program: Program;
+  index: number;
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -29,19 +31,31 @@ function formatTime(iso: string): string {
 
 export default function ProgramCard({
   program,
+  index,
   isHovered,
   onMouseEnter,
   onMouseLeave,
 }: ProgramCardProps) {
-  const { bg } = getCategoryColor(program.category);
+  const { bg, glow } = getCategoryColor(program.category);
+  const icon = getCategoryIcon(program.category);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.06, ease: "easeOut" }}
       className={`rounded-xl border px-5 py-4 transition-all duration-200 cursor-pointer ${
         isHovered
-          ? "bg-gray-50 border-gray-300 shadow-md shadow-gray-200/60"
-          : "bg-white border-gray-100 hover:bg-gray-50"
+          ? "shadow-md -translate-y-0.5"
+          : "hover:shadow-sm hover:-translate-y-px"
       }`}
+      style={{
+        borderLeft: `4px solid ${bg}`,
+        borderColor: isHovered ? bg : undefined,
+        borderLeftColor: bg,
+        backgroundColor: isHovered ? `${bg}08` : "rgba(255,255,255,0.8)",
+        boxShadow: isHovered ? `0 4px 16px ${glow}` : undefined,
+      }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -55,11 +69,12 @@ export default function ProgramCard({
         {program.title}
       </h3>
 
-      {/* Category tag */}
+      {/* Category tag with icon */}
       <span
-        className="mt-2 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide"
-        style={{ backgroundColor: `${bg}20`, color: bg }}
+        className="mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide"
+        style={{ backgroundColor: `${bg}18`, color: bg }}
       >
+        <span className="text-[12px]">{icon}</span>
         {program.category}
       </span>
 
@@ -67,6 +82,6 @@ export default function ProgramCard({
       <p className="mt-2 text-[13px] leading-relaxed text-gray-500 line-clamp-2">
         {program.description}
       </p>
-    </div>
+    </motion.div>
   );
 }

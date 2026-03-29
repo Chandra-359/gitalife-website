@@ -19,7 +19,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Playfair Display", "Georgia", "Times New Roman", serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
@@ -67,4 +68,23 @@ body {
 /* Hide scrollbar on carousel strip (all browsers) */
 .snap-x::-webkit-scrollbar {
   display: none;
+}
+
+/* ================================================================== */
+/*  Typography — Serif headings for warmth                             */
+/* ================================================================== */
+h1, h2, h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* ================================================================== */
+/*  Loading pulse animation for map skeleton                           */
+/* ================================================================== */
+@keyframes lotus-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.animate-lotus-pulse {
+  animation: lotus-pulse 2.5s ease-in-out infinite;
 }
