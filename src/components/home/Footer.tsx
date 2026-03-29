@@ -126,14 +126,14 @@ export default function Footer() {
             </h3>
             <div className="flex gap-3">
               {SOCIAL_LINKS.map((link) => (
-                <a
+                <button
                   key={link.label}
-                  href={link.href}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/70 transition-all hover:bg-[#E8751A] hover:text-white"
-                  aria-label={link.label}
+                  disabled
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/40 cursor-not-allowed"
+                  aria-label={`${link.label} (coming soon)`}
                 >
                   {link.icon}
-                </a>
+                </button>
               ))}
             </div>
             <p className="mt-4 text-sm text-white/60">

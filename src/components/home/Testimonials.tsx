@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TESTIMONIALS = [
@@ -32,6 +32,8 @@ const TESTIMONIALS = [
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % TESTIMONIALS.length);
@@ -42,29 +44,47 @@ export default function Testimonials() {
   }, []);
 
   useEffect(() => {
+    if (paused) return;
     const timer = setInterval(next, 7000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [next, paused]);
 
   return (
-    <section className="bg-white py-20 sm:py-28">
-      <div className="mx-auto max-w-4xl px-6">
+    <section className="relative overflow-hidden bg-[#FFF9F0] py-24 sm:py-32">
+      {/* Subtle decorative background */}
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 10% 30%, rgba(232, 117, 26, 0.06) 0%, transparent 40%), " +
+            "radial-gradient(circle at 90% 70%, rgba(26, 92, 94, 0.06) 0%, transparent 40%)",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-4xl px-6">
         {/* Section header */}
         <motion.div
-          className="mb-12 text-center"
+          className="mb-14 text-center"
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="font-serif text-3xl font-bold text-gray-900 sm:text-4xl">
+          <h2 className="font-serif text-3xl font-bold text-gray-900 sm:text-4xl md:text-5xl">
             What People Are Saying
           </h2>
-          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-[#E8751A] to-[#D4A843]" />
+          <div className="mx-auto mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-[#E8751A] to-[#D4A843]" />
         </motion.div>
 
         {/* Testimonial carousel */}
-        <div className="relative">
+        <div
+          className="relative"
+          ref={containerRef}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+        >
           {/* Quote icon */}
           <div className="mb-6 text-center">
             <svg
@@ -81,7 +101,7 @@ export default function Testimonials() {
             </svg>
           </div>
 
-          <div className="relative min-h-[200px]">
+          <div className="relative min-h-[220px] rounded-3xl border border-gray-200/60 bg-white p-8 shadow-sm sm:p-12">
             <AnimatePresence mode="wait">
               <motion.div
                 key={current}
@@ -94,13 +114,18 @@ export default function Testimonials() {
                 <p className="font-serif text-xl leading-relaxed text-gray-800 italic sm:text-2xl">
                   &ldquo;{TESTIMONIALS[current].quote}&rdquo;
                 </p>
-                <div className="mt-6">
-                  <p className="text-base font-semibold text-gray-900">
-                    {TESTIMONIALS[current].name}
-                  </p>
-                  <p className="text-sm text-[#E8751A]">
-                    {TESTIMONIALS[current].program}
-                  </p>
+                <div className="mt-8 flex items-center justify-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E8751A] to-[#D4A843] text-sm font-bold text-white">
+                    {TESTIMONIALS[current].name.charAt(0)}
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {TESTIMONIALS[current].name}
+                    </p>
+                    <p className="text-xs text-[#E8751A]">
+                      {TESTIMONIALS[current].program}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
