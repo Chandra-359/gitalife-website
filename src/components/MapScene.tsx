@@ -5,9 +5,12 @@
  *
  * Flat, light-themed map. No 3D buildings, fog, sky, terrain, or
  * cinematic animations. Just a responsive map with program markers.
+ *
+ * Selection state is now lifted to SplitView so that clicking a
+ * marker opens the detail view in the left panel.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Map from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -37,39 +40,55 @@ const MAX_ZOOM = 18;
 interface MapSceneProps {
   programs: Program[];
   hoveredProgramId?: string | null;
+  selectedProgramId?: string | null;
+  onSelectProgram?: (program: Program) => void;
 }
 
-export default function MapScene({ programs, hoveredProgramId = null }: MapSceneProps) {
+export default function MapScene({
+  programs,
+  hoveredProgramId = null,
+  selectedProgramId = null,
+  onSelectProgram,
+}: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
 
   const onMapLoad = useCallback(() => {
     setMapLoaded(true);
   }, []);
 
-  const handleSelectProgram = useCallback(
-    (program: Program) => {
-      if (selectedProgram?.id === program.id) {
-        setSelectedProgram(null);
-        return;
-      }
-
-      setSelectedProgram(program);
-
+  // Fly to selected program when it changes
+  useEffect(() => {
+    if (!selectedProgramId || !mapLoaded) return;
+    const program = programs.find((p) => p.id === selectedProgramId);
+    if (program) {
       mapRef.current?.flyTo({
         center: [program.longitude, program.latitude],
         zoom: 14,
         duration: 800,
         essential: true,
       });
-    },
-    [selectedProgram],
-  );
+    }
+  }, [selectedProgramId, mapLoaded, programs]);
 
-  const handleMapClick = useCallback(() => {
-    setSelectedProgram(null);
-  }, []);
+  // Reset view when deselected
+  useEffect(() => {
+    if (selectedProgramId === null && mapLoaded) {
+      mapRef.current?.flyTo({
+        center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude],
+        zoom: DEFAULT_VIEW.zoom,
+        duration: 800,
+        essential: true,
+      });
+    }
+  }, [selectedProgramId, mapLoaded]);
+
+  const handleMarkerSelect = useCallback(
+    (program: Program) => {
+      onSelectProgram?.(program);
+    },
+    [onSelectProgram],
+  );
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -140,15 +159,14 @@ export default function MapScene({ programs, hoveredProgramId = null }: MapScene
         dragRotate={false}
         touchZoomRotate={true}
         onLoad={onMapLoad}
-        onClick={handleMapClick}
       >
         {programs.map((program) => (
           <ProgramMarker
             key={program.id}
             program={program}
-            isSelected={selectedProgram?.id === program.id}
+            isSelected={selectedProgramId === program.id}
             isHovered={hoveredProgramId === program.id}
-            onSelect={handleSelectProgram}
+            onSelect={handleMarkerSelect}
           />
         ))}
       </Map>

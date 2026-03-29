@@ -22,6 +22,30 @@ export interface Program {
   latitude: number;      // positive for NYC area (northern hemisphere)
   date: string;          // ISO date string from the database
   imageUrl: string | null; // optional program photo URL
+
+  // --- Detail view fields ---
+  subtitle?: string | null;
+  address?: string | null;
+  duration?: string | null;
+  level?: string | null;
+
+  whatToExpect?: string[];
+  whyAttend?: string | null;
+  whatYouGet?: string[];
+  whatToBring?: string | null;
+
+  lectureTopic?: string | null;
+  gitaReference?: string | null;
+
+  speakerName?: string | null;
+  speakerTitle?: string | null;
+  speakerBio?: string | null;
+  speakerImageUrl?: string | null;
+
+  galleryUrls?: string[];
+
+  testimonial?: string | null;
+  testimonialAuthor?: string | null;
 }
 
 /**

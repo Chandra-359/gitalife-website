@@ -10,6 +10,7 @@ interface ProgramCardProps {
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onClick?: () => void;
 }
 
 function formatDate(iso: string): string {
@@ -35,6 +36,7 @@ export default function ProgramCard({
   isHovered,
   onMouseEnter,
   onMouseLeave,
+  onClick,
 }: ProgramCardProps) {
   const { bg, glow } = getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
@@ -58,6 +60,7 @@ export default function ProgramCard({
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onClick={onClick}
     >
       {/* Date & time */}
       <p className="text-[13px] font-semibold tracking-wide text-gray-900">
