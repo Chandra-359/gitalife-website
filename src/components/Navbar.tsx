@@ -33,7 +33,7 @@ export default function Navbar() {
       aria-label="Main navigation"
     >
       {/* ---- Glassmorphism backdrop (spans full width) ---- */}
-      <div className="pointer-events-none absolute inset-0 border-b border-white/[0.06] bg-[#0a0a1a]/60 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
+      <div className="pointer-events-none absolute inset-0 border-b border-gray-200/60 bg-white/80 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
 
       {/* ---- Logo ---- */}
       {/*
@@ -68,7 +68,7 @@ export default function Navbar() {
           />
         </svg>
 
-        <span className="text-base font-bold tracking-tight text-white sm:text-lg">
+        <span className="text-base font-bold tracking-tight text-gray-900 sm:text-lg">
           Gita Life <span className="text-[#E8751A]">NYC</span>
         </span>
       </a>
@@ -79,7 +79,7 @@ export default function Navbar() {
           <li key={link.label}>
             <a
               href={link.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
             >
               {link.label}
             </a>
@@ -100,7 +100,7 @@ export default function Navbar() {
       {/* ---- Mobile hamburger ---- */}
       <button
         onClick={() => setMobileOpen((v) => !v)}
-        className="relative z-10 flex h-9 w-9 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/[0.08] sm:hidden"
+        className="relative z-10 flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 sm:hidden"
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
         aria-expanded={mobileOpen}
       >
@@ -121,7 +121,7 @@ export default function Navbar() {
 
       {/* ---- Mobile dropdown ---- */}
       <div
-        className={`absolute inset-x-0 top-full z-10 border-b border-white/[0.06] bg-[#0a0a1a]/90 backdrop-blur-xl transition-all duration-300 sm:hidden ${
+        className={`absolute inset-x-0 top-full z-10 border-b border-gray-200/60 bg-white/95 backdrop-blur-xl transition-all duration-300 sm:hidden ${
           mobileOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
@@ -133,7 +133,7 @@ export default function Navbar() {
               <a
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
+                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
               >
                 {link.label}
               </a>
