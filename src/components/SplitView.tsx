@@ -64,7 +64,7 @@ export default function SplitView({ programs }: SplitViewProps) {
       {/* Left panel — card list OR detail view */}
       <div
         className={`relative w-full md:w-1/2 h-full shrink-0 overflow-hidden bg-gradient-to-b from-[#FFF9F0] to-[#FFF3E0] ${
-          isMobileMapView ? "hidden md:block" : ""
+          isMobileMapView ? "hidden md:block" : "z-10 md:z-auto"
         }`}
       >
         <AnimatePresence mode="wait">
@@ -182,10 +182,12 @@ export default function SplitView({ programs }: SplitViewProps) {
         </AnimatePresence>
       </div>
 
-      {/* Right panel — map */}
+      {/* Right panel — map (always rendered on mobile to avoid Mapbox 0×0 canvas) */}
       <div
-        className={`w-full md:w-1/2 relative overflow-hidden ${
-          isMobileMapView ? "flex-1 h-full" : "hidden md:block md:h-full"
+        className={`absolute inset-0 md:relative md:inset-auto md:w-1/2 md:h-full overflow-hidden ${
+          isMobileMapView
+            ? "z-20 md:z-auto"
+            : "z-0 pointer-events-none md:pointer-events-auto md:z-auto"
         }`}
       >
         <MapScene
