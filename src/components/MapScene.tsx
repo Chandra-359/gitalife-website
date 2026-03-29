@@ -449,7 +449,7 @@ export default function MapScene({ programs }: MapSceneProps) {
   /* ---- Missing token fallback ---- */
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#0a0a1a] text-white">
+      <div className="flex h-full w-full items-center justify-center bg-[#0a0a1a] text-white">
         <div className="max-w-md text-center">
           <h1 className="mb-4 text-2xl font-bold">Mapbox Token Required</h1>
           <p className="text-gray-400">
@@ -467,7 +467,7 @@ export default function MapScene({ programs }: MapSceneProps) {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden">
 
       {/* ============================================================ */}
       {/*  LOADING OVERLAY (z-10)                                      */}

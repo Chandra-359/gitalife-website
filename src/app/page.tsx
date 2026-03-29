@@ -12,7 +12,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { Program } from "@/data/programs";
-import MapScene from "@/components/MapScene";
+import SplitView from "@/components/SplitView";
 
 /** Always fetch fresh data so new programs appear immediately after admin adds them */
 export const dynamic = "force-dynamic";
@@ -108,5 +108,5 @@ async function getPrograms(): Promise<Program[]> {
 
 export default async function Home() {
   const programs = await getPrograms();
-  return <MapScene programs={programs} />;
+  return <SplitView programs={programs} />;
 }
