@@ -58,7 +58,7 @@ export default function HeroSection() {
   }, [showIntro, introExiting, handleEnter]);
 
   return (
-    <section className="relative min-h-screen overflow-hidden" aria-hidden={showIntro}>
+    <section className="relative z-[3] min-h-screen overflow-hidden" aria-hidden={showIntro}>
       {/* ---- Rich dark background ---- */}
       <div
         className="absolute inset-0"

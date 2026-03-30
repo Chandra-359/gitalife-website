@@ -53,7 +53,7 @@ export default function ImpactStats() {
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#1A5C5E] py-20 sm:py-24">
+    <section ref={ref} className="relative z-[3] overflow-hidden bg-[#1A5C5E] py-20 sm:py-24">
       {/* Decorative pattern */}
       <div
         className="absolute inset-0 opacity-10"

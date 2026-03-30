@@ -38,7 +38,7 @@ const FEATURES = [
 
 export default function WhatIsGitaLife() {
   return (
-    <section id="about" className="bg-[#FFF9F0] py-24 sm:py-32">
+    <section id="about" className="relative z-[3] bg-[#FFF9F0] py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-20">
           {/* ---- Text column ---- */}

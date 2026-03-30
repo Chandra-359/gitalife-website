@@ -35,7 +35,7 @@ const TEAM_MEMBERS = [
 
 export default function MeetTheTeam() {
   return (
-    <section className="bg-white py-24 sm:py-32">
+    <section className="relative z-[3] bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6">
         {/* Section header */}
         <motion.div

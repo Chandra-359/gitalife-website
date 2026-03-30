@@ -4,11 +4,14 @@
 /*  Gita Life NYC — Global Styles                                      */
 /*                                                                     */
 /*  Z-INDEX MAP (keep in sync with component comments):                */
+/*    z-1  — ParallaxBackground (decorative depth layers)              */
+/*    z-2  — ScrollLotus (scroll-driven bloom, above parallax)         */
 /*    z-0  — Mapbox GL canvas                                          */
-/*    z-10 — Loading overlay (fades out)                               */
+/*    z-10 — Section content, Loading overlay                          */
 /*    z-20 — Mapbox attribution / logo                                 */
 /*    z-30 — ResetViewButton, ProgramPanel (UI overlays)               */
 /*    z-40 — Navbar (always on top)                                    */
+/*    z-60 — HeroIntro overlay (first visit)                           */
 /* ================================================================== */
 
 :root {
@@ -99,4 +102,12 @@ h1, h2, h3 {
 
 .animate-lotus-pulse {
   animation: lotus-pulse 2.5s ease-in-out infinite;
+}
+
+/* ================================================================== */
+/*  Parallax mandala rotation                                          */
+/* ================================================================== */
+@keyframes parallax-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

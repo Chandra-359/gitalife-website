@@ -50,7 +50,7 @@ export default function Testimonials() {
   }, [next, paused]);
 
   return (
-    <section className="relative overflow-hidden bg-[#FFF9F0] py-24 sm:py-32">
+    <section className="relative z-[3] overflow-hidden bg-[#FFF9F0] py-24 sm:py-32">
       {/* Subtle decorative background */}
       <div
         className="absolute inset-0 opacity-40"

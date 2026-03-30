@@ -16,7 +16,7 @@ export default function OurPrograms() {
   return (
     <section
       id="programs"
-      className="relative overflow-hidden py-24 sm:py-32"
+      className="relative z-[3] overflow-hidden py-24 sm:py-32"
       style={{
         background:
           "linear-gradient(135deg, #0f3460 0%, #1a1a2e 40%, #16213e 70%, #0a0a1a 100%)",
