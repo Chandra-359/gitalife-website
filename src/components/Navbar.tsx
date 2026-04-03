@@ -3,24 +3,39 @@
 /**
  * Navbar — Persistent floating navigation bar
  *
- * Z-INDEX: z-40 (highest UI layer — always visible above panels & map)
+ * Now supports both the homepage (scrollable, with section anchors)
+ * and the programs page (fixed viewport).
  */
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
-const NAV_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Locations", href: "#locations" },
-  { label: "Contact", href: "#contact" },
-] as const;
+interface NavbarProps {
+  /** When true, uses anchor links (#about, #gallery etc). When false, uses page routes. */
+  isHomepage?: boolean;
+}
 
-export default function Navbar() {
+export default function Navbar({ isHomepage = false }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = isHomepage
+    ? [
+        { label: "About", href: "#about" },
+        { label: "Programs", href: "/programs" },
+        { label: "Gallery", href: "#gallery" },
+      ]
+    : [
+        { label: "Home", href: "/" },
+        { label: "About", href: "/#about" },
+        { label: "Gallery", href: "/#gallery" },
+      ];
+
+  const ctaHref = isHomepage ? "#get-connected" : "/#get-connected";
 
   return (
     <nav
-      className="pointer-events-auto absolute inset-x-0 top-0 z-40 flex items-center justify-between px-5 py-3 sm:px-8"
+      className={`pointer-events-auto ${isHomepage ? "fixed" : "absolute"} inset-x-0 top-0 z-40 flex items-center justify-between px-5 py-3 sm:px-8`}
       role="navigation"
       aria-label="Main navigation"
     >
@@ -28,12 +43,11 @@ export default function Navbar() {
       <div className="pointer-events-none absolute inset-0 border-b border-[#E8751A]/10 bg-[#FFF9F0]/85 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
 
       {/* ---- Logo ---- */}
-      <a
+      <Link
         href="/"
         className="relative z-10 flex items-center gap-2.5 transition-opacity hover:opacity-80 group"
         aria-label="Gita Life NYC — Home"
       >
-        {/* Animated lotus icon */}
         <motion.div
           whileHover={{ rotate: 10, scale: 1.1 }}
           transition={{ type: "spring", damping: 15 }}
@@ -65,30 +79,37 @@ export default function Navbar() {
         <span className="text-base font-bold tracking-tight text-gray-900 sm:text-lg">
           Gita Life <span className="text-gradient-saffron">NYC</span>
         </span>
-      </a>
+      </Link>
 
       {/* ---- Desktop links ---- */}
       <ul className="relative z-10 hidden items-center gap-1 sm:flex">
-        {NAV_LINKS.map((link) => (
+        {navLinks.map((link) => (
           <li key={link.label}>
-            <a
-              href={link.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-[#E8751A]/5 hover:text-gray-900"
-            >
-              {link.label}
-            </a>
+            {link.href.startsWith("/") ? (
+              <Link
+                href={link.href}
+                className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-[#E8751A]/5 hover:text-gray-900"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                href={link.href}
+                className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-[#E8751A]/5 hover:text-gray-900"
+              >
+                {link.label}
+              </a>
+            )}
           </li>
         ))}
 
-        {/* Primary CTA */}
         <li className="ml-2">
           <motion.a
-            href="#get-connected"
+            href={ctaHref}
             whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(232,117,26,0.35)" }}
             whileTap={{ scale: 0.97 }}
             className="inline-block rounded-full bg-[#E8751A] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(232,117,26,0.25)] transition-all hover:bg-[#d4680f] relative overflow-hidden"
           >
-            {/* Shimmer */}
             <span className="absolute inset-0 pointer-events-none">
               <span
                 className="absolute inset-0 animate-shimmer"
@@ -131,20 +152,30 @@ export default function Navbar() {
         }`}
       >
         <ul className="flex flex-col gap-1 px-5 py-4">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <li key={link.label}>
-              <a
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              >
-                {link.label}
-              </a>
+              {link.href.startsWith("/") ? (
+                <Link
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  {link.label}
+                </a>
+              )}
             </li>
           ))}
           <li className="mt-2">
             <a
-              href="#get-connected"
+              href={ctaHref}
               onClick={() => setMobileOpen(false)}
               className="block rounded-xl bg-[#E8751A] px-4 py-3 text-center text-sm font-semibold text-white shadow-[0_0_16px_rgba(232,117,26,0.25)]"
             >
