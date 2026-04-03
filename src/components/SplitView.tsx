@@ -16,6 +16,16 @@ const GITA_QUOTES = [
   { text: "A person can rise through the efforts of their own mind.", ref: "BG 6.5" },
 ];
 
+/* Decorative floating particles for the left panel background */
+const BG_PARTICLES = Array.from({ length: 8 }, (_, i) => ({
+  id: i,
+  left: `${12 + (i * 53) % 76}%`,
+  top: `${8 + (i * 37) % 80}%`,
+  size: 3 + (i % 3) * 2,
+  delay: i * 0.8,
+  duration: 8 + (i % 4) * 3,
+}));
+
 /* Animation variants for list ↔ detail transition */
 const listVariants = {
   enter: { x: -40, opacity: 0 },
@@ -48,7 +58,6 @@ export default function SplitView({ programs }: SplitViewProps) {
 
   const handleSelectProgram = useCallback((program: Program) => {
     setSelectedProgram(program);
-    // On mobile, switch to map view to show location
     setIsMobileMapView(false);
   }, []);
 
@@ -56,17 +65,66 @@ export default function SplitView({ programs }: SplitViewProps) {
     setSelectedProgram(null);
   }, []);
 
+  // Count upcoming programs
+  const upcomingCount = programs.filter(p => new Date(p.date) > new Date()).length;
+
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
       {/* Toast notifications */}
-      <Toaster position="top-center" />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            borderRadius: "16px",
+            background: "#1a1a2e",
+            color: "#fff",
+            fontSize: "14px",
+            padding: "12px 20px",
+          },
+        }}
+      />
 
       {/* Left panel — card list OR detail view */}
       <div
-        className={`relative w-full md:w-1/2 h-full shrink-0 overflow-hidden bg-gradient-to-b from-[#FFF9F0] to-[#FFF3E0] ${
+        className={`relative w-full md:w-1/2 h-full shrink-0 overflow-hidden ${
           isMobileMapView ? "hidden md:block" : "z-10 md:z-auto"
         }`}
       >
+        {/* Animated gradient background */}
+        <div
+          className="absolute inset-0 animate-gradient"
+          style={{
+            background: "linear-gradient(135deg, #FFF9F0 0%, #FFF3E0 30%, #FFF8F0 60%, #FFF5E6 100%)",
+            backgroundSize: "200% 200%",
+          }}
+        />
+
+        {/* Floating decorative particles */}
+        {BG_PARTICLES.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              left: p.left,
+              top: p.top,
+              width: p.size,
+              height: p.size,
+              background: "rgba(232, 117, 26, 0.12)",
+            }}
+            animate={{
+              y: [0, -15, 0],
+              opacity: [0.15, 0.4, 0.15],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: p.duration,
+              repeat: Infinity,
+              delay: p.delay,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+
         <AnimatePresence mode="wait">
           {selectedProgram ? (
             /* ---- Detail view ---- */
@@ -77,7 +135,7 @@ export default function SplitView({ programs }: SplitViewProps) {
               animate="center"
               exit="exit"
               transition={{ type: "spring", damping: 26, stiffness: 260 }}
-              className="h-full"
+              className="h-full relative z-10"
             >
               <ProgramDetail program={selectedProgram} onBack={handleBack} />
             </motion.div>
@@ -90,77 +148,115 @@ export default function SplitView({ programs }: SplitViewProps) {
               animate="center"
               exit="exit"
               transition={{ type: "spring", damping: 26, stiffness: 260 }}
-              className="h-full overflow-y-auto"
+              className="h-full overflow-y-auto custom-scrollbar relative z-10"
             >
               <div className="px-5 py-6 pb-24 md:pb-6">
-                {/* ---- Welcome header with rotating Gita quote ---- */}
-                <div className="mb-6 text-center">
-                  {/* Lotus icon */}
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 28 28"
-                    fill="none"
-                    className="mx-auto mb-2 opacity-70"
+                {/* ---- Welcome header ---- */}
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="mb-8 text-center"
+                >
+                  {/* Animated lotus icon */}
+                  <motion.div
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    className="inline-block mb-3"
                   >
-                    <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1.2" opacity="0.4" />
-                    <path
-                      d="M14 6c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"
-                      fill="#E8751A"
-                      opacity="0.75"
-                    />
-                    <path
-                      d="M14 10c-1.2 2-3 4-3 5.8a3 3 0 0 0 6 0c0-1.8-1.8-3.8-3-5.8Z"
-                      fill="#D4A843"
-                      opacity="0.6"
-                    />
-                  </svg>
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 28 28"
+                      fill="none"
+                      className="mx-auto"
+                    >
+                      <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1" opacity="0.3" />
+                      <motion.circle
+                        cx="14" cy="14" r="13"
+                        stroke="#E8751A"
+                        strokeWidth="1"
+                        opacity="0.6"
+                        strokeDasharray="82"
+                        animate={{ strokeDashoffset: [82, 0] }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                      />
+                      <path
+                        d="M14 6c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"
+                        fill="#E8751A"
+                        opacity="0.8"
+                      />
+                      <path
+                        d="M14 10c-1.2 2-3 4-3 5.8a3 3 0 0 0 6 0c0-1.8-1.8-3.8-3-5.8Z"
+                        fill="#D4A843"
+                        opacity="0.6"
+                      />
+                    </svg>
+                  </motion.div>
 
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    Discover Gita Wisdom
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                    Discover <span className="text-gradient-saffron">Gita Wisdom</span>
                   </h2>
+                  <p className="text-[13px] text-gray-500 mb-3">
+                    Join transformative programs across NYC
+                  </p>
 
                   {/* Rotating quote */}
-                  <div className="h-12 flex items-center justify-center overflow-hidden">
+                  <div className="h-14 flex items-center justify-center overflow-hidden">
                     <AnimatePresence mode="wait">
-                      <motion.p
+                      <motion.div
                         key={quoteIndex}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        exit={{ opacity: 0, y: -12 }}
                         transition={{ duration: 0.5 }}
-                        className="text-[13px] leading-relaxed text-[#8B6914] italic max-w-xs mx-auto"
+                        className="text-center"
                       >
-                        &ldquo;{GITA_QUOTES[quoteIndex].text}&rdquo;
-                        <span className="not-italic text-[11px] text-[#B8860B]/60 ml-1.5">
+                        <p className="text-[13px] leading-relaxed text-[#8B6914] italic max-w-sm mx-auto">
+                          &ldquo;{GITA_QUOTES[quoteIndex].text}&rdquo;
+                        </p>
+                        <span className="text-[11px] text-[#B8860B]/50 font-medium">
                           — {GITA_QUOTES[quoteIndex].ref}
                         </span>
-                      </motion.p>
+                      </motion.div>
                     </AnimatePresence>
                   </div>
 
-                  {/* Decorative divider with lotus center */}
-                  <div className="flex items-center gap-3 mt-3">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#E8751A]/20" />
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="opacity-40">
-                      <path d="M6 1c-1 1.5-2.5 3-2.5 4.5a2.5 2.5 0 0 0 5 0C8.5 4 7 2.5 6 1Z" fill="#E8751A" />
-                    </svg>
-                    <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#E8751A]/20" />
+                  {/* Decorative divider */}
+                  <div className="flex items-center gap-4 mt-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#E8751A]/20 to-transparent" />
                   </div>
-                </div>
+                </motion.div>
 
-                {/* Programs heading */}
-                <div className="flex items-baseline justify-between mb-4">
-                  <h3 className="text-[15px] font-semibold text-gray-800">
-                    Upcoming Programs
-                  </h3>
-                  <span className="text-[12px] text-gray-400">
-                    {programs.length} events
-                  </span>
-                </div>
+                {/* Programs heading with count */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="flex items-center justify-between mb-5"
+                >
+                  <div>
+                    <h3 className="text-[16px] font-bold text-gray-800">
+                      Upcoming Programs
+                    </h3>
+                    <p className="text-[12px] text-gray-400 mt-0.5">
+                      {upcomingCount} {upcomingCount === 1 ? "event" : "events"} waiting for you
+                    </p>
+                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-1.5 rounded-full bg-[#E8751A]/10 px-3 py-1.5 text-[11px] font-semibold text-[#E8751A]"
+                  >
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#E8751A] opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E8751A]" />
+                    </span>
+                    Live
+                  </motion.div>
+                </motion.div>
 
                 {/* Program cards */}
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {programs.map((program, index) => (
                     <ProgramCard
                       key={program.id}
@@ -173,16 +269,28 @@ export default function SplitView({ programs }: SplitViewProps) {
                     />
                   ))}
                 </div>
+
+                {/* Bottom CTA */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="mt-8 text-center"
+                >
+                  <p className="text-[12px] text-gray-400">
+                    Click any program to learn more and RSVP
+                  </p>
+                </motion.div>
               </div>
 
               {/* Bottom scroll fade */}
-              <div className="pointer-events-none sticky bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#FFF3E0] to-transparent" />
+              <div className="pointer-events-none sticky bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#FFF3E0] via-[#FFF3E0]/80 to-transparent" />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Right panel — map (always rendered on mobile to avoid Mapbox 0×0 canvas) */}
+      {/* Right panel — map */}
       <div
         className={`absolute inset-0 md:relative md:inset-auto md:w-1/2 md:h-full overflow-hidden ${
           isMobileMapView
@@ -200,9 +308,12 @@ export default function SplitView({ programs }: SplitViewProps) {
 
       {/* Mobile FAB — toggles between list and map view */}
       {!selectedProgram && (
-        <button
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, type: "spring", damping: 20 }}
           onClick={() => setIsMobileMapView((v) => !v)}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:hidden flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-medium text-gray-900 shadow-lg shadow-black/15 border border-gray-200 active:scale-95 transition-transform"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:hidden flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur-xl px-6 py-3.5 text-sm font-semibold text-gray-900 shadow-xl shadow-black/10 border border-white/50 active:scale-95 transition-transform"
         >
           {isMobileMapView ? (
             <>
@@ -244,7 +355,7 @@ export default function SplitView({ programs }: SplitViewProps) {
               Show Map
             </>
           )}
-        </button>
+        </motion.button>
       )}
     </div>
   );
