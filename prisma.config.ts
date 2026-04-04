@@ -9,6 +9,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: process.env["gitalife_PRISMA_DATABASE_URL"]
+      ?? process.env["gitalife_DATABASE_URL"]
+      ?? process.env["gitalife_POSTGRES_URL"]
+      ?? process.env["DATABASE_URL"],
   },
 });

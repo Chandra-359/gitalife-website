@@ -15,8 +15,15 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function getDatabaseUrl(): string | undefined {
+  return process.env.gitalife_PRISMA_DATABASE_URL
+    ?? process.env.gitalife_DATABASE_URL
+    ?? process.env.gitalife_POSTGRES_URL
+    ?? process.env.DATABASE_URL;
+}
+
 function createPrismaClient(): PrismaClient | null {
-  if (!process.env.DATABASE_URL) return null;
+  if (!getDatabaseUrl()) return null;
   return new PrismaClient();
 }
 
