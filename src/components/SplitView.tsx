@@ -158,42 +158,6 @@ export default function SplitView({ programs }: SplitViewProps) {
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="mb-8 text-center"
                 >
-                  {/* Animated lotus icon */}
-                  <motion.div
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                    className="inline-block mb-3"
-                  >
-                    <svg
-                      width="40"
-                      height="40"
-                      viewBox="0 0 28 28"
-                      fill="none"
-                      className="mx-auto"
-                    >
-                      <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1" opacity="0.3" />
-                      <motion.circle
-                        cx="14" cy="14" r="13"
-                        stroke="#E8751A"
-                        strokeWidth="1"
-                        opacity="0.6"
-                        strokeDasharray="82"
-                        animate={{ strokeDashoffset: [82, 0] }}
-                        transition={{ duration: 2, ease: "easeOut" }}
-                      />
-                      <path
-                        d="M14 6c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"
-                        fill="#E8751A"
-                        opacity="0.8"
-                      />
-                      <path
-                        d="M14 10c-1.2 2-3 4-3 5.8a3 3 0 0 0 6 0c0-1.8-1.8-3.8-3-5.8Z"
-                        fill="#D4A843"
-                        opacity="0.6"
-                      />
-                    </svg>
-                  </motion.div>
-
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     Discover <span className="text-gradient-saffron">Gita Wisdom</span>
                   </h2>

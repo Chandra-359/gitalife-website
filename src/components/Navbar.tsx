@@ -49,31 +49,12 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         aria-label="Gita Life NYC — Home"
       >
         <motion.div
-          whileHover={{ rotate: 10, scale: 1.1 }}
+          whileHover={{ scale: 1.08 }}
           transition={{ type: "spring", damping: 15 }}
+          className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0"
+          style={{ background: "linear-gradient(135deg, #E8751A, #d4680f)" }}
         >
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 28 28"
-            fill="none"
-            className="shrink-0"
-          >
-            <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1" opacity="0.3" />
-            <circle cx="14" cy="14" r="13" stroke="#E8751A" strokeWidth="1" opacity="0.15" strokeDasharray="4 4">
-              <animateTransform attributeName="transform" type="rotate" from="0 14 14" to="360 14 14" dur="20s" repeatCount="indefinite" />
-            </circle>
-            <path
-              d="M14 6c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"
-              fill="#E8751A"
-              opacity="0.85"
-            />
-            <path
-              d="M14 10c-1.2 2-3 4-3 5.8a3 3 0 0 0 6 0c0-1.8-1.8-3.8-3-5.8Z"
-              fill="#D4A843"
-              opacity="0.7"
-            />
-          </svg>
+          <span className="text-white font-bold text-sm">G</span>
         </motion.div>
 
         <span className="text-base font-bold tracking-tight text-gray-900 sm:text-lg">
