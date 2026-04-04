@@ -22,7 +22,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!prisma) {
+    // prisma is a Proxy (always truthy) — check a real property to detect
+    // whether the underlying PrismaClient was created (i.e. DATABASE_URL is set).
+    if (!prisma?.rsvp) {
       return NextResponse.json(
         { error: "Database not available" },
         { status: 503 },
@@ -97,6 +99,7 @@ export async function POST(request: Request) {
       );
     }
 
+    console.error("RSVP error:", error);
     return NextResponse.json(
       { error: "Failed to process RSVP" },
       { status: 500 },
