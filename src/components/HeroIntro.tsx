@@ -3,15 +3,8 @@
 /**
  * HeroIntro — Cinematic landing overlay that plays on first visit
  *
- * Sequence:
- *  1. Dark screen with subtle warm particles
- *  2. Lotus mandala draws in (SVG path animation)
- *  3. "Gita Life NYC" brand text scales up
- *  4. Tagline fades in below
- *  5. "Explore the Map" CTA pulses
- *  6. Entire overlay dissolves, revealing the map beneath
- *
- * Uses Framer Motion for all animations — no CSS keyframes.
+ * Enhanced with richer particle effects, mandala animation,
+ * and a more dramatic entrance sequence.
  */
 
 import { useState } from "react";
@@ -23,21 +16,32 @@ interface HeroIntroProps {
 }
 
 /** Floating particle positions (pre-computed for deterministic SSR) */
-const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
   id: i,
-  x: `${10 + (i * 47) % 80}%`,
-  y: `${5 + (i * 31) % 85}%`,
-  size: 2 + (i % 4),
-  delay: (i * 0.3) % 3,
-  duration: 4 + (i % 3) * 2,
+  x: `${5 + (i * 41) % 90}%`,
+  y: `${3 + (i * 29) % 90}%`,
+  size: 2 + (i % 5),
+  delay: (i * 0.25) % 3,
+  duration: 3 + (i % 4) * 2,
+  color: i % 3 === 0 ? "rgba(232, 117, 26, 0.5)" : i % 3 === 1 ? "rgba(212, 168, 67, 0.4)" : "rgba(255, 215, 0, 0.3)",
 }));
+
+/** Decorative mandala ring dots */
+const RING_DOTS = Array.from({ length: 12 }, (_, i) => {
+  const angle = (i * 30 * Math.PI) / 180;
+  return {
+    id: i,
+    cx: 60 + Math.cos(angle) * 42,
+    cy: 60 + Math.sin(angle) * 42,
+    delay: 1.5 + i * 0.08,
+  };
+});
 
 export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
   const [exiting, setExiting] = useState(false);
 
   const handleEnter = () => {
     setExiting(true);
-    // Let exit animation play, then unmount
     setTimeout(onEnter, 1200);
   };
 
@@ -52,14 +56,16 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         >
-          {/* ---- Warm gradient backdrop ---- */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 60%, rgba(232, 117, 26, 0.08) 0%, rgba(212, 168, 67, 0.04) 40%, transparent 70%)",
-            }}
-          />
+          {/* ---- Layered gradient backdrop ---- */}
+          <div className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse at 50% 40%, rgba(232, 117, 26, 0.1) 0%, transparent 50%)",
+          }} />
+          <div className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse at 30% 70%, rgba(212, 168, 67, 0.06) 0%, transparent 40%)",
+          }} />
+          <div className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse at 70% 60%, rgba(233, 69, 96, 0.04) 0%, transparent 40%)",
+          }} />
 
           {/* ---- Floating golden particles ---- */}
           {PARTICLES.map((p) => (
@@ -71,12 +77,13 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
                 top: p.y,
                 width: p.size,
                 height: p.size,
-                background: "rgba(212, 168, 67, 0.5)",
+                background: p.color,
               }}
               animate={{
-                y: [0, -30, 0],
-                opacity: [0.2, 0.7, 0.2],
-                scale: [1, 1.5, 1],
+                y: [0, -40, 0],
+                x: [0, p.id % 2 === 0 ? 10 : -10, 0],
+                opacity: [0.1, 0.8, 0.1],
+                scale: [1, 1.8, 1],
               }}
               transition={{
                 duration: p.duration,
@@ -89,18 +96,18 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
 
           {/* ---- Lotus mandala SVG ---- */}
           <motion.div
-            initial={{ scale: 0.6, opacity: 0, rotate: -30 }}
+            initial={{ scale: 0.5, opacity: 0, rotate: -45 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{
-              duration: 1.8,
+              duration: 2,
               ease: [0.16, 1, 0.3, 1],
-              delay: 0.3,
+              delay: 0.2,
             }}
-            className="relative mb-8"
+            className="relative mb-10"
           >
             <svg
-              width="120"
-              height="120"
+              width="140"
+              height="140"
               viewBox="0 0 120 120"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -128,6 +135,20 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: 2, delay: 0.8, ease: "easeOut" }}
               />
+
+              {/* Decorative ring dots */}
+              {RING_DOTS.map((dot) => (
+                <motion.circle
+                  key={dot.id}
+                  cx={dot.cx}
+                  cy={dot.cy}
+                  r="1.5"
+                  fill="#D4A843"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 0.5, scale: 1 }}
+                  transition={{ duration: 0.4, delay: dot.delay }}
+                />
+              ))}
 
               {/* Lotus petals — 8 petals arranged radially */}
               {Array.from({ length: 8 }, (_, i) => {
@@ -196,9 +217,19 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
 
             {/* Glow behind the lotus */}
             <div
-              className="absolute inset-0 -z-10 blur-2xl"
+              className="absolute inset-0 -z-10 blur-3xl"
               style={{
-                background: "radial-gradient(circle, rgba(232, 117, 26, 0.3) 0%, transparent 60%)",
+                background: "radial-gradient(circle, rgba(232, 117, 26, 0.35) 0%, transparent 60%)",
+              }}
+            />
+
+            {/* Rotating outer glow ring */}
+            <motion.div
+              className="absolute inset-[-20px] -z-10 rounded-full border border-[#E8751A]/10"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              style={{
+                borderStyle: "dashed",
               }}
             />
           </motion.div>
@@ -216,7 +247,7 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
 
           {/* ---- Tagline ---- */}
           <motion.p
-            className="relative mb-10 max-w-md px-6 text-center text-base text-white/50 sm:text-lg"
+            className="relative mb-4 max-w-md px-6 text-center text-base text-white/50 sm:text-lg"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.8, ease: "easeOut" }}
@@ -224,14 +255,33 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
             Spreading the light of Bhagavad Gita wisdom across the city
           </motion.p>
 
+          {/* ---- Stats row ---- */}
+          <motion.div
+            className="relative flex items-center gap-6 mb-10"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 2.1, ease: "easeOut" }}
+          >
+            {[
+              { value: "5+", label: "Programs" },
+              { value: "NYC", label: "Locations" },
+              { value: "Free", label: "Always" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <p className="text-lg font-bold text-[#E8751A]">{stat.value}</p>
+                <p className="text-[11px] text-white/30 uppercase tracking-wider">{stat.label}</p>
+              </div>
+            ))}
+          </motion.div>
+
           {/* ---- CTA Button ---- */}
           <motion.button
             onClick={handleEnter}
-            className="relative overflow-hidden rounded-full border border-[#E8751A]/30 bg-[#E8751A]/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-widest text-[#E8751A] backdrop-blur-sm transition-colors hover:bg-[#E8751A]/20"
+            className="relative overflow-hidden rounded-full border border-[#E8751A]/30 bg-[#E8751A]/10 px-10 py-4 text-sm font-semibold uppercase tracking-widest text-[#E8751A] backdrop-blur-sm transition-colors hover:bg-[#E8751A]/20"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 2.4, ease: "easeOut" }}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(232, 117, 26, 0.3)" }}
+            transition={{ duration: 0.8, delay: 2.6, ease: "easeOut" }}
+            whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(232, 117, 26, 0.3)" }}
             whileTap={{ scale: 0.97 }}
           >
             {/* Shimmer sweep */}
@@ -241,10 +291,34 @@ export default function HeroIntro({ visible, onEnter }: HeroIntroProps) {
                 background: "linear-gradient(105deg, transparent 40%, rgba(232,117,26,0.15) 50%, transparent 60%)",
               }}
               animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 3, repeat: Infinity, delay: 3, ease: "easeInOut" }}
+              transition={{ duration: 3, repeat: Infinity, delay: 3.5, ease: "easeInOut" }}
             />
-            Explore the Map
+            <span className="flex items-center gap-2">
+              Explore Programs
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
           </motion.button>
+
+          {/* ---- Scroll hint ---- */}
+          <motion.div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 3.5, duration: 1 }}
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="flex flex-col items-center gap-2"
+            >
+              <span className="text-[10px] uppercase tracking-widest text-white/20">Scroll</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/20">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </motion.div>
+          </motion.div>
 
           {/* ---- Bottom gradient fade ---- */}
           <div
