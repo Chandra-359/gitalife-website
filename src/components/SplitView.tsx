@@ -42,7 +42,7 @@ const detailVariants = {
 /* ------------------------------------------------------------------ */
 /*  Bottom Sheet snap points (mobile only)                             */
 /* ------------------------------------------------------------------ */
-const SHEET_PEEK = 180;    // Collapsed: shows ~1 card row
+const SHEET_PEEK = 300;    // Collapsed: shows card row comfortably
 const SHEET_MID = 0.5;     // Fraction of viewport: half screen
 const SHEET_FULL = 0.85;   // Fraction of viewport: near full
 
@@ -379,6 +379,7 @@ export default function SplitView({ programs }: SplitViewProps) {
           hoveredProgramId={hoveredProgramId}
           selectedProgramId={selectedProgram?.id ?? null}
           focusedProgramId={isMobile ? hoveredProgramId : null}
+          bottomPadding={isMobile ? SHEET_PEEK : 0}
           onSelectProgram={(program) => {
             handleSelectProgram(program);
             if (isMobile) scrollToCard(program.id);

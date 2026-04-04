@@ -43,6 +43,8 @@ interface MapSceneProps {
   selectedProgramId?: string | null;
   /** Triggers a gentle fly-to without opening detail view (used by mobile carousel scroll) */
   focusedProgramId?: string | null;
+  /** Bottom padding to offset map center above a bottom sheet (px) */
+  bottomPadding?: number;
   onSelectProgram?: (program: Program) => void;
 }
 
@@ -51,6 +53,7 @@ export default function MapScene({
   hoveredProgramId = null,
   selectedProgramId = null,
   focusedProgramId = null,
+  bottomPadding = 0,
   onSelectProgram,
 }: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
@@ -60,6 +63,20 @@ export default function MapScene({
     setMapLoaded(true);
   }, []);
 
+  const padding = { top: 0, bottom: bottomPadding, left: 0, right: 0 };
+
+  // Apply initial padding once the map loads so default view centers above sheet
+  useEffect(() => {
+    if (!mapLoaded || !bottomPadding) return;
+    mapRef.current?.flyTo({
+      center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude],
+      zoom: DEFAULT_VIEW.zoom,
+      padding,
+      duration: 0,
+      essential: true,
+    });
+  }, [mapLoaded, bottomPadding]);
+
   // Fly to selected program when it changes
   useEffect(() => {
     if (!selectedProgramId || !mapLoaded) return;
@@ -68,6 +85,7 @@ export default function MapScene({
       mapRef.current?.flyTo({
         center: [program.longitude, program.latitude],
         zoom: 14,
+        padding,
         duration: 800,
         essential: true,
       });
@@ -80,6 +98,7 @@ export default function MapScene({
       mapRef.current?.flyTo({
         center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude],
         zoom: DEFAULT_VIEW.zoom,
+        padding,
         duration: 800,
         essential: true,
       });
@@ -94,6 +113,7 @@ export default function MapScene({
       mapRef.current?.flyTo({
         center: [program.longitude, program.latitude],
         zoom: 13,
+        padding,
         duration: 600,
         essential: true,
       });
