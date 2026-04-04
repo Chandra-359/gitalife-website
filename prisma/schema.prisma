@@ -29,11 +29,22 @@ model Program {
   date        DateTime
   imageUrl    String?  // nullable — optional program hero photo URL
 
+  // --- Event type ---
+  type        String   @default("program") // "program" | "volunteer"
+
   // --- Detail view fields ---
   subtitle        String?    // One-line hook, e.g. "Connecting through sacred sound"
   address         String?    // Full address, e.g. "Hamilton Park, Jersey City, NJ 07302"
+  venueName       String?    // Friendly venue name, e.g. "Tompkins Square Park Pavilion"
   duration        String?    // e.g. "2 hours", "Full weekend"
   level           String?    // e.g. "Beginner-friendly", "All levels"
+
+  // --- Date/time (multi-day support) ---
+  endDate         DateTime?  // For multi-day retreats/events
+
+  // --- Capacity & RSVP ---
+  capacity        Int?       // null = unlimited spots
+  rsvpDeadline    DateTime?  // Cutoff for signups
 
   whatToExpect     String[]   // Bullet points: ["Live kirtan", "Prasadam", ...]
   whyAttend       String?    // 1-2 sentence compelling paragraph
@@ -49,14 +60,23 @@ model Program {
   speakerImageUrl String?
 
   galleryUrls     String[]   // URLs for 2-3 past event photos
+  videoUrl        String?    // YouTube/Vimeo embed URL for promo video
 
   testimonial       String?  // Short quote from a past attendee
   testimonialAuthor String?  // e.g. "Priya, first-time attendee"
+
+  // --- Status & visibility ---
+  status      String   @default("published") // "draft" | "published" | "cancelled"
+  featured    Boolean  @default(false)        // Pin to top of list
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   rsvps       Rsvp[]
+
+  @@index([date])
+  @@index([type])
+  @@index([status])
 }
 
 /// An RSVP submission for a program.
@@ -65,7 +85,13 @@ model Rsvp {
   name      String
   phone     String?
   email     String
-  program   Program  @relation(fields: [programId], references: [id])
+  guests    Int      @default(1)             // Total attendees including the person
+  notes     String?                          // Dietary restrictions, accessibility needs, etc.
+  status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId String
   createdAt DateTime @default(now())
+
+  @@unique([email, programId]) // Prevent duplicate RSVPs per event
+  @@index([programId])
 }

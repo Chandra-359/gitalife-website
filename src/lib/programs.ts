@@ -13,6 +13,7 @@ export const FALLBACK_PROGRAMS: Program[] = [
     id: "jc-kirtan-grove",
     title: "Kirtan by the Grove",
     category: "Kirtan & Prasadam",
+    type: "program",
     description:
       "An evening of soul-stirring kirtan and home-cooked prasadam at the heart of Jersey City's Hamilton Park neighborhood.",
     longitude: -74.0445,
@@ -21,8 +22,11 @@ export const FALLBACK_PROGRAMS: Program[] = [
     imageUrl: null,
     subtitle: "Connecting through sacred sound",
     address: "Hamilton Park, Jersey City, NJ 07302",
+    venueName: "Hamilton Park",
     duration: "2.5 hours",
     level: "Beginner-friendly",
+    capacity: 50,
+    rsvpCount: 38,
     whatToExpect: [
       "Live kirtan with mridanga and harmonium",
       "Home-cooked vegetarian prasadam feast",
@@ -49,11 +53,14 @@ export const FALLBACK_PROGRAMS: Program[] = [
     testimonial:
       "This kirtan evening completely changed how I handle stress at work. The mantra meditation was so peaceful.",
     testimonialAuthor: "Priya S., software engineer",
+    status: "published",
+    featured: true,
   },
   {
     id: "jc-wisdom-exchange",
     title: "Gita Wisdom Exchange",
     category: "Wisdom Session",
+    type: "program",
     description:
       "A deep-dive discussion circle exploring the Bhagavad Gita's practical wisdom for modern life. Held in a cozy Journal Square loft.",
     longitude: -74.0631,
@@ -62,8 +69,11 @@ export const FALLBACK_PROGRAMS: Program[] = [
     imageUrl: null,
     subtitle: "Ancient wisdom for modern minds",
     address: "The Loft at Journal Square, Jersey City, NJ 07306",
+    venueName: "The Loft at Journal Square",
     duration: "2 hours",
     level: "All levels welcome",
+    capacity: 30,
+    rsvpCount: 12,
     whatToExpect: [
       "Interactive discussion on a Bhagavad Gita chapter",
       "Practical exercises for applying wisdom daily",
@@ -90,11 +100,14 @@ export const FALLBACK_PROGRAMS: Program[] = [
     testimonial:
       "Nothing hit me like the Gita discussions here. Nitai makes it so accessible and relevant.",
     testimonialAuthor: "Marcus T., graduate student",
+    status: "published",
+    featured: false,
   },
   {
     id: "nyc-youth-festival",
     title: "NYC Youth Festival",
     category: "Youth Festival",
+    type: "program",
     description:
       "A high-energy gathering of hundreds of young seekers in the East Village — live music, philosophy talks, and an unforgettable feast.",
     longitude: -73.9857,
@@ -103,8 +116,11 @@ export const FALLBACK_PROGRAMS: Program[] = [
     imageUrl: null,
     subtitle: "The biggest spiritual gathering for young NYC",
     address: "Tompkins Square Park, East Village, NYC 10009",
+    venueName: "Tompkins Square Park",
     duration: "5 hours",
     level: "Everyone welcome — bring your friends!",
+    capacity: 300,
+    rsvpCount: 187,
     whatToExpect: [
       "Live kirtan performance with a full band",
       "Inspiring talks by young monks and leaders",
@@ -131,11 +147,14 @@ export const FALLBACK_PROGRAMS: Program[] = [
     testimonial:
       "I came with zero expectations and left with a completely new perspective on life.",
     testimonialAuthor: "Aisha K., college senior",
+    status: "published",
+    featured: true,
   },
   {
     id: "nyc-midtown-kirtan",
     title: "Midtown Mantra Night",
     category: "Kirtan & Prasadam",
+    type: "program",
     description:
       "Escape the Midtown rush with an intimate kirtan session and vegetarian dinner near Bryant Park.",
     longitude: -73.9845,
@@ -144,8 +163,11 @@ export const FALLBACK_PROGRAMS: Program[] = [
     imageUrl: null,
     subtitle: "Your midweek oasis of calm",
     address: "Near Bryant Park, Midtown Manhattan, NYC 10018",
+    venueName: "Bryant Park Community Room",
     duration: "2 hours",
     level: "Beginner-friendly",
+    capacity: null,
+    rsvpCount: 22,
     whatToExpect: [
       "Intimate acoustic kirtan in a calm setting",
       "Guided breathing and mantra meditation",
@@ -172,21 +194,74 @@ export const FALLBACK_PROGRAMS: Program[] = [
     testimonial:
       "After a brutal day in finance, this was exactly what I needed. The kirtan melted my stress away.",
     testimonialAuthor: "David R., investment banker",
+    status: "published",
+    featured: false,
+  },
+  {
+    id: "nyc-park-cleanup",
+    title: "Tompkins Square Park Cleanup",
+    category: "Youth Festival",
+    type: "volunteer",
+    description:
+      "Join fellow Gita Life volunteers for a community park cleanup in the East Village. Service is the highest yoga!",
+    longitude: -73.9817,
+    latitude: 40.7264,
+    date: "2026-04-20T09:00:00.000Z",
+    imageUrl: null,
+    subtitle: "Serve with love, uplift the community",
+    address: "Tompkins Square Park, East Village, NYC 10009",
+    venueName: "Tompkins Square Park (East Entrance)",
+    duration: "3 hours",
+    level: "Everyone welcome",
+    capacity: 40,
+    rsvpCount: 15,
+    whatToExpect: [
+      "Community park cleanup and beautification",
+      "Gloves, bags, and supplies provided",
+      "Group meditation and reflection",
+      "Free prasadam lunch for all volunteers",
+    ],
+    whyAttend:
+      "The Gita teaches that selfless service is the path to true happiness. Come experience karma yoga in action while making our neighborhood beautiful.",
+    whatYouGet: [
+      "The joy of selfless service",
+      "A beautiful, clean community space",
+      "Free prasadam lunch",
+      "Volunteer hours certificate (if needed)",
+    ],
+    whatToBring: "Comfortable clothes, water bottle, and a smile",
+    lectureTopic: null,
+    gitaReference: "Chapter 3, Verse 19",
+    speakerName: null,
+    speakerTitle: null,
+    speakerBio: null,
+    speakerImageUrl: null,
+    galleryUrls: [],
+    testimonial:
+      "Volunteering with Gita Life was the most fulfilling Saturday morning I've had in years.",
+    testimonialAuthor: "Jordan M., teacher",
+    status: "published",
+    featured: false,
   },
   {
     id: "retreat-harriman",
     title: "Weekend of the Soul",
     category: "Retreat",
+    type: "program",
     description:
       "A transformative weekend retreat in the Harriman State Park mountains — meditation at sunrise, philosophy by the campfire, and prasadam under the stars.",
     longitude: -74.1077,
     latitude: 41.2273,
     date: "2026-05-16T10:00:00.000Z",
+    endDate: "2026-05-17T16:00:00.000Z",
     imageUrl: null,
     subtitle: "Unplug, reflect, transform",
     address: "Harriman State Park, Stony Point, NY 10980",
+    venueName: "Harriman State Park",
     duration: "Full weekend (Sat 10am - Sun 4pm)",
     level: "All levels — perfect for a first retreat",
+    capacity: 60,
+    rsvpCount: 45,
     whatToExpect: [
       "Sunrise meditation by the lake",
       "In-depth Bhagavad Gita workshop sessions",
@@ -215,6 +290,8 @@ export const FALLBACK_PROGRAMS: Program[] = [
     testimonial:
       "This weekend genuinely changed the trajectory of my life. The campfire conversations were more valuable than any therapy session.",
     testimonialAuthor: "Sam L., product designer",
+    status: "published",
+    featured: true,
   },
 ];
 
@@ -226,13 +303,23 @@ export async function getPrograms(): Promise<Program[]> {
 
   try {
     const rows = await prisma.program.findMany({
-      orderBy: { date: "asc" },
+      where: { status: "published" },
+      orderBy: [
+        { featured: "desc" },
+        { date: "asc" },
+      ],
+      include: {
+        _count: {
+          select: { rsvps: { where: { status: "confirmed" } } },
+        },
+      },
     });
 
     return rows.map((row) => ({
       id: row.id,
       title: row.title,
       category: row.category,
+      type: row.type,
       description: row.description,
       longitude: row.longitude,
       latitude: row.latitude,
@@ -240,8 +327,13 @@ export async function getPrograms(): Promise<Program[]> {
       imageUrl: row.imageUrl,
       subtitle: row.subtitle,
       address: row.address,
+      venueName: row.venueName,
       duration: row.duration,
       level: row.level,
+      endDate: row.endDate?.toISOString() ?? null,
+      capacity: row.capacity,
+      rsvpDeadline: row.rsvpDeadline?.toISOString() ?? null,
+      rsvpCount: row._count.rsvps,
       whatToExpect: row.whatToExpect,
       whyAttend: row.whyAttend,
       whatYouGet: row.whatYouGet,
@@ -253,8 +345,11 @@ export async function getPrograms(): Promise<Program[]> {
       speakerBio: row.speakerBio,
       speakerImageUrl: row.speakerImageUrl,
       galleryUrls: row.galleryUrls,
+      videoUrl: row.videoUrl,
       testimonial: row.testimonial,
       testimonialAuthor: row.testimonialAuthor,
+      status: row.status,
+      featured: row.featured,
     }));
   } catch {
     console.warn("Database query failed — using fallback program data");

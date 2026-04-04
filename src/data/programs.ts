@@ -23,11 +23,23 @@ export interface Program {
   date: string;          // ISO date string from the database
   imageUrl: string | null; // optional program photo URL
 
+  // --- Event type ---
+  type: string;          // "program" | "volunteer"
+
   // --- Detail view fields ---
   subtitle?: string | null;
   address?: string | null;
+  venueName?: string | null;
   duration?: string | null;
   level?: string | null;
+
+  // --- Date/time (multi-day support) ---
+  endDate?: string | null;
+
+  // --- Capacity & RSVP ---
+  capacity?: number | null;    // null = unlimited
+  rsvpDeadline?: string | null;
+  rsvpCount?: number;          // computed: number of confirmed RSVPs
 
   whatToExpect?: string[];
   whyAttend?: string | null;
@@ -43,9 +55,14 @@ export interface Program {
   speakerImageUrl?: string | null;
 
   galleryUrls?: string[];
+  videoUrl?: string | null;
 
   testimonial?: string | null;
   testimonialAuthor?: string | null;
+
+  // --- Status & visibility ---
+  status?: string;       // "draft" | "published" | "cancelled"
+  featured?: boolean;
 }
 
 /**
@@ -65,6 +82,9 @@ export const CATEGORY_COLORS: Record<string, { bg: string; glow: string }> = {
 
 /** Fallback for categories not in the map */
 export const DEFAULT_CATEGORY_COLOR = { bg: "#6b7280", glow: "rgba(107, 114, 128, 0.45)" };
+
+/** Volunteer event accent color */
+export const VOLUNTEER_COLOR = { bg: "#2D8F4E", glow: "rgba(45, 143, 78, 0.45)" };
 
 /**
  * Category → icon mapping (Unicode)

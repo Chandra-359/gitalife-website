@@ -1,7 +1,7 @@
 /**
  * /api/programs
  *
- * GET  — Returns all programs (public, no auth required)
+ * GET  — Returns all published programs with RSVP counts (public, no auth required)
  * POST — Creates a new program (requires admin authentication)
  */
 
@@ -12,9 +12,9 @@ import { auth } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 /* ------------------------------------------------------------------ */
-/*  GET — fetch all programs                                           */
+/*  GET — fetch all published programs                                 */
 /* ------------------------------------------------------------------ */
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!prisma) {
     return NextResponse.json(
       { error: "Database not configured" },
@@ -23,13 +23,30 @@ export async function GET() {
   }
 
   try {
+    // Admin can pass ?all=true to see drafts/cancelled too
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get("all") === "true";
+
     const programs = await prisma.program.findMany({
-      orderBy: { date: "asc" },
+      where: showAll ? {} : { status: "published" },
+      orderBy: [
+        { featured: "desc" },
+        { date: "asc" },
+      ],
+      include: {
+        _count: {
+          select: { rsvps: { where: { status: "confirmed" } } },
+        },
+      },
     });
 
     const serialized = programs.map((p) => ({
       ...p,
       date: p.date.toISOString(),
+      endDate: p.endDate?.toISOString() ?? null,
+      rsvpDeadline: p.rsvpDeadline?.toISOString() ?? null,
+      rsvpCount: p._count.rsvps,
+      _count: undefined,
     }));
 
     return NextResponse.json(serialized);
@@ -63,7 +80,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate required fields
-    const { title, category, description, date, latitude, longitude, imageUrl } = body;
+    const {
+      title, category, description, date, latitude, longitude,
+      type, imageUrl, subtitle, address, venueName, duration, level,
+      endDate, capacity, rsvpDeadline, videoUrl, status, featured,
+      whatToExpect, whyAttend, whatYouGet, whatToBring,
+      lectureTopic, gitaReference,
+      speakerName, speakerTitle, speakerBio, speakerImageUrl,
+      galleryUrls, testimonial, testimonialAuthor,
+    } = body;
 
     if (!title || !category || !description || !date || latitude == null || longitude == null) {
       return NextResponse.json(
@@ -90,12 +115,42 @@ export async function POST(request: NextRequest) {
         date: new Date(date),
         latitude: lat,
         longitude: lng,
+        type: type ? String(type) : "program",
         imageUrl: imageUrl ? String(imageUrl) : null,
+        subtitle: subtitle ? String(subtitle) : null,
+        address: address ? String(address) : null,
+        venueName: venueName ? String(venueName) : null,
+        duration: duration ? String(duration) : null,
+        level: level ? String(level) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        capacity: capacity != null ? parseInt(capacity) : null,
+        rsvpDeadline: rsvpDeadline ? new Date(rsvpDeadline) : null,
+        videoUrl: videoUrl ? String(videoUrl) : null,
+        status: status ? String(status) : "published",
+        featured: featured === true,
+        whatToExpect: Array.isArray(whatToExpect) ? whatToExpect : [],
+        whyAttend: whyAttend ? String(whyAttend) : null,
+        whatYouGet: Array.isArray(whatYouGet) ? whatYouGet : [],
+        whatToBring: whatToBring ? String(whatToBring) : null,
+        lectureTopic: lectureTopic ? String(lectureTopic) : null,
+        gitaReference: gitaReference ? String(gitaReference) : null,
+        speakerName: speakerName ? String(speakerName) : null,
+        speakerTitle: speakerTitle ? String(speakerTitle) : null,
+        speakerBio: speakerBio ? String(speakerBio) : null,
+        speakerImageUrl: speakerImageUrl ? String(speakerImageUrl) : null,
+        galleryUrls: Array.isArray(galleryUrls) ? galleryUrls : [],
+        testimonial: testimonial ? String(testimonial) : null,
+        testimonialAuthor: testimonialAuthor ? String(testimonialAuthor) : null,
       },
     });
 
     return NextResponse.json(
-      { ...program, date: program.date.toISOString() },
+      {
+        ...program,
+        date: program.date.toISOString(),
+        endDate: program.endDate?.toISOString() ?? null,
+        rsvpDeadline: program.rsvpDeadline?.toISOString() ?? null,
+      },
       { status: 201 },
     );
   } catch (error) {
