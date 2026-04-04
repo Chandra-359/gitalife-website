@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 /* ------------------------------------------------------------------ */
 /*  GET — fetch all published programs                                 */
 /* ------------------------------------------------------------------ */
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!prisma) {
     return NextResponse.json(
       { error: "Database not configured" },
@@ -23,8 +23,12 @@ export async function GET() {
   }
 
   try {
+    // Admin can pass ?all=true to see drafts/cancelled too
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get("all") === "true";
+
     const programs = await prisma.program.findMany({
-      where: { status: "published" },
+      where: showAll ? {} : { status: "published" },
       orderBy: [
         { featured: "desc" },
         { date: "asc" },
