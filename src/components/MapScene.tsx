@@ -41,6 +41,8 @@ interface MapSceneProps {
   programs: Program[];
   hoveredProgramId?: string | null;
   selectedProgramId?: string | null;
+  /** Triggers a gentle fly-to without opening detail view (used by mobile carousel scroll) */
+  focusedProgramId?: string | null;
   onSelectProgram?: (program: Program) => void;
 }
 
@@ -48,6 +50,7 @@ export default function MapScene({
   programs,
   hoveredProgramId = null,
   selectedProgramId = null,
+  focusedProgramId = null,
   onSelectProgram,
 }: MapSceneProps) {
   const mapRef = useRef<MapRef>(null);
@@ -82,6 +85,20 @@ export default function MapScene({
       });
     }
   }, [selectedProgramId, mapLoaded]);
+
+  // Gentle fly-to when focused program changes (mobile carousel scroll)
+  useEffect(() => {
+    if (!focusedProgramId || !mapLoaded || selectedProgramId) return;
+    const program = programs.find((p) => p.id === focusedProgramId);
+    if (program) {
+      mapRef.current?.flyTo({
+        center: [program.longitude, program.latitude],
+        zoom: 13,
+        duration: 600,
+        essential: true,
+      });
+    }
+  }, [focusedProgramId, mapLoaded, selectedProgramId, programs]);
 
   const handleMarkerSelect = useCallback(
     (program: Program) => {

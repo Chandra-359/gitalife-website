@@ -149,6 +149,40 @@ export default function SplitView({ programs }: SplitViewProps) {
     }
   }, []);
 
+  // Detect which card is centered in the horizontal carousel via IntersectionObserver
+  useEffect(() => {
+    if (!isMobile || !cardScrollRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the entry with the highest intersection ratio (most visible card)
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+              bestEntry = entry;
+            }
+          }
+        }
+        if (bestEntry) {
+          const programId = (bestEntry.target as HTMLElement).dataset.programId;
+          if (programId && programId !== hoveredProgramId) {
+            setHoveredProgramId(programId);
+          }
+        }
+      },
+      {
+        root: cardScrollRef.current,
+        threshold: [0.5, 0.75, 1.0],
+      },
+    );
+
+    const cards = cardScrollRef.current.querySelectorAll("[data-program-id]");
+    cards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, [isMobile, programs, hoveredProgramId]);
+
   // Count upcoming programs
   const upcomingCount = programs.filter(p => new Date(p.date) > new Date()).length;
 
@@ -344,6 +378,7 @@ export default function SplitView({ programs }: SplitViewProps) {
           programs={programs}
           hoveredProgramId={hoveredProgramId}
           selectedProgramId={selectedProgram?.id ?? null}
+          focusedProgramId={isMobile ? hoveredProgramId : null}
           onSelectProgram={(program) => {
             handleSelectProgram(program);
             if (isMobile) scrollToCard(program.id);
