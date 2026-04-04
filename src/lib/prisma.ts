@@ -26,7 +26,14 @@ function getDatabaseUrl(): string | undefined {
 }
 
 function getOrCreatePrismaClient(): PrismaClient | null {
-  if (!getDatabaseUrl()) return null;
+  const url = getDatabaseUrl();
+  if (!url) return null;
+
+  // Prisma v7 runtime reads DATABASE_URL by default. Bridge the gap when
+  // only the Vercel-prefixed env vars (gitalife_*) are set.
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = url;
+  }
 
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 

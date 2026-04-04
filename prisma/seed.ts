@@ -9,6 +9,15 @@
 
 import { PrismaClient } from "@prisma/client";
 
+// Bridge Vercel-prefixed env vars to DATABASE_URL for Prisma runtime
+if (!process.env.DATABASE_URL) {
+  const url =
+    process.env.gitalife_PRISMA_DATABASE_URL ??
+    process.env.gitalife_DATABASE_URL ??
+    process.env.gitalife_POSTGRES_URL;
+  if (url) process.env.DATABASE_URL = url;
+}
+
 const prisma = new PrismaClient();
 
 const SEED_PROGRAMS = [
