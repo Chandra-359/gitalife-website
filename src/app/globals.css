@@ -235,6 +235,15 @@ h1, h2, h3 {
   background: rgba(232, 117, 26, 0.4);
 }
 
+/* Hide scrollbar (for horizontal card carousel on mobile) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ================================================================== */
 /*  Glass card effect                                                  */
 /* ================================================================== */

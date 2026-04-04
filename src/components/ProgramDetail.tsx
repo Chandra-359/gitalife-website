@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import type { Program } from "@/data/programs";
-import { getCategoryColor, getCategoryIcon } from "@/data/programs";
+import { getCategoryColor, getCategoryIcon, VOLUNTEER_COLOR } from "@/data/programs";
 import RsvpModal from "@/components/RsvpModal";
 
 /* ------------------------------------------------------------------ */
@@ -96,10 +96,17 @@ interface ProgramDetailProps {
 }
 
 export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
-  const { bg, glow } = getCategoryColor(program.category);
+  const isVolunteer = program.type === "volunteer";
+  const { bg, glow } = isVolunteer ? VOLUNTEER_COLOR : getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState(getCountdown(program.date));
+
+  // Capacity
+  const rsvpCount = program.rsvpCount ?? 0;
+  const capacity = program.capacity;
+  const spotsLeft = capacity ? capacity - rsvpCount : null;
+  const isFull = spotsLeft !== null && spotsLeft <= 0;
 
   // Live countdown
   useEffect(() => {
@@ -186,6 +193,11 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                 >
                   {program.category}
                 </span>
+                {isVolunteer && (
+                  <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg">
+                    Volunteer
+                  </span>
+                )}
               </motion.div>
             </motion.div>
 
@@ -276,6 +288,35 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                   </span>
                   {program.level}
                 </span>
+              </motion.div>
+            )}
+
+            {/* Capacity bar */}
+            {capacity && (
+              <motion.div variants={sectionVariants} className="mt-4">
+                <div className="rounded-xl bg-white/80 border border-gray-200/60 px-4 py-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[12px] font-semibold text-gray-700">
+                      {isFull ? "Event Full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                    </span>
+                    <span className="text-[11px] text-gray-400">{rsvpCount} / {capacity} registered</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((rsvpCount / capacity) * 100, 100)}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full rounded-full"
+                      style={{
+                        background: isFull
+                          ? "#dc2626"
+                          : rsvpCount / capacity > 0.8
+                            ? `linear-gradient(90deg, ${bg}, #dc2626)`
+                            : bg,
+                      }}
+                    />
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -509,7 +550,7 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
                 <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              RSVP — Join This Program
+              {isFull ? "Join Waitlist" : isVolunteer ? "Sign Up to Volunteer" : "RSVP — Join This Program"}
             </span>
           </motion.button>
 

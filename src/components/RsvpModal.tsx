@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import type { Program } from "@/data/programs";
-import { getCategoryColor, getCategoryIcon } from "@/data/programs";
+import { getCategoryColor, getCategoryIcon, VOLUNTEER_COLOR } from "@/data/programs";
 
 interface RsvpFormData {
   name: string;
   email: string;
   phone?: string;
+  guests: number;
+  notes?: string;
 }
 
 interface RsvpModalProps {
@@ -46,16 +48,23 @@ const CONFETTI = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 export default function RsvpModal({ program, onClose }: RsvpModalProps) {
-  const { bg, glow } = getCategoryColor(program.category);
+  const isVolunteer = program.type === "volunteer";
+  const { bg, glow } = isVolunteer ? VOLUNTEER_COLOR : getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const spotsLeft = program.capacity && program.rsvpCount != null
+    ? program.capacity - program.rsvpCount
+    : null;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RsvpFormData>();
+  } = useForm<RsvpFormData>({
+    defaultValues: { guests: 1 },
+  });
 
   const onSubmit = async (data: RsvpFormData) => {
     setSubmitting(true);
@@ -68,6 +77,8 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
           name: data.name,
           email: data.email,
           phone: data.phone || null,
+          guests: data.guests || 1,
+          notes: data.notes || null,
         }),
       });
 
@@ -104,7 +115,7 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
           transition={{ type: "spring", damping: 24, stiffness: 280 }}
-          className="relative w-full max-w-md rounded-3xl bg-[#FFF9F0] border border-[#E8751A]/10 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-[#FFF9F0] border border-[#E8751A]/10 shadow-2xl"
         >
           {/* Success confetti overlay */}
           {success && (
@@ -195,7 +206,7 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                      RSVP for {program.title}
+                      {isVolunteer ? "Sign Up to Volunteer" : "RSVP"} for {program.title}
                     </h3>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[12px] text-gray-500">
                       <span className="inline-flex items-center gap-1">
@@ -214,6 +225,11 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
                         {formatTime(program.date)}
                       </span>
                     </div>
+                    {spotsLeft !== null && spotsLeft > 0 && (
+                      <p className="mt-1.5 text-[11px] font-semibold" style={{ color: bg }}>
+                        {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} remaining
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -292,25 +308,60 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
                   )}
                 </div>
 
-                {/* Phone */}
-                <div>
-                  <label htmlFor="rsvp-phone" className="block text-[12px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-                    Phone <span className="text-[10px] text-gray-400 normal-case tracking-normal">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                {/* Phone + Guests row */}
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Phone */}
+                  <div className="col-span-2">
+                    <label htmlFor="rsvp-phone" className="block text-[12px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
+                      Phone <span className="text-[10px] text-gray-400 normal-case tracking-normal">(optional)</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <input
+                        id="rsvp-phone"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        className="w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 py-3 text-[14px] text-gray-800 placeholder:text-gray-300 outline-none transition-all focus:border-[#E8751A]/40 focus:ring-2 focus:ring-[#E8751A]/10 focus:shadow-sm"
+                        {...register("phone")}
+                      />
                     </div>
-                    <input
-                      id="rsvp-phone"
-                      type="tel"
-                      placeholder="(555) 123-4567"
-                      className="w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 py-3 text-[14px] text-gray-800 placeholder:text-gray-300 outline-none transition-all focus:border-[#E8751A]/40 focus:ring-2 focus:ring-[#E8751A]/10 focus:shadow-sm"
-                      {...register("phone")}
-                    />
                   </div>
+
+                  {/* Guests */}
+                  <div>
+                    <label htmlFor="rsvp-guests" className="block text-[12px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
+                      Guests
+                    </label>
+                    <select
+                      id="rsvp-guests"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-[14px] text-gray-800 outline-none transition-all focus:border-[#E8751A]/40 focus:ring-2 focus:ring-[#E8751A]/10 focus:shadow-sm appearance-none cursor-pointer"
+                      {...register("guests", { valueAsNumber: true })}
+                    >
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n === 1 ? "Just me" : `${n} people`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Notes (optional) */}
+                <div>
+                  <label htmlFor="rsvp-notes" className="block text-[12px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
+                    Notes <span className="text-[10px] text-gray-400 normal-case tracking-normal">(dietary needs, accessibility, etc.)</span>
+                  </label>
+                  <textarea
+                    id="rsvp-notes"
+                    rows={2}
+                    placeholder="Any special requirements..."
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-[14px] text-gray-800 placeholder:text-gray-300 outline-none transition-all focus:border-[#E8751A]/40 focus:ring-2 focus:ring-[#E8751A]/10 focus:shadow-sm resize-none"
+                    {...register("notes")}
+                  />
                 </div>
 
                 {/* Trust badges */}
