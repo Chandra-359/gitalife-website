@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
@@ -236,153 +237,159 @@ export default function HomePage({ programs }: HomePageProps) {
       <Navbar isHomepage />
 
       {/* ============================================================ */}
-      {/*  SECTION 1 — HERO (Krishna Blue with Divine Gold)             */}
+      {/*  SECTION 1 — HERO with Krishna-Arjuna painting                */}
       {/* ============================================================ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden" style={{ background: `linear-gradient(165deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 40%, #1E3375 70%, ${C.krishnaDeep} 100%)` }}>
-        {/* Divine radial glow layers */}
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,168,67,0.12) 0%, transparent 55%)" }} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 25% 65%, rgba(0,109,91,0.06) 0%, transparent 40%)" }} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 75% 70%, rgba(214,75,138,0.04) 0%, transparent 35%)" }} />
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+        {/* Background painting */}
+        <Image
+          src="/krishna-arjuna-chariot.jpg"
+          alt="Krishna and Arjuna on the chariot at Kurukshetra"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Dark overlay for readability — graduated from top/bottom */}
+        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${C.krishnaDeep}E6 0%, ${C.krishnaDeep}99 25%, ${C.krishnaDeep}80 50%, ${C.krishnaDeep}99 75%, ${C.krishnaDeep}F2 100%)` }} />
+        {/* Warm color tint to blend with painting */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(212,168,67,0.08) 0%, transparent 60%)" }} />
 
         {/* Ornamental top border */}
-        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)` }} />
+        <div className="absolute top-0 left-0 right-0 h-1 z-10" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)` }} />
 
         {/* Corner lotus decorations */}
-        <div className="absolute top-8 left-8 opacity-10">
+        <div className="absolute top-8 left-8 opacity-10 z-10">
           <LotusDecoration size={80} color={C.gold} />
         </div>
-        <div className="absolute top-8 right-8 opacity-10" style={{ transform: "scaleX(-1)" }}>
+        <div className="absolute top-8 right-8 opacity-10 z-10" style={{ transform: "scaleX(-1)" }}>
           <LotusDecoration size={80} color={C.gold} />
-        </div>
-        <div className="absolute bottom-32 left-12 opacity-5">
-          <LotusDecoration size={60} color={C.lotusPink} />
-        </div>
-        <div className="absolute bottom-32 right-12 opacity-5" style={{ transform: "scaleX(-1)" }}>
-          <LotusDecoration size={60} color={C.lotusPink} />
         </div>
 
-        {/* Divine sparkle particles */}
+        {/* Divine sparkle particles over the painting */}
         {HERO_PARTICLES.map((p) => (
           <motion.span
             key={p.id}
-            className="absolute rounded-full"
+            className="absolute rounded-full z-10"
             style={{ left: p.x, top: p.y, width: p.size, height: p.size, background: p.color }}
-            animate={{ y: [0, -25, 0], opacity: [0.05, 0.7, 0.05], scale: [1, 1.8, 1] }}
+            animate={{ y: [0, -25, 0], opacity: [0.05, 0.5, 0.05], scale: [1, 1.8, 1] }}
             transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
           />
         ))}
 
-        {/* Sacred Om / Logo mark with golden glow */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mb-6"
-        >
-          <div
-            className="flex h-20 w-20 items-center justify-center rounded-full animate-divine-aura"
-            style={{
-              background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
-              boxShadow: `0 0 60px rgba(212,168,67,0.3), 0 0 120px rgba(212,168,67,0.1)`,
-            }}
+        {/* Content — centered over the painting */}
+        <div className="relative z-10 flex flex-col items-center">
+          {/* Sacred Logo mark with golden glow */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="relative mb-6"
           >
-            <span className="text-white font-bold text-3xl font-serif">G</span>
-          </div>
-          {/* Rotating decorative ring */}
-          <div className="absolute -inset-3 rounded-full border border-dashed animate-spin-slow" style={{ borderColor: "rgba(212,168,67,0.15)" }} />
-        </motion.div>
-
-        {/* Ornamental divider */}
-        <OrnamentDivider light />
-
-        {/* Heading */}
-        <motion.h1
-          className="relative text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight"
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="text-white/90">Students Living the</span>{" "}
-          <br className="hidden sm:block" />
-          <span className="text-gradient-gold font-serif italic">Bhagavad Gita</span>
-          <br />
-          <span className="text-white/70 text-2xl sm:text-3xl md:text-4xl">in the Heart of New York City</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          className="relative mt-6 max-w-xl px-6 text-center text-base sm:text-lg leading-relaxed"
-          style={{ color: "rgba(212,168,67,0.5)" }}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting on the streets, distributing books, and serving prasadam every single day.
-        </motion.p>
-
-        {/* CTA */}
-        <motion.div
-          className="relative flex flex-wrap items-center justify-center gap-4 mt-10"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-        >
-          <Link
-            href="/programs"
-            className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:scale-105"
-            style={{
-              background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
-              boxShadow: `0 0 30px rgba(212,168,67,0.3)`,
-            }}
-          >
-            Explore Programs
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </Link>
-          <a
-            href="#what-we-do"
-            className="rounded-full px-8 py-3.5 text-sm font-semibold transition-all hover:bg-white/5"
-            style={{ border: `1px solid rgba(212,168,67,0.25)`, color: "rgba(212,168,67,0.6)" }}
-          >
-            What We Do
-          </a>
-        </motion.div>
-
-        {/* Stats with ornamental separator */}
-        <motion.div
-          className="relative flex flex-wrap items-center justify-center gap-6 sm:gap-0 mt-14"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.6 }}
-        >
-          {[
-            { value: "3x", label: "Gita Classes/Week" },
-            { value: "6+", label: "Activities" },
-            { value: "ISKCON", label: "Brooklyn Based" },
-            { value: "Free", label: "Always" },
-          ].map((s, i) => (
-            <div key={i} className="text-center px-5 sm:px-7" style={{ borderRight: i < 3 ? "1px solid rgba(212,168,67,0.12)" : "none" }}>
-              <p className="text-xl font-bold font-serif" style={{ color: C.gold }}>{s.value}</p>
-              <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.3)" }}>{s.label}</p>
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-full animate-divine-aura"
+              style={{
+                background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
+                boxShadow: `0 0 60px rgba(212,168,67,0.4), 0 0 120px rgba(212,168,67,0.15)`,
+              }}
+            >
+              <span className="text-white font-bold text-3xl font-serif">G</span>
             </div>
-          ))}
-        </motion.div>
+            {/* Rotating decorative ring */}
+            <div className="absolute -inset-3 rounded-full border border-dashed animate-spin-slow" style={{ borderColor: "rgba(212,168,67,0.2)" }} />
+          </motion.div>
+
+          {/* Ornamental divider */}
+          <OrnamentDivider light />
+
+          {/* Heading */}
+          <motion.h1
+            className="text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="text-white drop-shadow-lg">Students Living the</span>{" "}
+            <br className="hidden sm:block" />
+            <span className="text-gradient-gold font-serif italic drop-shadow-lg">Bhagavad Gita</span>
+            <br />
+            <span className="text-white/80 text-2xl sm:text-3xl md:text-4xl drop-shadow-md">in the Heart of New York City</span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            className="mt-6 max-w-xl px-6 text-center text-base sm:text-lg leading-relaxed drop-shadow-sm"
+            style={{ color: "rgba(212,168,67,0.6)" }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting on the streets, distributing books, and serving prasadam every single day.
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            className="flex flex-wrap items-center justify-center gap-4 mt-10"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+          >
+            <Link
+              href="/programs"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:scale-105"
+              style={{
+                background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
+                boxShadow: `0 0 30px rgba(212,168,67,0.35)`,
+              }}
+            >
+              Explore Programs
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </Link>
+            <a
+              href="#what-we-do"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold transition-all hover:bg-white/10"
+              style={{ border: `1px solid rgba(212,168,67,0.3)`, color: "rgba(212,168,67,0.7)" }}
+            >
+              What We Do
+            </a>
+          </motion.div>
+
+          {/* Stats with ornamental separator */}
+          <motion.div
+            className="flex flex-wrap items-center justify-center gap-6 sm:gap-0 mt-14"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 1.6 }}
+          >
+            {[
+              { value: "3x", label: "Gita Classes/Week" },
+              { value: "6+", label: "Activities" },
+              { value: "ISKCON", label: "Brooklyn Based" },
+              { value: "Free", label: "Always" },
+            ].map((s, i) => (
+              <div key={i} className="text-center px-5 sm:px-7" style={{ borderRight: i < 3 ? "1px solid rgba(212,168,67,0.15)" : "none" }}>
+                <p className="text-xl font-bold font-serif drop-shadow-sm" style={{ color: C.gold }}>{s.value}</p>
+                <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.35)" }}>{s.label}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
 
         {/* Scroll hint */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5, duration: 1 }}
         >
           <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }} className="flex flex-col items-center gap-1.5">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: "rgba(212,168,67,0.2)" }}><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: "rgba(212,168,67,0.25)" }}><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </motion.div>
         </motion.div>
 
         {/* Bottom gradient transition */}
-        <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: `linear-gradient(to top, ${C.cream}, transparent)` }} />
+        <div className="absolute bottom-0 left-0 right-0 h-40 z-10" style={{ background: `linear-gradient(to top, ${C.cream}, transparent)` }} />
         {/* Bottom ornamental border */}
-        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}40, ${C.saffron}40, ${C.gold}40, transparent)` }} />
+        <div className="absolute bottom-0 left-0 right-0 h-px z-10" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}40, ${C.saffron}40, ${C.gold}40, transparent)` }} />
       </section>
 
       {/* ============================================================ */}
@@ -445,19 +452,27 @@ export default function HomePage({ programs }: HomePageProps) {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              {/* Gita quote card — Krishna themed */}
-              <div className="krishna-card rounded-3xl p-8 shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${C.gold}, ${C.saffron}, ${C.gold})` }} />
-                <div className="absolute top-4 right-4 opacity-[0.04]">
-                  <LotusDecoration size={80} color={C.krishnaBlue} />
+              {/* Krishna-Arjuna painting card */}
+              <div className="rounded-3xl overflow-hidden shadow-xl relative" style={{ border: `2px solid ${C.gold}20` }}>
+                <div className="relative aspect-[3/4] max-h-[360px]">
+                  <Image
+                    src="/krishna-arjuna-chariot.jpg"
+                    alt="Lord Krishna instructing Arjuna on the battlefield of Kurukshetra"
+                    fill
+                    className="object-cover object-top"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  {/* Gradient overlay at bottom for text */}
+                  <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${C.krishnaDeep}E6, transparent)` }} />
+                  <p className="absolute bottom-4 left-0 right-0 text-center text-[13px] font-serif italic text-white/80">
+                    &ldquo;You have the right to work, but never to the fruit of work.&rdquo;
+                  </p>
                 </div>
-                <div className="absolute -top-2 -left-1 text-7xl font-serif" style={{ color: `${C.gold}20` }}>&ldquo;</div>
-                <p className="relative text-[18px] italic leading-relaxed font-serif" style={{ color: C.krishnaBlue }}>
-                  You have the right to work, but never to the fruit of work. You should never engage in action for the sake of reward, nor should you long for inaction.
-                </p>
-                <p className="mt-4 text-[13px] font-semibold" style={{ color: C.gold }}>
-                  — Bhagavad Gita 2.47
-                </p>
+                <div className="p-4 text-center" style={{ background: `linear-gradient(135deg, ${C.krishnaDeep}, ${C.krishnaBlue})` }}>
+                  <p className="text-[12px] font-semibold" style={{ color: C.gold }}>
+                    — Bhagavad Gita 2.47
+                  </p>
+                </div>
               </div>
 
               {/* Home base callout */}
