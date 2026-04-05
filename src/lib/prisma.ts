@@ -1,18 +1,16 @@
 /**
  * Prisma client singleton (lazy initialization)
  *
- * In development, Next.js hot-reloads and re-imports modules frequently.
- * Without this singleton pattern, each reload would create a new PrismaClient,
- * eventually exhausting the database connection pool.
+ * Prisma v7 removed `url` from the datasource schema block.
+ * At runtime, connections must be provided via:
+ *   - `accelerateUrl` for Prisma Postgres / Accelerate (prisma+postgres:// URLs)
+ *   - `adapter` with @prisma/adapter-pg for direct postgres:// connections
  *
- * The client is created lazily (on first access) to avoid connection errors
- * during Vercel's build phase when the database may not be reachable.
- *
- * If no database URL is set, `prisma` will be null and callers should
- * handle the fallback (e.g. return empty data).
+ * The prisma.config.ts handles CLI operations (generate, migrate) separately.
  */
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -38,17 +36,19 @@ function getOrCreatePrismaClient(): PrismaClient | null {
 
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-  // Prisma v7: use `accelerateUrl` for Prisma Postgres / Accelerate URLs,
-  // otherwise fall back to setting DATABASE_URL for direct connections.
   const accelerateUrl = urls.find(isAccelerateUrl);
+  const directUrl = urls.find((u) => !isAccelerateUrl(u));
 
   let client: PrismaClient;
   if (accelerateUrl) {
+    // Prisma Postgres / Accelerate proxy connection
     client = new PrismaClient({ accelerateUrl });
+  } else if (directUrl) {
+    // Direct postgres:// connection via driver adapter
+    const adapter = new PrismaPg(directUrl);
+    client = new PrismaClient({ adapter });
   } else {
-    // Direct postgres:// connection — set DATABASE_URL so PrismaClient finds it
-    process.env.DATABASE_URL = urls[0];
-    client = new PrismaClient();
+    return null;
   }
 
   if (process.env.NODE_ENV !== "production") {
