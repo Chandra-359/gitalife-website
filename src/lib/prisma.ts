@@ -44,8 +44,11 @@ function getOrCreatePrismaClient(): PrismaClient | null {
     // Prisma Postgres / Accelerate proxy connection
     client = new PrismaClient({ accelerateUrl });
   } else if (directUrl) {
-    // Direct postgres:// connection via driver adapter
-    const adapter = new PrismaPg(directUrl);
+    // Direct postgres:// connection via driver adapter.
+    // Use verify-full explicitly to silence pg SSL deprecation warning.
+    const url = new URL(directUrl);
+    url.searchParams.set("sslmode", "verify-full");
+    const adapter = new PrismaPg(url.toString());
     client = new PrismaClient({ adapter });
   } else {
     return null;
