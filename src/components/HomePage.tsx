@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { motion, useInView, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import type { Program } from "@/data/programs";
@@ -132,20 +132,34 @@ function Section({
   className = "",
   id,
   style,
+  direction = "up",
 }: {
   children: React.ReactNode;
   className?: string;
   id?: string;
   style?: React.CSSProperties;
+  direction?: "up" | "left" | "right" | "scale";
 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.15 });
+  const initialState = direction === "left"
+    ? { opacity: 0, x: -60 }
+    : direction === "right"
+    ? { opacity: 0, x: 60 }
+    : direction === "scale"
+    ? { opacity: 0, scale: 0.92 }
+    : { opacity: 0, y: 40 };
+  const animateState = direction === "left" || direction === "right"
+    ? { opacity: 1, x: 0 }
+    : direction === "scale"
+    ? { opacity: 1, scale: 1 }
+    : { opacity: 1, y: 0 };
   return (
     <motion.section
       ref={ref}
       id={id}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      initial={initialState}
+      animate={inView ? animateState : {}}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className={className}
       style={style}
@@ -178,6 +192,170 @@ const staggerChild = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { type: "spring" as const, damping: 22, stiffness: 200 } },
 };
+
+/* ------------------------------------------------------------------ */
+/*  Scroll Progress Bar                                                */
+/* ------------------------------------------------------------------ */
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-[3px] z-[60] origin-left"
+      style={{
+        scaleX,
+        background: `linear-gradient(90deg, ${C.gold}, ${C.saffron}, ${C.lotusPink})`,
+      }}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated Counter — counts up when visible                          */
+/* ------------------------------------------------------------------ */
+function AnimatedCounter({ value, suffix = "" }: { value: string; suffix?: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const numericMatch = value.match(/^(\d+)/);
+  const isNumeric = !!numericMatch;
+  const targetNum = isNumeric ? parseInt(numericMatch![1], 10) : 0;
+  const restText = isNumeric ? value.slice(numericMatch![0].length) : value;
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!inView || !isNumeric) return;
+    let start = 0;
+    const duration = 1500;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      start = Math.floor(eased * targetNum);
+      setCount(start);
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, isNumeric, targetNum]);
+
+  return (
+    <span ref={ref}>
+      {isNumeric ? (
+        <motion.span
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {count}{restText}{suffix}
+        </motion.span>
+      ) : (
+        <motion.span
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ type: "spring", damping: 15, stiffness: 200 }}
+        >
+          {value}
+        </motion.span>
+      )}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Word-by-word text reveal                                           */
+/* ------------------------------------------------------------------ */
+function WordReveal({ text, className = "", delay = 0, style }: { text: string; className?: string; delay?: number; style?: React.CSSProperties }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const words = text.split(" ");
+  return (
+    <span ref={ref} className={className} style={style}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-[0.3em]"
+          initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+          transition={{ duration: 0.5, delay: delay + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  3D Tilt Card wrapper                                               */
+/* ------------------------------------------------------------------ */
+function TiltCard({ children, className = "", style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springX = useSpring(rotateX, { stiffness: 300, damping: 30 });
+  const springY = useSpring(rotateY, { stiffness: 300, damping: 30 });
+
+  const handleMouse = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    rotateX.set(y * -12);
+    rotateY.set(x * 12);
+  }, [rotateX, rotateY]);
+
+  const handleLeave = useCallback(() => {
+    rotateX.set(0);
+    rotateY.set(0);
+  }, [rotateX, rotateY]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={{ ...style, rotateX: springX, rotateY: springY, transformPerspective: 800 }}
+      onMouseMove={handleMouse}
+      onMouseLeave={handleLeave}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Magnetic hover button                                              */
+/* ------------------------------------------------------------------ */
+function MagneticButton({ children, className = "", style, href }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; href: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 200, damping: 20 });
+  const springY = useSpring(y, { stiffness: 200, damping: 20 });
+
+  return (
+    <motion.div
+      ref={ref}
+      className={`inline-block ${className}`}
+      style={{ ...style, x: springX, y: springY }}
+      onMouseMove={(e: React.MouseEvent) => {
+        const el = ref.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        x.set(dx * 0.15);
+        y.set(dy * 0.15);
+      }}
+      onMouseLeave={() => { x.set(0); y.set(0); }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.97 }}
+    >
+      <a href={href} className="block">
+        {children}
+      </a>
+    </motion.div>
+  );
+}
 
 /* ================================================================== */
 /*  HOMEPAGE                                                           */
@@ -232,23 +410,33 @@ export default function HomePage({ programs }: HomePageProps) {
     </div>
   );
 
+  /* Parallax for hero */
+  const heroRef = useRef(null);
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(heroScroll, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 1.15]);
+
   return (
     <div className="min-h-screen" style={{ background: C.cream }}>
+      <ScrollProgress />
       <Navbar isHomepage />
 
       {/* ============================================================ */}
       {/*  SECTION 1 — HERO with Krishna-Arjuna painting                */}
       {/* ============================================================ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* Background painting */}
-        <Image
-          src="/krishna-arjuna-chariot.jpg"
-          alt="Krishna and Arjuna on the chariot at Kurukshetra"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+        {/* Background painting with parallax */}
+        <motion.div className="absolute inset-0" style={{ y: heroY, scale: heroScale }}>
+          <Image
+            src="/krishna-arjuna-chariot.jpg"
+            alt="Krishna and Arjuna on the chariot at Kurukshetra"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </motion.div>
         {/* Dark overlay for readability — graduated from top/bottom */}
         <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${C.krishnaDeep}E6 0%, ${C.krishnaDeep}99 25%, ${C.krishnaDeep}80 50%, ${C.krishnaDeep}99 75%, ${C.krishnaDeep}F2 100%)` }} />
         {/* Warm color tint to blend with painting */}
@@ -276,8 +464,8 @@ export default function HomePage({ programs }: HomePageProps) {
           />
         ))}
 
-        {/* Content — centered over the painting */}
-        <div className="relative z-10 flex flex-col items-center">
+        {/* Content — centered over the painting, fades on scroll */}
+        <motion.div className="relative z-10 flex flex-col items-center" style={{ opacity: heroOpacity }}>
           {/* Sacred Logo mark with golden glow */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -301,19 +489,21 @@ export default function HomePage({ programs }: HomePageProps) {
           {/* Ornamental divider */}
           <OrnamentDivider light />
 
-          {/* Heading */}
-          <motion.h1
-            className="text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight"
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span className="text-white drop-shadow-lg">Students Living the</span>{" "}
+          {/* Heading with word-by-word reveal */}
+          <h1 className="text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight">
+            <WordReveal text="Students Living the" className="text-white drop-shadow-lg" delay={0.4} />
             <br className="hidden sm:block" />
-            <span className="text-gradient-gold font-serif italic drop-shadow-lg">Bhagavad Gita</span>
+            <motion.span
+              className="text-gradient-gold font-serif italic drop-shadow-lg inline-block"
+              initial={{ opacity: 0, scale: 0.8, filter: "blur(8px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Bhagavad Gita
+            </motion.span>
             <br />
-            <span className="text-white/80 text-2xl sm:text-3xl md:text-4xl drop-shadow-md">in the Heart of New York City</span>
-          </motion.h1>
+            <WordReveal text="in the Heart of New York City" className="text-white/80 text-2xl sm:text-3xl md:text-4xl drop-shadow-md" delay={1.2} />
+          </h1>
 
           {/* Subtitle */}
           <motion.p
@@ -326,39 +516,47 @@ export default function HomePage({ programs }: HomePageProps) {
             A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting on the streets, distributing books, and serving prasadam every single day.
           </motion.p>
 
-          {/* CTA */}
+          {/* CTA with magnetic hover */}
           <motion.div
             className="flex flex-wrap items-center justify-center gap-4 mt-10"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 1.6 }}
           >
-            <Link
+            <MagneticButton
               href="/programs"
-              className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:scale-105"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white flex items-center gap-2 relative overflow-hidden"
               style={{
                 background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
                 boxShadow: `0 0 30px rgba(212,168,67,0.35)`,
               }}
             >
-              Explore Programs
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </Link>
-            <a
+              <span className="relative z-10 flex items-center gap-2">
+                Explore Programs
+                <motion.svg
+                  width="16" height="16" viewBox="0 0 16 16" fill="none"
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </motion.svg>
+              </span>
+            </MagneticButton>
+            <MagneticButton
               href="#what-we-do"
-              className="rounded-full px-8 py-3.5 text-sm font-semibold transition-all hover:bg-white/10"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors"
               style={{ border: `1px solid rgba(212,168,67,0.3)`, color: "rgba(212,168,67,0.7)" }}
             >
               What We Do
-            </a>
+            </MagneticButton>
           </motion.div>
 
-          {/* Stats with ornamental separator */}
+          {/* Stats with animated counters */}
           <motion.div
             className="flex flex-wrap items-center justify-center gap-6 sm:gap-0 mt-14"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
+            transition={{ duration: 0.8, delay: 2.0 }}
           >
             {[
               { value: "3x", label: "Gita Classes/Week" },
@@ -367,12 +565,14 @@ export default function HomePage({ programs }: HomePageProps) {
               { value: "Free", label: "Always" },
             ].map((s, i) => (
               <div key={i} className="text-center px-5 sm:px-7" style={{ borderRight: i < 3 ? "1px solid rgba(212,168,67,0.15)" : "none" }}>
-                <p className="text-xl font-bold font-serif drop-shadow-sm" style={{ color: C.gold }}>{s.value}</p>
+                <p className="text-xl font-bold font-serif drop-shadow-sm" style={{ color: C.gold }}>
+                  <AnimatedCounter value={s.value} />
+                </p>
                 <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.35)" }}>{s.label}</p>
               </div>
             ))}
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Scroll hint */}
         <motion.div
@@ -395,7 +595,7 @@ export default function HomePage({ programs }: HomePageProps) {
       {/* ============================================================ */}
       {/*  SECTION 2 — ABOUT / WHO WE ARE                              */}
       {/* ============================================================ */}
-      <Section id="about" className="py-24 px-6 relative" style={{ background: C.cream }}>
+      <Section id="about" className="py-24 px-6 relative" style={{ background: C.cream }} direction="up">
         {/* Subtle lotus watermark in background */}
         <div className="absolute top-12 right-8 opacity-[0.03]">
           <LotusDecoration size={200} color={C.krishnaBlue} />
@@ -495,7 +695,7 @@ export default function HomePage({ programs }: HomePageProps) {
       {/* ============================================================ */}
       {/*  SECTION 3 — WHAT WE DO (Activities on Krishna Blue)          */}
       {/* ============================================================ */}
-      <Section id="what-we-do" className="py-24 px-6 relative overflow-hidden" style={{ background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 50%, #1E3375 100%)` }}>
+      <Section id="what-we-do" className="py-24 px-6 relative overflow-hidden" style={{ background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 50%, #1E3375 100%)` }} direction="scale">
         {/* Decorative lotus watermarks */}
         <div className="absolute top-0 left-0 opacity-[0.03]">
           <LotusDecoration size={300} color="#fff" />
@@ -520,49 +720,49 @@ export default function HomePage({ programs }: HomePageProps) {
 
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ACTIVITIES.map((activity, i) => (
-              <motion.div
-                key={i}
-                variants={staggerChild}
-                className="group relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(212,168,67,0.1)",
-                }}
-              >
-                {/* Accent top border with gradient */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${activity.color}, transparent)` }} />
-
-                {/* Corner lotus accent */}
-                <div className="absolute -top-4 -right-4 opacity-[0.04]">
-                  <LotusDecoration size={60} color={activity.color} />
-                </div>
-
-                {/* Hover glow */}
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at 50% 0%, ${activity.color}15, transparent 70%)` }} />
-
-                {/* Highlight badge */}
-                <span
-                  className="relative inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
-                  style={{ background: `${activity.color}20`, color: activity.color }}
-                >
-                  {activity.highlight}
-                </span>
-
-                {/* Icon with glowing border */}
-                <div
-                  className="relative flex h-14 w-14 items-center justify-center rounded-2xl mb-4 transition-all duration-300 group-hover:scale-110"
+              <motion.div key={i} variants={staggerChild}>
+                <TiltCard
+                  className="group relative rounded-2xl p-6 transition-all duration-300 overflow-hidden cursor-default"
                   style={{
-                    background: `${activity.color}15`,
-                    color: activity.color,
-                    border: `1px solid ${activity.color}25`,
+                    background: "rgba(255,255,255,0.05)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(212,168,67,0.1)",
                   }}
                 >
-                  {getActivityIcon(activity.icon)}
-                </div>
+                  {/* Accent top border with gradient */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${activity.color}, transparent)` }} />
 
-                <h3 className="relative text-[17px] font-bold text-white/90 mb-2">{activity.title}</h3>
-                <p className="relative text-[13px] leading-relaxed text-white/40">{activity.description}</p>
+                  {/* Corner lotus accent */}
+                  <div className="absolute -top-4 -right-4 opacity-[0.04]">
+                    <LotusDecoration size={60} color={activity.color} />
+                  </div>
+
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at 50% 0%, ${activity.color}15, transparent 70%)` }} />
+
+                  {/* Highlight badge */}
+                  <span
+                    className="relative inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
+                    style={{ background: `${activity.color}20`, color: activity.color }}
+                  >
+                    {activity.highlight}
+                  </span>
+
+                  {/* Icon with glowing border */}
+                  <div
+                    className="relative flex h-14 w-14 items-center justify-center rounded-2xl mb-4 transition-all duration-300 group-hover:scale-110"
+                    style={{
+                      background: `${activity.color}15`,
+                      color: activity.color,
+                      border: `1px solid ${activity.color}25`,
+                    }}
+                  >
+                    {getActivityIcon(activity.icon)}
+                  </div>
+
+                  <h3 className="relative text-[17px] font-bold text-white/90 mb-2">{activity.title}</h3>
+                  <p className="relative text-[13px] leading-relaxed text-white/40">{activity.description}</p>
+                </TiltCard>
               </motion.div>
             ))}
           </StaggerContainer>
@@ -656,7 +856,7 @@ export default function HomePage({ programs }: HomePageProps) {
       {/* ============================================================ */}
       {/*  SECTION 5 — YOUTUBE VIDEOS                                  */}
       {/* ============================================================ */}
-      <Section className="py-24 px-6 relative" style={{ background: "white" }}>
+      <Section className="py-24 px-6 relative" style={{ background: "white" }} direction="right">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.gold }}>Watch</span>
