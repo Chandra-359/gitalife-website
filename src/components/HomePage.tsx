@@ -8,16 +8,39 @@ import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
 
 /* ------------------------------------------------------------------ */
-/*  Hero particles                                                     */
+/*  Krishna-themed color palette                                       */
 /* ------------------------------------------------------------------ */
-const HERO_PARTICLES = Array.from({ length: 16 }, (_, i) => ({
+const C = {
+  krishnaBlue: "#1B2A6B",
+  krishnaDeep: "#0F1B4D",
+  krishnaLight: "#2E3F8F",
+  gold: "#D4A843",
+  goldLight: "#F0D68A",
+  saffron: "#E8751A",
+  peacock: "#006D5B",
+  peacockLight: "#00917A",
+  lotusPink: "#D64B8A",
+  cream: "#FFFBF2",
+  warmBg: "#FFF9F0",
+};
+
+/* ------------------------------------------------------------------ */
+/*  Hero particles — divine golden & blue sparkles                     */
+/* ------------------------------------------------------------------ */
+const HERO_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
   id: i,
-  x: `${5 + (i * 43) % 90}%`,
-  y: `${3 + (i * 31) % 90}%`,
-  size: 2 + (i % 4),
-  delay: (i * 0.3) % 3,
-  duration: 5 + (i % 4) * 2,
-  color: i % 3 === 0 ? "rgba(232,117,26,0.4)" : i % 3 === 1 ? "rgba(212,168,67,0.3)" : "rgba(255,215,0,0.2)",
+  x: `${5 + (i * 37) % 90}%`,
+  y: `${3 + (i * 29) % 90}%`,
+  size: 2 + (i % 5),
+  delay: (i * 0.25) % 4,
+  duration: 5 + (i % 5) * 2,
+  color: i % 4 === 0
+    ? "rgba(212,168,67,0.5)"
+    : i % 4 === 1
+    ? "rgba(240,214,138,0.3)"
+    : i % 4 === 2
+    ? "rgba(0,109,91,0.25)"
+    : "rgba(214,75,138,0.2)",
 }));
 
 /* ------------------------------------------------------------------ */
@@ -59,42 +82,42 @@ const ACTIVITIES = [
   {
     title: "Bhagavad Gita Classes",
     description: "Weekly classes diving deep into the timeless wisdom of the Bhagavad Gita. Join us Fridays in Newport, Saturdays in Jersey City, and Sundays at ISKCON Brooklyn.",
-    color: "#E8751A",
+    color: C.gold,
     icon: "book" as const,
     highlight: "3x per week",
   },
   {
     title: "Harinam Sankirtan",
     description: "Every Sunday we take the holy names to the streets of New York City, sharing the joy of kirtan with everyone we meet.",
-    color: "#D4A843",
+    color: C.saffron,
     icon: "music" as const,
     highlight: "Every Sunday",
   },
   {
     title: "Book Distribution",
     description: "Sharing transcendental literature across Newport, Jersey City, and NYU campuses — bringing ancient wisdom to college students and professionals alike.",
-    color: "#1A5C5E",
+    color: C.peacock,
     icon: "gift" as const,
     highlight: "3 locations",
   },
   {
     title: "Upstate Retreats",
     description: "Weekend getaways in upstate New York for immersive scripture reading, dramatic performances, and cooking prasadam with exalted Vaishnavas visiting ISKCON Brooklyn.",
-    color: "#e94560",
+    color: C.lotusPink,
     icon: "mountain" as const,
     highlight: "Upstate NY",
   },
   {
     title: "Ratha Yatra",
     description: "Every year we participate in the grand Ratha Yatra festival in New York — one of the biggest celebrations of Lord Jagannath outside of India.",
-    color: "#9333ea",
+    color: C.krishnaLight,
     icon: "festival" as const,
     highlight: "Annual event",
   },
   {
     title: "Govinda's Restaurant",
     description: "Our students run the beloved Govinda's restaurant at ISKCON Brooklyn, serving sanctified vegetarian meals to the community with love and devotion.",
-    color: "#2D8F4E",
+    color: C.peacockLight,
     icon: "food" as const,
     highlight: "ISKCON Brooklyn",
   },
@@ -180,61 +203,121 @@ export default function HomePage({ programs }: HomePageProps) {
     }
   };
 
+  /* SVG lotus decoration used across sections */
+  const LotusDecoration = ({ className = "", size = 40, color = C.gold }: { className?: string; size?: number; color?: string }) => (
+    <svg className={className} width={size} height={size} viewBox="0 0 100 100" fill="none" opacity="0.15">
+      {/* Center petal */}
+      <ellipse cx="50" cy="35" rx="8" ry="22" fill={color} transform="rotate(0 50 50)" />
+      {/* Left petals */}
+      <ellipse cx="50" cy="35" rx="8" ry="22" fill={color} transform="rotate(-30 50 50)" />
+      <ellipse cx="50" cy="35" rx="8" ry="22" fill={color} transform="rotate(-60 50 50)" />
+      {/* Right petals */}
+      <ellipse cx="50" cy="35" rx="8" ry="22" fill={color} transform="rotate(30 50 50)" />
+      <ellipse cx="50" cy="35" rx="8" ry="22" fill={color} transform="rotate(60 50 50)" />
+      {/* Outer petals */}
+      <ellipse cx="50" cy="35" rx="7" ry="20" fill={color} transform="rotate(-90 50 50)" opacity="0.6" />
+      <ellipse cx="50" cy="35" rx="7" ry="20" fill={color} transform="rotate(90 50 50)" opacity="0.6" />
+    </svg>
+  );
+
+  /* Ornamental divider */
+  const OrnamentDivider = ({ light = false }: { light?: boolean }) => (
+    <div className="flex items-center justify-center gap-3 my-4">
+      <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(to right, transparent, ${light ? "rgba(212,168,67,0.4)" : "rgba(212,168,67,0.25)"})` }} />
+      <svg width="16" height="16" viewBox="0 0 24 24" fill={light ? "rgba(212,168,67,0.5)" : "rgba(212,168,67,0.3)"}>
+        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c.8 0 1.5.3 2 .8l-2 2.5-2-2.5c.5-.5 1.2-.8 2-.8z" />
+      </svg>
+      <div className="h-px flex-1 max-w-[80px]" style={{ background: `linear-gradient(to left, transparent, ${light ? "rgba(212,168,67,0.4)" : "rgba(212,168,67,0.25)"})` }} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#FFF9F0]">
+    <div className="min-h-screen" style={{ background: C.cream }}>
       <Navbar isHomepage />
 
       {/* ============================================================ */}
-      {/*  SECTION 1 — HERO                                            */}
+      {/*  SECTION 1 — HERO (Krishna Blue with Divine Gold)             */}
       {/* ============================================================ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden" style={{ background: "#0a0a1a" }}>
-        {/* Gradient backdrops */}
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(232,117,26,0.08) 0%, transparent 50%)" }} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(212,168,67,0.05) 0%, transparent 40%)" }} />
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden" style={{ background: `linear-gradient(165deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 40%, #1E3375 70%, ${C.krishnaDeep} 100%)` }}>
+        {/* Divine radial glow layers */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,168,67,0.12) 0%, transparent 55%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 25% 65%, rgba(0,109,91,0.06) 0%, transparent 40%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 75% 70%, rgba(214,75,138,0.04) 0%, transparent 35%)" }} />
 
-        {/* Particles */}
+        {/* Ornamental top border */}
+        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)` }} />
+
+        {/* Corner lotus decorations */}
+        <div className="absolute top-8 left-8 opacity-10">
+          <LotusDecoration size={80} color={C.gold} />
+        </div>
+        <div className="absolute top-8 right-8 opacity-10" style={{ transform: "scaleX(-1)" }}>
+          <LotusDecoration size={80} color={C.gold} />
+        </div>
+        <div className="absolute bottom-32 left-12 opacity-5">
+          <LotusDecoration size={60} color={C.lotusPink} />
+        </div>
+        <div className="absolute bottom-32 right-12 opacity-5" style={{ transform: "scaleX(-1)" }}>
+          <LotusDecoration size={60} color={C.lotusPink} />
+        </div>
+
+        {/* Divine sparkle particles */}
         {HERO_PARTICLES.map((p) => (
           <motion.span
             key={p.id}
             className="absolute rounded-full"
             style={{ left: p.x, top: p.y, width: p.size, height: p.size, background: p.color }}
-            animate={{ y: [0, -30, 0], opacity: [0.1, 0.6, 0.1], scale: [1, 1.5, 1] }}
+            animate={{ y: [0, -25, 0], opacity: [0.05, 0.7, 0.05], scale: [1, 1.8, 1] }}
             transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
           />
         ))}
 
-        {/* Logo mark */}
+        {/* Sacred Om / Logo mark with golden glow */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mb-8 flex h-16 w-16 items-center justify-center rounded-2xl"
-          style={{ background: "linear-gradient(135deg, #E8751A, #d4680f)", boxShadow: "0 0 60px rgba(232,117,26,0.3)" }}
+          className="relative mb-6"
         >
-          <span className="text-white font-bold text-2xl">G</span>
+          <div
+            className="flex h-20 w-20 items-center justify-center rounded-full animate-divine-aura"
+            style={{
+              background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
+              boxShadow: `0 0 60px rgba(212,168,67,0.3), 0 0 120px rgba(212,168,67,0.1)`,
+            }}
+          >
+            <span className="text-white font-bold text-3xl font-serif">G</span>
+          </div>
+          {/* Rotating decorative ring */}
+          <div className="absolute -inset-3 rounded-full border border-dashed animate-spin-slow" style={{ borderColor: "rgba(212,168,67,0.15)" }} />
         </motion.div>
+
+        {/* Ornamental divider */}
+        <OrnamentDivider light />
 
         {/* Heading */}
         <motion.h1
-          className="relative text-center text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-4xl px-6 leading-tight"
+          className="relative text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
-          Students Living the{" "}
-          <span className="text-[#E8751A]">Gita</span>
+          <span className="text-white/90">Students Living the</span>{" "}
           <br className="hidden sm:block" />
-          in the Heart of <span className="text-[#D4A843]">New York City</span>
+          <span className="text-gradient-gold font-serif italic">Bhagavad Gita</span>
+          <br />
+          <span className="text-white/70 text-2xl sm:text-3xl md:text-4xl">in the Heart of New York City</span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
-          className="relative mt-6 max-w-xl px-6 text-center text-base sm:text-lg text-white/45 leading-relaxed"
+          className="relative mt-6 max-w-xl px-6 text-center text-base sm:text-lg leading-relaxed"
+          style={{ color: "rgba(212,168,67,0.5)" }}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          We are a community of young devotees based at ISKCON Brooklyn — studying the Bhagavad Gita, chanting on the streets, distributing books, and serving prasadam every single day.
+          A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting on the streets, distributing books, and serving prasadam every single day.
         </motion.p>
 
         {/* CTA */}
@@ -246,22 +329,27 @@ export default function HomePage({ programs }: HomePageProps) {
         >
           <Link
             href="/programs"
-            className="rounded-full bg-[#E8751A] px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white shadow-[0_0_24px_rgba(232,117,26,0.3)] hover:bg-[#d4680f] transition-all hover:shadow-[0_0_36px_rgba(232,117,26,0.45)] flex items-center gap-2"
+            className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:scale-105"
+            style={{
+              background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
+              boxShadow: `0 0 30px rgba(212,168,67,0.3)`,
+            }}
           >
             Explore Programs
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </Link>
           <a
             href="#what-we-do"
-            className="rounded-full border border-white/20 px-8 py-3.5 text-sm font-semibold text-white/60 hover:bg-white/5 hover:text-white transition-all"
+            className="rounded-full px-8 py-3.5 text-sm font-semibold transition-all hover:bg-white/5"
+            style={{ border: `1px solid rgba(212,168,67,0.25)`, color: "rgba(212,168,67,0.6)" }}
           >
             What We Do
           </a>
         </motion.div>
 
-        {/* Stats */}
+        {/* Stats with ornamental separator */}
         <motion.div
-          className="relative flex flex-wrap items-center justify-center gap-8 sm:gap-10 mt-14"
+          className="relative flex flex-wrap items-center justify-center gap-6 sm:gap-0 mt-14"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.6 }}
@@ -272,9 +360,9 @@ export default function HomePage({ programs }: HomePageProps) {
             { value: "ISKCON", label: "Brooklyn Based" },
             { value: "Free", label: "Always" },
           ].map((s, i) => (
-            <div key={i} className="text-center">
-              <p className="text-xl font-bold text-[#E8751A]">{s.value}</p>
-              <p className="text-[10px] text-white/25 uppercase tracking-widest mt-0.5">{s.label}</p>
+            <div key={i} className="text-center px-5 sm:px-7" style={{ borderRight: i < 3 ? "1px solid rgba(212,168,67,0.12)" : "none" }}>
+              <p className="text-xl font-bold font-serif" style={{ color: C.gold }}>{s.value}</p>
+              <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.3)" }}>{s.label}</p>
             </div>
           ))}
         </motion.div>
@@ -287,17 +375,25 @@ export default function HomePage({ programs }: HomePageProps) {
           transition={{ delay: 2.5, duration: 1 }}
         >
           <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }} className="flex flex-col items-center gap-1.5">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/15"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: "rgba(212,168,67,0.2)" }}><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </motion.div>
         </motion.div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: "linear-gradient(to top, #FFF9F0, transparent)" }} />
+        {/* Bottom gradient transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: `linear-gradient(to top, ${C.cream}, transparent)` }} />
+        {/* Bottom ornamental border */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}40, ${C.saffron}40, ${C.gold}40, transparent)` }} />
       </section>
 
       {/* ============================================================ */}
       {/*  SECTION 2 — ABOUT / WHO WE ARE                              */}
       {/* ============================================================ */}
-      <Section id="about" className="py-24 px-6 bg-[#FFF9F0]">
+      <Section id="about" className="py-24 px-6 relative" style={{ background: C.cream }}>
+        {/* Subtle lotus watermark in background */}
+        <div className="absolute top-12 right-8 opacity-[0.03]">
+          <LotusDecoration size={200} color={C.krishnaBlue} />
+        </div>
+
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -306,11 +402,12 @@ export default function HomePage({ programs }: HomePageProps) {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Who We Are</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              What is <span className="text-gradient-saffron">Gita Life NYC</span>?
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.gold }}>Who We Are</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold" style={{ color: C.krishnaBlue }}>
+              What is <span className="text-gradient-divine">Gita Life NYC</span>?
             </h2>
-            <p className="mt-3 text-gray-500 max-w-lg mx-auto">
+            <OrnamentDivider />
+            <p className="mt-2 text-gray-500 max-w-lg mx-auto">
               A community of young devotees living, studying, and serving together at ISKCON Brooklyn
             </p>
           </motion.div>
@@ -323,17 +420,18 @@ export default function HomePage({ programs }: HomePageProps) {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <p className="text-[15px] leading-[1.9] text-gray-600 mb-5">
-                Gita Life NYC is a vibrant community of young students and professionals who live together at the ISKCON Brooklyn temple. We&rsquo;ve dedicated our lives to exploring the timeless wisdom of the Bhagavad Gita — not just in theory, but through daily practice.
+                Gita Life NYC is a vibrant community of young students and professionals who live together at the <strong style={{ color: C.krishnaBlue }}>ISKCON Brooklyn temple</strong>. We&rsquo;ve dedicated our lives to exploring the timeless wisdom of the Bhagavad Gita — not just in theory, but through daily practice.
               </p>
               <p className="text-[15px] leading-[1.9] text-gray-600 mb-5">
-                From running <strong className="text-gray-800">Govinda&rsquo;s restaurant</strong> at ISKCON Brooklyn to taking <strong className="text-gray-800">Harinam</strong> to the streets every Sunday, from distributing sacred literature at NYU and across Jersey City to hosting <strong className="text-gray-800">Bhagavad Gita classes three times a week</strong> — we live and breathe this wisdom.
+                From running <strong style={{ color: C.peacock }}>Govinda&rsquo;s restaurant</strong> at ISKCON Brooklyn to taking <strong style={{ color: C.saffron }}>Harinam</strong> to the streets every Sunday, from distributing sacred literature at NYU and across Jersey City to hosting <strong style={{ color: C.gold }}>Bhagavad Gita classes three times a week</strong> — we live and breathe this wisdom.
               </p>
               <p className="text-[15px] leading-[1.9] text-gray-600">
                 Whether you&rsquo;re a seasoned practitioner or simply curious about what the Gita has to say about purpose, peace, and happiness — you belong here. Come for a class, stay for the prasadam, leave with a new perspective on life.
               </p>
               <Link
                 href="/programs"
-                className="inline-flex items-center gap-2 mt-6 text-[14px] font-semibold text-[#E8751A] hover:text-[#d4680f] transition-colors"
+                className="inline-flex items-center gap-2 mt-6 text-[14px] font-semibold transition-colors"
+                style={{ color: C.krishnaBlue }}
               >
                 See upcoming programs
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -347,25 +445,29 @@ export default function HomePage({ programs }: HomePageProps) {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              <div className="rounded-3xl bg-white/70 border border-[#E8751A]/10 p-8 shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 opacity-5" style={{ background: "radial-gradient(circle, #E8751A, transparent)" }} />
-                <div className="absolute -top-2 -left-1 text-7xl font-serif text-[#E8751A]/10">&ldquo;</div>
-                <p className="relative text-[18px] italic leading-relaxed text-gray-700 font-serif">
+              {/* Gita quote card — Krishna themed */}
+              <div className="krishna-card rounded-3xl p-8 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${C.gold}, ${C.saffron}, ${C.gold})` }} />
+                <div className="absolute top-4 right-4 opacity-[0.04]">
+                  <LotusDecoration size={80} color={C.krishnaBlue} />
+                </div>
+                <div className="absolute -top-2 -left-1 text-7xl font-serif" style={{ color: `${C.gold}20` }}>&ldquo;</div>
+                <p className="relative text-[18px] italic leading-relaxed font-serif" style={{ color: C.krishnaBlue }}>
                   You have the right to work, but never to the fruit of work. You should never engage in action for the sake of reward, nor should you long for inaction.
                 </p>
-                <p className="mt-4 text-[13px] font-semibold text-[#E8751A]">
+                <p className="mt-4 text-[13px] font-semibold" style={{ color: C.gold }}>
                   — Bhagavad Gita 2.47
                 </p>
               </div>
 
               {/* Home base callout */}
-              <div className="rounded-2xl bg-gradient-to-br from-[#1A5C5E]/10 to-[#1A5C5E]/5 border border-[#1A5C5E]/15 p-5">
+              <div className="rounded-2xl p-5" style={{ background: `linear-gradient(135deg, ${C.krishnaBlue}08, ${C.krishnaBlue}04)`, border: `1px solid ${C.krishnaBlue}15` }}>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1A5C5E]/15 text-[#1A5C5E] shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl shrink-0" style={{ background: `${C.krishnaBlue}12`, color: C.krishnaBlue }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                   </div>
                   <div>
-                    <p className="text-[14px] font-semibold text-gray-800">Based at ISKCON Brooklyn Temple</p>
+                    <p className="text-[14px] font-semibold" style={{ color: C.krishnaBlue }}>Based at ISKCON Brooklyn Temple</p>
                     <p className="text-[12px] text-gray-500 mt-0.5">All Gita Life students live and serve at the temple</p>
                   </div>
                 </div>
@@ -376,16 +478,27 @@ export default function HomePage({ programs }: HomePageProps) {
       </Section>
 
       {/* ============================================================ */}
-      {/*  SECTION 3 — WHAT WE DO (Activities)                         */}
+      {/*  SECTION 3 — WHAT WE DO (Activities on Krishna Blue)          */}
       {/* ============================================================ */}
-      <Section id="what-we-do" className="py-24 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
+      <Section id="what-we-do" className="py-24 px-6 relative overflow-hidden" style={{ background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 50%, #1E3375 100%)` }}>
+        {/* Decorative lotus watermarks */}
+        <div className="absolute top-0 left-0 opacity-[0.03]">
+          <LotusDecoration size={300} color="#fff" />
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-[0.03]" style={{ transform: "rotate(180deg)" }}>
+          <LotusDecoration size={250} color="#fff" />
+        </div>
+        {/* Ornamental top border */}
+        <div className="absolute top-0 left-0 right-0 ornament-border-thick" />
+
+        <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">What We Do</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              Our <span className="text-gradient-saffron">Activities</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.goldLight }}>What We Do</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-white">
+              Our <span className="text-gradient-gold">Sacred Activities</span>
             </h2>
-            <p className="mt-3 text-gray-500 max-w-lg mx-auto">
+            <OrnamentDivider light />
+            <p className="mt-2 max-w-lg mx-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
               From daily classes to annual festivals — here&rsquo;s how we live the Gita every day
             </p>
           </div>
@@ -395,85 +508,115 @@ export default function HomePage({ programs }: HomePageProps) {
               <motion.div
                 key={i}
                 variants={staggerChild}
-                className="group relative rounded-2xl bg-white border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className="group relative rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid rgba(212,168,67,0.1)",
+                }}
               >
-                {/* Accent top border */}
-                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: activity.color }} />
+                {/* Accent top border with gradient */}
+                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${activity.color}, transparent)` }} />
+
+                {/* Corner lotus accent */}
+                <div className="absolute -top-4 -right-4 opacity-[0.04]">
+                  <LotusDecoration size={60} color={activity.color} />
+                </div>
+
+                {/* Hover glow */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at 50% 0%, ${activity.color}15, transparent 70%)` }} />
 
                 {/* Highlight badge */}
                 <span
-                  className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
-                  style={{ background: `${activity.color}12`, color: activity.color }}
+                  className="relative inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
+                  style={{ background: `${activity.color}20`, color: activity.color }}
                 >
                   {activity.highlight}
                 </span>
 
-                {/* Icon */}
+                {/* Icon with glowing border */}
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl mb-4 transition-transform duration-300 group-hover:scale-110"
-                  style={{ background: `${activity.color}10`, color: activity.color }}
+                  className="relative flex h-14 w-14 items-center justify-center rounded-2xl mb-4 transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: `${activity.color}15`,
+                    color: activity.color,
+                    border: `1px solid ${activity.color}25`,
+                  }}
                 >
                   {getActivityIcon(activity.icon)}
                 </div>
 
-                <h3 className="text-[17px] font-bold text-gray-900 mb-2">{activity.title}</h3>
-                <p className="text-[13px] leading-relaxed text-gray-500">{activity.description}</p>
+                <h3 className="relative text-[17px] font-bold text-white/90 mb-2">{activity.title}</h3>
+                <p className="relative text-[13px] leading-relaxed text-white/40">{activity.description}</p>
               </motion.div>
             ))}
           </StaggerContainer>
         </div>
+
+        {/* Bottom ornamental border */}
+        <div className="absolute bottom-0 left-0 right-0 ornament-border-thick" />
       </Section>
 
       {/* ============================================================ */}
       {/*  SECTION 4 — WEEKLY SCHEDULE                                 */}
       {/* ============================================================ */}
-      <Section className="py-24 px-6 bg-[#FFF9F0]">
+      <Section className="py-24 px-6 relative" style={{ background: C.cream }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}30, transparent)` }} />
+
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Join Us</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              Weekly <span className="text-gradient-saffron">Schedule</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.gold }}>Join Us</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold" style={{ color: C.krishnaBlue }}>
+              Weekly <span className="text-gradient-divine">Schedule</span>
             </h2>
-            <p className="mt-3 text-gray-500 max-w-md mx-auto">
+            <OrnamentDivider />
+            <p className="mt-2 text-gray-500 max-w-md mx-auto">
               All programs are free and open to everyone
             </p>
           </div>
 
           <StaggerContainer className="space-y-3">
-            {WEEKLY_SCHEDULE.map((item, i) => (
-              <motion.div
-                key={i}
-                variants={staggerChild}
-                className="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-[#E8751A]/20 transition-all duration-300"
-              >
-                {/* Day badge */}
-                <div className="shrink-0">
-                  <span className="inline-flex items-center justify-center rounded-xl bg-[#E8751A]/10 text-[#E8751A] px-4 py-2 text-[13px] font-bold min-w-[100px] text-center">
-                    {item.day}
-                  </span>
-                </div>
-
-                {/* Icon */}
-                <div
-                  className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl shrink-0"
-                  style={{ background: item.icon === "book" ? "#1A5C5E15" : item.icon === "music" ? "#D4A84315" : "#e9456015", color: item.icon === "book" ? "#1A5C5E" : item.icon === "music" ? "#D4A843" : "#e94560" }}
+            {WEEKLY_SCHEDULE.map((item, i) => {
+              const iconColor = item.icon === "book" ? C.krishnaBlue : item.icon === "music" ? C.gold : C.lotusPink;
+              return (
+                <motion.div
+                  key={i}
+                  variants={staggerChild}
+                  className="krishna-card group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg"
+                  style={{ background: "rgba(255,255,255,0.7)" }}
                 >
-                  {getActivityIcon(item.icon)}
-                </div>
+                  {/* Day badge */}
+                  <div className="shrink-0">
+                    <span
+                      className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-[13px] font-bold min-w-[100px] text-center"
+                      style={{ background: `${C.krishnaBlue}10`, color: C.krishnaBlue }}
+                    >
+                      {item.day}
+                    </span>
+                  </div>
 
-                {/* Details */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-[15px] font-semibold text-gray-900">{item.activity}</h3>
-                  <p className="text-[12px] text-gray-400 mt-0.5">{item.time}</p>
-                </div>
+                  {/* Icon */}
+                  <div
+                    className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl shrink-0"
+                    style={{ background: `${iconColor}12`, color: iconColor }}
+                  >
+                    {getActivityIcon(item.icon)}
+                  </div>
 
-                {/* Location */}
-                <div className="shrink-0 flex items-center gap-1.5 text-[12px] text-gray-500">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                  {item.location}
-                </div>
-              </motion.div>
-            ))}
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[15px] font-semibold" style={{ color: C.krishnaBlue }}>{item.activity}</h3>
+                    <p className="text-[12px] text-gray-400 mt-0.5">{item.time}</p>
+                  </div>
+
+                  {/* Location */}
+                  <div className="shrink-0 flex items-center gap-1.5 text-[12px]" style={{ color: C.peacock }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    {item.location}
+                  </div>
+                </motion.div>
+              );
+            })}
           </StaggerContainer>
 
           <motion.div
@@ -485,7 +628,8 @@ export default function HomePage({ programs }: HomePageProps) {
           >
             <Link
               href="/programs"
-              className="inline-flex items-center gap-2 rounded-full bg-[#E8751A] px-7 py-3 text-[13px] font-semibold text-white hover:bg-[#d4680f] transition-colors shadow-[0_0_20px_rgba(232,117,26,0.2)]"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-[13px] font-semibold text-white transition-all hover:scale-105"
+              style={{ background: `linear-gradient(135deg, ${C.krishnaBlue}, ${C.krishnaLight})`, boxShadow: `0 0 25px ${C.krishnaBlue}30` }}
             >
               View All Programs
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -497,14 +641,15 @@ export default function HomePage({ programs }: HomePageProps) {
       {/* ============================================================ */}
       {/*  SECTION 5 — YOUTUBE VIDEOS                                  */}
       {/* ============================================================ */}
-      <Section className="py-24 px-6 bg-white">
+      <Section className="py-24 px-6 relative" style={{ background: "white" }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Watch</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.gold }}>Watch</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold" style={{ color: C.krishnaBlue }}>
               See What We&rsquo;re About
             </h2>
-            <p className="mt-3 text-gray-500 max-w-md mx-auto">
+            <OrnamentDivider />
+            <p className="mt-2 text-gray-500 max-w-md mx-auto">
               Experience the energy of our community
             </p>
           </div>
@@ -514,7 +659,7 @@ export default function HomePage({ programs }: HomePageProps) {
               const { bg } = getCategoryColor(video.category);
               return (
                 <motion.div key={i} variants={staggerChild} className="group">
-                  <div className="rounded-2xl overflow-hidden bg-gray-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <div className="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300" style={{ border: `1px solid ${C.gold}15` }}>
                     <div className="relative aspect-video">
                       <iframe
                         src={`https://www.youtube.com/embed/${video.id}`}
@@ -524,8 +669,8 @@ export default function HomePage({ programs }: HomePageProps) {
                         className="absolute inset-0 w-full h-full"
                       />
                     </div>
-                    <div className="p-4">
-                      <h3 className="text-[15px] font-semibold text-gray-900">{video.title}</h3>
+                    <div className="p-4" style={{ background: C.cream }}>
+                      <h3 className="text-[15px] font-semibold" style={{ color: C.krishnaBlue }}>{video.title}</h3>
                       <span
                         className="inline-flex items-center gap-1 mt-2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
                         style={{ background: `${bg}15`, color: bg }}
@@ -550,7 +695,8 @@ export default function HomePage({ programs }: HomePageProps) {
               href="https://www.youtube.com/@gitalifenyc"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-6 py-3 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[13px] font-semibold transition-all hover:scale-105"
+              style={{ border: `1px solid ${C.krishnaBlue}20`, color: C.krishnaBlue }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-500">
                 <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z" fill="currentColor" />
@@ -563,15 +709,22 @@ export default function HomePage({ programs }: HomePageProps) {
       </Section>
 
       {/* ============================================================ */}
-      {/*  SECTION 6 — TESTIMONIALS                                    */}
+      {/*  SECTION 6 — TESTIMONIALS (Krishna Blue Dark)                */}
       {/* ============================================================ */}
-      <Section className="py-24 px-6" style={{ background: "#1a1a2e" }}>
-        <div className="max-w-5xl mx-auto">
+      <Section className="py-24 px-6 relative overflow-hidden" style={{ background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)` }}>
+        <div className="absolute top-0 left-0 right-0 ornament-border-thick" />
+        {/* Decorative faded lotus */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-[0.02]">
+          <LotusDecoration size={400} color="#fff" />
+        </div>
+
+        <div className="max-w-5xl mx-auto relative">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Testimonials</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.goldLight }}>Testimonials</span>
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-white">
               What People Are Saying
             </h2>
+            <OrnamentDivider light />
           </div>
 
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -581,25 +734,29 @@ export default function HomePage({ programs }: HomePageProps) {
                 <motion.div
                   key={prog.id}
                   variants={staggerChild}
-                  className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/10 transition-colors"
+                  className="rounded-2xl p-6 hover:bg-white/10 transition-colors relative overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(8px)", border: `1px solid ${C.gold}15` }}
                 >
+                  {/* Corner accent */}
+                  <div className="absolute top-0 left-0 w-12 h-12" style={{ borderTop: `2px solid ${C.gold}25`, borderLeft: `2px solid ${C.gold}25`, borderRadius: "4px 0 0 0" }} />
+
                   <div className="flex gap-0.5 mb-4">
                     {[...Array(5)].map((_, j) => (
-                      <svg key={j} width="14" height="14" viewBox="0 0 16 16" fill="#E8751A" opacity="0.8">
+                      <svg key={j} width="14" height="14" viewBox="0 0 16 16" fill={C.gold} opacity="0.8">
                         <path d="M8 1l2.24 4.54 5.01.73-3.63 3.53.86 4.99L8 12.27l-4.48 2.52.86-4.99L.75 6.27l5.01-.73L8 1z" />
                       </svg>
                     ))}
                   </div>
-                  <p className="text-[14px] italic leading-relaxed text-white/70 mb-4">
+                  <p className="text-[14px] italic leading-relaxed text-white/70 mb-4 font-serif">
                     &ldquo;{prog.testimonial}&rdquo;
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: bg }}>
+                    <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: `linear-gradient(135deg, ${bg}, ${C.gold})` }}>
                       {prog.testimonialAuthor?.charAt(0) || "?"}
                     </div>
                     <div>
                       <p className="text-[13px] font-semibold text-white/90">{prog.testimonialAuthor}</p>
-                      <p className="text-[11px] text-white/40">{prog.category}</p>
+                      <p className="text-[11px]" style={{ color: `${C.goldLight}60` }}>{prog.category}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -607,24 +764,32 @@ export default function HomePage({ programs }: HomePageProps) {
             })}
           </StaggerContainer>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 ornament-border-thick" />
       </Section>
 
       {/* ============================================================ */}
       {/*  SECTION 7 — GET CONNECTED + FOOTER                         */}
       {/* ============================================================ */}
-      <section id="get-connected" className="py-24 px-6" style={{ background: "#0a0a1a" }}>
-        <div className="max-w-3xl mx-auto text-center">
+      <section id="get-connected" className="py-24 px-6 relative overflow-hidden" style={{ background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, #080E2A 100%)` }}>
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)` }} />
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 opacity-[0.02]">
+          <LotusDecoration size={300} color="#fff" />
+        </div>
+
+        <div className="max-w-3xl mx-auto text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Join Us</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: C.goldLight }}>Join Us</span>
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-white">
               Stay Connected
             </h2>
-            <p className="mt-3 text-white/40 max-w-md mx-auto">
+            <OrnamentDivider light />
+            <p className="mt-2 max-w-md mx-auto" style={{ color: "rgba(212,168,67,0.35)" }}>
               Get updates on upcoming programs and events
             </p>
           </motion.div>
@@ -639,9 +804,13 @@ export default function HomePage({ programs }: HomePageProps) {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 rounded-xl bg-white/10 border border-white/10 px-5 py-3.5 text-[14px] text-white placeholder:text-white/30 outline-none focus:border-[#E8751A]/40 focus:ring-1 focus:ring-[#E8751A]/20 transition-all"
+              className="flex-1 rounded-xl px-5 py-3.5 text-[14px] text-white outline-none transition-all"
+              style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${C.gold}20`, }}
             />
-            <button className="rounded-xl bg-[#E8751A] px-6 py-3.5 text-[14px] font-semibold text-white hover:bg-[#d4680f] transition-colors shadow-[0_0_20px_rgba(232,117,26,0.25)] shrink-0">
+            <button
+              className="rounded-xl px-6 py-3.5 text-[14px] font-semibold text-white transition-all hover:scale-105 shrink-0"
+              style={{ background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`, boxShadow: `0 0 25px ${C.gold}25` }}
+            >
               Subscribe
             </button>
           </motion.div>
@@ -664,7 +833,8 @@ export default function HomePage({ programs }: HomePageProps) {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/50 hover:bg-[#E8751A]/20 hover:border-[#E8751A]/30 hover:text-[#E8751A] transition-all"
+                className="flex h-11 w-11 items-center justify-center rounded-full transition-all"
+                style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${C.gold}15`, color: `${C.goldLight}60` }}
                 aria-label={social.label}
               >
                 {social.icon}
@@ -673,12 +843,12 @@ export default function HomePage({ programs }: HomePageProps) {
           </motion.div>
 
           {/* Footer */}
-          <div className="mt-16 h-px bg-white/10" />
+          <div className="mt-16 h-px" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}20, transparent)` }} />
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-bold text-white" style={{ background: "linear-gradient(135deg, #E8751A, #d4680f)" }}>G</div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})` }}>G</div>
               <span className="text-[14px] font-bold text-white/80">
-                Gita Life <span className="text-[#E8751A]">NYC</span>
+                Gita Life <span style={{ color: C.gold }}>NYC</span>
               </span>
             </div>
 
@@ -690,7 +860,7 @@ export default function HomePage({ programs }: HomePageProps) {
               <a href="https://www.youtube.com/@gitalifenyc" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">YouTube</a>
             </div>
 
-            <p className="text-[11px] text-white/25">Made with love at ISKCON Brooklyn</p>
+            <p className="text-[11px]" style={{ color: `${C.gold}30` }}>Hare Krishna — Made with devotion at ISKCON Brooklyn</p>
           </div>
         </div>
       </section>

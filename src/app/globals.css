@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/*  Gita Life NYC — Global Styles                                      */
+/*  Gita Life NYC — Global Styles (Krishna-inspired theme)             */
 /*                                                                     */
 /*  Z-INDEX MAP (keep in sync with component comments):                */
 /*    z-0  — Mapbox GL canvas                                          */
@@ -15,12 +15,23 @@
 :root {
   --background: #ffffff;
   --foreground: #1a1a2e;
+  /* Krishna-inspired palette */
+  --krishna-blue: #1B2A6B;
+  --krishna-blue-deep: #0F1B4D;
+  --krishna-blue-light: #2E3F8F;
+  --divine-gold: #D4A843;
+  --divine-gold-light: #F0D68A;
+  --divine-gold-deep: #B8922E;
   --saffron: #E8751A;
-  --gold: #D4A843;
-  --teal: #1A5C5E;
+  --saffron-deep: #CC5F0A;
+  --peacock-green: #006D5B;
+  --peacock-green-light: #00917A;
+  --lotus-pink: #D64B8A;
+  --lotus-pink-light: #F0A0C4;
   --crimson: #e94560;
   --warm-bg: #FFF9F0;
   --warm-bg-deep: #FFF3E0;
+  --cream: #FFFBF2;
 }
 
 @theme inline {
@@ -32,7 +43,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Full-viewport reset — no scrollbars, map fills everything          */
+/*  Full-viewport reset                                                */
 /* ------------------------------------------------------------------ */
 html,
 body {
@@ -43,11 +54,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Programs page uses SplitView which handles its own h-screen overflow-hidden */
-/* Homepage needs normal scrolling behavior */
-
 /* ------------------------------------------------------------------ */
-/*  Mapbox built-in controls — dim until hovered                       */
+/*  Mapbox built-in controls                                           */
 /* ------------------------------------------------------------------ */
 .mapboxgl-ctrl-logo,
 .mapboxgl-ctrl-attrib {
@@ -68,7 +76,6 @@ body {
   will-change: transform;
 }
 
-/* Hide scrollbar on carousel strip (all browsers) */
 .snap-x::-webkit-scrollbar {
   display: none;
 }
@@ -81,10 +88,10 @@ h1, h2, h3 {
 }
 
 /* ================================================================== */
-/*  Premium Animations                                                 */
+/*  Krishna-themed Animations                                          */
 /* ================================================================== */
 
-/* --- Shimmer sweep for cards and buttons --- */
+/* --- Shimmer sweep --- */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
@@ -115,10 +122,10 @@ h1, h2, h3 {
   animation: float 6s ease-in-out infinite;
 }
 
-/* --- Gentle glow pulse --- */
+/* --- Divine glow pulse --- */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(232, 117, 26, 0.15); }
-  50% { box-shadow: 0 0 40px rgba(232, 117, 26, 0.35); }
+  0%, 100% { box-shadow: 0 0 20px rgba(212,168,67,0.15); }
+  50% { box-shadow: 0 0 40px rgba(212,168,67,0.35); }
 }
 
 .animate-glow-pulse {
@@ -127,8 +134,8 @@ h1, h2, h3 {
 
 /* --- RSVP button attention pulse --- */
 @keyframes rsvp-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 4px 24px rgba(232, 117, 26, 0.3); }
-  50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(232, 117, 26, 0.5); }
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 24px rgba(212,168,67,0.3); }
+  50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(212,168,67,0.5); }
 }
 
 .animate-rsvp-pulse {
@@ -145,7 +152,7 @@ h1, h2, h3 {
   animation: count-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Loading pulse for skeleton --- */
+/* --- Lotus pulse for loading --- */
 @keyframes lotus-pulse {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.08); }
@@ -155,10 +162,10 @@ h1, h2, h3 {
   animation: lotus-pulse 2.5s ease-in-out infinite;
 }
 
-/* --- Border glow animation --- */
+/* --- Border glow --- */
 @keyframes border-glow {
-  0%, 100% { border-color: rgba(232, 117, 26, 0.1); }
-  50% { border-color: rgba(232, 117, 26, 0.4); }
+  0%, 100% { border-color: rgba(212,168,67,0.1); }
+  50% { border-color: rgba(212,168,67,0.4); }
 }
 
 .animate-border-glow {
@@ -195,7 +202,7 @@ h1, h2, h3 {
   animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Confetti burst for RSVP success --- */
+/* --- Confetti burst --- */
 @keyframes confetti-fall {
   0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
@@ -205,7 +212,7 @@ h1, h2, h3 {
   animation: confetti-fall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* --- Sparkle for highlights --- */
+/* --- Sparkle --- */
 @keyframes sparkle {
   0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
   50% { opacity: 1; transform: scale(1) rotate(180deg); }
@@ -215,8 +222,30 @@ h1, h2, h3 {
   animation: sparkle 2s ease-in-out infinite;
 }
 
+/* --- Peacock shimmer for borders --- */
+@keyframes peacock-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-peacock-shimmer {
+  background-size: 200% 200%;
+  animation: peacock-shimmer 4s ease infinite;
+}
+
+/* --- Gentle divine aura --- */
+@keyframes divine-aura {
+  0%, 100% { box-shadow: 0 0 30px rgba(27,42,107,0.1), 0 0 60px rgba(212,168,67,0.05); }
+  50% { box-shadow: 0 0 50px rgba(27,42,107,0.2), 0 0 90px rgba(212,168,67,0.1); }
+}
+
+.animate-divine-aura {
+  animation: divine-aura 4s ease-in-out infinite;
+}
+
 /* ================================================================== */
-/*  Scrollbar styling for left panel                                   */
+/*  Scrollbar styling                                                  */
 /* ================================================================== */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
@@ -227,15 +256,14 @@ h1, h2, h3 {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(232, 117, 26, 0.2);
+  background: rgba(212, 168, 67, 0.2);
   border-radius: 2px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 117, 26, 0.4);
+  background: rgba(212, 168, 67, 0.4);
 }
 
-/* Hide scrollbar (for horizontal card carousel on mobile) */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -255,11 +283,80 @@ h1, h2, h3 {
 }
 
 /* ================================================================== */
-/*  Gradient text utility                                              */
+/*  Krishna-themed gradient text utilities                             */
 /* ================================================================== */
 .text-gradient-saffron {
   background: linear-gradient(135deg, #E8751A, #D4A843);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #D4A843, #F0D68A, #D4A843);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-divine {
+  background: linear-gradient(135deg, #D4A843, #E8751A, #D64B8A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-peacock {
+  background: linear-gradient(135deg, #006D5B, #1B2A6B, #D4A843);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================================================== */
+/*  Ornamental border — used on section dividers                       */
+/* ================================================================== */
+.ornament-border {
+  background: linear-gradient(90deg, transparent, #D4A843, #E8751A, #D4A843, transparent);
+  height: 2px;
+  opacity: 0.4;
+}
+
+.ornament-border-thick {
+  background: linear-gradient(90deg, transparent, #D4A843, #E8751A, #D4A843, transparent);
+  height: 3px;
+  opacity: 0.5;
+}
+
+/* ================================================================== */
+/*  Krishna card with ornamental corner accents                        */
+/* ================================================================== */
+.krishna-card {
+  position: relative;
+  border: 1px solid rgba(212, 168, 67, 0.15);
+  background: linear-gradient(145deg, rgba(27, 42, 107, 0.03) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(212, 168, 67, 0.03) 100%);
+}
+
+.krishna-card::before,
+.krishna-card::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: rgba(212, 168, 67, 0.3);
+  border-style: solid;
+}
+
+.krishna-card::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+
+.krishna-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
 }
