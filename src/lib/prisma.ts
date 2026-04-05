@@ -29,15 +29,12 @@ function getOrCreatePrismaClient(): PrismaClient | null {
   const url = getDatabaseUrl();
   if (!url) return null;
 
-  // Prisma v7 runtime reads DATABASE_URL by default. Bridge the gap when
-  // only the Vercel-prefixed env vars (gitalife_*) are set.
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = url;
-  }
-
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-  const client = new PrismaClient();
+  // Prisma v7 removed `url` from the schema — connection URLs for the
+  // runtime client must be passed via the constructor. Prisma Postgres
+  // uses the Accelerate protocol, so we use `accelerateUrl`.
+  const client = new PrismaClient({ accelerateUrl: url });
 
   if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = client;
