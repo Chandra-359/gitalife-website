@@ -42,15 +42,62 @@ const YOUTUBE_VIDEOS = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Gallery placeholders                                               */
+/*  Weekly schedule                                                    */
 /* ------------------------------------------------------------------ */
-const GALLERY_ITEMS = [
-  { emoji: "\uD83C\uDFB5", label: "Kirtan Night", color: "#E8751A", large: true },
-  { emoji: "\u26F0\uFE0F", label: "Mountain Retreat", color: "#D4A843", large: false },
-  { emoji: "\uD83C\uDF89", label: "Youth Festival", color: "#e94560", large: false },
-  { emoji: "\uD83D\uDCD6", label: "Wisdom Circle", color: "#1A5C5E", large: false },
-  { emoji: "\uD83C\uDF1F", label: "Community Feast", color: "#E8751A", large: false },
-  { emoji: "\uD83C\uDFB6", label: "Campfire Kirtan", color: "#D4A843", large: true },
+const WEEKLY_SCHEDULE = [
+  { day: "Friday", activity: "Bhagavad Gita Class", location: "Newport, Jersey City", time: "Evening", icon: "book" as const },
+  { day: "Saturday", activity: "Bhagavad Gita Class", location: "Jersey City", time: "Evening", icon: "book" as const },
+  { day: "Sunday", activity: "Bhagavad Gita Class", location: "ISKCON Brooklyn", time: "Morning", icon: "book" as const },
+  { day: "Sunday", activity: "Harinam Sankirtan", location: "NYC Streets", time: "Afternoon", icon: "music" as const },
+  { day: "Ongoing", activity: "Book Distribution", location: "Newport, Jersey City, NYU", time: "Various", icon: "gift" as const },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Activities / What we do                                            */
+/* ------------------------------------------------------------------ */
+const ACTIVITIES = [
+  {
+    title: "Bhagavad Gita Classes",
+    description: "Weekly classes diving deep into the timeless wisdom of the Bhagavad Gita. Join us Fridays in Newport, Saturdays in Jersey City, and Sundays at ISKCON Brooklyn.",
+    color: "#E8751A",
+    icon: "book" as const,
+    highlight: "3x per week",
+  },
+  {
+    title: "Harinam Sankirtan",
+    description: "Every Sunday we take the holy names to the streets of New York City, sharing the joy of kirtan with everyone we meet.",
+    color: "#D4A843",
+    icon: "music" as const,
+    highlight: "Every Sunday",
+  },
+  {
+    title: "Book Distribution",
+    description: "Sharing transcendental literature across Newport, Jersey City, and NYU campuses — bringing ancient wisdom to college students and professionals alike.",
+    color: "#1A5C5E",
+    icon: "gift" as const,
+    highlight: "3 locations",
+  },
+  {
+    title: "Upstate Retreats",
+    description: "Weekend getaways in upstate New York for immersive scripture reading, dramatic performances, and cooking prasadam with exalted Vaishnavas visiting ISKCON Brooklyn.",
+    color: "#e94560",
+    icon: "mountain" as const,
+    highlight: "Upstate NY",
+  },
+  {
+    title: "Ratha Yatra",
+    description: "Every year we participate in the grand Ratha Yatra festival in New York — one of the biggest celebrations of Lord Jagannath outside of India.",
+    color: "#9333ea",
+    icon: "festival" as const,
+    highlight: "Annual event",
+  },
+  {
+    title: "Govinda's Restaurant",
+    description: "Our students run the beloved Govinda's restaurant at ISKCON Brooklyn, serving sanctified vegetarian meals to the community with love and devotion.",
+    color: "#2D8F4E",
+    icon: "food" as const,
+    highlight: "ISKCON Brooklyn",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -120,12 +167,25 @@ export default function HomePage({ programs }: HomePageProps) {
     .filter((p) => p.testimonial && p.testimonialAuthor)
     .slice(0, 3);
 
+  /* Activity icon helper */
+  const getActivityIcon = (icon: string) => {
+    switch (icon) {
+      case "book": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>;
+      case "music": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>;
+      case "gift": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" /></svg>;
+      case "mountain": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3l4 8 5-5 5 15H2L8 3z" /></svg>;
+      case "festival": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20" /><path d="M2 12h20" /></svg>;
+      case "food": return <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 010 8h-1" /><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></svg>;
+      default: return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF9F0]">
       <Navbar isHomepage />
 
       {/* ============================================================ */}
-      {/*  SECTION 1 — HERO (clean, no mandala)                        */}
+      {/*  SECTION 1 — HERO                                            */}
       {/* ============================================================ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden" style={{ background: "#0a0a1a" }}>
         {/* Gradient backdrops */}
@@ -156,24 +216,25 @@ export default function HomePage({ programs }: HomePageProps) {
 
         {/* Heading */}
         <motion.h1
-          className="relative text-center text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-3xl px-6 leading-tight"
+          className="relative text-center text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white max-w-4xl px-6 leading-tight"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
-          Discover Ancient Wisdom{" "}
+          Students Living the{" "}
+          <span className="text-[#E8751A]">Gita</span>
           <br className="hidden sm:block" />
-          in the Heart of <span className="text-[#E8751A]">NYC</span>
+          in the Heart of <span className="text-[#D4A843]">New York City</span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
-          className="relative mt-6 max-w-lg px-6 text-center text-base sm:text-lg text-white/45 leading-relaxed"
+          className="relative mt-6 max-w-xl px-6 text-center text-base sm:text-lg text-white/45 leading-relaxed"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          A community of young seekers exploring the Bhagavad Gita through kirtan, retreats, wisdom sessions, and deep friendships.
+          We are a community of young devotees based at ISKCON Brooklyn — studying the Bhagavad Gita, chanting on the streets, distributing books, and serving prasadam every single day.
         </motion.p>
 
         {/* CTA */}
@@ -191,21 +252,26 @@ export default function HomePage({ programs }: HomePageProps) {
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </Link>
           <a
-            href="#about"
+            href="#what-we-do"
             className="rounded-full border border-white/20 px-8 py-3.5 text-sm font-semibold text-white/60 hover:bg-white/5 hover:text-white transition-all"
           >
-            Learn More
+            What We Do
           </a>
         </motion.div>
 
         {/* Stats */}
         <motion.div
-          className="relative flex items-center gap-10 mt-14"
+          className="relative flex flex-wrap items-center justify-center gap-8 sm:gap-10 mt-14"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.6 }}
         >
-          {[{ value: "5+", label: "Programs" }, { value: "NYC", label: "Citywide" }, { value: "Free", label: "Always" }].map((s, i) => (
+          {[
+            { value: "3x", label: "Gita Classes/Week" },
+            { value: "6+", label: "Activities" },
+            { value: "ISKCON", label: "Brooklyn Based" },
+            { value: "Free", label: "Always" },
+          ].map((s, i) => (
             <div key={i} className="text-center">
               <p className="text-xl font-bold text-[#E8751A]">{s.value}</p>
               <p className="text-[10px] text-white/25 uppercase tracking-widest mt-0.5">{s.label}</p>
@@ -229,7 +295,7 @@ export default function HomePage({ programs }: HomePageProps) {
       </section>
 
       {/* ============================================================ */}
-      {/*  SECTION 2 — ABOUT / MISSION                                 */}
+      {/*  SECTION 2 — ABOUT / WHO WE ARE                              */}
       {/* ============================================================ */}
       <Section id="about" className="py-24 px-6 bg-[#FFF9F0]">
         <div className="max-w-5xl mx-auto">
@@ -240,12 +306,12 @@ export default function HomePage({ programs }: HomePageProps) {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Our Mission</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Who We Are</span>
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              What is <span className="text-gradient-saffron">Gita Life</span>?
+              What is <span className="text-gradient-saffron">Gita Life NYC</span>?
             </h2>
-            <p className="mt-3 text-gray-500 max-w-md mx-auto">
-              A movement of young seekers in New York City
+            <p className="mt-3 text-gray-500 max-w-lg mx-auto">
+              A community of young devotees living, studying, and serving together at ISKCON Brooklyn
             </p>
           </motion.div>
 
@@ -257,13 +323,13 @@ export default function HomePage({ programs }: HomePageProps) {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <p className="text-[15px] leading-[1.9] text-gray-600 mb-5">
-                Gita Life NYC is a vibrant community where young professionals, students, and curious minds gather to explore the timeless wisdom of the Bhagavad Gita. We believe that 5,000-year-old philosophy has never been more relevant than it is today.
+                Gita Life NYC is a vibrant community of young students and professionals who live together at the ISKCON Brooklyn temple. We&rsquo;ve dedicated our lives to exploring the timeless wisdom of the Bhagavad Gita — not just in theory, but through daily practice.
               </p>
               <p className="text-[15px] leading-[1.9] text-gray-600 mb-5">
-                Through kirtan evenings, deep discussion circles, weekend retreats, and large-scale youth festivals, we create spaces where ancient wisdom meets modern life — no barriers, no judgment, just genuine connection.
+                From running <strong className="text-gray-800">Govinda&rsquo;s restaurant</strong> at ISKCON Brooklyn to taking <strong className="text-gray-800">Harinam</strong> to the streets every Sunday, from distributing sacred literature at NYU and across Jersey City to hosting <strong className="text-gray-800">Bhagavad Gita classes three times a week</strong> — we live and breathe this wisdom.
               </p>
               <p className="text-[15px] leading-[1.9] text-gray-600">
-                Whether you are a seasoned practitioner or simply curious about what the Gita has to say about stress, purpose, and happiness — you belong here.
+                Whether you&rsquo;re a seasoned practitioner or simply curious about what the Gita has to say about purpose, peace, and happiness — you belong here. Come for a class, stay for the prasadam, leave with a new perspective on life.
               </p>
               <Link
                 href="/programs"
@@ -279,6 +345,7 @@ export default function HomePage({ programs }: HomePageProps) {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
+              className="space-y-6"
             >
               <div className="rounded-3xl bg-white/70 border border-[#E8751A]/10 p-8 shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 opacity-5" style={{ background: "radial-gradient(circle, #E8751A, transparent)" }} />
@@ -290,13 +357,145 @@ export default function HomePage({ programs }: HomePageProps) {
                   — Bhagavad Gita 2.47
                 </p>
               </div>
+
+              {/* Home base callout */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#1A5C5E]/10 to-[#1A5C5E]/5 border border-[#1A5C5E]/15 p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1A5C5E]/15 text-[#1A5C5E] shrink-0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-gray-800">Based at ISKCON Brooklyn Temple</p>
+                    <p className="text-[12px] text-gray-500 mt-0.5">All Gita Life students live and serve at the temple</p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </Section>
 
       {/* ============================================================ */}
-      {/*  SECTION 3 — YOUTUBE VIDEOS                                  */}
+      {/*  SECTION 3 — WHAT WE DO (Activities)                         */}
+      {/* ============================================================ */}
+      <Section id="what-we-do" className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">What We Do</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
+              Our <span className="text-gradient-saffron">Activities</span>
+            </h2>
+            <p className="mt-3 text-gray-500 max-w-lg mx-auto">
+              From daily classes to annual festivals — here&rsquo;s how we live the Gita every day
+            </p>
+          </div>
+
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ACTIVITIES.map((activity, i) => (
+              <motion.div
+                key={i}
+                variants={staggerChild}
+                className="group relative rounded-2xl bg-white border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              >
+                {/* Accent top border */}
+                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: activity.color }} />
+
+                {/* Highlight badge */}
+                <span
+                  className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider mb-4"
+                  style={{ background: `${activity.color}12`, color: activity.color }}
+                >
+                  {activity.highlight}
+                </span>
+
+                {/* Icon */}
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl mb-4 transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: `${activity.color}10`, color: activity.color }}
+                >
+                  {getActivityIcon(activity.icon)}
+                </div>
+
+                <h3 className="text-[17px] font-bold text-gray-900 mb-2">{activity.title}</h3>
+                <p className="text-[13px] leading-relaxed text-gray-500">{activity.description}</p>
+              </motion.div>
+            ))}
+          </StaggerContainer>
+        </div>
+      </Section>
+
+      {/* ============================================================ */}
+      {/*  SECTION 4 — WEEKLY SCHEDULE                                 */}
+      {/* ============================================================ */}
+      <Section className="py-24 px-6 bg-[#FFF9F0]">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Join Us</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
+              Weekly <span className="text-gradient-saffron">Schedule</span>
+            </h2>
+            <p className="mt-3 text-gray-500 max-w-md mx-auto">
+              All programs are free and open to everyone
+            </p>
+          </div>
+
+          <StaggerContainer className="space-y-3">
+            {WEEKLY_SCHEDULE.map((item, i) => (
+              <motion.div
+                key={i}
+                variants={staggerChild}
+                className="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-[#E8751A]/20 transition-all duration-300"
+              >
+                {/* Day badge */}
+                <div className="shrink-0">
+                  <span className="inline-flex items-center justify-center rounded-xl bg-[#E8751A]/10 text-[#E8751A] px-4 py-2 text-[13px] font-bold min-w-[100px] text-center">
+                    {item.day}
+                  </span>
+                </div>
+
+                {/* Icon */}
+                <div
+                  className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl shrink-0"
+                  style={{ background: item.icon === "book" ? "#1A5C5E15" : item.icon === "music" ? "#D4A84315" : "#e9456015", color: item.icon === "book" ? "#1A5C5E" : item.icon === "music" ? "#D4A843" : "#e94560" }}
+                >
+                  {getActivityIcon(item.icon)}
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-semibold text-gray-900">{item.activity}</h3>
+                  <p className="text-[12px] text-gray-400 mt-0.5">{item.time}</p>
+                </div>
+
+                {/* Location */}
+                <div className="shrink-0 flex items-center gap-1.5 text-[12px] text-gray-500">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                  {item.location}
+                </div>
+              </motion.div>
+            ))}
+          </StaggerContainer>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-center mt-8"
+          >
+            <Link
+              href="/programs"
+              className="inline-flex items-center gap-2 rounded-full bg-[#E8751A] px-7 py-3 text-[13px] font-semibold text-white hover:bg-[#d4680f] transition-colors shadow-[0_0_20px_rgba(232,117,26,0.2)]"
+            >
+              View All Programs
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </Link>
+          </motion.div>
+        </div>
+      </Section>
+
+      {/* ============================================================ */}
+      {/*  SECTION 5 — YOUTUBE VIDEOS                                  */}
       {/* ============================================================ */}
       <Section className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
@@ -316,7 +515,6 @@ export default function HomePage({ programs }: HomePageProps) {
               return (
                 <motion.div key={i} variants={staggerChild} className="group">
                   <div className="rounded-2xl overflow-hidden bg-gray-100 shadow-md hover:shadow-xl transition-shadow duration-300">
-                    {/* Video embed */}
                     <div className="relative aspect-video">
                       <iframe
                         src={`https://www.youtube.com/embed/${video.id}`}
@@ -326,7 +524,6 @@ export default function HomePage({ programs }: HomePageProps) {
                         className="absolute inset-0 w-full h-full"
                       />
                     </div>
-                    {/* Video info */}
                     <div className="p-4">
                       <h3 className="text-[15px] font-semibold text-gray-900">{video.title}</h3>
                       <span
@@ -342,7 +539,6 @@ export default function HomePage({ programs }: HomePageProps) {
             })}
           </StaggerContainer>
 
-          {/* Channel link */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -367,42 +563,7 @@ export default function HomePage({ programs }: HomePageProps) {
       </Section>
 
       {/* ============================================================ */}
-      {/*  SECTION 4 — HOW IT WORKS                                    */}
-      {/* ============================================================ */}
-      <Section className="py-24 px-6 bg-[#FFF9F0]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Simple Process</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              How It Works
-            </h2>
-          </div>
-
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-[#E8751A]/20 via-[#E8751A]/30 to-[#E8751A]/20" />
-
-            {[
-              { step: 1, title: "Browse", desc: "Explore programs on our interactive map across NYC", icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg> },
-              { step: 2, title: "RSVP", desc: "Reserve your spot in seconds — always free", icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg> },
-              { step: 3, title: "Experience", desc: "Show up, connect, and transform your perspective", icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg> },
-            ].map((item) => (
-              <motion.div key={item.step} variants={staggerChild} className="text-center relative">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E8751A] text-white text-[12px] font-bold mb-4 mx-auto relative z-10">
-                  {item.step}
-                </div>
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white text-[#E8751A] mb-5 mx-auto shadow-sm border border-gray-100">
-                  {item.icon}
-                </div>
-                <h3 className="text-[17px] font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-[13px] leading-relaxed text-gray-500 max-w-[240px] mx-auto">{item.desc}</p>
-              </motion.div>
-            ))}
-          </StaggerContainer>
-        </div>
-      </Section>
-
-      {/* ============================================================ */}
-      {/*  SECTION 5 — TESTIMONIALS                                    */}
+      {/*  SECTION 6 — TESTIMONIALS                                    */}
       {/* ============================================================ */}
       <Section className="py-24 px-6" style={{ background: "#1a1a2e" }}>
         <div className="max-w-5xl mx-auto">
@@ -445,44 +606,6 @@ export default function HomePage({ programs }: HomePageProps) {
               );
             })}
           </StaggerContainer>
-        </div>
-      </Section>
-
-      {/* ============================================================ */}
-      {/*  SECTION 6 — GALLERY / MEDIA                                 */}
-      {/* ============================================================ */}
-      <Section id="gallery" className="py-24 px-6 bg-[#FFF9F0]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#E8751A]">Gallery</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              Experience the Energy
-            </h2>
-            <p className="mt-3 text-gray-500 max-w-md mx-auto">
-              Moments from our community
-            </p>
-          </div>
-
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px]">
-            {GALLERY_ITEMS.map((item, i) => (
-              <motion.div
-                key={i}
-                variants={staggerChild}
-                className={`group relative rounded-2xl overflow-hidden cursor-pointer ${item.large ? "md:col-span-2" : ""}`}
-                style={{ background: `linear-gradient(135deg, ${item.color}30 0%, ${item.color}15 50%, #1a1a2e20 100%)` }}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 transition-transform duration-300 group-hover:scale-110">
-                  <span className="text-4xl opacity-30">{item.emoji}</span>
-                  <span className="text-[12px] font-semibold uppercase tracking-wider opacity-30" style={{ color: item.color }}>{item.label}</span>
-                </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-2xl" />
-              </motion.div>
-            ))}
-          </StaggerContainer>
-
-          <p className="text-center text-[13px] text-gray-400 mt-6 italic">
-            Photos and videos from our events coming soon
-          </p>
         </div>
       </Section>
 
@@ -559,14 +682,15 @@ export default function HomePage({ programs }: HomePageProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-6">
               <Link href="/" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">Home</Link>
               <Link href="/programs" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">Programs</Link>
               <a href="#about" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">About</a>
+              <a href="#what-we-do" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">Activities</a>
               <a href="https://www.youtube.com/@gitalifenyc" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/40 hover:text-white/70 transition-colors">YouTube</a>
             </div>
 
-            <p className="text-[11px] text-white/25">Made with love in NYC</p>
+            <p className="text-[11px] text-white/25">Made with love at ISKCON Brooklyn</p>
           </div>
         </div>
       </section>
