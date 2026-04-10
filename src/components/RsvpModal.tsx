@@ -20,23 +20,6 @@ interface RsvpModalProps {
   onClose: () => void;
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 /** Confetti pieces for success celebration */
 const CONFETTI = Array.from({ length: 20 }, (_, i) => ({
   id: i,
@@ -189,7 +172,7 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
                 We&rsquo;ll send you a confirmation email with all the details for <span className="font-semibold text-gray-700">{program.title}</span>.
               </p>
               <p className="mt-3 text-[13px] font-medium" style={{ color: bg }}>
-                See you on {formatDate(program.date)}!
+                See you on {program.dayOfWeek}!
               </p>
             </motion.div>
           ) : (
@@ -214,16 +197,20 @@ export default function RsvpModal({ program, onClose }: RsvpModalProps) {
                           <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.2" />
                           <path d="M2 7h12" stroke="currentColor" strokeWidth="1.2" />
                         </svg>
-                        {formatDate(program.date)}
+                        Every {program.dayOfWeek}
                       </span>
-                      <span className="text-gray-300">|</span>
-                      <span className="inline-flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
-                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                          <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                        </svg>
-                        {formatTime(program.date)}
-                      </span>
+                      {program.time && (
+                        <>
+                          <span className="text-gray-300">|</span>
+                          <span className="inline-flex items-center gap-1">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                              <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                              <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                            </svg>
+                            {program.time}
+                          </span>
+                        </>
+                      )}
                     </div>
                     {spotsLeft !== null && spotsLeft > 0 && (
                       <p className="mt-1.5 text-[11px] font-semibold" style={{ color: bg }}>

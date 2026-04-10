@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Admin can pass ?all=true to see drafts/cancelled too
     const { searchParams } = new URL(request.url);
     const showAll = searchParams.get("all") === "true";
 
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
       where: showAll ? {} : { status: "published" },
       orderBy: [
         { featured: "desc" },
-        { date: "asc" },
+        { dayOfWeek: "asc" },
       ],
       include: {
         _count: {
@@ -42,9 +41,6 @@ export async function GET(request: NextRequest) {
 
     const serialized = programs.map((p) => ({
       ...p,
-      date: p.date.toISOString(),
-      endDate: p.endDate?.toISOString() ?? null,
-      rsvpDeadline: p.rsvpDeadline?.toISOString() ?? null,
       rsvpCount: p._count.rsvps,
       _count: undefined,
     }));
@@ -63,7 +59,6 @@ export async function GET(request: NextRequest) {
 /*  POST — create a new program (admin only)                           */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
-  // Auth check
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -79,20 +74,19 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
     const {
-      title, category, description, date, latitude, longitude,
+      title, category, description, dayOfWeek, time, latitude, longitude,
       type, imageUrl, subtitle, address, venueName, duration, level,
-      endDate, capacity, rsvpDeadline, videoUrl, status, featured,
+      capacity, videoUrl, status, featured,
       whatToExpect, whyAttend, whatYouGet, whatToBring,
       lectureTopic, gitaReference,
       speakerName, speakerTitle, speakerBio, speakerImageUrl,
       galleryUrls, testimonial, testimonialAuthor,
     } = body;
 
-    if (!title || !category || !description || !date || latitude == null || longitude == null) {
+    if (!title || !category || !description || !dayOfWeek || latitude == null || longitude == null) {
       return NextResponse.json(
-        { error: "Missing required fields: title, category, description, date, latitude, longitude" },
+        { error: "Missing required fields: title, category, description, dayOfWeek, latitude, longitude" },
         { status: 400 },
       );
     }
@@ -112,7 +106,8 @@ export async function POST(request: NextRequest) {
         title: String(title),
         category: String(category),
         description: String(description),
-        date: new Date(date),
+        dayOfWeek: String(dayOfWeek),
+        time: time ? String(time) : null,
         latitude: lat,
         longitude: lng,
         type: type ? String(type) : "program",
@@ -122,9 +117,7 @@ export async function POST(request: NextRequest) {
         venueName: venueName ? String(venueName) : null,
         duration: duration ? String(duration) : null,
         level: level ? String(level) : null,
-        endDate: endDate ? new Date(endDate) : null,
         capacity: capacity != null ? parseInt(capacity) : null,
-        rsvpDeadline: rsvpDeadline ? new Date(rsvpDeadline) : null,
         videoUrl: videoUrl ? String(videoUrl) : null,
         status: status ? String(status) : "published",
         featured: featured === true,
@@ -144,15 +137,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      {
-        ...program,
-        date: program.date.toISOString(),
-        endDate: program.endDate?.toISOString() ?? null,
-        rsvpDeadline: program.rsvpDeadline?.toISOString() ?? null,
-      },
-      { status: 201 },
-    );
+    return NextResponse.json(program, { status: 201 });
   } catch (error) {
     console.error("Failed to create program:", error);
     return NextResponse.json(

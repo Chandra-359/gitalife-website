@@ -183,8 +183,8 @@ export default function SplitView({ programs }: SplitViewProps) {
     return () => observer.disconnect();
   }, [isMobile, programs, hoveredProgramId]);
 
-  // Count upcoming programs
-  const upcomingCount = programs.filter(p => new Date(p.date) > new Date()).length;
+  // Count programs
+  const upcomingCount = programs.length;
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden">

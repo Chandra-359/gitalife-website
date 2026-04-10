@@ -20,7 +20,8 @@ export interface Program {
   description: string;
   longitude: number;     // negative for NYC area (western hemisphere)
   latitude: number;      // positive for NYC area (northern hemisphere)
-  date: string;          // ISO date string from the database
+  dayOfWeek: string;     // e.g. "Saturday", "Sunday", "Wednesday"
+  time?: string | null;  // e.g. "6:00 PM", "10:00 AM - 12:00 PM"
   imageUrl: string | null; // optional program photo URL
 
   // --- Event type ---
@@ -33,12 +34,8 @@ export interface Program {
   duration?: string | null;
   level?: string | null;
 
-  // --- Date/time (multi-day support) ---
-  endDate?: string | null;
-
   // --- Capacity & RSVP ---
   capacity?: number | null;    // null = unlimited
-  rsvpDeadline?: string | null;
   rsvpCount?: number;          // computed: number of confirmed RSVPs
 
   whatToExpect?: string[];

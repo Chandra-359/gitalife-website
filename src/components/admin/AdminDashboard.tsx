@@ -19,7 +19,8 @@ interface ProgramRow {
   title: string;
   category: string;
   type: string;
-  date: string;
+  dayOfWeek: string;
+  time?: string | null;
   status: string;
   featured: boolean;
   capacity: number | null;
@@ -29,16 +30,6 @@ interface ProgramRow {
 
 interface AdminDashboardProps {
   userEmail: string;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -76,7 +67,7 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
 
   // Stats
   const totalPrograms = programs.length;
-  const upcomingPrograms = programs.filter((p) => new Date(p.date) > new Date()).length;
+  const publishedPrograms = programs.filter((p) => p.status === "published").length;
   const totalRsvps = programs.reduce((sum, p) => sum + (p.rsvpCount ?? p._count?.rsvps ?? 0), 0);
   const volunteerEvents = programs.filter((p) => p.type === "volunteer").length;
 
@@ -170,7 +161,7 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Programs", value: totalPrograms, color: "#E8751A" },
-            { label: "Upcoming", value: upcomingPrograms, color: "#D4A843" },
+            { label: "Published", value: publishedPrograms, color: "#D4A843" },
             { label: "Total RSVPs", value: totalRsvps, color: "#1A5C5E" },
             { label: "Volunteer Events", value: volunteerEvents, color: "#2D8F4E" },
           ].map((stat) => (
@@ -206,7 +197,7 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
             <thead>
               <tr className="border-b border-white/[0.06] text-left text-xs uppercase tracking-wider text-white/30">
                 <th className="px-4 py-3 font-medium">Program</th>
-                <th className="px-4 py-3 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Schedule</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium text-center">RSVPs</th>
@@ -233,11 +224,10 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
               ) : (
                 programs.map((p) => {
                   const rsvpCount = p.rsvpCount ?? p._count?.rsvps ?? 0;
-                  const isPast = new Date(p.date) < new Date();
                   return (
                     <tr
                       key={p.id}
-                      className={`border-b border-white/[0.04] transition-colors hover:bg-white/[0.02] ${isPast ? "opacity-50" : ""}`}
+                      className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]"
                     >
                       {/* Title + Category */}
                       <td className="px-4 py-3">
@@ -245,9 +235,9 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
                         <p className="text-xs text-white/30 mt-0.5">{p.category}</p>
                       </td>
 
-                      {/* Date */}
+                      {/* Schedule */}
                       <td className="px-4 py-3 text-white/60 whitespace-nowrap">
-                        {formatDate(p.date)}
+                        {p.dayOfWeek}{p.time ? ` · ${p.time}` : ""}
                       </td>
 
                       {/* Type */}

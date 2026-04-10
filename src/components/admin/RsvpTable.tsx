@@ -23,7 +23,7 @@ interface Rsvp {
   program: {
     id: string;
     title: string;
-    date: string;
+    dayOfWeek: string;
     category: string;
     type: string;
   };
@@ -32,15 +32,7 @@ interface Rsvp {
 interface ProgramOption {
   id: string;
   title: string;
-  date: string;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  dayOfWeek: string;
 }
 
 function formatDatetime(iso: string): string {
@@ -98,7 +90,7 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
 
   // Export CSV
   function exportCsv() {
-    const header = "Name,Email,Phone,Guests,Notes,Status,Program,Date,RSVP Date\n";
+    const header = "Name,Email,Phone,Guests,Notes,Status,Program,Day,RSVP Date\n";
     const rows = rsvps.map((r) =>
       [
         `"${r.name}"`,
@@ -108,8 +100,8 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
         `"${(r.notes || "").replace(/"/g, '""')}"`,
         r.status,
         `"${r.program.title}"`,
-        formatDate(r.program.date),
-        formatDate(r.createdAt),
+        r.program.dayOfWeek,
+        formatDatetime(r.createdAt),
       ].join(","),
     );
     const blob = new Blob([header + rows.join("\n")], { type: "text/csv" });
@@ -178,7 +170,7 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
             <option value="" className="bg-[#0c0c20]">All Programs</option>
             {programs.map((p) => (
               <option key={p.id} value={p.id} className="bg-[#0c0c20]">
-                {p.title} ({formatDate(p.date)})
+                {p.title} ({p.dayOfWeek})
               </option>
             ))}
           </select>
@@ -249,7 +241,7 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
                     <td className="px-4 py-3 text-center text-white/60">{r.guests}</td>
                     <td className="px-4 py-3">
                       <p className="text-white/70 text-xs">{r.program.title}</p>
-                      <p className="text-white/30 text-[10px] mt-0.5">{formatDate(r.program.date)}</p>
+                      <p className="text-white/30 text-[10px] mt-0.5">{r.program.dayOfWeek}</p>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_COLORS[r.status] || STATUS_COLORS.confirmed}`}>

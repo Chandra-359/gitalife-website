@@ -18,7 +18,7 @@ datasource db {
   provider = "postgresql"
 }
 
-/// A Gita Life NYC program / event that appears as a pin on the map.
+/// A Gita Life NYC program that runs weekly on a specific day.
 model Program {
   id          String   @id @default(cuid())
   title       String
@@ -26,7 +26,8 @@ model Program {
   description String
   latitude    Float
   longitude   Float
-  date        DateTime
+  dayOfWeek   String   // e.g. "Saturday", "Sunday", "Wednesday"
+  time        String?  // e.g. "6:00 PM", "10:00 AM - 12:00 PM"
   imageUrl    String?  // nullable — optional program hero photo URL
 
   // --- Event type ---
@@ -39,12 +40,8 @@ model Program {
   duration        String?    // e.g. "2 hours", "Full weekend"
   level           String?    // e.g. "Beginner-friendly", "All levels"
 
-  // --- Date/time (multi-day support) ---
-  endDate         DateTime?  // For multi-day retreats/events
-
   // --- Capacity & RSVP ---
   capacity        Int?       // null = unlimited spots
-  rsvpDeadline    DateTime?  // Cutoff for signups
 
   whatToExpect     String[]   // Bullet points: ["Live kirtan", "Prasadam", ...]
   whyAttend       String?    // 1-2 sentence compelling paragraph
@@ -74,7 +71,7 @@ model Program {
 
   rsvps       Rsvp[]
 
-  @@index([date])
+  @@index([dayOfWeek])
   @@index([type])
   @@index([status])
 }

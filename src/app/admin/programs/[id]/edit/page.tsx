@@ -40,15 +40,14 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
     );
   }
 
-  // Serialize for client component — convert dates to strings, arrays stay as arrays
+  // Serialize for client component — arrays stay as arrays
   const initialData = {
     title: program.title,
     category: program.category,
     type: program.type,
     description: program.description,
-    date: program.date.toISOString(),
-    endDate: program.endDate?.toISOString() ?? "",
-    rsvpDeadline: program.rsvpDeadline?.toISOString() ?? "",
+    dayOfWeek: program.dayOfWeek,
+    time: program.time ?? "",
     latitude: program.latitude.toString(),
     longitude: program.longitude.toString(),
     capacity: program.capacity?.toString() ?? "",

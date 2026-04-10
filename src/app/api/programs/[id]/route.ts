@@ -41,9 +41,6 @@ export async function GET(
 
     return NextResponse.json({
       ...program,
-      date: program.date.toISOString(),
-      endDate: program.endDate?.toISOString() ?? null,
-      rsvpDeadline: program.rsvpDeadline?.toISOString() ?? null,
       rsvpCount: program._count.rsvps,
       _count: undefined,
     });
@@ -73,29 +70,28 @@ export async function PUT(
   try {
     const body = await request.json();
 
-    // Check program exists
     const existing = await prisma.program.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "Program not found" }, { status: 404 });
     }
 
     const {
-      title, category, description, date, latitude, longitude,
+      title, category, description, dayOfWeek, time, latitude, longitude,
       type, imageUrl, subtitle, address, venueName, duration, level,
-      endDate, capacity, rsvpDeadline, videoUrl, status, featured,
+      capacity, videoUrl, status, featured,
       whatToExpect, whyAttend, whatYouGet, whatToBring,
       lectureTopic, gitaReference,
       speakerName, speakerTitle, speakerBio, speakerImageUrl,
       galleryUrls, testimonial, testimonialAuthor,
     } = body;
 
-    // Build the update data — only include fields that were provided
     const data: Record<string, unknown> = {};
 
     if (title !== undefined) data.title = String(title);
     if (category !== undefined) data.category = String(category);
     if (description !== undefined) data.description = String(description);
-    if (date !== undefined) data.date = new Date(date);
+    if (dayOfWeek !== undefined) data.dayOfWeek = String(dayOfWeek);
+    if (time !== undefined) data.time = time || null;
     if (latitude !== undefined) data.latitude = parseFloat(latitude);
     if (longitude !== undefined) data.longitude = parseFloat(longitude);
     if (type !== undefined) data.type = String(type);
@@ -105,9 +101,7 @@ export async function PUT(
     if (venueName !== undefined) data.venueName = venueName || null;
     if (duration !== undefined) data.duration = duration || null;
     if (level !== undefined) data.level = level || null;
-    if (endDate !== undefined) data.endDate = endDate ? new Date(endDate) : null;
     if (capacity !== undefined) data.capacity = capacity != null ? parseInt(capacity) : null;
-    if (rsvpDeadline !== undefined) data.rsvpDeadline = rsvpDeadline ? new Date(rsvpDeadline) : null;
     if (videoUrl !== undefined) data.videoUrl = videoUrl || null;
     if (status !== undefined) data.status = String(status);
     if (featured !== undefined) data.featured = featured === true;
@@ -130,12 +124,7 @@ export async function PUT(
       data,
     });
 
-    return NextResponse.json({
-      ...updated,
-      date: updated.date.toISOString(),
-      endDate: updated.endDate?.toISOString() ?? null,
-      rsvpDeadline: updated.rsvpDeadline?.toISOString() ?? null,
-    });
+    return NextResponse.json(updated);
   } catch (error) {
     console.error("Failed to update program:", error);
     return NextResponse.json({ error: "Failed to update program" }, { status: 500 });
