@@ -31,14 +31,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify program exists and is published
+    // Verify program exists
     const program = await prisma.program.findUnique({
       where: { id: programId },
-      include: {
-        _count: {
-          select: { rsvps: { where: { status: "confirmed" } } },
-        },
-      },
     });
 
     if (!program) {
@@ -49,19 +44,21 @@ export async function POST(request: Request) {
     }
 
     // Check RSVP deadline
-    if (program.rsvpDeadline && new Date() > program.rsvpDeadline) {
+    if (program.rsvpDeadline && new Date() > new Date(program.rsvpDeadline)) {
       return NextResponse.json(
         { error: "RSVP deadline has passed" },
         { status: 400 },
       );
     }
 
-    // Check capacity
+    // Check capacity (separate query to avoid _count filter issues)
     const guestCount = Math.max(1, parseInt(guests) || 1);
     if (program.capacity) {
-      const spotsUsed = program._count.rsvps;
-      if (spotsUsed + guestCount > program.capacity) {
-        const remaining = program.capacity - spotsUsed;
+      const confirmedCount = await prisma.rsvp.count({
+        where: { programId, status: "confirmed" },
+      });
+      if (confirmedCount + guestCount > program.capacity) {
+        const remaining = program.capacity - confirmedCount;
         return NextResponse.json(
           { error: remaining > 0 ? `Only ${remaining} spots left` : "This event is full" },
           { status: 400 },
@@ -99,9 +96,11 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error("RSVP error:", error);
+    const message =
+      error instanceof Error ? error.message : String(error);
+    console.error("RSVP error:", message, error);
     return NextResponse.json(
-      { error: "Failed to process RSVP" },
+      { error: `Failed to process RSVP: ${message}` },
       { status: 500 },
     );
   }
