@@ -1,40 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import type { Program } from "@/data/programs";
 import { getCategoryColor, getCategoryIcon, VOLUNTEER_COLOR } from "@/data/programs";
 import RsvpModal from "@/components/RsvpModal";
-
-/* ------------------------------------------------------------------ */
-/*  Date formatting helpers                                            */
-/* ------------------------------------------------------------------ */
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-/** Compute countdown to the event */
-function getCountdown(iso: string) {
-  const diff = new Date(iso).getTime() - Date.now();
-  if (diff <= 0) return null;
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  return { days, hours, minutes };
-}
 
 /* ------------------------------------------------------------------ */
 /*  Animation variants                                                 */
@@ -72,22 +42,6 @@ function SectionDivider({ title }: { title: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Countdown box                                                      */
-/* ------------------------------------------------------------------ */
-function CountdownUnit({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative w-14 h-14 rounded-xl bg-white/80 border border-[#E8751A]/10 flex items-center justify-center shadow-sm">
-        <span className="text-xl font-bold text-gray-900 tabular-nums">{value}</span>
-      </div>
-      <span className="mt-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 interface ProgramDetailProps {
@@ -100,21 +54,12 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
   const { bg, glow } = isVolunteer ? VOLUNTEER_COLOR : getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
   const [showRsvp, setShowRsvp] = useState(false);
-  const [countdown, setCountdown] = useState(getCountdown(program.date));
 
   // Capacity
   const rsvpCount = program.rsvpCount ?? 0;
   const capacity = program.capacity;
   const spotsLeft = capacity ? capacity - rsvpCount : null;
   const isFull = spotsLeft !== null && spotsLeft <= 0;
-
-  // Live countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(getCountdown(program.date));
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [program.date]);
 
   return (
     <>
@@ -224,17 +169,19 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                       <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                     </svg>
                   ),
-                  text: formatDate(program.date),
+                  text: `Every ${program.dayOfWeek}`,
                 },
-                {
-                  icon: (
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0">
-                      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                      <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                    </svg>
-                  ),
-                  text: formatTime(program.date),
-                },
+                ...(program.time
+                  ? [{
+                      icon: (
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                          <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                        </svg>
+                      ),
+                      text: program.time,
+                    }]
+                  : []),
                 ...(program.duration
                   ? [{
                       icon: (
@@ -316,20 +263,6 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                       }}
                     />
                   </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Countdown timer */}
-            {countdown && (
-              <motion.div variants={sectionVariants}>
-                <SectionDivider title="Starts In" />
-                <div className="flex justify-center gap-4">
-                  <CountdownUnit value={countdown.days} label="Days" />
-                  <div className="flex items-center text-gray-300 text-xl font-light pt-[-8px]">:</div>
-                  <CountdownUnit value={countdown.hours} label="Hours" />
-                  <div className="flex items-center text-gray-300 text-xl font-light pt-[-8px]">:</div>
-                  <CountdownUnit value={countdown.minutes} label="Mins" />
                 </div>
               </motion.div>
             )}
@@ -528,16 +461,18 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
         {/* ---- Sticky RSVP button ---- */}
         <div className="sticky bottom-0 z-20 px-5 py-4 bg-gradient-to-t from-[#FFF9F0] via-[#FFF9F0] to-[#FFF9F0]/0">
           <motion.button
-            whileHover={{ scale: 1.02, boxShadow: `0 8px 40px ${glow}` }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setShowRsvp(true)}
-            className="w-full rounded-2xl py-4 text-[15px] font-bold uppercase tracking-wider text-white shadow-xl transition-all relative overflow-hidden group animate-rsvp-pulse"
+            whileHover={isFull ? {} : { scale: 1.02, boxShadow: `0 8px 40px ${glow}` }}
+            whileTap={isFull ? {} : { scale: 0.97 }}
+            onClick={() => !isFull && setShowRsvp(true)}
+            disabled={isFull}
+            className="w-full rounded-2xl py-4 text-[15px] font-bold uppercase tracking-wider text-white shadow-xl transition-all relative overflow-hidden group animate-rsvp-pulse disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
-              background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
-              boxShadow: `0 4px 24px ${glow}`,
+              background: isFull ? "#9ca3af" : `linear-gradient(135deg, ${bg}, ${bg}cc)`,
+              boxShadow: isFull ? "none" : `0 4px 24px ${glow}`,
             }}
           >
             {/* Shimmer effect */}
+            {!isFull && (
             <span className="absolute inset-0 pointer-events-none">
               <span
                 className="absolute inset-0 animate-shimmer"
@@ -546,11 +481,12 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                 }}
               />
             </span>
+            )}
             <span className="relative flex items-center justify-center gap-2">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
                 <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              {isFull ? "Join Waitlist" : isVolunteer ? "Sign Up to Volunteer" : "RSVP — Join This Program"}
+              {isFull ? "Event Full" : isVolunteer ? "Sign Up to Volunteer" : "RSVP — Join This Program"}
             </span>
           </motion.button>
 

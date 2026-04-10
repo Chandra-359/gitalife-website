@@ -21,8 +21,8 @@ export interface ProgramFormData {
   category: string;
   type: string;
   description: string;
-  date: string;
-  endDate: string;
+  dayOfWeek: string;
+  time: string;
   latitude: string;
   longitude: string;
   address: string;
@@ -33,7 +33,6 @@ export interface ProgramFormData {
   duration: string;
   level: string;
   capacity: string;
-  rsvpDeadline: string;
   status: string;
   featured: boolean;
   whyAttend: string;
@@ -55,6 +54,16 @@ const CATEGORIES = [
   "Retreat",
   "Wisdom Session",
   "Youth Festival",
+] as const;
+
+const DAYS_OF_WEEK = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
 ] as const;
 
 const EVENT_TYPES = [
@@ -92,15 +101,6 @@ async function geocodeAddress(query: string): Promise<GeocodingResult[]> {
   }));
 }
 
-/** Convert ISO string to datetime-local input value */
-function toDatetimeLocal(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  // Format: YYYY-MM-DDTHH:mm
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -125,8 +125,8 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
     category: initialData?.category ?? CATEGORIES[0],
     type: initialData?.type ?? "program",
     description: initialData?.description ?? "",
-    date: toDatetimeLocal(initialData?.date),
-    endDate: toDatetimeLocal(initialData?.endDate),
+    dayOfWeek: initialData?.dayOfWeek ?? "Saturday",
+    time: initialData?.time ?? "",
     latitude: initialData?.latitude?.toString() ?? "",
     longitude: initialData?.longitude?.toString() ?? "",
     address: initialData?.address ?? "",
@@ -137,7 +137,6 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
     duration: initialData?.duration ?? "",
     level: initialData?.level ?? "",
     capacity: initialData?.capacity?.toString() ?? "",
-    rsvpDeadline: toDatetimeLocal(initialData?.rsvpDeadline),
     status: initialData?.status ?? "published",
     featured: initialData?.featured ?? false,
     whyAttend: initialData?.whyAttend ?? "",
@@ -201,8 +200,8 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
       category: data.category,
       type: data.type,
       description: data.description,
-      date: new Date(data.date).toISOString(),
-      endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
+      dayOfWeek: data.dayOfWeek,
+      time: data.time || null,
       latitude: parseFloat(data.latitude),
       longitude: parseFloat(data.longitude),
       address: data.address || null,
@@ -213,7 +212,6 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
       duration: data.duration || null,
       level: data.level || null,
       capacity: data.capacity ? parseInt(data.capacity) : null,
-      rsvpDeadline: data.rsvpDeadline ? new Date(data.rsvpDeadline).toISOString() : null,
       status: data.status,
       featured: data.featured,
       whyAttend: data.whyAttend || null,
@@ -316,19 +314,23 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
       </div>
 
       {/* ============================================================ */}
-      {/*  DATE & TIME                                                  */}
+      {/*  SCHEDULE                                                     */}
       {/* ============================================================ */}
       <div className={sectionClass}>
-        <h3 className="text-sm font-semibold text-white/60 mb-4">Date & Time</h3>
+        <h3 className="text-sm font-semibold text-white/60 mb-4">Weekly Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <label className={labelClass}>Start Date/Time *</label>
-            <input type="datetime-local" {...register("date", { required: "Date is required" })} className={inputClass} />
-            {errors.date && <p className={errorClass}>{errors.date.message}</p>}
+            <label className={labelClass}>Day of Week *</label>
+            <select {...register("dayOfWeek", { required: "Day is required" })} className={inputClass + " cursor-pointer"}>
+              {DAYS_OF_WEEK.map((day) => (
+                <option key={day} value={day} className="bg-[#0c0c20] text-white">{day}</option>
+              ))}
+            </select>
+            {errors.dayOfWeek && <p className={errorClass}>{errors.dayOfWeek.message}</p>}
           </div>
           <div>
-            <label className={labelClass}>End Date/Time <span className="normal-case tracking-normal text-white/25">(multi-day)</span></label>
-            <input type="datetime-local" {...register("endDate")} className={inputClass} />
+            <label className={labelClass}>Time <span className="normal-case tracking-normal text-white/25">(e.g. 6:00 PM)</span></label>
+            <input {...register("time")} className={inputClass} placeholder="e.g. 6:00 PM" />
           </div>
           <div>
             <label className={labelClass}>Duration Label</label>
@@ -409,18 +411,14 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
       </div>
 
       {/* ============================================================ */}
-      {/*  CAPACITY & RSVP                                              */}
+      {/*  CAPACITY                                                     */}
       {/* ============================================================ */}
       <div className={sectionClass}>
-        <h3 className="text-sm font-semibold text-white/60 mb-4">Capacity & RSVP</h3>
+        <h3 className="text-sm font-semibold text-white/60 mb-4">Capacity</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Max Capacity <span className="normal-case tracking-normal text-white/25">(leave empty for unlimited)</span></label>
             <input type="number" min="0" {...register("capacity")} className={inputClass} placeholder="e.g. 50" />
-          </div>
-          <div>
-            <label className={labelClass}>RSVP Deadline</label>
-            <input type="datetime-local" {...register("rsvpDeadline")} className={inputClass} />
           </div>
         </div>
       </div>

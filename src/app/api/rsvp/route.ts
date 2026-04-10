@@ -22,8 +22,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // prisma is a Proxy (always truthy) — check a real property to detect
-    // whether the underlying PrismaClient was created (i.e. DATABASE_URL is set).
     if (!prisma?.rsvp) {
       return NextResponse.json(
         { error: "Database not available" },
@@ -43,15 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check RSVP deadline
-    if (program.rsvpDeadline && new Date() > new Date(program.rsvpDeadline)) {
-      return NextResponse.json(
-        { error: "RSVP deadline has passed" },
-        { status: 400 },
-      );
-    }
-
-    // Check capacity (separate query to avoid _count filter issues)
+    // Check capacity
     const guestCount = Math.max(1, parseInt(guests) || 1);
     if (program.capacity) {
       const confirmedCount = await prisma.rsvp.count({
@@ -66,7 +56,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create RSVP (unique constraint on [email, programId] prevents duplicates)
+    // Create RSVP
     const rsvp = await prisma.rsvp.create({
       data: {
         name,
@@ -83,7 +73,6 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    // Handle duplicate RSVP (Prisma unique constraint violation)
     if (
       typeof error === "object" &&
       error !== null &&
@@ -91,13 +80,12 @@ export async function POST(request: Request) {
       (error as { code: string }).code === "P2002"
     ) {
       return NextResponse.json(
-        { error: "You've already RSVP'd for this event" },
+        { error: "You've already RSVP'd for this program" },
         { status: 409 },
       );
     }
 
-    const message =
-      error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? error.message : String(error);
     console.error("RSVP error:", message, error);
     return NextResponse.json(
       { error: `Failed to process RSVP: ${message}` },

@@ -26,17 +26,6 @@ const CATEGORY_ICON: Record<string, string> = {
   "Youth Festival": "✦",
 };
 
-/* ------------------------------------------------------------------ */
-/*  Date formatting                                                     */
-/* ------------------------------------------------------------------ */
-function formatDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 /* ------------------------------------------------------------------ */
 /*  Framer Motion variants                                              */
@@ -456,7 +445,7 @@ export default function ProgramCarousel({
                         <path d="M2 7h12" stroke="currentColor" strokeWidth="1.3" />
                         <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                       </svg>
-                      {formatDate(program.date)}
+                      Every {program.dayOfWeek}{program.time ? ` · ${program.time}` : ""}
                     </div>
 
                     {/* Description — only show on active card */}

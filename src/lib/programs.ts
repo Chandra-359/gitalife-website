@@ -18,7 +18,7 @@ export async function getPrograms(): Promise<Program[]> {
       where: { status: "published" },
       orderBy: [
         { featured: "desc" },
-        { date: "asc" },
+        { dayOfWeek: "asc" },
       ],
       include: {
         _count: {
@@ -35,16 +35,15 @@ export async function getPrograms(): Promise<Program[]> {
       description: row.description,
       longitude: row.longitude,
       latitude: row.latitude,
-      date: row.date.toISOString(),
+      dayOfWeek: row.dayOfWeek,
+      time: row.time,
       imageUrl: row.imageUrl,
       subtitle: row.subtitle,
       address: row.address,
       venueName: row.venueName,
       duration: row.duration,
       level: row.level,
-      endDate: row.endDate?.toISOString() ?? null,
       capacity: row.capacity,
-      rsvpDeadline: row.rsvpDeadline?.toISOString() ?? null,
       rsvpCount: row._count.rsvps,
       whatToExpect: row.whatToExpect,
       whyAttend: row.whyAttend,

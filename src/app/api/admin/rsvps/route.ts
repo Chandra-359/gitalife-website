@@ -39,29 +39,25 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           program: {
-            select: { id: true, title: true, date: true, category: true, type: true },
+            select: { id: true, title: true, dayOfWeek: true, category: true, type: true },
           },
         },
         orderBy: { createdAt: "desc" },
       }),
       prisma.program.findMany({
-        select: { id: true, title: true, date: true },
-        orderBy: { date: "asc" },
+        select: { id: true, title: true, dayOfWeek: true },
+        orderBy: { dayOfWeek: "asc" },
       }),
     ]);
 
     const serialized = rsvps.map((r) => ({
       ...r,
       createdAt: r.createdAt.toISOString(),
-      program: {
-        ...r.program,
-        date: r.program.date.toISOString(),
-      },
     }));
 
     return NextResponse.json({
       rsvps: serialized,
-      programs: programs.map((p) => ({ ...p, date: p.date.toISOString() })),
+      programs,
     });
   } catch (error) {
     console.error("Failed to fetch RSVPs:", error);

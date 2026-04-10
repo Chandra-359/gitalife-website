@@ -15,30 +15,6 @@ interface ProgramCardProps {
   onClick?: () => void;
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-/** Returns days until the event, or null if in the past */
-function getDaysUntil(iso: string): number | null {
-  const diff = new Date(iso).getTime() - Date.now();
-  if (diff < 0) return null;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
 export default function ProgramCard({
   program,
   index,
@@ -49,7 +25,6 @@ export default function ProgramCard({
 }: ProgramCardProps) {
   const { bg, glow } = getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
-  const daysUntil = getDaysUntil(program.date);
   const isVolunteer = program.type === "volunteer";
   const accentColor = isVolunteer ? VOLUNTEER_COLOR.bg : bg;
   const accentGlow = isVolunteer ? VOLUNTEER_COLOR.glow : glow;
@@ -103,7 +78,7 @@ export default function ProgramCard({
         />
 
         <div className="relative px-5 py-4 pl-6">
-          {/* Top row: Badges — Featured + Type + Urgency */}
+          {/* Top row: Badges — Featured + Type */}
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
               {program.featured && (
@@ -123,42 +98,16 @@ export default function ProgramCard({
                 </span>
               )}
             </div>
-
-            {/* Urgency / countdown badge */}
-            {daysUntil !== null && daysUntil <= 7 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", damping: 15, stiffness: 300, delay: index * 0.08 + 0.3 }}
-                className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                style={{
-                  background: daysUntil <= 2 ? "#fee2e2" : `${accentColor}15`,
-                  color: daysUntil <= 2 ? "#dc2626" : accentColor,
-                }}
-              >
-                <span className="relative flex h-1.5 w-1.5">
-                  <span
-                    className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
-                    style={{ backgroundColor: daysUntil <= 2 ? "#dc2626" : accentColor }}
-                  />
-                  <span
-                    className="relative inline-flex h-1.5 w-1.5 rounded-full"
-                    style={{ backgroundColor: daysUntil <= 2 ? "#dc2626" : accentColor }}
-                  />
-                </span>
-                {daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow!" : `${daysUntil}d left`}
-              </motion.span>
-            )}
           </div>
 
-          {/* DATE LINE — Primary anchor (date-first hierarchy) */}
+          {/* SCHEDULE LINE — Day & Time */}
           <p className="text-[13px] font-semibold tracking-wide text-gray-900 flex items-center gap-1.5">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-gray-400 shrink-0">
               <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.2" />
               <path d="M2 7h12" stroke="currentColor" strokeWidth="1.2" />
               <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
             </svg>
-            {formatDate(program.date)} · {formatTime(program.date)}
+            Every {program.dayOfWeek}{program.time ? ` · ${program.time}` : ""}
           </p>
 
           {/* Title */}
