@@ -1,12 +1,12 @@
 /**
  * Programs page — Server Component
  *
- * The interactive split-view with program list + map.
- * Previously at / — now lives at /programs.
+ * Netflix/Paramount+ inspired streaming-style program browser.
+ * Dark cinematic theme with hero banner, category rows, and detail modals.
  */
 
 import { getPrograms } from "@/lib/programs";
-import SplitView from "@/components/SplitView";
+import StreamBrowse from "@/components/StreamBrowse";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +17,5 @@ export const metadata = {
 
 export default async function ProgramsPage() {
   const programs = await getPrograms();
-  return <SplitView programs={programs} />;
+  return <StreamBrowse programs={programs} />;
 }

@@ -410,3 +410,56 @@ h1, h2, h3 {
     min-width: 44px;
   }
 }
+
+/* ================================================================== */
+/*  Stream Browse — Netflix/Paramount+ dark theme utilities            */
+/* ================================================================== */
+
+/* Line clamp 2 for poster card titles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth aspect-ratio for trailer sections */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+/* Dark theme text selection */
+.stream-browse ::selection {
+  background: rgba(212, 168, 67, 0.3);
+  color: #fff;
+}
+
+/* --- Cinematic vignette --- */
+@keyframes vignette-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
+.animate-vignette {
+  animation: vignette-pulse 5s ease-in-out infinite;
+}
+
+/* --- Hero title reveal --- */
+@keyframes hero-reveal {
+  0% { transform: translateY(40px); opacity: 0; filter: blur(8px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+}
+
+.animate-hero-reveal {
+  animation: hero-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- Poster card hover glow --- */
+@keyframes card-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(212, 168, 67, 0); }
+  50% { box-shadow: 0 0 30px rgba(212, 168, 67, 0.2); }
+}
+
+.animate-card-glow {
+  animation: card-glow 3s ease-in-out infinite;
+}
