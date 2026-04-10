@@ -7,6 +7,7 @@ import Image from "next/image";
 import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 import Navbar from "@/components/Navbar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 /* ------------------------------------------------------------------ */
 /*  Krishna-themed color palette                                       */
@@ -239,29 +240,30 @@ export default function HomePage({ programs }: HomePageProps) {
       {/* ============================================================ */}
       {/*  SECTION 1 — HERO with Krishna-Arjuna painting                */}
       {/* ============================================================ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-end sm:justify-center overflow-hidden pb-12 sm:pb-0">
         {/* Background painting */}
         <Image
           src="/krishna-arjuna-chariot.jpg"
           alt="Krishna and Arjuna on the chariot at Kurukshetra"
           fill
           priority
-          className="object-cover object-center"
+          className="object-cover object-[center_30%] sm:object-center"
           sizes="100vw"
         />
-        {/* Dark overlay for readability — graduated from top/bottom */}
-        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${C.krishnaDeep}E6 0%, ${C.krishnaDeep}99 25%, ${C.krishnaDeep}80 50%, ${C.krishnaDeep}99 75%, ${C.krishnaDeep}F2 100%)` }} />
+        {/* Dark overlay — stronger gradient on mobile for bottom-anchored content (Paramount+ style) */}
+        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${C.krishnaDeep}40 0%, ${C.krishnaDeep}60 20%, ${C.krishnaDeep}80 40%, ${C.krishnaDeep}CC 65%, ${C.krishnaDeep}F2 85%, ${C.krishnaDeep}FA 100%)` }} />
+        <div className="absolute inset-0 hidden sm:block" style={{ background: `linear-gradient(180deg, ${C.krishnaDeep}E6 0%, ${C.krishnaDeep}99 25%, ${C.krishnaDeep}80 50%, ${C.krishnaDeep}99 75%, ${C.krishnaDeep}F2 100%)` }} />
         {/* Warm color tint to blend with painting */}
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(212,168,67,0.08) 0%, transparent 60%)" }} />
 
         {/* Ornamental top border */}
         <div className="absolute top-0 left-0 right-0 h-1 z-10" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)` }} />
 
-        {/* Corner lotus decorations */}
-        <div className="absolute top-8 left-8 opacity-10 z-10">
+        {/* Corner lotus decorations — hidden on small mobile */}
+        <div className="absolute top-8 left-8 opacity-10 z-10 hidden sm:block">
           <LotusDecoration size={80} color={C.gold} />
         </div>
-        <div className="absolute top-8 right-8 opacity-10 z-10" style={{ transform: "scaleX(-1)" }}>
+        <div className="absolute top-8 right-8 opacity-10 z-10 hidden sm:block" style={{ transform: "scaleX(-1)" }}>
           <LotusDecoration size={80} color={C.gold} />
         </div>
 
@@ -276,34 +278,47 @@ export default function HomePage({ programs }: HomePageProps) {
           />
         ))}
 
-        {/* Content — centered over the painting */}
-        <div className="relative z-10 flex flex-col items-center">
-          {/* Sacred Logo mark with golden glow */}
+        {/* Content — bottom-anchored on mobile (Paramount+ style), centered on desktop */}
+        <div className="relative z-10 flex flex-col items-center w-full px-5 sm:px-6">
+          {/* Sacred Logo mark with golden glow — smaller on mobile */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative mb-6"
+            className="relative mb-4 sm:mb-6"
           >
             <div
-              className="flex h-20 w-20 items-center justify-center rounded-full animate-divine-aura"
+              className="flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full animate-divine-aura"
               style={{
                 background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
                 boxShadow: `0 0 60px rgba(212,168,67,0.4), 0 0 120px rgba(212,168,67,0.15)`,
               }}
             >
-              <span className="text-white font-bold text-3xl font-serif">G</span>
+              <span className="text-white font-bold text-xl sm:text-3xl font-serif">G</span>
             </div>
             {/* Rotating decorative ring */}
             <div className="absolute -inset-3 rounded-full border border-dashed animate-spin-slow" style={{ borderColor: "rgba(212,168,67,0.2)" }} />
           </motion.div>
 
-          {/* Ornamental divider */}
-          <OrnamentDivider light />
+          {/* Ornamental divider — hidden on mobile for compactness */}
+          <div className="hidden sm:block">
+            <OrnamentDivider light />
+          </div>
 
-          {/* Heading */}
+          {/* Mobile category label (Paramount+ style) */}
+          <motion.span
+            className="block sm:hidden text-[11px] font-bold uppercase tracking-[0.25em] mb-3"
+            style={{ color: C.gold }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            ISKCON Brooklyn
+          </motion.span>
+
+          {/* Heading — mobile-optimized sizes */}
           <motion.h1
-            className="text-center text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl px-6 leading-tight"
+            className="text-center text-[28px] leading-[1.15] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -312,12 +327,12 @@ export default function HomePage({ programs }: HomePageProps) {
             <br className="hidden sm:block" />
             <span className="text-gradient-gold font-serif italic drop-shadow-lg">Bhagavad Gita</span>
             <br />
-            <span className="text-white/80 text-2xl sm:text-3xl md:text-4xl drop-shadow-md">in the Heart of New York City</span>
+            <span className="text-white/80 text-lg sm:text-3xl md:text-4xl drop-shadow-md">in the Heart of New York City</span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — condensed on mobile */}
           <motion.p
-            className="mt-6 max-w-xl px-6 text-center text-base sm:text-lg leading-relaxed drop-shadow-sm"
+            className="mt-4 sm:mt-6 max-w-xl text-center text-[14px] sm:text-lg leading-relaxed drop-shadow-sm"
             style={{ color: "rgba(212,168,67,0.6)" }}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -326,16 +341,38 @@ export default function HomePage({ programs }: HomePageProps) {
             A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting on the streets, distributing books, and serving prasadam every single day.
           </motion.p>
 
-          {/* CTA */}
+          {/* Pagination dots — mobile only, like Paramount+ carousel indicator */}
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-4 mt-10"
+            className="flex sm:hidden items-center gap-1.5 mt-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="rounded-full"
+                style={{
+                  width: i === 0 ? 16 : 5,
+                  height: 5,
+                  borderRadius: 3,
+                  background: i === 0 ? C.gold : "rgba(212,168,67,0.25)",
+                  transition: "all 0.3s",
+                }}
+              />
+            ))}
+          </motion.div>
+
+          {/* CTA — full-width stacked on mobile (Paramount+ style), inline on desktop */}
+          <motion.div
+            className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.2 }}
           >
             <Link
               href="/programs"
-              className="rounded-full px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:scale-105"
+              className="rounded-full px-8 py-4 sm:py-3.5 text-[15px] sm:text-sm font-semibold uppercase tracking-wider text-white transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
               style={{
                 background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
                 boxShadow: `0 0 30px rgba(212,168,67,0.35)`,
@@ -346,16 +383,16 @@ export default function HomePage({ programs }: HomePageProps) {
             </Link>
             <a
               href="#what-we-do"
-              className="rounded-full px-8 py-3.5 text-sm font-semibold transition-all hover:bg-white/10"
+              className="rounded-full px-8 py-4 sm:py-3.5 text-[15px] sm:text-sm font-semibold transition-all hover:bg-white/10 active:scale-95 text-center"
               style={{ border: `1px solid rgba(212,168,67,0.3)`, color: "rgba(212,168,67,0.7)" }}
             >
               What We Do
             </a>
           </motion.div>
 
-          {/* Stats with ornamental separator */}
+          {/* Stats — 2x2 grid on mobile, horizontal row on desktop */}
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-6 sm:gap-0 mt-14"
+            className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-0 mt-8 sm:mt-14 w-full max-w-xs sm:max-w-none mx-auto"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.6 }}
@@ -366,17 +403,20 @@ export default function HomePage({ programs }: HomePageProps) {
               { value: "ISKCON", label: "Brooklyn Based" },
               { value: "Free", label: "Always" },
             ].map((s, i) => (
-              <div key={i} className="text-center px-5 sm:px-7" style={{ borderRight: i < 3 ? "1px solid rgba(212,168,67,0.15)" : "none" }}>
-                <p className="text-xl font-bold font-serif drop-shadow-sm" style={{ color: C.gold }}>{s.value}</p>
-                <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.35)" }}>{s.label}</p>
+              <div
+                key={i}
+                className={`text-center px-3 py-2.5 sm:px-7 sm:py-0 rounded-xl sm:rounded-none hero-stat-cell ${i < 3 ? "hero-stat-divider" : ""}`}
+              >
+                <p className="text-lg sm:text-xl font-bold font-serif drop-shadow-sm" style={{ color: C.gold }}>{s.value}</p>
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "rgba(212,168,67,0.35)" }}>{s.label}</p>
               </div>
             ))}
           </motion.div>
         </div>
 
-        {/* Scroll hint */}
+        {/* Scroll hint — hidden on mobile (bottom nav replaces it) */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden sm:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5, duration: 1 }}
@@ -387,7 +427,7 @@ export default function HomePage({ programs }: HomePageProps) {
         </motion.div>
 
         {/* Bottom gradient transition */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 z-10" style={{ background: `linear-gradient(to top, ${C.cream}, transparent)` }} />
+        <div className="absolute bottom-0 left-0 right-0 h-40 z-10 pointer-events-none" style={{ background: `linear-gradient(to top, ${C.cream}, transparent)` }} />
         {/* Bottom ornamental border */}
         <div className="absolute bottom-0 left-0 right-0 h-px z-10" style={{ background: `linear-gradient(90deg, transparent, ${C.gold}40, ${C.saffron}40, ${C.gold}40, transparent)` }} />
       </section>
@@ -518,7 +558,58 @@ export default function HomePage({ programs }: HomePageProps) {
             </p>
           </div>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Mobile: Horizontal snap-scroll carousel (Peacock/Paramount "Your Next Watch" style) */}
+          <div className="block sm:hidden -mx-6 px-1">
+            <div className="flex gap-3 px-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+              {ACTIVITIES.map((activity, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="group relative shrink-0 w-[75vw] max-w-[280px] snap-center rounded-2xl p-5 overflow-hidden"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(212,168,67,0.1)",
+                  }}
+                >
+                  {/* Accent top border */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${activity.color}, transparent)` }} />
+
+                  <div className="flex items-center gap-3 mb-3">
+                    {/* Icon */}
+                    <div
+                      className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0"
+                      style={{ background: `${activity.color}15`, color: activity.color, border: `1px solid ${activity.color}25` }}
+                    >
+                      {getActivityIcon(activity.icon)}
+                    </div>
+                    {/* Highlight badge */}
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      style={{ background: `${activity.color}20`, color: activity.color }}
+                    >
+                      {activity.highlight}
+                    </span>
+                  </div>
+
+                  <h3 className="text-[16px] font-bold text-white/90 mb-1.5">{activity.title}</h3>
+                  <p className="text-[12px] leading-relaxed text-white/40 line-clamp-3">{activity.description}</p>
+                </motion.div>
+              ))}
+            </div>
+            {/* Scroll hint indicator */}
+            <div className="flex justify-center gap-1 mt-3">
+              {ACTIVITIES.map((_, i) => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: i === 0 ? C.gold : "rgba(212,168,67,0.2)" }} />
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: Original grid layout */}
+          <StaggerContainer className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ACTIVITIES.map((activity, i) => (
               <motion.div
                 key={i}
@@ -590,7 +681,54 @@ export default function HomePage({ programs }: HomePageProps) {
             </p>
           </div>
 
-          <StaggerContainer className="space-y-3">
+          {/* Mobile: Horizontal card carousel for schedule */}
+          <div className="block sm:hidden -mx-6">
+            <div className="flex gap-3 px-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+              {WEEKLY_SCHEDULE.map((item, i) => {
+                const iconColor = item.icon === "book" ? C.krishnaBlue : item.icon === "music" ? C.gold : C.lotusPink;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06 }}
+                    className="shrink-0 w-[72vw] max-w-[260px] snap-center rounded-2xl p-4 relative overflow-hidden"
+                    style={{ background: "rgba(255,255,255,0.85)", border: `1px solid rgba(212,168,67,0.12)` }}
+                  >
+                    {/* Accent top bar */}
+                    <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${iconColor}40, ${iconColor}, ${iconColor}40)` }} />
+
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-xl shrink-0"
+                        style={{ background: `${iconColor}12`, color: iconColor }}
+                      >
+                        {getActivityIcon(item.icon)}
+                      </div>
+                      <span
+                        className="inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-[11px] font-bold"
+                        style={{ background: `${C.krishnaBlue}10`, color: C.krishnaBlue }}
+                      >
+                        {item.day}
+                      </span>
+                    </div>
+
+                    <h3 className="text-[15px] font-semibold mb-1" style={{ color: C.krishnaBlue }}>{item.activity}</h3>
+                    <p className="text-[11px] text-gray-400 mb-2">{item.time}</p>
+
+                    <div className="flex items-center gap-1.5 text-[11px]" style={{ color: C.peacock }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                      {item.location}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop: Original list layout */}
+          <StaggerContainer className="hidden sm:block space-y-3">
             {WEEKLY_SCHEDULE.map((item, i) => {
               const iconColor = item.icon === "book" ? C.krishnaBlue : item.icon === "music" ? C.gold : C.lotusPink;
               return (
@@ -669,7 +807,48 @@ export default function HomePage({ programs }: HomePageProps) {
             </p>
           </div>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Mobile: Horizontal snap scroll for videos */}
+          <div className="block sm:hidden -mx-6">
+            <div className="flex gap-3 px-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+              {YOUTUBE_VIDEOS.map((video, i) => {
+                const { bg } = getCategoryColor(video.category);
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="shrink-0 w-[80vw] max-w-[300px] snap-center"
+                  >
+                    <div className="rounded-2xl overflow-hidden shadow-md" style={{ border: `1px solid ${C.gold}15` }}>
+                      <div className="relative aspect-video">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${video.id}`}
+                          title={video.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="absolute inset-0 w-full h-full"
+                        />
+                      </div>
+                      <div className="p-3.5" style={{ background: C.cream }}>
+                        <h3 className="text-[14px] font-semibold" style={{ color: C.krishnaBlue }}>{video.title}</h3>
+                        <span
+                          className="inline-flex items-center gap-1 mt-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
+                          style={{ background: `${bg}15`, color: bg }}
+                        >
+                          {video.category}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop: Original grid */}
+          <StaggerContainer className="hidden sm:grid grid-cols-1 md:grid-cols-3 gap-6">
             {YOUTUBE_VIDEOS.map((video, i) => {
               const { bg } = getCategoryColor(video.category);
               return (
@@ -878,7 +1057,13 @@ export default function HomePage({ programs }: HomePageProps) {
             <p className="text-[11px]" style={{ color: `${C.gold}30` }}>Hare Krishna — Made with devotion at ISKCON Brooklyn</p>
           </div>
         </div>
+
+        {/* Bottom safe area for mobile nav */}
+        <div className="h-20 sm:hidden" />
       </section>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, PanInfo } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import type { Program } from "@/data/programs";
+import { CATEGORY_COLORS } from "@/data/programs";
 import MapScene from "@/components/MapScene";
 import ProgramCard from "@/components/ProgramCard";
 import ProgramDetail from "@/components/ProgramDetail";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 const GITA_QUOTES = [
   { text: "You have the right to work, but never to the fruit of work.", ref: "BG 2.47" },
@@ -55,8 +57,22 @@ export default function SplitView({ programs }: SplitViewProps) {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const sheetRef = useRef<HTMLDivElement>(null);
   const cardScrollRef = useRef<HTMLDivElement>(null);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+
+  // Derive unique categories from programs
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(programs.map((p) => p.category)));
+    return ["All", ...cats];
+  }, [programs]);
+
+  // Filter programs by active category
+  const filteredPrograms = useMemo(() => {
+    if (activeCategory === "All") return programs;
+    return programs.filter((p) => p.category === activeCategory);
+  }, [programs, activeCategory]);
 
   // Bottom sheet height (in px from bottom of viewport)
   const sheetHeight = useMotionValue(SHEET_PEEK);
@@ -415,28 +431,64 @@ export default function SplitView({ programs }: SplitViewProps) {
             <div className="relative">
               <div className="absolute inset-x-0 top-0 h-[calc(100vh)] bg-[#FFF9F0] rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.12)] border-t border-[#E8751A]/10" />
 
-              {/* Drag handle */}
-              <div className="relative flex justify-center pt-3 pb-2">
-                <div className="w-10 h-1 rounded-full bg-gray-300" />
+              {/* Drag handle — pill style (restaurant detail / Pangea map inspiration) */}
+              <div className="relative flex justify-center pt-3 pb-1.5">
+                <div className="w-10 h-1 rounded-full bg-gray-300/80" />
               </div>
 
               {/* Sheet header */}
-              <div className="relative px-5 pb-3">
+              <div className="relative px-5 pb-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[15px] font-bold text-gray-800">
                     {selectedProgram ? selectedProgram.title : "Upcoming Programs"}
                   </h3>
-                  <span className="text-[11px] text-gray-400">
-                    {upcomingCount} event{upcomingCount === 1 ? "" : "s"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 rounded-full bg-[#E8751A]/10 px-2.5 py-1 text-[10px] font-semibold text-[#E8751A]">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-[#E8751A] opacity-75 animate-ping" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#E8751A]" />
+                      </span>
+                      {upcomingCount}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              {/* Category filter tabs — Paramount tracker "Shows | Movies | Hubs" style */}
+              {!selectedProgram && (
+                <div className="relative">
+                  <div
+                    ref={categoryScrollRef}
+                    className="flex gap-2 px-5 pb-2 overflow-x-auto scrollbar-hide"
+                  >
+                    {categories.map((cat) => {
+                      const isActive = activeCategory === cat;
+                      const catColor = cat !== "All" ? (CATEGORY_COLORS[cat]?.bg ?? "#6b7280") : "#E8751A";
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => setActiveCategory(cat)}
+                          className="shrink-0 rounded-full px-3.5 py-1.5 text-[11px] font-semibold transition-all duration-200 active:scale-95"
+                          style={{
+                            background: isActive ? catColor : "rgba(0,0,0,0.04)",
+                            color: isActive ? "#fff" : "#666",
+                            border: isActive ? "none" : "1px solid rgba(0,0,0,0.06)",
+                          }}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
 
           {/* Sheet content */}
           <div
-            className="absolute top-16 left-0 right-0 bottom-0 overflow-hidden bg-[#FFF9F0] rounded-t-3xl"
+            className="absolute left-0 right-0 bottom-0 overflow-hidden bg-[#FFF9F0] rounded-t-3xl"
+            style={{ top: selectedProgram ? 64 : 96 }}
           >
             <AnimatePresence mode="wait">
               {selectedProgram ? (
@@ -464,11 +516,11 @@ export default function SplitView({ programs }: SplitViewProps) {
                     ref={cardScrollRef}
                     className="flex gap-3 px-5 pb-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
                   >
-                    {programs.map((program, index) => (
+                    {filteredPrograms.map((program, index) => (
                       <div
                         key={program.id}
                         data-program-id={program.id}
-                        className="shrink-0 w-[85vw] max-w-[340px] snap-center"
+                        className="shrink-0 w-[82vw] max-w-[320px] snap-center"
                       >
                         <ProgramCard
                           program={program}
@@ -480,12 +532,19 @@ export default function SplitView({ programs }: SplitViewProps) {
                         />
                       </div>
                     ))}
+
+                    {/* Empty state when filter has no results */}
+                    {filteredPrograms.length === 0 && (
+                      <div className="flex items-center justify-center w-full py-8">
+                        <p className="text-[13px] text-gray-400">No programs in this category</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Full list below (visible when sheet expanded) */}
                   <motion.div
                     style={{ opacity: sheetOpacity }}
-                    className="px-5 pb-8 space-y-3"
+                    className="px-5 pb-20 space-y-3"
                   >
                     {/* Rotating quote */}
                     <div className="py-3 text-center">
@@ -509,11 +568,13 @@ export default function SplitView({ programs }: SplitViewProps) {
 
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#E8751A]/20 to-transparent" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">All Programs</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        {activeCategory === "All" ? "All Programs" : activeCategory}
+                      </span>
                       <div className="flex-1 h-px bg-gradient-to-l from-transparent via-[#E8751A]/20 to-transparent" />
                     </div>
 
-                    {programs.map((program, index) => (
+                    {filteredPrograms.map((program, index) => (
                       <ProgramCard
                         key={program.id}
                         program={program}
@@ -531,6 +592,9 @@ export default function SplitView({ programs }: SplitViewProps) {
           </div>
         </motion.div>
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

@@ -360,3 +360,53 @@ h1, h2, h3 {
   border-width: 0 2px 2px 0;
   border-radius: 0 0 4px 0;
 }
+
+/* ================================================================== */
+/*  Mobile Landing Screen Utilities                                    */
+/* ================================================================== */
+
+/* Hero stat cells — glass card on mobile, transparent on desktop */
+.hero-stat-cell {
+  background: rgba(212, 168, 67, 0.06);
+}
+
+@media (min-width: 640px) {
+  .hero-stat-cell {
+    background: transparent;
+  }
+
+  .hero-stat-divider {
+    border-right: 1px solid rgba(212, 168, 67, 0.15);
+  }
+}
+
+/* Line clamp utility for mobile card descriptions */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Safe area support for bottom navigation */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Mobile bottom nav blur — enhanced for iOS */
+@supports (-webkit-backdrop-filter: blur(20px)) {
+  .mobile-nav-blur {
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* Touch-optimized tap targets — minimum 44px hit area */
+@media (max-width: 639px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
