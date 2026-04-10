@@ -62,6 +62,8 @@ export default function ProgramCard({
   const spotsLeft = capacity ? capacity - rsvpCount : null;
   const fillPercent = capacity ? Math.min((rsvpCount / capacity) * 100, 100) : 0;
   const isFull = spotsLeft !== null && spotsLeft <= 0;
+  const deadlinePassed = program.rsvpDeadline ? new Date() > new Date(program.rsvpDeadline) : false;
+  const rsvpDisabled = isFull || deadlinePassed;
 
   return (
     <>
@@ -249,17 +251,17 @@ export default function ProgramCard({
               whileTap={{ scale: 0.95 }}
               onClick={(e) => {
                 e.stopPropagation();
-                if (!isFull) setShowRsvp(true);
+                if (!rsvpDisabled) setShowRsvp(true);
               }}
-              disabled={isFull}
+              disabled={rsvpDisabled}
               className="shrink-0 rounded-xl px-4 py-2 text-[12px] font-bold text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: isFull ? "#9ca3af" : `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
-                boxShadow: isFull ? "none" : `0 2px 12px ${accentGlow}`,
+                background: rsvpDisabled ? "#9ca3af" : `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
+                boxShadow: rsvpDisabled ? "none" : `0 2px 12px ${accentGlow}`,
               }}
             >
-              {isFull ? "Full" : "RSVP"}
-              {!isFull && (
+              {isFull ? "Full" : deadlinePassed ? "Closed" : "RSVP"}
+              {!rsvpDisabled && (
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="inline ml-1 -mt-px">
                   <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

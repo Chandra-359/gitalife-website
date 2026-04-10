@@ -102,11 +102,12 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState(getCountdown(program.date));
 
-  // Capacity
+  // Capacity & deadline
   const rsvpCount = program.rsvpCount ?? 0;
   const capacity = program.capacity;
   const spotsLeft = capacity ? capacity - rsvpCount : null;
   const isFull = spotsLeft !== null && spotsLeft <= 0;
+  const deadlinePassed = program.rsvpDeadline ? new Date() > new Date(program.rsvpDeadline) : false;
 
   // Live countdown
   useEffect(() => {
@@ -528,16 +529,18 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
         {/* ---- Sticky RSVP button ---- */}
         <div className="sticky bottom-0 z-20 px-5 py-4 bg-gradient-to-t from-[#FFF9F0] via-[#FFF9F0] to-[#FFF9F0]/0">
           <motion.button
-            whileHover={{ scale: 1.02, boxShadow: `0 8px 40px ${glow}` }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setShowRsvp(true)}
-            className="w-full rounded-2xl py-4 text-[15px] font-bold uppercase tracking-wider text-white shadow-xl transition-all relative overflow-hidden group animate-rsvp-pulse"
+            whileHover={deadlinePassed ? {} : { scale: 1.02, boxShadow: `0 8px 40px ${glow}` }}
+            whileTap={deadlinePassed ? {} : { scale: 0.97 }}
+            onClick={() => !deadlinePassed && setShowRsvp(true)}
+            disabled={deadlinePassed}
+            className="w-full rounded-2xl py-4 text-[15px] font-bold uppercase tracking-wider text-white shadow-xl transition-all relative overflow-hidden group animate-rsvp-pulse disabled:opacity-60 disabled:cursor-not-allowed"
             style={{
-              background: `linear-gradient(135deg, ${bg}, ${bg}cc)`,
-              boxShadow: `0 4px 24px ${glow}`,
+              background: deadlinePassed ? "#9ca3af" : `linear-gradient(135deg, ${bg}, ${bg}cc)`,
+              boxShadow: deadlinePassed ? "none" : `0 4px 24px ${glow}`,
             }}
           >
             {/* Shimmer effect */}
+            {!deadlinePassed && (
             <span className="absolute inset-0 pointer-events-none">
               <span
                 className="absolute inset-0 animate-shimmer"
@@ -546,11 +549,12 @@ export default function ProgramDetail({ program, onBack }: ProgramDetailProps) {
                 }}
               />
             </span>
+            )}
             <span className="relative flex items-center justify-center gap-2">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0">
                 <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              {isFull ? "Join Waitlist" : isVolunteer ? "Sign Up to Volunteer" : "RSVP — Join This Program"}
+              {deadlinePassed ? "RSVP Closed" : isFull ? "Join Waitlist" : isVolunteer ? "Sign Up to Volunteer" : "RSVP — Join This Program"}
             </span>
           </motion.button>
 

@@ -8,6 +8,7 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!programId || !name || !email) {
+      console.error("RSVP 400: missing fields", { programId: !!programId, name: !!name, email: !!email });
       return NextResponse.json(
         { error: "programId, name, and email are required" },
         { status: 400 },
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
 
     // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.error("RSVP 400: invalid email");
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 },
@@ -37,6 +39,7 @@ export async function POST(request: Request) {
     });
 
     if (!program) {
+      console.error("RSVP 404: program not found", programId);
       return NextResponse.json(
         { error: "Program not found" },
         { status: 404 },
@@ -44,11 +47,16 @@ export async function POST(request: Request) {
     }
 
     // Check RSVP deadline
-    if (program.rsvpDeadline && new Date() > new Date(program.rsvpDeadline)) {
-      return NextResponse.json(
-        { error: "RSVP deadline has passed" },
-        { status: 400 },
-      );
+    if (program.rsvpDeadline) {
+      const deadline = new Date(program.rsvpDeadline);
+      const now = new Date();
+      if (now > deadline) {
+        console.error("RSVP 400: deadline passed", { deadline: deadline.toISOString(), now: now.toISOString() });
+        return NextResponse.json(
+          { error: `RSVP deadline has passed (was ${deadline.toLocaleDateString()})` },
+          { status: 400 },
+        );
+      }
     }
 
     // Check capacity (separate query to avoid _count filter issues)
@@ -59,6 +67,7 @@ export async function POST(request: Request) {
       });
       if (confirmedCount + guestCount > program.capacity) {
         const remaining = program.capacity - confirmedCount;
+        console.error("RSVP 400: capacity full", { capacity: program.capacity, confirmed: confirmedCount, requested: guestCount });
         return NextResponse.json(
           { error: remaining > 0 ? `Only ${remaining} spots left` : "This event is full" },
           { status: 400 },
