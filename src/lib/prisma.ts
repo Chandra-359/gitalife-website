@@ -51,9 +51,7 @@ function getOrCreatePrismaClient(): PrismaClient | null {
     return null;
   }
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = client;
-  }
+  globalForPrisma.prisma = client;
 
   return client;
 }
