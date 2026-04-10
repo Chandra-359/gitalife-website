@@ -11,6 +11,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -45,7 +46,12 @@ function getOrCreatePrismaClient(): PrismaClient | null {
     client = new PrismaClient({ accelerateUrl });
   } else if (directUrl) {
     // Direct postgres:// connection via driver adapter
-    const adapter = new PrismaPg(directUrl);
+    // Create pool with explicit SSL config to avoid pg v8 SSL mode warnings
+    const pool = new pg.Pool({
+      connectionString: directUrl,
+      ssl: { rejectUnauthorized: false },
+    });
+    const adapter = new PrismaPg(pool);
     client = new PrismaClient({ adapter });
   } else {
     return null;
