@@ -40,15 +40,12 @@ export default function StreamBrowse({ programs }: StreamBrowseProps) {
     const categories = Object.keys(CATEGORY_COLORS);
     const rows: { title: string; programs: Program[]; icon: string; color: string }[] = [];
 
-    // "Happening Soon" — programs within the next 7 days
-    const soon = programs.filter((p) => {
-      const diff = new Date(p.date).getTime() - Date.now();
-      return diff > 0 && diff < 7 * 24 * 60 * 60 * 1000;
-    });
-    if (soon.length > 0) {
+    // Featured programs row
+    const featuredPrograms = programs.filter((p) => p.featured);
+    if (featuredPrograms.length > 0) {
       rows.push({
-        title: "Happening Soon",
-        programs: soon,
+        title: "Featured Programs",
+        programs: featuredPrograms,
         icon: "\u{1F525}", // 🔥
         color: "#E8751A",
       });

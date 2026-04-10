@@ -11,36 +11,11 @@ interface StreamDetailModalProps {
   onClose: () => void;
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function getCountdown(iso: string) {
-  const diff = new Date(iso).getTime() - Date.now();
-  if (diff <= 0) return null;
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  return { days, hours, minutes };
-}
-
 export default function StreamDetailModal({ program, onClose }: StreamDetailModalProps) {
   const isVolunteer = program.type === "volunteer";
   const { bg, glow } = isVolunteer ? VOLUNTEER_COLOR : getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
   const [showRsvp, setShowRsvp] = useState(false);
-  const [countdown, setCountdown] = useState(getCountdown(program.date));
 
   const rsvpCount = program.rsvpCount ?? 0;
   const capacity = program.capacity;
@@ -55,12 +30,6 @@ export default function StreamDetailModal({ program, onClose }: StreamDetailModa
       document.body.style.overflow = "";
     };
   }, []);
-
-  // Live countdown
-  useEffect(() => {
-    const timer = setInterval(() => setCountdown(getCountdown(program.date)), 60000);
-    return () => clearInterval(timer);
-  }, [program.date]);
 
   return (
     <>
@@ -176,17 +145,19 @@ export default function StreamDetailModal({ program, onClose }: StreamDetailModa
                         <path d="M2 7h12" stroke="currentColor" strokeWidth="1.2" />
                       </svg>
                     ),
-                    text: formatDate(program.date),
+                    text: `Every ${program.dayOfWeek}`,
                   },
-                  {
-                    icon: (
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                        <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                      </svg>
-                    ),
-                    text: formatTime(program.date),
-                  },
+                  ...(program.time
+                    ? [{
+                        icon: (
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                            <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                          </svg>
+                        ),
+                        text: program.time,
+                      }]
+                    : []),
                   ...(program.duration
                     ? [{ icon: <span className="text-[12px]">&#9202;</span>, text: program.duration }]
                     : []),
@@ -224,31 +195,6 @@ export default function StreamDetailModal({ program, onClose }: StreamDetailModa
                     <path d="M6 3h7v7M13 3L6 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </a>
-              )}
-
-              {/* Countdown timer */}
-              {countdown && (
-                <div className="flex items-center gap-4 mb-6 py-4 border-t border-b border-white/5">
-                  <span className="text-[11px] text-white/30 font-bold uppercase tracking-widest">Starts in</span>
-                  <div className="flex items-center gap-2">
-                    {[
-                      { val: countdown.days, label: "d" },
-                      { val: countdown.hours, label: "h" },
-                      { val: countdown.minutes, label: "m" },
-                    ].map((unit, i) => (
-                      <span key={i} className="flex items-center gap-0.5">
-                        <span
-                          className="inline-flex h-9 w-10 items-center justify-center rounded-lg text-[16px] font-bold text-white tabular-nums"
-                          style={{ backgroundColor: `${bg}20` }}
-                        >
-                          {unit.val}
-                        </span>
-                        <span className="text-[10px] text-white/30 font-medium">{unit.label}</span>
-                        {i < 2 && <span className="text-white/20 mx-0.5">:</span>}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               )}
 
               {/* Capacity bar */}

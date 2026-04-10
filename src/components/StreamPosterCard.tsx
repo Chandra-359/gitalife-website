@@ -10,21 +10,9 @@ interface StreamPosterCardProps {
   onClick: () => void;
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function getDaysUntil(iso: string): number | null {
-  const diff = new Date(iso).getTime() - Date.now();
-  if (diff < 0) return null;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
 export default function StreamPosterCard({ program, index, onClick }: StreamPosterCardProps) {
   const { bg } = getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
-  const daysUntil = getDaysUntil(program.date);
   const isFull = program.capacity && program.rsvpCount != null
     ? program.capacity - program.rsvpCount <= 0
     : false;
@@ -91,23 +79,6 @@ export default function StreamPosterCard({ program, index, onClick }: StreamPost
             ? program.category.split(" ")[0]
             : program.category}
         </span>
-
-        {/* Urgency / countdown */}
-        {daysUntil !== null && daysUntil <= 7 && (
-          <span
-            className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase text-white"
-            style={{ backgroundColor: daysUntil <= 2 ? "#dc2626cc" : `${bg}cc` }}
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span
-                className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
-                style={{ backgroundColor: "#fff" }}
-              />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
-            </span>
-            {daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : `${daysUntil}d`}
-          </span>
-        )}
       </div>
 
       {/* Bottom info */}
@@ -117,10 +88,10 @@ export default function StreamPosterCard({ program, index, onClick }: StreamPost
           {program.title}
         </h3>
 
-        {/* Date */}
+        {/* Day & time */}
         <p className="text-[11px] text-white/60 font-medium">
-          {formatDate(program.date)}
-          {program.duration && ` · ${program.duration}`}
+          Every {program.dayOfWeek}
+          {program.time && ` · ${program.time}`}
         </p>
 
         {/* Capacity indicator */}
@@ -150,12 +121,10 @@ export default function StreamPosterCard({ program, index, onClick }: StreamPost
 
       {/* Featured ribbon */}
       {program.featured && (
-        <div
-          className="absolute top-0 right-0 w-16 h-16 overflow-hidden"
-        >
+        <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
           <div
             className="absolute top-[6px] right-[-20px] w-[80px] text-center text-[8px] font-bold uppercase tracking-widest text-white py-0.5 rotate-45"
-            style={{ background: `linear-gradient(90deg, #D4A843, #E8751A)` }}
+            style={{ background: "linear-gradient(90deg, #D4A843, #E8751A)" }}
           >
             Featured
           </div>

@@ -11,20 +11,6 @@ interface StreamHeroProps {
   onRsvp: (program: Program) => void;
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-}
-
 export default function StreamHero({ programs, onSelectProgram, onRsvp }: StreamHeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const featured = programs.length > 0 ? programs[activeIndex % programs.length] : null;
@@ -138,16 +124,20 @@ export default function StreamHero({ programs, onSelectProgram, onRsvp }: Stream
                     <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.2" />
                     <path d="M2 7h12" stroke="currentColor" strokeWidth="1.2" />
                   </svg>
-                  {formatDate(featured.date)}
+                  Every {featured.dayOfWeek}
                 </span>
-                <span className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="inline-flex items-center gap-1.5">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-white/40">
-                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                    <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                  </svg>
-                  {formatTime(featured.date)}
-                </span>
+                {featured.time && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-white/40">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                        <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                      </svg>
+                      {featured.time}
+                    </span>
+                  </>
+                )}
                 {featured.duration && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-white/20" />
