@@ -21,14 +21,16 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
 
   const navLinks = isHomepage
     ? [
-        { label: "About", href: "#about" },
-        { label: "Programs", href: "/programs" },
-        { label: "Gallery", href: "#gallery" },
+        { label: "Classes", href: "/classes" },
+        { label: "Festival", href: "/festival" },
+        { label: "Daily", href: "/daily" },
+        { label: "Impact", href: "/impact" },
       ]
     : [
         { label: "Home", href: "/" },
-        { label: "About", href: "/#about" },
-        { label: "Gallery", href: "/#gallery" },
+        { label: "Classes", href: "/classes" },
+        { label: "Festival", href: "/festival" },
+        { label: "Daily", href: "/daily" },
       ];
 
   const ctaHref = isHomepage ? "#get-connected" : "/#get-connected";
