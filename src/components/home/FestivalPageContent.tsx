@@ -12,20 +12,9 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { FEATURED_EVENT, INSTAGRAM_URL, YOUTUBE_URL } from "@/data/home";
+import { FEATURED_EVENT, YOUTUBE_URL } from "@/data/home";
 import { C, Icon } from "./icons";
-
-/** Convert a Luma event URL (https://lu.ma/xyz) into its embed URL. */
-function toLumaEmbed(url: string): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    if (!u.hostname.includes("lu.ma")) return null;
-    return `https://lu.ma/embed/event/${u.pathname.replace(/^\/+/, "")}/simple`;
-  } catch {
-    return null;
-  }
-}
+import LumaEmbed from "./LumaEmbed";
 
 const FAQS = [
   {
@@ -47,8 +36,6 @@ const FAQS = [
 ];
 
 export default function FestivalPageContent() {
-  const embedUrl = toLumaEmbed(FEATURED_EVENT.lumaUrl);
-
   return (
     <div className="min-h-screen" style={{ background: C.cream }}>
       <Navbar />
@@ -143,69 +130,12 @@ export default function FestivalPageContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="rounded-3xl overflow-hidden shadow-2xl"
-            style={{
-              background: "white",
-              border: `1px solid ${C.gold}25`,
-            }}
           >
-            {embedUrl ? (
-              <iframe
-                src={embedUrl}
-                width="100%"
-                height="620"
-                frameBorder="0"
-                style={{ border: "none", minHeight: 620 }}
-                allow="fullscreen; payment"
-                aria-hidden="false"
-                tabIndex={0}
-                title={`RSVP — ${FEATURED_EVENT.title}`}
-              />
-            ) : (
-              <div className="px-8 py-12 text-center">
-                <div
-                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{
-                    background: `linear-gradient(135deg, ${C.gold}20, ${C.saffron}15)`,
-                    color: C.saffron,
-                  }}
-                >
-                  <Icon name="sparkle" size={22} />
-                </div>
-                <h3 className="mt-4 text-xl font-bold font-serif" style={{ color: C.krishnaBlue }}>
-                  Registration opening soon
-                </h3>
-                <p className="mt-2 text-[14px] text-gray-600 max-w-md mx-auto">
-                  We&rsquo;ll share the RSVP link here and on Instagram
-                  a week before the festival. To get notified, follow us or message us.
-                </p>
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                  <a
-                    href={INSTAGRAM_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full px-5 py-2.5 text-[13px] font-semibold text-white transition-all hover:scale-[1.03]"
-                    style={{
-                      background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
-                    }}
-                  >
-                    Follow @gitalifenyc
-                  </a>
-                  {FEATURED_EVENT.rsvpUrl && (
-                    <a
-                      href={FEATURED_EVENT.rsvpUrl}
-                      className="rounded-full px-5 py-2.5 text-[13px] font-semibold transition-all"
-                      style={{
-                        border: `1px solid ${C.gold}50`,
-                        color: C.krishnaBlue,
-                      }}
-                    >
-                      RSVP via form
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
+            <LumaEmbed
+              lumaUrl={FEATURED_EVENT.lumaUrl}
+              eventTitle={FEATURED_EVENT.title}
+              rsvpUrl={FEATURED_EVENT.rsvpUrl}
+            />
           </motion.div>
         </div>
       </section>

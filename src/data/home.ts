@@ -153,6 +153,238 @@ export const FEATURED_EVENT: FeaturedEventData = {
 };
 
 /* ------------------------------------------------------------------ */
+/*  RETREATS (quarterly upstate immersions)                            */
+/* ------------------------------------------------------------------ */
+export interface Retreat {
+  id: string;
+  title: string;
+  dateLabel: string;
+  location: string;
+  description: string;
+  /** "upcoming" events show RSVP + Luma embed; "past" show gallery card. */
+  status: "upcoming" | "past";
+  /** Luma URL for upcoming retreats. */
+  lumaUrl?: string;
+  /** Comma-tagged highlight photos/quotes for past retreats. */
+  pastHighlights?: string[];
+  /** Optional alumni quote for past retreats. */
+  quote?: string;
+  quoteAuthor?: string;
+}
+
+export const RETREATS: Retreat[] = [
+  {
+    id: "summer-2026",
+    title: "Summer Upstate Retreat",
+    dateLabel: "Fri Jul 10 – Sun Jul 12, 2026",
+    location: "Catskills, NY",
+    description:
+      "Three days of morning sadhana, kirtan under the stars, philosophy classes with senior devotees, and hikes through the Catskills. All meals prasadam.",
+    status: "upcoming",
+    lumaUrl: "",
+  },
+  {
+    id: "winter-2026",
+    title: "Winter Retreat",
+    dateLabel: "January 2026",
+    location: "Upstate NY",
+    status: "past",
+    description:
+      "A weekend of bhajans, philosophy, and snow hikes. 42 devotees from 3 states gathered for the coldest — and most intimate — retreat yet.",
+    pastHighlights: [
+      "42 devotees attended",
+      "3 hikes, 8 hours of kirtan",
+      "Evening fire yajña",
+    ],
+    quote:
+      "I went in exhausted from finals and left feeling like I had my mind back. The morning kirtans in the snow — I'll never forget that.",
+    quoteAuthor: "Priya, NYU '25",
+  },
+  {
+    id: "fall-2025",
+    title: "Fall Foliage Retreat",
+    dateLabel: "October 2025",
+    location: "Hudson Valley, NY",
+    status: "past",
+    description:
+      "Our largest retreat yet — 60 young devotees spent a weekend studying Bhagavad Gita Chapter 6 on meditation, surrounded by autumn color.",
+    pastHighlights: [
+      "60 devotees attended",
+      "Gita Chapter 6 deep dive",
+      "Nightly bonfire kirtans",
+    ],
+    quote:
+      "The balance between philosophy, chanting, and just being in nature was exactly what I needed.",
+    quoteAuthor: "Arjun, Columbia '26",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  VOLUNTEER LADDER                                                   */
+/* ------------------------------------------------------------------ */
+export interface VolunteerRung {
+  tier: 1 | 2 | 3;
+  title: string;
+  commitment: string;
+  description: string;
+  examples: string[];
+  cta: string;
+  color: "gold" | "saffron" | "peacock" | "lotus" | "krishna";
+}
+
+export const VOLUNTEER_LADDER: VolunteerRung[] = [
+  {
+    tier: 1,
+    title: "One-hour drop-in",
+    commitment: "1 hour, any Sunday",
+    description:
+      "The easiest way to try seva. Show up, meet the team, help with a simple task, and stay for prasadam. No commitment.",
+    examples: [
+      "Help set up or clean up Sunday Harinam",
+      "Greet guests at the Sunday feast",
+      "Staff the book table for an hour at NYU",
+    ],
+    cta: "Come this Sunday",
+    color: "gold",
+  },
+  {
+    tier: 2,
+    title: "Weekly seva",
+    commitment: "2–4 hours a week",
+    description:
+      "Pick a day that works for your schedule. Weekly rhythm builds real friendship and lets you see the fruit of your service grow over weeks.",
+    examples: [
+      "Govinda's kitchen — prep or serve dinner one evening a week",
+      "Teach a weekly youth Gita class at the temple",
+      "Help run the weekly book distribution at Jersey City",
+    ],
+    cta: "Join a weekly team",
+    color: "saffron",
+  },
+  {
+    tier: 3,
+    title: "Long-term stewardship",
+    commitment: "ongoing, part of the core team",
+    description:
+      "For devotees who want to help lead — running a festival, teaching a class series, or owning a program end-to-end with mentorship from senior devotees.",
+    examples: [
+      "Lead the monthly Youth Festival crew",
+      "Own the Newport Friday class",
+      "Coordinate a retreat",
+    ],
+    cta: "Talk to us",
+    color: "krishna",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  IMPACT STORY (for /impact scrolling narrative)                     */
+/* ------------------------------------------------------------------ */
+export interface ImpactStory {
+  anchor: string;        // URL hash, e.g. "books"
+  eyebrow: string;
+  heading: string;
+  paragraphs: string[];
+  stat?: { number: string; label: string };
+  color: "gold" | "saffron" | "peacock" | "lotus" | "krishna";
+}
+
+export const IMPACT_STORIES: ImpactStory[] = [
+  {
+    anchor: "books",
+    eyebrow: "Book Distribution Marathon",
+    heading: "12,457 copies of the Bhagavad Gita, handed out in person",
+    paragraphs: [
+      "Every December, devotees across NYC, New Jersey, and the surrounding boroughs join a month-long push called the Marathon — a tradition in the ISKCON movement going back 50 years.",
+      "Our chapter alone distributed 12,457 books in the 2025 marathon, through weekly book tables at NYU, Jersey City, and Newport, and through street sankirtan in Manhattan. Each book is offered with a conversation — the point was never just the number.",
+    ],
+    stat: { number: "12,457", label: "books in 2025" },
+    color: "peacock",
+  },
+  {
+    anchor: "govindas",
+    eyebrow: "Govinda's Kitchen",
+    heading: "340 fully vegetarian meals a day, sanctified and served",
+    paragraphs: [
+      "Govinda's, the temple restaurant at ISKCON Brooklyn, has served sanctified prasadam to New Yorkers of every faith for decades. Every meal is cooked in the temple kitchen and offered to the Deities before being served.",
+      "On a typical weekday we serve around 340 meals; Sundays, after the feast, over 500. No one is ever turned away hungry — a long-standing ISKCON tradition.",
+    ],
+    stat: { number: "340", label: "meals served daily" },
+    color: "saffron",
+  },
+  {
+    anchor: "classes",
+    eyebrow: "Weekly Classes",
+    heading: "52 Bhagavad Gita classes across 3 neighborhoods",
+    paragraphs: [
+      "Newport on Fridays. Jersey City on Saturdays. ISKCON Brooklyn on Sundays. Three standing gatherings every week of every year — that's 156 classes in 2025.",
+      "Our Friday Newport group started as four friends in a living room; it now hosts 25–30 devotees weekly. The growth is the point — scripture spreads by word of mouth, one invitation at a time.",
+    ],
+    stat: { number: "156", label: "classes in 2025" },
+    color: "gold",
+  },
+  {
+    anchor: "retreats",
+    eyebrow: "Quarterly Retreats",
+    heading: "4 weekend retreats, upstate, for focused sadhana",
+    paragraphs: [
+      "Four times a year we pause everything and spend a weekend upstate — no phones, no screens, just morning kirtan, philosophy, hiking, and the community we've built.",
+      "For many attendees, it's their first real taste of concentrated spiritual practice. Alumni consistently call it the most transformative weekend of their year.",
+    ],
+    stat: { number: "4", label: "retreats per year" },
+    color: "lotus",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  IMPACT TIMELINE (milestones)                                       */
+/* ------------------------------------------------------------------ */
+export interface TimelineMilestone {
+  year: string;
+  title: string;
+  description: string;
+}
+
+export const IMPACT_TIMELINE: TimelineMilestone[] = [
+  {
+    year: "2023",
+    title: "First Newport class launched",
+    description:
+      "Four friends started meeting in a Newport apartment for weekly Gita study.",
+  },
+  {
+    year: "2024",
+    title: "Jersey City + NYU book table",
+    description:
+      "Added Saturday class in Jersey City and began weekly book distribution at NYU.",
+  },
+  {
+    year: "2024",
+    title: "First upstate retreat",
+    description:
+      "22 devotees joined our first weekend retreat in the Catskills.",
+  },
+  {
+    year: "2025",
+    title: "10,000 books milestone",
+    description:
+      "Crossed 10,000 books distributed in a single calendar year.",
+  },
+  {
+    year: "2025",
+    title: "Monthly Youth Festival",
+    description:
+      "Launched the monthly festival at ISKCON Brooklyn — now averaging 80+ attendees.",
+  },
+  {
+    year: "2026",
+    title: "Where we are today",
+    description:
+      "52 classes a year across 3 locations, 4 quarterly retreats, 12 monthly festivals, and 340 daily prasadam meals.",
+  },
+];
+
+/* ------------------------------------------------------------------ */
 /*  IMPACT STATS                                                       */
 /* ------------------------------------------------------------------ */
 export interface ImpactStat {
