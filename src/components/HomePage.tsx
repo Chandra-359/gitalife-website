@@ -11,8 +11,9 @@
  *   5. FeaturedEvent (monthly festival / quarterly retreat)
  *   6. ExploreGrid (8 category tiles → sub-pages)
  *   7. ImpactSection (big numbers, charity:water mood)
- *   8. InstagramWall (gallery, wired to @gitalifenyc)
- *   9. ConnectFooter (testimonials + subscribe + footer)
+ *   8. YoutubeWall (videos, wired to @gitalifenyc via Elfsight)
+ *   9. InstagramWall (gallery, wired to @gitalifenyc via Elfsight)
+ *  10. ConnectFooter (testimonials + subscribe + footer)
  *
  * Each section is its own component under src/components/home/.
  * Content is driven by src/data/home.ts and src/data/verses.ts.
@@ -26,6 +27,7 @@ import WeekRail from "@/components/home/WeekRail";
 import FeaturedEvent from "@/components/home/FeaturedEvent";
 import ExploreGrid from "@/components/home/ExploreGrid";
 import ImpactSection from "@/components/home/ImpactSection";
+import YoutubeWall from "@/components/home/YoutubeWall";
 import InstagramWall from "@/components/home/InstagramWall";
 import ConnectFooter from "@/components/home/ConnectFooter";
 import { HERO_SLIDES } from "@/data/home";
@@ -48,6 +50,7 @@ export default function HomePage({ programs }: HomePageProps) {
       <FeaturedEvent />
       <ExploreGrid />
       <ImpactSection />
+      <YoutubeWall />
       <InstagramWall />
       <ConnectFooter testimonials={testimonials} />
     </div>
