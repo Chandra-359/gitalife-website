@@ -20,7 +20,61 @@ export interface WeeklyClass {
   location: string;
   neighborhood: string;
   kind: "gita-class" | "harinam" | "japa" | "book-reading";
+  /** Optional full address (used on the /classes page) */
+  address?: string;
+  /** Optional short "what to expect" blurb */
+  blurb?: string;
+  /** Optional Google Maps URL */
+  mapsUrl?: string;
 }
+
+export interface ClassLocation {
+  slug: string;
+  name: string;
+  neighborhood: string;
+  address: string;
+  mapsUrl: string;
+  color: "gold" | "saffron" | "peacock" | "lotus" | "krishna";
+  description: string;
+  parking?: string;
+  transit?: string;
+}
+
+export const CLASS_LOCATIONS: ClassLocation[] = [
+  {
+    slug: "newport",
+    name: "Newport",
+    neighborhood: "Jersey City, NJ",
+    address: "Newport, Jersey City, NJ",
+    mapsUrl: "https://maps.google.com/?q=Newport+Jersey+City",
+    color: "saffron",
+    description:
+      "Our Friday evening Gita class in a cozy Newport apartment — perfect for young professionals in Jersey City. Small group discussion, kirtan, and a home-cooked dinner.",
+    transit: "PATH to Newport station — 2 min walk",
+  },
+  {
+    slug: "jersey-city",
+    name: "Jersey City",
+    neighborhood: "Jersey City, NJ",
+    address: "Jersey City, NJ",
+    mapsUrl: "https://maps.google.com/?q=Jersey+City",
+    color: "gold",
+    description:
+      "Saturday evening class in the heart of Jersey City. Ideal for students at NJIT and Rutgers. Expect scripture study, kirtan, and prasadam.",
+    transit: "PATH or bus lines within walking distance",
+  },
+  {
+    slug: "iskcon-brooklyn",
+    name: "ISKCON Brooklyn",
+    neighborhood: "Brooklyn, NY",
+    address: "305 Schermerhorn Street, Brooklyn, NY",
+    mapsUrl: "https://maps.google.com/?q=ISKCON+Brooklyn",
+    color: "krishna",
+    description:
+      "Our home temple — Sunday morning class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's prasadam feast.",
+    transit: "2, 3, 4, 5, B, Q trains — Hoyt-Schermerhorn or Atlantic",
+  },
+];
 
 export const WEEKLY_SCHEDULE: WeeklyClass[] = [
   {

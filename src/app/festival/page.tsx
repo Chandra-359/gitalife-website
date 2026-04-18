@@ -1,19 +1,12 @@
-import ComingSoonPage from "@/components/home/ComingSoonPage";
+import FestivalPageContent from "@/components/home/FestivalPageContent";
 import { FEATURED_EVENT } from "@/data/home";
 
 export const metadata = {
-  title: "Youth Festival — Gita Life NYC",
+  title: `${FEATURED_EVENT.title} — Gita Life NYC`,
   description:
-    "Our monthly Youth Festival — kirtan, talks, prasadam, and community at ISKCON Brooklyn.",
+    "Our monthly Youth Festival — kirtan, a fireside talk, prasadam feast, and community at ISKCON Brooklyn. Free and open to all.",
 };
 
 export default function FestivalPage() {
-  return (
-    <ComingSoonPage
-      eyebrow="Monthly Youth Festival"
-      heading={FEATURED_EVENT.title}
-      description={`${FEATURED_EVENT.description} ${FEATURED_EVENT.dateLabel}, ${FEATURED_EVENT.timeLabel} at ${FEATURED_EVENT.location}.`}
-      homeBlurb="Registration (via Luma) and full festival page coming in Phase 2."
-    />
-  );
+  return <FestivalPageContent />;
 }
