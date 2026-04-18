@@ -47,8 +47,12 @@ export default function FeaturedEvent() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="grid md:grid-cols-5 gap-0 rounded-3xl overflow-hidden shadow-xl"
-          style={{ background: "white", border: `1px solid ${C.gold}20` }}
+          className="grid md:grid-cols-5 gap-0 rounded-3xl overflow-hidden hover-lift"
+          style={{
+            background: "white",
+            border: `1px solid ${C.gold}20`,
+            boxShadow: "var(--shadow-elevated)",
+          }}
         >
           {/* Image */}
           <div className="relative md:col-span-2 min-h-[260px] md:min-h-0">

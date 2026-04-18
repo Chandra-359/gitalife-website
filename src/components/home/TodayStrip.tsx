@@ -81,8 +81,9 @@ export default function TodayStrip() {
 
               {verse.sanskrit && (
                 <p
-                  className="text-[18px] sm:text-[20px] leading-[1.6] font-serif mb-3"
+                  className="sanskrit text-[19px] sm:text-[22px] leading-[1.55] mb-3"
                   style={{ color: C.goldLight }}
+                  lang="sa"
                 >
                   {verse.sanskrit}
                 </p>

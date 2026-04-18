@@ -500,6 +500,10 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
 /* ------------------------------------------------------------------ */
 export interface HeroSlide {
   eyebrow: string;         // small tag above the heading
+  /** Optional Sanskrit/Devanagari line shown above the heading (identity slides) */
+  sanskrit?: string;
+  /** Optional transliteration/meaning shown under the Sanskrit */
+  sanskritMeaning?: string;
   heading: string;
   subheading: string;
   primaryCtaLabel: string;
@@ -508,6 +512,8 @@ export interface HeroSlide {
   secondaryCtaHref?: string;
   /** Background image — use a static import path under /public */
   imageUrl: string;
+  /** Optional focal point for the background image (CSS object-position) */
+  imageFocal?: string;
 }
 
 export const HERO_SLIDES: HeroSlide[] = [
@@ -535,6 +541,8 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     eyebrow: "Students Living the Bhagavad Gita",
+    sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज",
+    sanskritMeaning: "Abandon all varieties of duty — simply surrender unto Me",
     heading: "In the heart of New York City",
     subheading:
       "A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting, and serving every day.",

@@ -14,10 +14,7 @@ export default function ImpactSection() {
   return (
     <section
       id="impact"
-      className="relative py-24 px-6 overflow-hidden"
-      style={{
-        background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
-      }}
+      className="relative py-24 px-6 overflow-hidden surface-sacred texture-grain isolate"
     >
       {/* Decorative ornamental borders */}
       <div className="absolute top-0 left-0 right-0 ornament-border-thick" />
@@ -52,8 +49,7 @@ export default function ImpactSection() {
               className="relative"
             >
               <p
-                className="text-5xl sm:text-6xl font-bold font-serif leading-none"
-                style={{ color: C.goldLight }}
+                className="text-6xl sm:text-7xl font-bold font-serif leading-[0.95] tracking-tight text-gradient-warm-glow"
               >
                 {stat.number}
               </p>

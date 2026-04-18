@@ -20,12 +20,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
   return (
     <>
       {/* Testimonials on Krishna blue */}
-      <section
-        className="relative py-24 px-6 overflow-hidden"
-        style={{
-          background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
-        }}
-      >
+      <section className="relative py-24 px-6 overflow-hidden surface-sacred texture-grain isolate">
         <div className="absolute top-0 left-0 right-0 ornament-border-thick" />
         <div className="relative max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -50,12 +45,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="rounded-2xl p-6 relative overflow-hidden"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    backdropFilter: "blur(8px)",
-                    border: `1px solid ${C.gold}15`,
-                  }}
+                  className="glass-card-dark hover-lift rounded-2xl p-7 relative overflow-hidden"
                 >
                   <div
                     className="absolute top-0 left-0 w-10 h-10"
@@ -65,7 +55,21 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
                       borderRadius: "4px 0 0 0",
                     }}
                   />
-                  <p className="text-[14px] italic leading-relaxed text-white/75 mb-4 font-serif">
+                  {/* Decorative quote mark */}
+                  <svg
+                    viewBox="0 0 32 32"
+                    className="absolute top-4 right-5 h-9 w-9"
+                    fill="none"
+                    aria-hidden
+                  >
+                    <path
+                      d="M10 10v4c0 3-1 5-4 7M22 10v4c0 3-1 5-4 7"
+                      stroke={`${C.gold}35`}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <p className="text-[15px] italic leading-[1.75] text-white/80 mb-5 font-serif">
                     &ldquo;{prog.testimonial}&rdquo;
                   </p>
                   <div className="flex items-center gap-3">
@@ -94,10 +98,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
       {/* Get Connected + footer */}
       <section
         id="get-connected"
-        className="relative py-24 px-6 overflow-hidden"
-        style={{
-          background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, #080E2A 100%)`,
-        }}
+        className="relative py-24 px-6 overflow-hidden surface-midnight texture-grain isolate"
       >
         <div
           className="absolute top-0 left-0 right-0 h-[2px]"
