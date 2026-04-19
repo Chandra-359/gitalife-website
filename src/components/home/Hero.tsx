@@ -3,17 +3,17 @@
 /**
  * Hero — cinematic, scroll-stopping experience.
  *
- * Design notes (references: Paramount+ landing, Pangea splash):
- *   - Full-bleed background with Ken Burns slow zoom
- *   - Warm deep-indigo gradient stack for high CTA contrast
- *   - Drifting lotus petals (pure CSS, reduced-motion aware)
- *   - Mouse-follow radial glow for depth
- *   - Optional Sanskrit + transliteration for identity slides
- *   - Playfair display-xl headline with warm-glow gradient
- *   - Primary gradient pill CTA + ghost secondary
- *   - Parallax on scroll (heading lifts, image settles)
- *   - Bottom scroll cue
- *   - Auto-advance (7s) pauses on hover / focus / prefers-reduced-motion
+ * Three slide presentations (see HeroVisual):
+ *   ornament → gradient + mandala SVG (no photo). Editorial / identity.
+ *   framed   → photo in a matted frame, split-layout with text.
+ *   photo    → full-bleed photo with heavy gradient mask. Editorial "this Friday".
+ *
+ * Shared across all three:
+ *   - deep-indigo gradient shell with subtle film-grain texture
+ *   - drifting lotus petals (pure CSS, reduced-motion aware)
+ *   - mouse-follow warm aura
+ *   - scroll parallax on text
+ *   - consistent CTA pair, slide indicators, and scroll cue
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -26,7 +26,7 @@ import {
   useTransform,
   useReducedMotion,
 } from "framer-motion";
-import type { HeroSlide } from "@/data/home";
+import type { HeroSlide, HeroVisual } from "@/data/home";
 import { C, Icon } from "./icons";
 
 interface HeroProps {
@@ -43,23 +43,261 @@ const PETALS = Array.from({ length: 14 }, (_, i) => ({
   opacity: 0.35 + (i % 3) * 0.12,
 }));
 
+function accentHex(accent: "saffron" | "gold" | "peacock" | "lotus" = "gold"): string {
+  switch (accent) {
+    case "saffron": return C.saffron;
+    case "peacock": return C.peacock;
+    case "lotus":   return C.lotusPink;
+    case "gold":
+    default:        return C.gold;
+  }
+}
+
+/* ================================================================== */
+/*  MandalaSVG — large ornamental background glyph (ornament visual)   */
+/* ================================================================== */
+function MandalaSVG({ stroke }: { stroke: string }) {
+  return (
+    <svg
+      viewBox="0 0 600 600"
+      className="w-full h-full"
+      fill="none"
+      stroke={stroke}
+      strokeWidth="0.9"
+      aria-hidden
+    >
+      <g opacity="0.55">
+        {/* Outer ring */}
+        <circle cx="300" cy="300" r="280" />
+        <circle cx="300" cy="300" r="260" strokeDasharray="2 6" />
+        {/* Inner concentric rings */}
+        <circle cx="300" cy="300" r="200" />
+        <circle cx="300" cy="300" r="150" />
+        <circle cx="300" cy="300" r="110" />
+        <circle cx="300" cy="300" r="60" />
+        {/* 16 lotus petals (rotated rhombic paths) */}
+        {Array.from({ length: 16 }).map((_, i) => {
+          const a = (i * 360) / 16;
+          return (
+            <path
+              key={i}
+              d="M300 90 C 320 160 320 240 300 300 C 280 240 280 160 300 90 Z"
+              transform={`rotate(${a} 300 300)`}
+              strokeWidth="0.8"
+              opacity="0.7"
+            />
+          );
+        })}
+        {/* 8 spokes */}
+        {Array.from({ length: 8 }).map((_, i) => {
+          const a = (i * 360) / 8;
+          return (
+            <line
+              key={i}
+              x1="300" y1="20" x2="300" y2="580"
+              transform={`rotate(${a} 300 300)`}
+              opacity="0.35"
+            />
+          );
+        })}
+        {/* Om bindu */}
+        <circle cx="300" cy="300" r="6" fill={stroke} stroke="none" opacity="0.85" />
+      </g>
+    </svg>
+  );
+}
+
+/* ================================================================== */
+/*  OrnamentVisual — no photo, layered gradients + mandala             */
+/* ================================================================== */
+function OrnamentVisual({ accent }: { accent: "saffron" | "gold" | "peacock" | "lotus" | undefined }) {
+  const stroke = accentHex(accent);
+  return (
+    <div className="absolute inset-0 z-0">
+      {/* Soft dawn gradient layers */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse at 50% 120%, ${C.saffron}40 0%, transparent 55%),
+            radial-gradient(ellipse at 50% 30%, ${C.gold}22 0%, transparent 60%),
+            linear-gradient(175deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 60%, #14235E 100%)
+          `,
+        }}
+      />
+      {/* Slow-rotating mandala */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ width: "min(92vh, 1100px)", aspectRatio: "1 / 1" }}
+      >
+        <motion.div
+          className="w-full h-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 240, repeat: Infinity, ease: "linear" }}
+        >
+          <MandalaSVG stroke={`${stroke}AA`} />
+        </motion.div>
+      </motion.div>
+      {/* Secondary counter-rotating mandala for depth */}
+      <motion.div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mix-blend-screen"
+        style={{ width: "min(70vh, 800px)", aspectRatio: "1 / 1", opacity: 0.35 }}
+        animate={{ rotate: -360 }}
+        transition={{ duration: 300, repeat: Infinity, ease: "linear" }}
+      >
+        <MandalaSVG stroke={`${C.goldLight}55`} />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  PhotoVisual — full-bleed photo with heavy gradient mask            */
+/* ================================================================== */
+function PhotoVisual({
+  imageUrl,
+  imageFocal,
+  reduce,
+}: {
+  imageUrl: string;
+  imageFocal?: string;
+  reduce: boolean;
+}) {
+  return (
+    <div className="absolute inset-0 z-0">
+      <div className={reduce ? "absolute inset-0" : "absolute inset-0 animate-ken-burns"}>
+        <Image
+          src={imageUrl}
+          alt=""
+          aria-hidden
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: imageFocal ?? "center 35%" }}
+          sizes="100vw"
+        />
+      </div>
+      {/* Side + bottom vignette so awkward crops read as intentional */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse at center, transparent 20%, ${C.krishnaDeep}55 70%, ${C.krishnaDeep}CC 100%),
+            linear-gradient(90deg, ${C.krishnaDeep}A6 0%, transparent 25%, transparent 75%, ${C.krishnaDeep}A6 100%),
+            linear-gradient(180deg, ${C.krishnaDeep}A6 0%, ${C.krishnaDeep}33 35%, ${C.krishnaDeep}DD 85%, ${C.krishnaDeep} 100%)
+          `,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  FramedVisual — matted poster frame on one side of a split layout   */
+/* ================================================================== */
+function FramedVisual({
+  imageUrl,
+  imageFocal,
+}: {
+  imageUrl: string;
+  imageFocal?: string;
+}) {
+  // Uses a thin gold double-stroke with a warm mat so the artwork reads at
+  // its true aspect, never stretched. Rendered at a fixed aspect ratio.
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      className="relative w-full max-w-[440px] mx-auto"
+    >
+      {/* Soft glow behind frame */}
+      <div
+        className="absolute -inset-8 rounded-[32px] -z-10 opacity-80 blur-2xl"
+        style={{
+          background: `radial-gradient(circle at 50% 40%, ${C.saffron}55, ${C.gold}22 40%, transparent 70%)`,
+        }}
+      />
+      {/* Outer gold stroke */}
+      <div
+        className="rounded-[24px] p-2"
+        style={{
+          background: `linear-gradient(145deg, ${C.gold}, ${C.goldLight} 45%, ${C.saffron} 100%)`,
+          boxShadow:
+            "0 30px 60px -20px rgba(8,14,42,0.65), 0 10px 20px -10px rgba(212,168,67,0.45)",
+        }}
+      >
+        {/* Warm mat */}
+        <div
+          className="rounded-[18px] p-3"
+          style={{
+            background:
+              "linear-gradient(160deg, #FFF8E7 0%, #F6E9CA 100%)",
+          }}
+        >
+          {/* Art window */}
+          <div className="relative aspect-[4/5] w-full rounded-[10px] overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt=""
+              aria-hidden
+              fill
+              priority
+              className="object-cover"
+              style={{ objectPosition: imageFocal ?? "center" }}
+              sizes="(max-width: 768px) 80vw, 440px"
+            />
+            {/* Subtle inner shadow */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                boxShadow:
+                  "inset 0 0 40px rgba(15,27,77,0.25), inset 0 0 0 1px rgba(15,27,77,0.08)",
+              }}
+            />
+          </div>
+          {/* Plaque */}
+          <div className="mt-3 flex items-center justify-center gap-2 text-center">
+            <span
+              className="h-px w-8"
+              style={{ background: `${C.krishnaBlue}40` }}
+            />
+            <span
+              className="text-[10px] font-bold uppercase tracking-[0.3em]"
+              style={{ color: C.krishnaBlue }}
+            >
+              Gita Life NYC
+            </span>
+            <span
+              className="h-px w-8"
+              style={{ background: `${C.krishnaBlue}40` }}
+            />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ================================================================== */
+/*  Hero (main component)                                              */
+/* ================================================================== */
 export default function Hero({ slides }: HeroProps) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Parallax: text and image respond subtly to scroll position.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "-22%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.6, 1], [1, 0.6, 0]);
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
 
-  // Mouse-follow radial glow
   const [mouse, setMouse] = useState({ x: 50, y: 40 });
   const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (reduce) return;
@@ -77,59 +315,55 @@ export default function Hero({ slides }: HeroProps) {
   }, [paused, reduce, slides.length]);
 
   const slide = slides[index];
+  const v: HeroVisual = slide.visual;
+  const isFramed = v.type === "framed";
+  const frameSide: "left" | "right" = isFramed ? (v.side ?? "right") : "right";
 
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[92vh] flex flex-col items-center justify-center overflow-hidden isolate"
+      className="relative min-h-[92vh] flex items-center overflow-hidden isolate"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onMouseMove={onMouseMove}
       aria-label="Gita Life NYC — featured"
     >
-      {/* ---- Background image with Ken Burns slow zoom + scroll parallax ---- */}
+      {/* ---- Per-slide visual background ---- */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={slide.imageUrl + index}
+          key={`${v.type}-${index}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 z-0"
-          style={{ y: imageY, scale: imageScale }}
         >
-          <div className={reduce ? "absolute inset-0" : "absolute inset-0 animate-ken-burns"}>
-            <Image
-              src={slide.imageUrl}
-              alt=""
-              aria-hidden
-              fill
-              priority
-              className="object-cover"
-              style={{ objectPosition: slide.imageFocal ?? "center 35%" }}
-              sizes="100vw"
+          {v.type === "ornament" && <OrnamentVisual accent={v.accent} />}
+          {v.type === "photo" && (
+            <PhotoVisual
+              imageUrl={v.imageUrl}
+              imageFocal={v.imageFocal}
+              reduce={!!reduce}
             />
-          </div>
+          )}
+          {v.type === "framed" && (
+            <div className="absolute inset-0"
+              style={{
+                background: `
+                  radial-gradient(ellipse at 50% 120%, ${C.saffron}30 0%, transparent 55%),
+                  linear-gradient(175deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 70%, #14235E 100%)
+                `,
+              }}
+            />
+          )}
         </motion.div>
       </AnimatePresence>
-
-      {/* ---- Gradient stack (Paramount+ style: light top → dark bottom) ---- */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{
-          background: `linear-gradient(180deg,
-            ${C.krishnaDeep}A8 0%,
-            ${C.krishnaDeep}55 35%,
-            ${C.krishnaDeep}D9 75%,
-            ${C.krishnaDeep} 100%)`,
-        }}
-      />
 
       {/* ---- Mouse-follow warm aura ---- */}
       <div
         className="absolute inset-0 z-[2] pointer-events-none transition-opacity"
         style={{
-          background: `radial-gradient(600px circle at ${mouse.x}% ${mouse.y}%, rgba(232,117,26,0.18), rgba(212,168,67,0.08) 35%, transparent 65%)`,
+          background: `radial-gradient(600px circle at ${mouse.x}% ${mouse.y}%, rgba(232,117,26,0.16), rgba(212,168,67,0.08) 35%, transparent 65%)`,
         }}
         aria-hidden
       />
@@ -142,7 +376,7 @@ export default function Hero({ slides }: HeroProps) {
         }}
       />
 
-      {/* ---- Drifting lotus petals (pure CSS) ---- */}
+      {/* ---- Drifting lotus petals (shared across all slide types) ---- */}
       {!reduce && (
         <div className="absolute inset-0 z-[3] pointer-events-none overflow-hidden" aria-hidden>
           {PETALS.map((p, i) => (
@@ -178,91 +412,127 @@ export default function Hero({ slides }: HeroProps) {
         </div>
       )}
 
-      {/* ---- Content ---- */}
+      {/* ---- Content layer ---- */}
       <motion.div
-        className="relative z-10 flex flex-col items-center px-6 max-w-4xl text-center"
+        className="relative z-10 w-full mx-auto px-6 max-w-6xl"
         style={{ y: textY, opacity: textOpacity }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={slide.heading + index}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center"
-          >
-            {/* Eyebrow pill */}
-            <span className="pill-chip pill-chip-gold mb-7">
-              <span
-                className="h-1.5 w-1.5 rounded-full animate-glow-pulse"
-                style={{ background: C.gold }}
-              />
-              {slide.eyebrow}
-            </span>
+        <div
+          className={`grid items-center gap-10 ${
+            isFramed ? "md:grid-cols-[1fr_minmax(0,440px)]" : "grid-cols-1"
+          }`}
+        >
+          {/* Text column */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slide.heading + index}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex flex-col ${
+                isFramed
+                  ? "items-center md:items-start text-center md:text-left"
+                  : "items-center text-center mx-auto max-w-4xl"
+              } ${isFramed && frameSide === "left" ? "md:order-2" : ""}`}
+            >
+              {/* Eyebrow pill */}
+              <span className="pill-chip pill-chip-gold mb-7">
+                <span
+                  className="h-1.5 w-1.5 rounded-full animate-glow-pulse"
+                  style={{ background: C.gold }}
+                />
+                {slide.eyebrow}
+              </span>
 
-            {/* Optional Sanskrit identity line */}
-            {slide.sanskrit && (
-              <motion.p
+              {/* Optional Sanskrit identity line */}
+              {slide.sanskrit && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.9, delay: 0.15 }}
+                  className="sanskrit mb-3 text-lg sm:text-2xl leading-[1.5] max-w-2xl"
+                  style={{ color: "rgba(240,214,138,0.9)" }}
+                  lang="sa"
+                >
+                  {slide.sanskrit}
+                </motion.p>
+              )}
+              {slide.sanskritMeaning && (
+                <p
+                  className="mb-6 text-[12px] sm:text-[13px] font-medium italic max-w-xl"
+                  style={{ color: "rgba(240,214,138,0.55)", letterSpacing: "0.02em" }}
+                >
+                  — {slide.sanskritMeaning}
+                </p>
+              )}
+
+              {/* Main headline */}
+              <h1 className={`display-xl text-gradient-warm-glow ${
+                isFramed ? "max-w-2xl" : "max-w-4xl"
+              }`}>
+                {slide.heading}
+              </h1>
+
+              {/* Subheading */}
+              <p
+                className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed"
+                style={{ color: "rgba(255,251,242,0.78)" }}
+              >
+                {slide.subheading}
+              </p>
+
+              {/* CTAs */}
+              <div className={`flex flex-wrap items-center gap-3 mt-9 ${
+                isFramed ? "justify-center md:justify-start" : "justify-center"
+              }`}>
+                <Link
+                  href={slide.primaryCtaHref}
+                  className="btn-primary-gradient group rounded-full px-8 py-4 text-[13px] font-bold uppercase tracking-[0.12em] flex items-center gap-2"
+                >
+                  {slide.primaryCtaLabel}
+                  <Icon
+                    name="arrowRight"
+                    size={14}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
+                {slide.secondaryCtaLabel && slide.secondaryCtaHref && (
+                  <Link
+                    href={slide.secondaryCtaHref}
+                    className="btn-ghost-light rounded-full px-7 py-4 text-[13px] font-semibold uppercase tracking-[0.12em]"
+                  >
+                    {slide.secondaryCtaLabel}
+                  </Link>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Framed-art column (only for framed visual) */}
+          {isFramed && (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`frame-${index}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.9, delay: 0.15 }}
-                className="sanskrit mb-3 text-lg sm:text-2xl leading-[1.5] max-w-2xl"
-                style={{ color: "rgba(240,214,138,0.9)" }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                className={frameSide === "left" ? "md:order-1" : ""}
               >
-                {slide.sanskrit}
-              </motion.p>
-            )}
-            {slide.sanskritMeaning && (
-              <p
-                className="mb-6 text-[12px] sm:text-[13px] font-medium italic max-w-xl"
-                style={{ color: "rgba(240,214,138,0.55)", letterSpacing: "0.02em" }}
-              >
-                — {slide.sanskritMeaning}
-              </p>
-            )}
-
-            {/* Main headline */}
-            <h1 className="display-xl text-gradient-warm-glow max-w-4xl">
-              {slide.heading}
-            </h1>
-
-            {/* Subheading */}
-            <p
-              className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed"
-              style={{ color: "rgba(255,251,242,0.78)" }}
-            >
-              {slide.subheading}
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-9">
-              <Link
-                href={slide.primaryCtaHref}
-                className="btn-primary-gradient group rounded-full px-8 py-4 text-[13px] font-bold uppercase tracking-[0.12em] flex items-center gap-2"
-              >
-                {slide.primaryCtaLabel}
-                <Icon
-                  name="arrowRight"
-                  size={14}
-                  className="transition-transform group-hover:translate-x-0.5"
-                />
-              </Link>
-              {slide.secondaryCtaLabel && slide.secondaryCtaHref && (
-                <Link
-                  href={slide.secondaryCtaHref}
-                  className="btn-ghost-light rounded-full px-7 py-4 text-[13px] font-semibold uppercase tracking-[0.12em]"
-                >
-                  {slide.secondaryCtaLabel}
-                </Link>
-              )}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                <FramedVisual imageUrl={v.imageUrl} imageFocal={v.imageFocal} />
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </div>
 
         {/* Slide indicators */}
         {slides.length > 1 && (
-          <div className="flex items-center gap-2 mt-12" role="tablist" aria-label="Hero slides">
+          <div
+            className="flex items-center justify-center gap-2 mt-12"
+            role="tablist"
+            aria-label="Hero slides"
+          >
             {slides.map((_, i) => (
               <button
                 key={i}

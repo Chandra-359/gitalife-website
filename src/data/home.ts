@@ -498,6 +498,26 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
 /* ------------------------------------------------------------------ */
 /*  HERO SLIDES (rotating)                                             */
 /* ------------------------------------------------------------------ */
+/**
+ * How the hero presents its art.
+ *   - "ornament" → no photo: layered gradients + a large mandala SVG behind the text.
+ *                  Best for identity / Sanskrit slides.
+ *   - "framed"   → the photo sits in a matted card on one side of a split layout.
+ *                  Best for event slides where the artwork has a specific aspect.
+ *   - "photo"    → full-bleed background photo with a heavy gradient mask.
+ *                  Best for editorial "this Friday" style slides.
+ */
+export type HeroVisual =
+  | { type: "ornament"; accent?: "saffron" | "gold" | "peacock" | "lotus" }
+  | {
+      type: "framed";
+      imageUrl: string;
+      imageFocal?: string;
+      /** Which side the frame sits on at desktop; defaults to "right". */
+      side?: "left" | "right";
+    }
+  | { type: "photo"; imageUrl: string; imageFocal?: string };
+
 export interface HeroSlide {
   eyebrow: string;         // small tag above the heading
   /** Optional Sanskrit/Devanagari line shown above the heading (identity slides) */
@@ -510,35 +530,12 @@ export interface HeroSlide {
   primaryCtaHref: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
-  /** Background image — use a static import path under /public */
-  imageUrl: string;
-  /** Optional focal point for the background image (CSS object-position) */
-  imageFocal?: string;
+  /** How to render the visual side of the hero. */
+  visual: HeroVisual;
 }
 
 export const HERO_SLIDES: HeroSlide[] = [
-  {
-    eyebrow: "April Youth Festival · Sat Apr 26",
-    heading: "Join us for an evening of kirtan, talks & prasadam",
-    subheading:
-      "Our monthly gathering of young devotees at ISKCON Brooklyn. Free and open to all.",
-    primaryCtaLabel: "Reserve your spot",
-    primaryCtaHref: "/festival",
-    secondaryCtaLabel: "Watch recap",
-    secondaryCtaHref: "https://www.youtube.com/@gitalifenyc",
-    imageUrl: "/krishna-arjuna-chariot.jpg",
-  },
-  {
-    eyebrow: "This Friday · 7 PM",
-    heading: "Bhagavad Gita class in Newport",
-    subheading:
-      "Weekly scripture study, kirtan, and dinner together. No prior experience needed.",
-    primaryCtaLabel: "See weekly schedule",
-    primaryCtaHref: "/classes",
-    secondaryCtaLabel: "What to expect",
-    secondaryCtaHref: "/classes#what-to-expect",
-    imageUrl: "/krishna-arjuna-chariot.jpg",
-  },
+  // ---- Identity slide: gradient + mandala (Option A) ----
   {
     eyebrow: "Students Living the Bhagavad Gita",
     sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज",
@@ -550,7 +547,39 @@ export const HERO_SLIDES: HeroSlide[] = [
     primaryCtaHref: "#explore",
     secondaryCtaLabel: "Get connected",
     secondaryCtaHref: "/get-connected",
-    imageUrl: "/krishna-arjuna-chariot.jpg",
+    visual: { type: "ornament", accent: "gold" },
+  },
+  // ---- Event slide: matted frame (Option B) ----
+  {
+    eyebrow: "April Youth Festival · Sat Apr 26",
+    heading: "An evening of kirtan, talks & prasadam",
+    subheading:
+      "Our monthly gathering of young devotees at ISKCON Brooklyn. Free and open to all.",
+    primaryCtaLabel: "Reserve your spot",
+    primaryCtaHref: "/festival",
+    secondaryCtaLabel: "Watch recap",
+    secondaryCtaHref: "https://www.youtube.com/@gitalifenyc",
+    visual: {
+      type: "framed",
+      imageUrl: "/krishna-arjuna-chariot.jpg",
+      side: "right",
+    },
+  },
+  // ---- "This Friday" slide: editorial photo (Option D) ----
+  {
+    eyebrow: "This Friday · 7 PM",
+    heading: "Bhagavad Gita class in Newport",
+    subheading:
+      "Weekly scripture study, kirtan, and dinner together. No prior experience needed.",
+    primaryCtaLabel: "See weekly schedule",
+    primaryCtaHref: "/classes",
+    secondaryCtaLabel: "What to expect",
+    secondaryCtaHref: "/classes#what-to-expect",
+    visual: {
+      type: "photo",
+      imageUrl: "/krishna-arjuna-chariot.jpg",
+      imageFocal: "center 30%",
+    },
   },
 ];
 
