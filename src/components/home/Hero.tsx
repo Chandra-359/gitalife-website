@@ -314,6 +314,22 @@ export default function Hero({ slides }: HeroProps) {
     return () => clearInterval(id);
   }, [paused, reduce, slides.length]);
 
+  const goPrev = () => setIndex((i) => (i - 1 + slides.length) % slides.length);
+  const goNext = () => setIndex((i) => (i + 1) % slides.length);
+
+  // Keyboard arrows navigate slides while the hero is hovered / focused.
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+    const el = sectionRef.current;
+    el?.addEventListener("keydown", onKey);
+    return () => el?.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slides.length]);
+
   const slide = slides[index];
   const v: HeroVisual = slide.visual;
   const isFramed = v.type === "framed";
@@ -322,11 +338,13 @@ export default function Hero({ slides }: HeroProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[92vh] flex items-center overflow-hidden isolate"
+      tabIndex={-1}
+      className="relative min-h-[92vh] flex items-center overflow-hidden isolate outline-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onMouseMove={onMouseMove}
       aria-label="Gita Life NYC — featured"
+      aria-roledescription="carousel"
     >
       {/* ---- Per-slide visual background ---- */}
       <AnimatePresence mode="wait">
@@ -550,6 +568,63 @@ export default function Hero({ slides }: HeroProps) {
           </div>
         )}
       </motion.div>
+
+      {/* ---- Prev / next arrow buttons ---- */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={goPrev}
+            aria-label="Previous slide"
+            className="group absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: "rgba(255,251,242,0.08)",
+              border: `1px solid ${C.gold}40`,
+              color: C.goldLight,
+            }}
+          >
+            <svg
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:-translate-x-0.5"
+              aria-hidden
+            >
+              <path d="M10 3 L5 8 L10 13" />
+            </svg>
+          </button>
+
+          <button
+            onClick={goNext}
+            aria-label="Next slide"
+            className="group absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: "rgba(255,251,242,0.08)",
+              border: `1px solid ${C.gold}40`,
+              color: C.goldLight,
+            }}
+          >
+            <svg
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            >
+              <path d="M6 3 L11 8 L6 13" />
+            </svg>
+          </button>
+        </>
+      )}
 
       {/* ---- Scroll cue ---- */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex flex-col items-center gap-2">
