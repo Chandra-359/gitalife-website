@@ -44,8 +44,18 @@ export default function AdminLoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0c0c20]/70 p-8 shadow-2xl backdrop-blur-xl"
       >
-        <h1 className="mb-1 text-2xl font-bold text-white">Admin Login</h1>
-        <p className="mb-6 text-sm text-white/50">Gita Life NYC Dashboard</p>
+        <div className="mb-4 flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt="Gita Life NYC"
+            width={64}
+            height={64}
+            className="h-16 w-16"
+          />
+        </div>
+        <h1 className="mb-1 text-center text-2xl font-bold text-white">Admin Login</h1>
+        <p className="mb-6 text-center text-sm text-white/50">Gita Life NYC Dashboard</p>
 
         {error && (
           <div className="mb-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">

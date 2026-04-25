@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   title: "Gita Life NYC — Discover Timeless Wisdom",
   description:
     "A community of young seekers exploring the Bhagavad Gita's timeless wisdom through weekly discussions, kirtans, retreats, and deep friendships in NYC.",
+  icons: {
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+    ],
+    apple: "/logo.svg",
+  },
 };
 
 export const viewport: Viewport = {
