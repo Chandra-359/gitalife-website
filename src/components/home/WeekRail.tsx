@@ -79,14 +79,24 @@ export default function WeekRail() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Mobile swipe hint */}
+        <p className="sm:hidden mb-3 text-[11px] uppercase tracking-[0.16em] text-gray-400">
+          Swipe to browse →
+        </p>
+
+        <div
+          className="snap-rail snap-rail-bleed sm:m-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:p-0 lg:grid-cols-4"
+          role="list"
+          aria-label="This week's schedule"
+        >
           {WEEKLY_SCHEDULE.map((item, i) => {
             const meta = kindMeta(item.kind);
             const isNext = isNextUpcoming(item, todayIdx, nextIdx);
             return (
               <div
                 key={i}
-                className="group relative rounded-xl p-5 transition-colors"
+                role="listitem"
+                className="group relative w-[78%] max-w-[300px] shrink-0 rounded-xl p-5 transition-colors sm:w-auto sm:max-w-none sm:shrink"
                 style={{
                   background: "white",
                   border: `1px solid ${isNext ? meta.color : "rgba(15,27,77,0.08)"}`,

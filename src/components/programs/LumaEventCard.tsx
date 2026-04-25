@@ -30,9 +30,15 @@ const ACCENT_HEX: Record<ReturnType<typeof getTagAccent>, string> = {
 interface LumaEventCardProps {
   event: LumaEvent;
   index?: number;
+  /**
+   * When true, render the vertical (cover-on-top) layout at every
+   * breakpoint instead of swapping to a compact horizontal row on
+   * mobile. Useful inside a horizontal snap rail.
+   */
+  alwaysVertical?: boolean;
 }
 
-export default function LumaEventCard({ event }: LumaEventCardProps) {
+export default function LumaEventCard({ event, alwaysVertical = false }: LumaEventCardProps) {
   const pill = getDatePill(event.startAt);
   const relative = formatRelativeDay(event.startAt);
   const time = formatTime(event.startAt);
@@ -48,8 +54,8 @@ export default function LumaEventCard({ event }: LumaEventCardProps) {
       className="group block overflow-hidden rounded-xl bg-white transition-colors hover:bg-gray-50"
       style={{ border: "1px solid rgba(15,27,77,0.08)" }}
     >
-      {/* Mobile: horizontal row */}
-      <div className="flex items-stretch gap-3 p-3 sm:hidden">
+      {/* Mobile: horizontal row (suppressed when alwaysVertical is set) */}
+      <div className={`${alwaysVertical ? "hidden" : "flex"} items-stretch gap-3 p-3 sm:hidden`}>
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg">
           {event.coverUrl ? (
             <Image
@@ -122,8 +128,8 @@ export default function LumaEventCard({ event }: LumaEventCardProps) {
         </div>
       </div>
 
-      {/* sm+: vertical card */}
-      <div className="hidden sm:flex sm:flex-col">
+      {/* sm+ (or always when alwaysVertical): vertical card */}
+      <div className={`${alwaysVertical ? "flex flex-col" : "hidden"} sm:flex sm:flex-col`}>
         {/* Cover */}
         <div className="relative aspect-[4/3] overflow-hidden">
           {event.coverUrl ? (

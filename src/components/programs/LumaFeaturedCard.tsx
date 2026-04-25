@@ -40,7 +40,7 @@ export default function LumaFeaturedCard({ event }: LumaFeaturedCardProps) {
 
   return (
     <article
-      className="overflow-hidden rounded-xl bg-white"
+      className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_6px_rgba(15,27,77,0.06),0_12px_28px_-10px_rgba(15,27,77,0.12)]"
       style={{ border: "1px solid rgba(15,27,77,0.08)" }}
     >
       <div className="grid md:grid-cols-2">

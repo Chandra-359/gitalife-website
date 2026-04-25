@@ -22,10 +22,10 @@ export default function TodayStrip() {
   const today = formatToday();
 
   return (
-    <section className="relative py-16 px-6" style={{ background: C.cream }}>
+    <section className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: C.cream }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
+        <div className="flex items-end justify-between mb-6 sm:mb-8 flex-wrap gap-3">
           <div>
             <span
               className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em]"
@@ -47,7 +47,7 @@ export default function TodayStrip() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* VERSE OF THE DAY */}
           <div
-            className="md:col-span-2 group relative rounded-2xl p-6 sm:p-8 overflow-hidden"
+            className="md:col-span-2 group relative rounded-2xl p-5 sm:p-8 overflow-hidden"
             style={{
               background: C.krishnaDeep,
               border: `1px solid ${C.gold}20`,

@@ -35,13 +35,18 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+            <div
+              className="snap-rail snap-rail-bleed md:m-0 md:grid md:snap-none md:grid-cols-3 md:gap-5 md:overflow-visible md:p-0"
+              role="list"
+              aria-label="Testimonials"
+            >
               {testimonials.map((prog) => {
                 const { bg } = getCategoryColor(prog.category);
                 return (
                   <div
                     key={prog.id}
-                    className="rounded-xl p-6"
+                    role="listitem"
+                    className="w-[85%] max-w-[340px] shrink-0 rounded-xl p-6 md:w-auto md:max-w-none md:shrink"
                     style={{
                       background: C.cream,
                       border: "1px solid rgba(15,27,77,0.08)",
