@@ -1,35 +1,14 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/*  Gita Life NYC — Design System                                      */
+/*  Gita Life NYC — Simple Design System                               */
 /*                                                                     */
-/*  Token naming (semantic → raw):                                     */
-/*    --bg-sacred        deep indigo night — dark sections             */
-/*    --bg-twilight      mid indigo — gradient anchor                  */
-/*    --bg-warm          cream parchment — primary light surface       */
-/*    --bg-surface       pure white — card surface                     */
-/*    --ink-primary      indigo ink — headlines on light               */
-/*    --ink-secondary    warm grey — body on light                     */
-/*    --ink-onDark       high-contrast cream on dark                   */
-/*    --ink-muted-dark   dim cream on dark                             */
-/*    --accent-saffron   primary CTA gradient origin                   */
-/*    --accent-gold      gold — accent strokes, badges                 */
-/*    --accent-gold-hi   bright gold highlight                         */
-/*    --accent-peacock   secondary accent (teal)                       */
-/*    --accent-lotus     tertiary accent (pink)                        */
-/*                                                                     */
-/*  Z-INDEX MAP (keep in sync with component comments):                */
-/*    z-0  — Mapbox GL canvas                                          */
-/*    z-10 — Loading overlay (fades out)                               */
-/*    z-20 — Mapbox attribution / logo                                 */
-/*    z-30 — ResetViewButton, ProgramPanel (UI overlays)               */
-/*    z-40 — Navbar (always on top)                                    */
-/*    z-50 — Modals & overlays                                         */
-/*    z-60 — Scroll progress bar                                       */
+/*  Mobile-first. One font (Inter). Krishna-inspired palette.          */
+/*  No keyframe animations. Flat surfaces. Subtle borders + shadows.   */
 /* ================================================================== */
 
 :root {
-  /* ----- Raw palette (Krishna-inspired) ----- */
+  /* ----- Raw palette (Krishna-inspired, used sparingly as accents) ---- */
   --krishna-blue: #1B2A6B;
   --krishna-blue-deep: #0F1B4D;
   --krishna-blue-midnight: #080E2A;
@@ -60,8 +39,8 @@
   --ink-secondary: #4b5563;   /* gray-600 */
   --ink-tertiary: #6b7280;    /* gray-500 */
   --ink-onDark: #FFFBF2;
-  --ink-muted-dark: rgba(255,251,242,0.72);
-  --ink-dim-dark: rgba(255,251,242,0.45);
+  --ink-muted-dark: rgba(255,251,242,0.78);
+  --ink-dim-dark: rgba(255,251,242,0.55);
 
   --accent-saffron: var(--saffron);
   --accent-gold: var(--divine-gold);
@@ -70,18 +49,17 @@
   --accent-lotus: var(--lotus-pink);
 
   /* ----- Spacing rhythm ----- */
-  --space-section-y: clamp(4rem, 8vw, 6.5rem);
-  --space-section-y-lg: clamp(5rem, 10vw, 8rem);
+  --space-section-y: clamp(3rem, 7vw, 5rem);
+  --space-section-y-lg: clamp(4rem, 8vw, 6rem);
 
   /* ----- Radii ----- */
   --radius-pill: 9999px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
 
-  /* ----- Signature shadows ----- */
-  --shadow-card: 0 1px 2px rgba(15,27,77,0.04), 0 8px 24px -8px rgba(15,27,77,0.08);
-  --shadow-elevated: 0 2px 6px rgba(15,27,77,0.06), 0 20px 48px -16px rgba(15,27,77,0.18);
-  --shadow-warm-glow: 0 0 40px -8px rgba(212,168,67,0.35);
+  /* ----- Shadows (modest) ----- */
+  --shadow-card: 0 1px 2px rgba(15,27,77,0.05), 0 4px 12px -4px rgba(15,27,77,0.08);
+  --shadow-elevated: 0 2px 6px rgba(15,27,77,0.06), 0 12px 28px -10px rgba(15,27,77,0.12);
 
   /* ----- Background (default page) ----- */
   --background: #ffffff;
@@ -103,14 +81,15 @@
   --color-warm: var(--bg-warm);
   --color-parchment: var(--bg-parchment);
 
+  /* All font roles map to Inter for a single, clean typeface. */
   --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-serif: var(--font-playfair), "Georgia", "Times New Roman", serif;
-  --font-devanagari: var(--font-tiro), "Noto Sans Devanagari", serif;
+  --font-serif: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-devanagari: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Full-viewport reset                                                */
+/*  Reset + base                                                       */
 /* ------------------------------------------------------------------ */
 html,
 body {
@@ -121,554 +100,268 @@ body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 body {
   overflow-x: hidden;
 }
 
-/* Smooth scroll honors reduced-motion preference */
 @media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 }
 
-/* Respect reduced-motion across all animations globally */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
 }
 
-/* Focus ring — accessible, warm, visible */
 :focus-visible {
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--accent-saffron);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Mapbox built-in controls                                           */
+/*  Mapbox controls                                                    */
 /* ------------------------------------------------------------------ */
 .mapboxgl-ctrl-logo,
 .mapboxgl-ctrl-attrib {
   opacity: 0.4;
   transition: opacity 0.3s;
 }
-
 .mapboxgl-ctrl-logo:hover,
 .mapboxgl-ctrl-attrib:hover {
   opacity: 1;
 }
-
 .mapboxgl-marker {
   will-change: transform;
 }
 
 /* ================================================================== */
-/*  Typography system                                                  */
+/*  Typography — single sans family, mobile-first sizing               */
 /* ================================================================== */
-h1, h2, h3 {
-  font-family: var(--font-playfair), Georgia, serif;
-  letter-spacing: -0.01em;
+h1, h2, h3, h4 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  color: var(--ink-primary);
 }
+h1 { font-weight: 700; line-height: 1.15; }
+h2 { font-weight: 700; line-height: 1.2; }
+h3 { font-weight: 600; line-height: 1.3; }
 
-h1 {
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
-
-h2 {
-  font-weight: 700;
-  line-height: 1.12;
-}
-
-h3 {
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-/* Hero-scale display heading */
+/* Hero-scale heading, mobile-first */
 .display-xl {
-  font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(2.5rem, 7.5vw, 5.5rem);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(2rem, 7vw, 3.5rem);
   font-weight: 700;
-  line-height: 0.98;
-  letter-spacing: -0.035em;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
-/* Sanskrit heading */
+/* Sanskrit lines fall back to Inter */
 .sanskrit {
-  font-family: var(--font-tiro), "Noto Sans Devanagari", serif;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
-/* Small uppercase eyebrow */
 .eyebrow {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.14em;
   line-height: 1.4;
 }
 
-/* Drop cap for long-form prose */
+/* Drop cap simplified — no decorative font */
 .drop-cap::first-letter {
   float: left;
-  font-family: var(--font-playfair), Georgia, serif;
   font-weight: 700;
-  font-size: 3.6em;
-  line-height: 0.9;
-  padding: 0.1em 0.12em 0 0;
+  font-size: 3em;
+  line-height: 0.95;
+  padding: 0.05em 0.1em 0 0;
   color: var(--accent-saffron);
 }
 
 /* ================================================================== */
-/*  Button primitives (composable with Tailwind)                       */
+/*  Buttons                                                            */
 /* ================================================================== */
 .btn-primary-gradient {
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-saffron));
-  box-shadow: 0 10px 30px -10px rgba(212,168,67,0.55), 0 0 0 0 rgba(232,117,26,0);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s ease;
+  background: var(--accent-saffron);
   color: white;
+  transition: background 0.2s ease;
 }
 .btn-primary-gradient:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 14px 36px -10px rgba(212,168,67,0.65),
-              0 0 0 4px rgba(232,117,26,0.08);
+  background: var(--saffron-deep);
 }
 
 .btn-ghost-light {
   background: transparent;
-  border: 1px solid rgba(240,214,138,0.35);
-  color: rgba(255,251,242,0.9);
-  transition: background 0.25s, border-color 0.25s, transform 0.25s;
+  border: 1px solid rgba(255,251,242,0.35);
+  color: rgba(255,251,242,0.95);
+  transition: background 0.2s, border-color 0.2s;
 }
 .btn-ghost-light:hover {
   background: rgba(255,255,255,0.08);
-  border-color: rgba(240,214,138,0.55);
+  border-color: rgba(255,251,242,0.6);
 }
 
 /* ================================================================== */
-/*  Pill chips (Pangea / Paramount inspired)                           */
+/*  Pill chips                                                         */
 /* ================================================================== */
 .pill-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.45rem 1rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
 }
-
 .pill-chip-gold {
-  background: rgba(212,168,67,0.1);
-  border: 1px solid rgba(212,168,67,0.25);
-  color: var(--accent-gold-hi);
+  background: rgba(212,168,67,0.12);
+  border: 1px solid rgba(212,168,67,0.3);
+  color: var(--divine-gold-deep);
 }
-
 .pill-chip-saffron {
   background: rgba(232,117,26,0.1);
-  border: 1px solid rgba(232,117,26,0.22);
+  border: 1px solid rgba(232,117,26,0.25);
   color: var(--accent-saffron);
 }
-
 .pill-chip-peacock {
   background: rgba(0,109,91,0.1);
-  border: 1px solid rgba(0,109,91,0.2);
+  border: 1px solid rgba(0,109,91,0.22);
   color: var(--accent-peacock);
 }
 
 /* ================================================================== */
-/*  Krishna-themed animations                                          */
+/*  Animation classes — kept as no-op stubs so existing markup works.  */
+/*  All visible motion has been removed in favor of static layout.     */
 /* ================================================================== */
-
-/* --- Shimmer sweep --- */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-.animate-shimmer {
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-/* --- Gradient background animation --- */
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 6s ease infinite;
-}
-
-/* --- Floating particles --- */
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
-  50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
-}
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-/* --- Petal drift (hero) --- */
-@keyframes petal-drift {
-  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
-  8% { opacity: 0.8; }
-  100% { transform: translate3d(var(--drift-x, 30px), 110vh, 0) rotate(540deg); opacity: 0; }
-}
-.animate-petal {
-  animation: petal-drift var(--drift-dur, 18s) linear infinite;
-  animation-delay: var(--drift-delay, 0s);
-  will-change: transform, opacity;
-}
-
-/* --- Divine glow pulse --- */
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(212,168,67,0.15); }
-  50% { box-shadow: 0 0 40px rgba(212,168,67,0.35); }
-}
-.animate-glow-pulse {
-  animation: glow-pulse 3s ease-in-out infinite;
-}
-
-/* --- RSVP button attention pulse --- */
-@keyframes rsvp-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 4px 24px rgba(212,168,67,0.3); }
-  50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(212,168,67,0.5); }
-}
-.animate-rsvp-pulse {
-  animation: rsvp-pulse 2.5s ease-in-out infinite;
-}
-
-/* --- Countdown number flip --- */
-@keyframes count-in {
-  0% { transform: translateY(100%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.animate-count-in {
-  animation: count-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* --- Lotus pulse for loading --- */
-@keyframes lotus-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-}
-.animate-lotus-pulse {
-  animation: lotus-pulse 2.5s ease-in-out infinite;
-}
-
-/* --- Border glow --- */
-@keyframes border-glow {
-  0%, 100% { border-color: rgba(212,168,67,0.1); }
-  50% { border-color: rgba(212,168,67,0.4); }
-}
-.animate-border-glow {
-  animation: border-glow 3s ease-in-out infinite;
-}
-
-/* --- Subtle breathing scale --- */
-@keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-}
-.animate-breathe {
-  animation: breathe 4s ease-in-out infinite;
-}
-
-/* --- Rotating ring for decorative elements --- */
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-/* --- Text reveal slide up --- */
-@keyframes slide-up-fade {
-  0% { transform: translateY(20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.animate-slide-up {
-  animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* --- Confetti burst --- */
-@keyframes confetti-fall {
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-.animate-confetti {
-  animation: confetti-fall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* --- Sparkle --- */
-@keyframes sparkle {
-  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1) rotate(180deg); }
-}
-.animate-sparkle {
-  animation: sparkle 2s ease-in-out infinite;
-}
-
-/* --- Peacock shimmer for borders --- */
-@keyframes peacock-shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-peacock-shimmer {
-  background-size: 200% 200%;
-  animation: peacock-shimmer 4s ease infinite;
-}
-
-/* --- Gentle divine aura --- */
-@keyframes divine-aura {
-  0%, 100% { box-shadow: 0 0 30px rgba(27,42,107,0.1), 0 0 60px rgba(212,168,67,0.05); }
-  50% { box-shadow: 0 0 50px rgba(27,42,107,0.2), 0 0 90px rgba(212,168,67,0.1); }
-}
-.animate-divine-aura {
-  animation: divine-aura 4s ease-in-out infinite;
-}
-
-/* --- Ken Burns slow zoom for hero imagery --- */
-@keyframes ken-burns {
-  0% { transform: scale(1.06) translate3d(0, 0, 0); }
-  100% { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
-}
-.animate-ken-burns {
-  animation: ken-burns 22s ease-in-out infinite alternate;
-}
-
-/* --- Scroll-cue bounce --- */
-@keyframes scroll-cue {
-  0%, 100% { transform: translateY(0); opacity: 0.55; }
-  50%      { transform: translateY(8px); opacity: 1; }
-}
+.animate-shimmer,
+.animate-gradient,
+.animate-float,
+.animate-petal,
+.animate-glow-pulse,
+.animate-rsvp-pulse,
+.animate-count-in,
+.animate-lotus-pulse,
+.animate-border-glow,
+.animate-breathe,
+.animate-spin-slow,
+.animate-slide-up,
+.animate-confetti,
+.animate-sparkle,
+.animate-peacock-shimmer,
+.animate-divine-aura,
+.animate-ken-burns,
 .animate-scroll-cue {
-  animation: scroll-cue 2.2s ease-in-out infinite;
+  animation: none !important;
 }
 
 /* ================================================================== */
-/*  Scrollbar styling                                                  */
+/*  Scrollbar                                                          */
 /* ================================================================== */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(212, 168, 67, 0.2);
+  background: rgba(212, 168, 67, 0.25);
   border-radius: 2px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 168, 67, 0.4);
+  background: rgba(212, 168, 67, 0.45);
 }
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.snap-x::-webkit-scrollbar {
-  display: none;
-}
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.snap-x::-webkit-scrollbar { display: none; }
 
 /* ================================================================== */
-/*  Surface utilities                                                  */
+/*  Surfaces — flattened                                               */
 /* ================================================================== */
 .glass-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  border: 1px solid rgba(15,27,77,0.08);
 }
-
 .glass-card-dark {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(240,214,138,0.12);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,251,242,0.12);
 }
+.surface-parchment { background: var(--bg-parchment); }
+.surface-sacred    { background: var(--krishna-blue-deep); }
+.surface-midnight  { background: var(--krishna-blue-midnight); }
+.texture-grain::before { content: none; }
 
-.surface-parchment {
-  background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(212,168,67,0.06), transparent 60%),
-    radial-gradient(1000px 500px at 110% 40%, rgba(232,117,26,0.04), transparent 60%),
-    var(--bg-parchment);
-}
-
-.surface-sacred {
-  background: linear-gradient(170deg, var(--krishna-blue-deep) 0%, var(--krishna-blue) 100%);
-}
-
-.surface-midnight {
-  background: linear-gradient(170deg, var(--krishna-blue-deep) 0%, var(--krishna-blue-midnight) 100%);
-}
-
-/* Subtle film-grain texture over dark sections (gives depth) */
-.texture-grain::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.35;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.85 0 0 0 0 0.45 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-}
-
-/* Card hover-lift primitive */
+/* Card hover lift — modest */
 .hover-lift {
-  transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .hover-lift:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-elevated);
 }
 
 /* ================================================================== */
-/*  Krishna-themed gradient text utilities                             */
+/*  "Gradient text" utilities — flattened to solid accent colors so    */
+/*   existing class names keep working without the fancy gradients.    */
 /* ================================================================== */
-.text-gradient-saffron {
-  background: linear-gradient(135deg, #E8751A, #D4A843);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-gold {
-  background: linear-gradient(135deg, #D4A843, #F0D68A, #D4A843);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-divine {
-  background: linear-gradient(135deg, #D4A843, #E8751A, #D64B8A);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-peacock {
-  background: linear-gradient(135deg, #006D5B, #1B2A6B, #D4A843);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Warm gradient meant for hero headings on dark bg */
+.text-gradient-saffron,
+.text-gradient-gold,
+.text-gradient-divine,
+.text-gradient-peacock,
 .text-gradient-warm-glow {
-  background: linear-gradient(180deg, #FFFBF2 0%, #F0D68A 65%, #D4A843 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none !important;
+  -webkit-text-fill-color: currentColor;
+  color: var(--accent-saffron);
 }
+.text-gradient-gold,
+.text-gradient-warm-glow { color: var(--divine-gold-deep); }
+.text-gradient-peacock   { color: var(--accent-peacock); }
+.text-gradient-divine    { color: var(--accent-saffron); }
 
 /* ================================================================== */
-/*  Ornamental dividers                                                */
+/*  Ornamental dividers — neutralized to a thin hairline                */
 /* ================================================================== */
-.ornament-border {
-  background: linear-gradient(90deg, transparent, #D4A843, #E8751A, #D4A843, transparent);
-  height: 2px;
-  opacity: 0.4;
-}
-
+.ornament-border,
 .ornament-border-thick {
-  background: linear-gradient(90deg, transparent, #D4A843, #E8751A, #D4A843, transparent);
-  height: 3px;
-  opacity: 0.5;
+  background: rgba(15,27,77,0.08);
+  height: 1px;
+  opacity: 1;
 }
-
-/* Hand-inked SVG divider — use as a background on a 32px-tall div */
 .ornament-ink {
-  height: 32px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 320px 24px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 24' fill='none' stroke='%23D4A843' stroke-width='1.2' stroke-linecap='round'><path d='M10 12 H130' opacity='0.45'/><path d='M190 12 H310' opacity='0.45'/><path d='M160 12 m-7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0' opacity='0.75'/><path d='M160 6 v-3 M160 21 v-3 M152 12 h-4 M172 12 h-4' opacity='0.55'/><circle cx='160' cy='12' r='2' fill='%23E8751A' stroke='none'/></svg>");
+  height: 1px;
+  background: rgba(15,27,77,0.08);
+  background-image: none;
 }
 
 /* ================================================================== */
-/*  Krishna card with ornamental corner accents                        */
+/*  Krishna card — now just a plain card                                */
 /* ================================================================== */
 .krishna-card {
   position: relative;
-  border: 1px solid rgba(212, 168, 67, 0.15);
-  background: linear-gradient(145deg, rgba(27, 42, 107, 0.03) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(212, 168, 67, 0.03) 100%);
+  border: 1px solid rgba(15,27,77,0.08);
+  background: #ffffff;
+  border-radius: var(--radius-xl);
 }
 .krishna-card::before,
-.krishna-card::after {
-  content: '';
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border-color: rgba(212, 168, 67, 0.3);
-  border-style: solid;
-}
-.krishna-card::before {
-  top: -1px;
-  left: -1px;
-  border-width: 2px 0 0 2px;
-  border-radius: 4px 0 0 0;
-}
-.krishna-card::after {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 2px 2px 0;
-  border-radius: 0 0 4px 0;
-}
+.krishna-card::after { content: none; }
 
 /* ================================================================== */
-/*  Scroll progress bar (appears at top of page during scroll)         */
+/*  Scroll progress — hidden (component now no-ops)                    */
 /* ================================================================== */
-.scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 60;
-  background: linear-gradient(90deg, var(--accent-saffron), var(--accent-gold), var(--accent-lotus));
-  transform-origin: 0 50%;
-  pointer-events: none;
-}
+.scroll-progress { display: none; }
 
 /* ================================================================== */
-/*  Masonry columns (used on /gallery)                                 */
+/*  Masonry (gallery)                                                  */
 /* ================================================================== */
-.masonry {
-  column-count: 2;
-  column-gap: 1rem;
-}
-@media (min-width: 640px) {
-  .masonry { column-count: 3; column-gap: 1.25rem; }
-}
-@media (min-width: 1024px) {
-  .masonry { column-count: 4; column-gap: 1.25rem; }
-}
+.masonry { column-count: 2; column-gap: 1rem; }
+@media (min-width: 640px)  { .masonry { column-count: 3; column-gap: 1.25rem; } }
+@media (min-width: 1024px) { .masonry { column-count: 4; column-gap: 1.25rem; } }
 .masonry > * {
   break-inside: avoid;
   margin-bottom: 1.25rem;

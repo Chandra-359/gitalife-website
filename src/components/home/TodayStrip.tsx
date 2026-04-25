@@ -6,7 +6,6 @@
  */
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { getVerseOfTheDay } from "@/data/verses";
 import { C, Icon } from "./icons";
 
@@ -36,7 +35,7 @@ export default function TodayStrip() {
               Today at Gita Life
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
+              className="mt-2 text-2xl sm:text-3xl font-bold"
               style={{ color: C.krishnaBlue }}
             >
               Your daily practice
@@ -47,14 +46,10 @@ export default function TodayStrip() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* VERSE OF THE DAY */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="md:col-span-2 group relative rounded-3xl p-7 sm:p-8 overflow-hidden"
+          <div
+            className="md:col-span-2 group relative rounded-2xl p-6 sm:p-8 overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
+              background: C.krishnaDeep,
               border: `1px solid ${C.gold}20`,
             }}
           >
@@ -89,7 +84,7 @@ export default function TodayStrip() {
                 </p>
               )}
 
-              <p className="text-[15px] sm:text-[17px] leading-[1.7] italic text-white/90 font-serif">
+              <p className="text-[15px] sm:text-[17px] leading-[1.7] text-white/90">
                 &ldquo;{verse.translation}&rdquo;
               </p>
 
@@ -112,21 +107,16 @@ export default function TodayStrip() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* JAPA & READING — stacked right column */}
           <div className="flex flex-col gap-4">
             {/* Japa */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="group relative rounded-2xl p-5 transition-all hover:-translate-y-0.5"
+            <div
+              className="group relative rounded-2xl p-5 transition-colors"
               style={{
                 background: "white",
                 border: `1px solid ${C.gold}20`,
-                boxShadow: "0 2px 14px rgba(27,42,107,0.04)",
               }}
             >
               <div className="flex items-start gap-4">
@@ -159,19 +149,14 @@ export default function TodayStrip() {
                 Start today&rsquo;s round
                 <Icon name="arrowRight" size={12} />
               </Link>
-            </motion.div>
+            </div>
 
             {/* Today's reading */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="group relative rounded-2xl p-5 transition-all hover:-translate-y-0.5"
+            <div
+              className="group relative rounded-2xl p-5 transition-colors"
               style={{
                 background: "white",
                 border: `1px solid ${C.gold}20`,
-                boxShadow: "0 2px 14px rgba(27,42,107,0.04)",
               }}
             >
               <div className="flex items-start gap-4">
@@ -204,7 +189,7 @@ export default function TodayStrip() {
                 Read passage
                 <Icon name="arrowRight" size={12} />
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
