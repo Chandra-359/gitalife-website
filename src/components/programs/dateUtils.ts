@@ -150,3 +150,115 @@ export function getTagAccent(tag: string): TagAccent {
   for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) | 0;
   return TAG_ROTATION[Math.abs(hash) % TAG_ROTATION.length];
 }
+
+/* ------------------------------------------------------------------ */
+/*  Week bucketing                                                     */
+/*  Group events into Monday-anchored weeks (in America/New_York).     */
+/*  Used by the events grid to give long calendars visual rhythm.     */
+/* ------------------------------------------------------------------ */
+interface NyDateParts {
+  year: number;
+  month: number;
+  day: number;
+  weekday: number; // 0 = Sun, 1 = Mon, ..., 6 = Sat
+}
+
+const WEEKDAY_FROM_SHORT: Record<string, number> = {
+  Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+};
+
+function getNyDateParts(d: Date): NyDateParts {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+    timeZone: TZ,
+  });
+  const map = new Map<string, string>();
+  for (const p of fmt.formatToParts(d)) map.set(p.type, p.value);
+  return {
+    year: Number(map.get("year")),
+    month: Number(map.get("month")),
+    day: Number(map.get("day")),
+    weekday: WEEKDAY_FROM_SHORT[map.get("weekday") ?? "Mon"] ?? 1,
+  };
+}
+
+interface WeekMonday {
+  year: number;
+  month: number; // 1-indexed
+  day: number;
+  /** epoch ms of midnight UTC at this Monday — stable sort key */
+  utcMs: number;
+}
+
+function getWeekMonday(d: Date): WeekMonday {
+  const { year, month, day, weekday } = getNyDateParts(d);
+  // Monday-anchored week: subtract (weekday === 0 ? 6 : weekday - 1)
+  const subtract = weekday === 0 ? 6 : weekday - 1;
+  // Use a UTC scratch date for arithmetic (DST-stable for whole-day shifts).
+  const scratch = new Date(Date.UTC(year, month - 1, day));
+  scratch.setUTCDate(scratch.getUTCDate() - subtract);
+  return {
+    year: scratch.getUTCFullYear(),
+    month: scratch.getUTCMonth() + 1,
+    day: scratch.getUTCDate(),
+    utcMs: scratch.getTime(),
+  };
+}
+
+export interface EventWeekBucket<T> {
+  key: string;
+  label: string;
+  /** Numeric sort key — earlier weeks first */
+  sortKey: number;
+  events: T[];
+}
+
+/**
+ * Group events into Monday-Sunday weeks, labeling the current and
+ * upcoming week with friendly labels and the rest as "Week of May 12".
+ */
+export function bucketEventsByWeek<T extends { startAt: string }>(
+  events: T[],
+  now: Date = new Date(),
+): EventWeekBucket<T>[] {
+  const todayMonday = getWeekMonday(now);
+  const nextMonday = new Date(todayMonday.utcMs);
+  nextMonday.setUTCDate(nextMonday.getUTCDate() + 7);
+  const nextMondayMs = nextMonday.getTime();
+
+  const buckets = new Map<string, EventWeekBucket<T>>();
+
+  for (const event of events) {
+    const eventDate = new Date(event.startAt);
+    const monday = getWeekMonday(eventDate);
+    const key = `${monday.year}-${String(monday.month).padStart(2, "0")}-${String(monday.day).padStart(2, "0")}`;
+
+    let label: string;
+    if (monday.utcMs === todayMonday.utcMs) {
+      label = "This week";
+    } else if (monday.utcMs === nextMondayMs) {
+      label = "Next week";
+    } else {
+      const ref = new Date(monday.utcMs);
+      // Format the Monday's month + day. Use UTC since `monday.utcMs`
+      // represents midnight UTC at that calendar date.
+      const monthName = new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        timeZone: "UTC",
+      }).format(ref);
+      label = `Week of ${monthName} ${monday.day}`;
+    }
+
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = { key, label, sortKey: monday.utcMs, events: [] };
+      buckets.set(key, bucket);
+    }
+    bucket.events.push(event);
+  }
+
+  return Array.from(buckets.values()).sort((a, b) => a.sortKey - b.sortKey);
+}
