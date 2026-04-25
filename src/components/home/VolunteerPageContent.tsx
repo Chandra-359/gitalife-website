@@ -39,7 +39,7 @@ export default function VolunteerPageContent() {
   const upcomingEvents = VOLUNTEER_EVENTS.filter((e) => e.status === "upcoming");
 
   return (
-    <div className="min-h-screen" style={{ background: C.cream }}>
+    <div className="surface-paper min-h-screen">
       <Navbar />
 
       {/* Upcoming volunteer events — list from VOLUNTEER_EVENTS in src/data/home.ts */}

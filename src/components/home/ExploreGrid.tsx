@@ -9,7 +9,7 @@ import { C, Icon, colorFor } from "./icons";
 
 export default function ExploreGrid() {
   return (
-    <section id="explore" className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: "white" }}>
+    <section id="explore" className="surface-paper-light relative py-14 px-5 sm:py-20 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8 sm:mb-10">
           <span
@@ -20,7 +20,7 @@ export default function ExploreGrid() {
             Explore
           </span>
           <h2
-            className="mt-2 text-2xl sm:text-3xl font-bold"
+            className="section-heading mt-2 text-3xl sm:text-4xl"
             style={{ color: C.krishnaBlue }}
           >
             How to get involved
@@ -37,11 +37,7 @@ export default function ExploreGrid() {
               <Link
                 key={cat.slug}
                 href={cat.href}
-                className="group flex flex-col items-start gap-3 rounded-xl p-4 sm:p-5 h-full transition-colors hover:bg-gray-50"
-                style={{
-                  background: "white",
-                  border: "1px solid rgba(15,27,77,0.08)",
-                }}
+                className="glass-card hover-lift group flex h-full flex-col items-start gap-3 rounded-xl p-4 sm:p-5"
               >
                 <div
                   className="flex h-11 w-11 items-center justify-center rounded-lg"

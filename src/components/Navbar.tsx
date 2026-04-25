@@ -37,7 +37,11 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
 
   return (
     <nav
-      className="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white"
+      className="fixed inset-x-0 top-0 z-40 backdrop-blur-md"
+      style={{
+        background: "rgba(247,239,221,0.78)",
+        borderBottom: "1px solid var(--paper-edge)",
+      }}
       role="navigation"
       aria-label="Main navigation"
     >
@@ -56,7 +60,15 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
             height={36}
             className="h-9 w-9 shrink-0"
           />
-          <span className="text-base font-semibold text-gray-900 sm:text-lg">
+          <span
+            className="text-base sm:text-lg"
+            style={{
+              fontFamily: "var(--font-fraunces), Georgia, serif",
+              fontWeight: 600,
+              letterSpacing: "-0.012em",
+              color: "var(--ink-primary)",
+            }}
+          >
             Gita Life NYC
           </span>
         </Link>
@@ -67,7 +79,8 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
             <li key={link.label}>
               <Link
                 href={link.href}
-                className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-[rgba(21,34,79,0.06)]"
+                style={{ color: "var(--ink-primary)" }}
               >
                 {link.label}
               </Link>
@@ -86,7 +99,8 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMobileOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-gray-700 transition-colors hover:bg-gray-100 sm:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-[rgba(21,34,79,0.06)] sm:hidden"
+          style={{ color: "var(--ink-primary)" }}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
         >
@@ -106,14 +120,18 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
 
       {/* Mobile dropdown */}
       {mobileOpen && (
-        <div className="border-t border-gray-200 bg-white sm:hidden">
+        <div
+          className="surface-paper sm:hidden"
+          style={{ borderTop: "1px solid var(--paper-edge)" }}
+        >
           <ul className="flex flex-col gap-1 px-5 py-3">
             {navLinks.map((link) => (
               <li key={link.label}>
                 <Link
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                  className="block rounded-md px-3 py-3 text-sm font-medium transition-colors hover:bg-[rgba(21,34,79,0.06)]"
+                  style={{ color: "var(--ink-primary)" }}
                 >
                   {link.label}
                 </Link>

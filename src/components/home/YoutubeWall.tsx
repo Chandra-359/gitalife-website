@@ -17,7 +17,7 @@ const ELFSIGHT_APP_ID = "f04b83ef-4a7d-429c-97bd-ce4262b9f40b";
 
 export default function YoutubeWall() {
   return (
-    <section id="watch" className="relative py-20 px-6" style={{ background: C.warmBg }}>
+    <section id="watch" className="surface-paper-warm relative py-20 px-5 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
           <div>
@@ -29,7 +29,7 @@ export default function YoutubeWall() {
               On YouTube
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
+              className="section-heading mt-2 text-3xl sm:text-4xl"
               style={{ color: C.krishnaBlue }}
             >
               Watch our latest

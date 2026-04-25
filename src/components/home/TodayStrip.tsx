@@ -22,7 +22,7 @@ export default function TodayStrip() {
   const today = formatToday();
 
   return (
-    <section className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: C.cream }}>
+    <section className="surface-paper relative py-14 px-5 sm:py-20 sm:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-end justify-between mb-6 sm:mb-8 flex-wrap gap-3">
@@ -35,7 +35,7 @@ export default function TodayStrip() {
               Today at Gita Life
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold"
+              className="section-heading mt-2 text-3xl sm:text-4xl"
               style={{ color: C.krishnaBlue }}
             >
               Your daily practice
@@ -47,10 +47,9 @@ export default function TodayStrip() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* VERSE OF THE DAY */}
           <div
-            className="md:col-span-2 group relative rounded-2xl p-5 sm:p-8 overflow-hidden"
+            className="surface-sacred md:col-span-2 group relative rounded-2xl p-5 sm:p-8 overflow-hidden"
             style={{
-              background: C.krishnaDeep,
-              border: `1px solid ${C.gold}20`,
+              border: `1px solid ${C.gold}30`,
             }}
           >
             {/* Corner gold accent */}
@@ -113,11 +112,7 @@ export default function TodayStrip() {
           <div className="flex flex-col gap-4">
             {/* Japa */}
             <div
-              className="group relative rounded-2xl p-5 transition-colors"
-              style={{
-                background: "white",
-                border: `1px solid ${C.gold}20`,
-              }}
+              className="glass-card hover-lift group relative rounded-2xl p-5"
             >
               <div className="flex items-start gap-4">
                 <div
@@ -153,11 +148,7 @@ export default function TodayStrip() {
 
             {/* Today's reading */}
             <div
-              className="group relative rounded-2xl p-5 transition-colors"
-              style={{
-                background: "white",
-                border: `1px solid ${C.gold}20`,
-              }}
+              className="glass-card hover-lift group relative rounded-2xl p-5"
             >
               <div className="flex items-start gap-4">
                 <div

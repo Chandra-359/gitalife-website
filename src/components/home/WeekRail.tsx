@@ -51,7 +51,7 @@ export default function WeekRail() {
   const todayIdx = today === 0 ? 6 : today - 1;
 
   return (
-    <section className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: C.cream }}>
+    <section className="surface-paper-warm relative py-14 px-5 sm:py-20 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-6 sm:mb-8 flex-wrap gap-3">
           <div>
@@ -63,7 +63,7 @@ export default function WeekRail() {
               This Week
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold"
+              className="section-heading mt-2 text-3xl sm:text-4xl"
               style={{ color: C.krishnaBlue }}
             >
               Join a class, kirtan, or seva
@@ -96,10 +96,9 @@ export default function WeekRail() {
               <div
                 key={i}
                 role="listitem"
-                className="group relative w-[78%] max-w-[300px] shrink-0 rounded-xl p-5 transition-colors sm:w-auto sm:max-w-none sm:shrink"
+                className="glass-card hover-lift group relative w-[78%] max-w-[300px] shrink-0 rounded-xl p-5 sm:w-auto sm:max-w-none sm:shrink"
                 style={{
-                  background: "white",
-                  border: `1px solid ${isNext ? meta.color : "rgba(15,27,77,0.08)"}`,
+                  border: `1px solid ${isNext ? meta.color : "var(--paper-edge)"}`,
                 }}
               >
                 {/* Upcoming badge */}

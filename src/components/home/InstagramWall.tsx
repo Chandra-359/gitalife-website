@@ -17,7 +17,7 @@ const ELFSIGHT_APP_ID = "87b4db08-2d52-4076-a779-48fc2e1ebb51";
 
 export default function InstagramWall() {
   return (
-    <section id="gallery" className="relative py-20 px-6" style={{ background: C.cream }}>
+    <section id="gallery" className="surface-paper relative py-20 px-5 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
           <div>
@@ -29,7 +29,7 @@ export default function InstagramWall() {
               From Our Instagram
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
+              className="section-heading mt-2 text-3xl sm:text-4xl"
               style={{ color: C.krishnaBlue }}
             >
               Moments from the community
