@@ -13,6 +13,13 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { VOLUNTEER_LADDER, INSTAGRAM_URL, type VolunteerRung } from "@/data/home";
 import { C, Icon, colorFor } from "./icons";
+import LumaEmbed from "./LumaEmbed";
+import type { LumaEvent } from "@/lib/luma";
+
+interface VolunteerPageContentProps {
+  /** Upcoming Luma events tagged "volunteer". */
+  events?: LumaEvent[];
+}
 
 const WHY = [
   {
@@ -29,7 +36,9 @@ const WHY = [
   },
 ];
 
-export default function VolunteerPageContent() {
+export default function VolunteerPageContent({
+  events = [],
+}: VolunteerPageContentProps) {
   return (
     <div className="min-h-screen" style={{ background: C.cream }}>
       <Navbar />
@@ -71,6 +80,53 @@ export default function VolunteerPageContent() {
             From a one-hour drop-in to long-term stewardship — we have a
             place for you wherever you are.
           </p>
+        </div>
+      </section>
+
+      {/* Upcoming volunteer events — pulled from Luma, tag = "volunteer" */}
+      <section className="relative -mt-10 px-6 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <span
+              className="text-[11px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: C.gold }}
+            >
+              Register
+            </span>
+            <h2
+              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
+              style={{ color: C.krishnaBlue }}
+            >
+              Upcoming volunteer opportunities
+            </h2>
+          </div>
+
+          {events.length === 0 ? (
+            <div
+              className="rounded-2xl px-8 py-10 text-center"
+              style={{ background: "white", border: `1px solid ${C.gold}25` }}
+            >
+              <p className="text-[14px] text-gray-600 max-w-md mx-auto">
+                No volunteer events posted right now. New ones are added every
+                few weeks — check back soon, or DM us on Instagram to be
+                notified.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {events.map((event, i) => (
+                <motion.div
+                  key={event.apiId}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.08 }}
+                >
+                  <LumaEmbed lumaUrl={event.url} eventTitle={event.name} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
