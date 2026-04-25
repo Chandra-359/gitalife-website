@@ -11,12 +11,12 @@
 import { INSTAGRAM_URL } from "@/data/home";
 import { C, Icon } from "./icons";
 
-/** Convert a Luma event URL (https://lu.ma/xyz) into its embed URL. */
+/** Convert a Luma event URL (https://lu.ma/xyz or https://luma.com/xyz) into its embed URL. */
 export function toLumaEmbed(url: string): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
-    if (!u.hostname.includes("lu.ma")) return null;
+    if (!u.hostname.includes("lu.ma") && !u.hostname.includes("luma.com")) return null;
     return `https://lu.ma/embed/event/${u.pathname.replace(/^\/+/, "")}/simple`;
   } catch {
     return null;
