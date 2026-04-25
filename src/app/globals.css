@@ -74,20 +74,21 @@
   --background: var(--paper);
   --foreground: var(--ink-primary);
 
-  /* ----- Texture URIs reused across surfaces -------------------------
-   *  Three layers stack to read as real crumpled paper:
-   *    1. fine grain  — pixel-scale fibre noise
-   *    2. creases     — mid-frequency directional ridges (paper folds)
-   *    3. crumple     — large soft blotches for shading variation
-   *  Opacity values are deliberately strong so the texture reads even
-   *  through the warm cream surface-color on top.
+  /* ----- Paper texture ------------------------------------------------
+   *  A single SVG that composes a believable crumpled-paper look:
+   *    1. fractalNoise → crumple shape
+   *    2. feDiffuseLighting with a distant light → 3D shading
+   *       (this is what gives the visible "fold" highlights and
+   *       shadows, not flat noise)
+   *    3. high-frequency fractalNoise → fibre grain
+   *    4. feBlend mode='multiply' → grain darkens lit paper
+   *  Everything is composited inside the SVG so the browser only paints
+   *  one bitmap, perfect for a fixed GPU-promoted backdrop layer.
    * ------------------------------------------------------------------ */
-  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.28 0 0 0 0 0.18 0 0 0 0 0.05 0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
-  --tex-creases: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='c'><feTurbulence type='turbulence' baseFrequency='0.04 0.012' numOctaves='2' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.21 0 0 0 0 0.07 0 0 0 0.8 0'/><feGaussianBlur stdDeviation='0.8'/></filter><rect width='100%25' height='100%25' filter='url(%23c)' opacity='0.45'/></svg>");
-  --tex-crumple: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='720'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.009' numOctaves='3' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.34 0 0 0 0 0.22 0 0 0 0 0.07 0 0 0 0.85 0'/><feGaussianBlur stdDeviation='1.4'/></filter><rect width='100%25' height='100%25' filter='url(%23b)' opacity='0.55'/></svg>");
+  --tex-paper: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='p' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='3' seed='7' stitchTiles='stitch' result='crumple'/><feDiffuseLighting in='crumple' lighting-color='%23F4E6BE' surfaceScale='3.8' diffuseConstant='1.55' result='paper'><feDistantLight elevation='55' azimuth='235'/></feDiffuseLighting><feTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' seed='13' stitchTiles='stitch' result='fibers'/><feColorMatrix in='fibers' values='0 0 0 0 0.30 0 0 0 0 0.20 0 0 0 0 0.06 0 0 0 0.55 0' result='fibers-tinted'/><feBlend in='fibers-tinted' in2='paper' mode='multiply' result='final'/></filter><rect width='100%25' height='100%25' filter='url(%23p)'/></svg>");
+
   /* Light grain for dark surfaces — warm paper-fleck on indigo */
   --tex-grain-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
-  --tex-creases-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='c'><feTurbulence type='turbulence' baseFrequency='0.04 0.012' numOctaves='2' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.55 0'/><feGaussianBlur stdDeviation='0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23c)' opacity='0.22'/></svg>");
 }
 
 @theme inline {
@@ -144,11 +145,14 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* Solid warm paper underneath in case the SVG is still loading.    */
   background-color: var(--paper);
-  background-image: var(--tex-crumple), var(--tex-creases), var(--tex-grain);
-  background-size: 720px 720px, 480px 480px, 220px 220px;
-  background-blend-mode: multiply, multiply, multiply;
-  /* Promote to its own GPU layer once, then never repaint on scroll. */
+  /* The 3D-lit crumple SVG already carries its own colour, so the    */
+  /* tile reads as actual paper, not flat noise on cream.             */
+  background-image: var(--tex-paper);
+  background-size: 600px 600px;
+  background-repeat: repeat;
+  /* Promote to its own GPU layer once; never repaints on scroll. */
   transform: translateZ(0);
   will-change: transform;
   contain: paint;
@@ -312,10 +316,13 @@ html {
 /*  every section reads as the same paper sheet at slightly different  */
 /*  warmth, and scrolling stays buttery on mobile.                     */
 /* ================================================================== */
-.surface-paper        { background-color: rgba(247,239,221,0.45); }
-.surface-paper-warm   { background-color: rgba(242,229,200,0.6);  }
-.surface-paper-light  { background-color: rgba(251,245,230,0.55); }
-.surface-parchment    { background-color: rgba(251,245,230,0.55); }
+/* These are deliberately very translucent so the lit crumple from the
+   .paper-backdrop reads through each section. They only differentiate
+   sections by a faint warmth shift. */
+.surface-paper        { background-color: rgba(247,239,221,0.18); }
+.surface-paper-warm   { background-color: rgba(242,224,188,0.30); }
+.surface-paper-light  { background-color: rgba(251,245,230,0.22); }
+.surface-parchment    { background-color: rgba(251,245,230,0.22); }
 
 /* Dark sections stay opaque — they cover the paper fully, then add
    a single cheap noise overlay that scrolls with content (no fixed). */
@@ -332,12 +339,11 @@ html {
   background-blend-mode: overlay;
 }
 
-/* Cards / glass surfaces — paper-tone, not stark white */
+/* Cards / glass surfaces — paper-tone, not stark white.
+   Cards stay opaque (no texture image) so they read as raised pieces of
+   paper sitting on top of the textured backdrop. */
 .glass-card {
-  background: rgba(251,245,230,0.92);
-  background-image: var(--tex-grain);
-  background-size: 220px 220px;
-  background-blend-mode: multiply;
+  background: var(--paper-light);
   border: 1px solid var(--paper-edge);
 }
 .glass-card-dark {
@@ -462,9 +468,6 @@ html {
   position: relative;
   border: 1px solid var(--paper-edge);
   background: var(--paper-light);
-  background-image: var(--tex-grain);
-  background-size: 220px 220px;
-  background-blend-mode: multiply;
   border-radius: var(--radius-xl);
 }
 .krishna-card::before,
