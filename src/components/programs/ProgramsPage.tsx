@@ -15,7 +15,6 @@
  */
 
 import Link from "next/link";
-import type { Program } from "@/data/programs";
 import type { LumaEvent } from "@/lib/luma";
 import { RETREATS, INSTAGRAM_URL } from "@/data/home";
 import { C, Icon } from "@/components/home/icons";
@@ -24,7 +23,6 @@ import ConnectFooter from "@/components/home/ConnectFooter";
 import LumaEventsSection from "./LumaEventsSection";
 
 interface ProgramsPageProps {
-  testimonials: Program[];
   events: LumaEvent[];
 }
 
@@ -336,7 +334,7 @@ function CTAStrip() {
 /* ================================================================== */
 /*  ProgramsPage — composed                                            */
 /* ================================================================== */
-export default function ProgramsPage({ testimonials, events }: ProgramsPageProps) {
+export default function ProgramsPage({ events }: ProgramsPageProps) {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -345,7 +343,7 @@ export default function ProgramsPage({ testimonials, events }: ProgramsPageProps
       <WhatToExpect />
       <PastPrograms />
       <CTAStrip />
-      <ConnectFooter testimonials={testimonials} />
+      <ConnectFooter />
     </div>
   );
 }

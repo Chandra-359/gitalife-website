@@ -12,7 +12,6 @@
  */
 
 import type { Metadata } from "next";
-import { getPrograms } from "@/lib/programs";
 import { getLumaEvents } from "@/lib/luma";
 import ProgramsPage from "@/components/programs/ProgramsPage";
 
@@ -31,14 +30,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [programs, events] = await Promise.all([
-    getPrograms(),
-    getLumaEvents({ period: "future", limit: 50 }),
-  ]);
-
-  const testimonials = programs
-    .filter((p) => p.testimonial && p.testimonialAuthor)
-    .slice(0, 3);
-
-  return <ProgramsPage testimonials={testimonials} events={events} />;
+  const events = await getLumaEvents({ period: "future", limit: 50 });
+  return <ProgramsPage events={events} />;
 }

@@ -15,7 +15,6 @@
  *   9. ConnectFooter (testimonials + subscribe + footer)
  */
 
-import type { Program } from "@/data/programs";
 import type { LumaEvent } from "@/lib/luma";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/home/Hero";
@@ -30,15 +29,10 @@ import ConnectFooter from "@/components/home/ConnectFooter";
 import { HERO_SLIDES } from "@/data/home";
 
 interface HomePageProps {
-  programs: Program[];
   events: LumaEvent[];
 }
 
-export default function HomePage({ programs, events }: HomePageProps) {
-  const testimonials = programs
-    .filter((p) => p.testimonial && p.testimonialAuthor)
-    .slice(0, 3);
-
+export default function HomePage({ events }: HomePageProps) {
   return (
     <div className="min-h-screen bg-white">
       <Navbar isHomepage />
@@ -50,7 +44,7 @@ export default function HomePage({ programs, events }: HomePageProps) {
       <ImpactSection />
       <YoutubeWall />
       <InstagramWall />
-      <ConnectFooter testimonials={testimonials} />
+      <ConnectFooter />
     </div>
   );
 }

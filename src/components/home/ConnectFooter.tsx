@@ -1,85 +1,15 @@
 /**
- * ConnectFooter — testimonials + newsletter/social + footer.
+ * ConnectFooter — newsletter/social + footer.
  * Simple, mobile-first.
  */
 
 import Link from "next/link";
-import type { Program } from "@/data/programs";
-import { getCategoryColor } from "@/data/programs";
 import { INSTAGRAM_URL, YOUTUBE_URL } from "@/data/home";
 import { C } from "./icons";
 
-interface ConnectFooterProps {
-  testimonials: Program[];
-}
-
-export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
+export default function ConnectFooter() {
   return (
     <>
-      {/* Testimonials */}
-      {testimonials.length > 0 && (
-        <section className="relative py-14 px-5 sm:py-20 sm:px-8" style={{ background: "white" }}>
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8 sm:mb-10">
-              <span
-                className="text-[11px] font-bold uppercase tracking-[0.14em]"
-                style={{ color: C.gold }}
-              >
-                Testimonials
-              </span>
-              <h2
-                className="mt-2 text-2xl sm:text-3xl font-bold"
-                style={{ color: C.krishnaBlue }}
-              >
-                What people are saying
-              </h2>
-            </div>
-
-            <div
-              className="snap-rail snap-rail-bleed md:m-0 md:grid md:snap-none md:grid-cols-3 md:gap-5 md:overflow-visible md:p-0"
-              role="list"
-              aria-label="Testimonials"
-            >
-              {testimonials.map((prog) => {
-                const { bg } = getCategoryColor(prog.category);
-                return (
-                  <div
-                    key={prog.id}
-                    role="listitem"
-                    className="w-[85%] max-w-[340px] shrink-0 rounded-xl p-6 md:w-auto md:max-w-none md:shrink"
-                    style={{
-                      background: C.cream,
-                      border: "1px solid rgba(15,27,77,0.08)",
-                    }}
-                  >
-                    <p className="text-[15px] leading-relaxed text-gray-700 mb-5">
-                      &ldquo;{prog.testimonial}&rdquo;
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                        style={{ background: bg }}
-                      >
-                        {prog.testimonialAuthor?.charAt(0) || "?"}
-                      </div>
-                      <div>
-                        <p
-                          className="text-[13px] font-semibold"
-                          style={{ color: C.krishnaBlue }}
-                        >
-                          {prog.testimonialAuthor}
-                        </p>
-                        <p className="text-[11px] text-gray-500">{prog.category}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Get Connected + footer */}
       <section
         id="get-connected"
