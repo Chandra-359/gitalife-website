@@ -74,8 +74,10 @@
   --background: var(--paper);
   --foreground: var(--ink-primary);
 
-  /* Fine paper-fibre grain — subtle warm noise reused across surfaces */
-  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0 0.08 0 0 0 0.22 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  /* Handmade khadi-paper fibre grain — warm, slightly coarse */
+  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.34 0 0 0 0 0.22 0 0 0 0 0.08 0 0 0 0.34 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  /* Stylised 8-petal lotus rosette — Krishna/ISKCON ornament, very faint */
+  --tex-lotus: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><g fill='none' stroke='%23A8842A' stroke-width='0.85' opacity='0.18'><circle cx='110' cy='110' r='4.5'/><circle cx='110' cy='110' r='13'/><g><ellipse cx='110' cy='86' rx='4' ry='13'/><ellipse cx='110' cy='134' rx='4' ry='13'/><ellipse cx='86' cy='110' rx='13' ry='4'/><ellipse cx='134' cy='110' rx='13' ry='4'/></g><g transform='rotate(45 110 110)'><ellipse cx='110' cy='90' rx='3.2' ry='10.5'/><ellipse cx='110' cy='130' rx='3.2' ry='10.5'/><ellipse cx='90' cy='110' rx='10.5' ry='3.2'/><ellipse cx='130' cy='110' rx='10.5' ry='3.2'/></g></g></svg>");
   /* Light grain for dark surfaces — warm paper-fleck on indigo */
   --tex-grain-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
   --tex-creases-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='c'><feTurbulence type='turbulence' baseFrequency='0.04 0.012' numOctaves='2' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.55 0'/><feGaussianBlur stdDeviation='0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23c)' opacity='0.22'/></svg>");
@@ -125,8 +127,11 @@ body {
 
 /* ------------------------------------------------------------------ */
 /*  Paper backdrop — one fixed, GPU-promoted element painting the      */
-/*  page surface: warm cream tone, soft top-warmth gradient, and a     */
-/*  whisper of fibre grain. No streaks, no blotches.                   */
+/*  page surface. Layers (top-down):                                   */
+/*    1. soft warm vignette (top: gold-light, bottom: amber)           */
+/*    2. faint repeating lotus rosette (Krishna/ISKCON motif)          */
+/*    3. handmade khadi-paper fibre grain                              */
+/*    4. warm cream base                                               */
 /* ------------------------------------------------------------------ */
 .paper-backdrop {
   position: fixed;
@@ -135,12 +140,14 @@ body {
   pointer-events: none;
   background-color: var(--paper);
   background-image:
-    radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.28), transparent 55%),
-    radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.10), transparent 60%),
+    radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.32), transparent 55%),
+    radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.12), transparent 60%),
+    var(--tex-lotus),
     var(--tex-grain);
-  background-size: 100% 100%, 100% 100%, 240px 240px;
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-blend-mode: multiply, multiply, multiply;
+  background-size: 100% 100%, 100% 100%, 220px 220px, 320px 320px;
+  background-position: center, center, center, center;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+  background-blend-mode: multiply, multiply, multiply, multiply;
   /* Promote to its own GPU layer once, then never repaint on scroll. */
   transform: translateZ(0);
   will-change: transform;
