@@ -120,7 +120,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--background);
+  background-color: transparent;
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -130,7 +130,6 @@ body {
 
 body {
   overflow-x: hidden;
-  background-color: var(--paper);
 }
 
 /* ------------------------------------------------------------------ */
