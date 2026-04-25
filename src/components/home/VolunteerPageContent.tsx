@@ -11,15 +11,14 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import { VOLUNTEER_LADDER, INSTAGRAM_URL, type VolunteerRung } from "@/data/home";
+import {
+  VOLUNTEER_EVENTS,
+  VOLUNTEER_LADDER,
+  INSTAGRAM_URL,
+  type VolunteerRung,
+} from "@/data/home";
 import { C, Icon, colorFor } from "./icons";
 import LumaEmbed from "./LumaEmbed";
-import type { LumaEvent } from "@/lib/luma";
-
-interface VolunteerPageContentProps {
-  /** Upcoming Luma events tagged "volunteer". */
-  events?: LumaEvent[];
-}
 
 const WHY = [
   {
@@ -36,9 +35,9 @@ const WHY = [
   },
 ];
 
-export default function VolunteerPageContent({
-  events = [],
-}: VolunteerPageContentProps) {
+export default function VolunteerPageContent() {
+  const upcomingEvents = VOLUNTEER_EVENTS.filter((e) => e.status === "upcoming");
+
   return (
     <div className="min-h-screen" style={{ background: C.cream }}>
       <Navbar />
@@ -83,7 +82,7 @@ export default function VolunteerPageContent({
         </div>
       </section>
 
-      {/* Upcoming volunteer events — pulled from Luma, tag = "volunteer" */}
+      {/* Upcoming volunteer events — list from VOLUNTEER_EVENTS in src/data/home.ts */}
       <section className="relative -mt-10 px-6 pb-16">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
@@ -101,7 +100,7 @@ export default function VolunteerPageContent({
             </h2>
           </div>
 
-          {events.length === 0 ? (
+          {upcomingEvents.length === 0 ? (
             <div
               className="rounded-2xl px-8 py-10 text-center"
               style={{ background: "white", border: `1px solid ${C.gold}25` }}
@@ -114,15 +113,15 @@ export default function VolunteerPageContent({
             </div>
           ) : (
             <div className="space-y-8">
-              {events.map((event, i) => (
+              {upcomingEvents.map((event, i) => (
                 <motion.div
-                  key={event.apiId}
+                  key={event.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: i * 0.08 }}
                 >
-                  <LumaEmbed lumaUrl={event.url} eventTitle={event.name} />
+                  <LumaEmbed lumaUrl={event.lumaUrl} eventTitle={event.title} />
                 </motion.div>
               ))}
             </div>
