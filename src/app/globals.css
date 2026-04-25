@@ -126,10 +126,10 @@ body {
 /* ------------------------------------------------------------------ */
 /*  Paper backdrop — one fixed, GPU-promoted element painting the      */
 /*  page surface. Layers (top-down):                                   */
-/*    1. soft warm vignette (top: gold-light, bottom: amber)           */
-/*    2. groovepaper texture from transparenttextures.com              */
-/*       For production, save the PNG to /public/textures/ and swap   */
-/*       the URL to: url("/textures/groovepaper.png")                  */
+/*    1. groovepaper texture (self-hosted, normal compositing so the   */
+/*       dark grooves render as actual dark marks, not multiplied      */
+/*       into invisibility)                                            */
+/*    2. soft warm vignette (top: gold-light, bottom: amber)           */
 /*    3. warm cream base                                               */
 /* ------------------------------------------------------------------ */
 .paper-backdrop {
@@ -139,11 +139,10 @@ body {
   pointer-events: none;
   background-color: var(--paper);
   background-image:
-    radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.30), transparent 55%),
-    radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.12), transparent 60%),
-    url("/textures/groovepaper.png");
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-blend-mode: multiply, multiply, multiply;
+    url("/textures/groovepaper.png"),
+    radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.35), transparent 55%),
+    radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.14), transparent 60%);
+  background-repeat: repeat, no-repeat, no-repeat;
   /* Promote to its own GPU layer once, then never repaint on scroll. */
   transform: translateZ(0);
   will-change: transform;
