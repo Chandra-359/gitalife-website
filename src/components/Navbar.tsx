@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * Navbar — Persistent floating navigation bar
+ * Navbar — Persistent floating navigation bar.
  *
- * Now supports both the homepage (scrollable, with section anchors)
- * and the programs page (fixed viewport).
+ * Homepage mode: transparent over the hero, fades into a warm glass surface
+ * as the user scrolls past ~60px. On any other page it uses the solid glass
+ * surface immediately.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -18,20 +19,38 @@ interface NavbarProps {
 
 export default function Navbar({ isHomepage = false }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Non-homepage routes always render the solid glass state.
+  const [scrolled, setScrolled] = useState(!isHomepage);
+
+  useEffect(() => {
+    if (!isHomepage) return;
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHomepage]);
 
   const navLinks = isHomepage
     ? [
-        { label: "About", href: "#about" },
-        { label: "Programs", href: "/programs" },
-        { label: "Gallery", href: "#gallery" },
+        { label: "Classes", href: "/classes" },
+        { label: "Festival", href: "/festival" },
+        { label: "Daily", href: "/daily" },
+        { label: "Impact", href: "/impact" },
       ]
     : [
         { label: "Home", href: "/" },
-        { label: "About", href: "/#about" },
-        { label: "Gallery", href: "/#gallery" },
+        { label: "Classes", href: "/classes" },
+        { label: "Festival", href: "/festival" },
+        { label: "Daily", href: "/daily" },
       ];
 
   const ctaHref = isHomepage ? "#get-connected" : "/#get-connected";
+
+  const linkColor = scrolled ? "text-gray-600" : "text-white/85";
+  const linkHover = scrolled
+    ? "hover:bg-[#E8751A]/5 hover:text-gray-900"
+    : "hover:bg-white/10 hover:text-white";
+  const logoTextColor = scrolled ? "text-gray-900" : "text-white";
 
   return (
     <nav
@@ -39,25 +58,31 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* ---- Glassmorphism backdrop ---- */}
-      <div className="pointer-events-none absolute inset-0 border-b border-[#E8751A]/10 bg-[#FFF9F0]/85 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]" />
+      {/* ---- Glassmorphism backdrop (animates opacity with scroll) ---- */}
+      <div
+        className={`pointer-events-none absolute inset-0 transition-all duration-400 ${
+          scrolled
+            ? "border-b border-[#E8751A]/10 bg-[#FFF9F0]/85 backdrop-blur-xl [-webkit-backdrop-filter:blur(20px)]"
+            : "border-b border-transparent bg-transparent"
+        }`}
+      />
 
       {/* ---- Logo ---- */}
       <Link
         href="/"
-        className="relative z-10 flex items-center gap-2.5 transition-opacity hover:opacity-80 group"
+        className="relative z-10 flex items-center gap-2.5 transition-opacity hover:opacity-90 group"
         aria-label="Gita Life NYC — Home"
       >
         <motion.div
-          whileHover={{ scale: 1.08 }}
-          transition={{ type: "spring", damping: 15 }}
-          className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0"
+          whileHover={{ scale: 1.08, rotate: 3 }}
+          transition={{ type: "spring", damping: 14 }}
+          className="flex h-9 w-9 items-center justify-center rounded-xl shrink-0 shadow-[0_6px_16px_-6px_rgba(232,117,26,0.5)]"
           style={{ background: "linear-gradient(135deg, #E8751A, #d4680f)" }}
         >
-          <span className="text-white font-bold text-sm">G</span>
+          <span className="text-white font-bold text-sm font-serif">G</span>
         </motion.div>
 
-        <span className="text-base font-bold tracking-tight text-gray-900 sm:text-lg">
+        <span className={`text-base font-bold tracking-tight sm:text-lg transition-colors ${logoTextColor}`}>
           Gita Life <span className="text-gradient-saffron">NYC</span>
         </span>
       </Link>
@@ -69,14 +94,14 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
             {link.href.startsWith("/") ? (
               <Link
                 href={link.href}
-                className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-[#E8751A]/5 hover:text-gray-900"
+                className={`rounded-full px-4 py-2 text-[13px] font-medium transition-all ${linkColor} ${linkHover}`}
               >
                 {link.label}
               </Link>
             ) : (
               <a
                 href={link.href}
-                className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-[#E8751A]/5 hover:text-gray-900"
+                className={`rounded-full px-4 py-2 text-[13px] font-medium transition-all ${linkColor} ${linkHover}`}
               >
                 {link.label}
               </a>
@@ -87,15 +112,16 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         <li className="ml-2">
           <motion.a
             href={ctaHref}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(232,117,26,0.35)" }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-block rounded-full bg-[#E8751A] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(232,117,26,0.25)] transition-all hover:bg-[#d4680f] relative overflow-hidden"
+            className="relative inline-block overflow-hidden rounded-full px-5 py-2.5 text-[13px] font-semibold text-white transition-all btn-primary-gradient"
           >
             <span className="absolute inset-0 pointer-events-none">
               <span
                 className="absolute inset-0 animate-shimmer"
                 style={{
-                  background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)",
+                  background:
+                    "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%)",
                 }}
               />
             </span>
@@ -107,7 +133,9 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
       {/* ---- Mobile hamburger ---- */}
       <button
         onClick={() => setMobileOpen((v) => !v)}
-        className="relative z-10 flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 sm:hidden"
+        className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full transition-colors sm:hidden ${
+          scrolled ? "text-gray-700 hover:bg-gray-100" : "text-white hover:bg-white/10"
+        }`}
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
         aria-expanded={mobileOpen}
       >
@@ -139,7 +167,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
                 <Link
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                  className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
                 >
                   {link.label}
                 </Link>
@@ -147,7 +175,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
                 <a
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                  className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
                 >
                   {link.label}
                 </a>
@@ -158,7 +186,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
             <a
               href={ctaHref}
               onClick={() => setMobileOpen(false)}
-              className="block rounded-xl bg-[#E8751A] px-4 py-3 text-center text-sm font-semibold text-white shadow-[0_0_16px_rgba(232,117,26,0.25)]"
+              className="btn-primary-gradient block rounded-full px-4 py-3 text-center text-sm font-semibold text-white"
             >
               Get Connected
             </a>

@@ -1,7 +1,22 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/*  Gita Life NYC — Global Styles (Krishna-inspired theme)             */
+/*  Gita Life NYC — Design System                                      */
+/*                                                                     */
+/*  Token naming (semantic → raw):                                     */
+/*    --bg-sacred        deep indigo night — dark sections             */
+/*    --bg-twilight      mid indigo — gradient anchor                  */
+/*    --bg-warm          cream parchment — primary light surface       */
+/*    --bg-surface       pure white — card surface                     */
+/*    --ink-primary      indigo ink — headlines on light               */
+/*    --ink-secondary    warm grey — body on light                     */
+/*    --ink-onDark       high-contrast cream on dark                   */
+/*    --ink-muted-dark   dim cream on dark                             */
+/*    --accent-saffron   primary CTA gradient origin                   */
+/*    --accent-gold      gold — accent strokes, badges                 */
+/*    --accent-gold-hi   bright gold highlight                         */
+/*    --accent-peacock   secondary accent (teal)                       */
+/*    --accent-lotus     tertiary accent (pink)                        */
 /*                                                                     */
 /*  Z-INDEX MAP (keep in sync with component comments):                */
 /*    z-0  — Mapbox GL canvas                                          */
@@ -10,14 +25,14 @@
 /*    z-30 — ResetViewButton, ProgramPanel (UI overlays)               */
 /*    z-40 — Navbar (always on top)                                    */
 /*    z-50 — Modals & overlays                                         */
+/*    z-60 — Scroll progress bar                                       */
 /* ================================================================== */
 
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a2e;
-  /* Krishna-inspired palette */
+  /* ----- Raw palette (Krishna-inspired) ----- */
   --krishna-blue: #1B2A6B;
   --krishna-blue-deep: #0F1B4D;
+  --krishna-blue-midnight: #080E2A;
   --krishna-blue-light: #2E3F8F;
   --divine-gold: #D4A843;
   --divine-gold-light: #F0D68A;
@@ -32,13 +47,65 @@
   --warm-bg: #FFF9F0;
   --warm-bg-deep: #FFF3E0;
   --cream: #FFFBF2;
+
+  /* ----- Semantic tokens ----- */
+  --bg-sacred: var(--krishna-blue-deep);
+  --bg-twilight: var(--krishna-blue);
+  --bg-warm: var(--warm-bg);
+  --bg-parchment: var(--cream);
+  --bg-surface: #ffffff;
+
+  --ink-primary: var(--krishna-blue);
+  --ink-primary-strong: #0A1334;
+  --ink-secondary: #4b5563;   /* gray-600 */
+  --ink-tertiary: #6b7280;    /* gray-500 */
+  --ink-onDark: #FFFBF2;
+  --ink-muted-dark: rgba(255,251,242,0.72);
+  --ink-dim-dark: rgba(255,251,242,0.45);
+
+  --accent-saffron: var(--saffron);
+  --accent-gold: var(--divine-gold);
+  --accent-gold-hi: var(--divine-gold-light);
+  --accent-peacock: var(--peacock-green);
+  --accent-lotus: var(--lotus-pink);
+
+  /* ----- Spacing rhythm ----- */
+  --space-section-y: clamp(4rem, 8vw, 6.5rem);
+  --space-section-y-lg: clamp(5rem, 10vw, 8rem);
+
+  /* ----- Radii ----- */
+  --radius-pill: 9999px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* ----- Signature shadows ----- */
+  --shadow-card: 0 1px 2px rgba(15,27,77,0.04), 0 8px 24px -8px rgba(15,27,77,0.08);
+  --shadow-elevated: 0 2px 6px rgba(15,27,77,0.06), 0 20px 48px -16px rgba(15,27,77,0.18);
+  --shadow-warm-glow: 0 0 40px -8px rgba(212,168,67,0.35);
+
+  /* ----- Background (default page) ----- */
+  --background: #ffffff;
+  --foreground: #1a1a2e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --color-ink: var(--ink-primary);
+  --color-ink-soft: var(--ink-secondary);
+  --color-saffron: var(--accent-saffron);
+  --color-gold: var(--accent-gold);
+  --color-gold-hi: var(--accent-gold-hi);
+  --color-peacock: var(--accent-peacock);
+  --color-lotus: var(--accent-lotus);
+  --color-sacred: var(--bg-sacred);
+  --color-twilight: var(--bg-twilight);
+  --color-warm: var(--bg-warm);
+  --color-parchment: var(--bg-parchment);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-playfair), "Georgia", "Times New Roman", serif;
+  --font-devanagari: var(--font-tiro), "Noto Sans Devanagari", serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
@@ -51,7 +118,40 @@ body {
   padding: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Smooth scroll honors reduced-motion preference */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Respect reduced-motion across all animations globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus ring — accessible, warm, visible */
+:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* ------------------------------------------------------------------ */
@@ -68,27 +168,133 @@ body {
   opacity: 1;
 }
 
-/* ================================================================== */
-/*  MARKER & MAP ENHANCEMENTS                                          */
-/* ================================================================== */
-
 .mapboxgl-marker {
   will-change: transform;
 }
 
-.snap-x::-webkit-scrollbar {
-  display: none;
-}
-
 /* ================================================================== */
-/*  Typography — Serif headings for warmth                             */
+/*  Typography system                                                  */
 /* ================================================================== */
 h1, h2, h3 {
   font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+h3 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Hero-scale display heading */
+.display-xl {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(2.5rem, 7.5vw, 5.5rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+/* Sanskrit heading */
+.sanskrit {
+  font-family: var(--font-tiro), "Noto Sans Devanagari", serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Small uppercase eyebrow */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+}
+
+/* Drop cap for long-form prose */
+.drop-cap::first-letter {
+  float: left;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 700;
+  font-size: 3.6em;
+  line-height: 0.9;
+  padding: 0.1em 0.12em 0 0;
+  color: var(--accent-saffron);
 }
 
 /* ================================================================== */
-/*  Krishna-themed Animations                                          */
+/*  Button primitives (composable with Tailwind)                       */
+/* ================================================================== */
+.btn-primary-gradient {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-saffron));
+  box-shadow: 0 10px 30px -10px rgba(212,168,67,0.55), 0 0 0 0 rgba(232,117,26,0);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease;
+  color: white;
+}
+.btn-primary-gradient:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 14px 36px -10px rgba(212,168,67,0.65),
+              0 0 0 4px rgba(232,117,26,0.08);
+}
+
+.btn-ghost-light {
+  background: transparent;
+  border: 1px solid rgba(240,214,138,0.35);
+  color: rgba(255,251,242,0.9);
+  transition: background 0.25s, border-color 0.25s, transform 0.25s;
+}
+.btn-ghost-light:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(240,214,138,0.55);
+}
+
+/* ================================================================== */
+/*  Pill chips (Pangea / Paramount inspired)                           */
+/* ================================================================== */
+.pill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.pill-chip-gold {
+  background: rgba(212,168,67,0.1);
+  border: 1px solid rgba(212,168,67,0.25);
+  color: var(--accent-gold-hi);
+}
+
+.pill-chip-saffron {
+  background: rgba(232,117,26,0.1);
+  border: 1px solid rgba(232,117,26,0.22);
+  color: var(--accent-saffron);
+}
+
+.pill-chip-peacock {
+  background: rgba(0,109,91,0.1);
+  border: 1px solid rgba(0,109,91,0.2);
+  color: var(--accent-peacock);
+}
+
+/* ================================================================== */
+/*  Krishna-themed animations                                          */
 /* ================================================================== */
 
 /* --- Shimmer sweep --- */
@@ -96,7 +302,6 @@ h1, h2, h3 {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
-
 .animate-shimmer {
   animation: shimmer 3s ease-in-out infinite;
 }
@@ -106,7 +311,6 @@ h1, h2, h3 {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
-
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 6s ease infinite;
@@ -117,9 +321,20 @@ h1, h2, h3 {
   0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
   50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
 }
-
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+/* --- Petal drift (hero) --- */
+@keyframes petal-drift {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  8% { opacity: 0.8; }
+  100% { transform: translate3d(var(--drift-x, 30px), 110vh, 0) rotate(540deg); opacity: 0; }
+}
+.animate-petal {
+  animation: petal-drift var(--drift-dur, 18s) linear infinite;
+  animation-delay: var(--drift-delay, 0s);
+  will-change: transform, opacity;
 }
 
 /* --- Divine glow pulse --- */
@@ -127,7 +342,6 @@ h1, h2, h3 {
   0%, 100% { box-shadow: 0 0 20px rgba(212,168,67,0.15); }
   50% { box-shadow: 0 0 40px rgba(212,168,67,0.35); }
 }
-
 .animate-glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;
 }
@@ -137,7 +351,6 @@ h1, h2, h3 {
   0%, 100% { transform: scale(1); box-shadow: 0 4px 24px rgba(212,168,67,0.3); }
   50% { transform: scale(1.02); box-shadow: 0 8px 40px rgba(212,168,67,0.5); }
 }
-
 .animate-rsvp-pulse {
   animation: rsvp-pulse 2.5s ease-in-out infinite;
 }
@@ -147,7 +360,6 @@ h1, h2, h3 {
   0% { transform: translateY(100%); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-
 .animate-count-in {
   animation: count-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -157,7 +369,6 @@ h1, h2, h3 {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.08); }
 }
-
 .animate-lotus-pulse {
   animation: lotus-pulse 2.5s ease-in-out infinite;
 }
@@ -167,7 +378,6 @@ h1, h2, h3 {
   0%, 100% { border-color: rgba(212,168,67,0.1); }
   50% { border-color: rgba(212,168,67,0.4); }
 }
-
 .animate-border-glow {
   animation: border-glow 3s ease-in-out infinite;
 }
@@ -177,7 +387,6 @@ h1, h2, h3 {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.03); }
 }
-
 .animate-breathe {
   animation: breathe 4s ease-in-out infinite;
 }
@@ -187,7 +396,6 @@ h1, h2, h3 {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
 .animate-spin-slow {
   animation: spin-slow 20s linear infinite;
 }
@@ -197,7 +405,6 @@ h1, h2, h3 {
   0% { transform: translateY(20px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-
 .animate-slide-up {
   animation: slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -207,7 +414,6 @@ h1, h2, h3 {
   0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
-
 .animate-confetti {
   animation: confetti-fall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
@@ -217,7 +423,6 @@ h1, h2, h3 {
   0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
   50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
-
 .animate-sparkle {
   animation: sparkle 2s ease-in-out infinite;
 }
@@ -228,7 +433,6 @@ h1, h2, h3 {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
 .animate-peacock-shimmer {
   background-size: 200% 200%;
   animation: peacock-shimmer 4s ease infinite;
@@ -239,9 +443,26 @@ h1, h2, h3 {
   0%, 100% { box-shadow: 0 0 30px rgba(27,42,107,0.1), 0 0 60px rgba(212,168,67,0.05); }
   50% { box-shadow: 0 0 50px rgba(27,42,107,0.2), 0 0 90px rgba(212,168,67,0.1); }
 }
-
 .animate-divine-aura {
   animation: divine-aura 4s ease-in-out infinite;
+}
+
+/* --- Ken Burns slow zoom for hero imagery --- */
+@keyframes ken-burns {
+  0% { transform: scale(1.06) translate3d(0, 0, 0); }
+  100% { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+}
+.animate-ken-burns {
+  animation: ken-burns 22s ease-in-out infinite alternate;
+}
+
+/* --- Scroll-cue bounce --- */
+@keyframes scroll-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50%      { transform: translateY(8px); opacity: 1; }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s ease-in-out infinite;
 }
 
 /* ================================================================== */
@@ -250,16 +471,13 @@ h1, h2, h3 {
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(212, 168, 67, 0.2);
   border-radius: 2px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(212, 168, 67, 0.4);
 }
@@ -271,15 +489,63 @@ h1, h2, h3 {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+.snap-x::-webkit-scrollbar {
+  display: none;
+}
 
 /* ================================================================== */
-/*  Glass card effect                                                  */
+/*  Surface utilities                                                  */
 /* ================================================================== */
 .glass-card {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card-dark {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(240,214,138,0.12);
+}
+
+.surface-parchment {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(212,168,67,0.06), transparent 60%),
+    radial-gradient(1000px 500px at 110% 40%, rgba(232,117,26,0.04), transparent 60%),
+    var(--bg-parchment);
+}
+
+.surface-sacred {
+  background: linear-gradient(170deg, var(--krishna-blue-deep) 0%, var(--krishna-blue) 100%);
+}
+
+.surface-midnight {
+  background: linear-gradient(170deg, var(--krishna-blue-deep) 0%, var(--krishna-blue-midnight) 100%);
+}
+
+/* Subtle film-grain texture over dark sections (gives depth) */
+.texture-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.85 0 0 0 0 0.45 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* Card hover-lift primitive */
+.hover-lift {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevated);
 }
 
 /* ================================================================== */
@@ -313,8 +579,16 @@ h1, h2, h3 {
   background-clip: text;
 }
 
+/* Warm gradient meant for hero headings on dark bg */
+.text-gradient-warm-glow {
+  background: linear-gradient(180deg, #FFFBF2 0%, #F0D68A 65%, #D4A843 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* ================================================================== */
-/*  Ornamental border — used on section dividers                       */
+/*  Ornamental dividers                                                */
 /* ================================================================== */
 .ornament-border {
   background: linear-gradient(90deg, transparent, #D4A843, #E8751A, #D4A843, transparent);
@@ -328,6 +602,15 @@ h1, h2, h3 {
   opacity: 0.5;
 }
 
+/* Hand-inked SVG divider — use as a background on a 32px-tall div */
+.ornament-ink {
+  height: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 320px 24px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 24' fill='none' stroke='%23D4A843' stroke-width='1.2' stroke-linecap='round'><path d='M10 12 H130' opacity='0.45'/><path d='M190 12 H310' opacity='0.45'/><path d='M160 12 m-7 0 a 7 7 0 1 0 14 0 a 7 7 0 1 0 -14 0' opacity='0.75'/><path d='M160 6 v-3 M160 21 v-3 M152 12 h-4 M172 12 h-4' opacity='0.55'/><circle cx='160' cy='12' r='2' fill='%23E8751A' stroke='none'/></svg>");
+}
+
 /* ================================================================== */
 /*  Krishna card with ornamental corner accents                        */
 /* ================================================================== */
@@ -336,7 +619,6 @@ h1, h2, h3 {
   border: 1px solid rgba(212, 168, 67, 0.15);
   background: linear-gradient(145deg, rgba(27, 42, 107, 0.03) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(212, 168, 67, 0.03) 100%);
 }
-
 .krishna-card::before,
 .krishna-card::after {
   content: '';
@@ -346,17 +628,49 @@ h1, h2, h3 {
   border-color: rgba(212, 168, 67, 0.3);
   border-style: solid;
 }
-
 .krishna-card::before {
   top: -1px;
   left: -1px;
   border-width: 2px 0 0 2px;
   border-radius: 4px 0 0 0;
 }
-
 .krishna-card::after {
   bottom: -1px;
   right: -1px;
   border-width: 0 2px 2px 0;
   border-radius: 0 0 4px 0;
+}
+
+/* ================================================================== */
+/*  Scroll progress bar (appears at top of page during scroll)         */
+/* ================================================================== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 60;
+  background: linear-gradient(90deg, var(--accent-saffron), var(--accent-gold), var(--accent-lotus));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ================================================================== */
+/*  Masonry columns (used on /gallery)                                 */
+/* ================================================================== */
+.masonry {
+  column-count: 2;
+  column-gap: 1rem;
+}
+@media (min-width: 640px) {
+  .masonry { column-count: 3; column-gap: 1.25rem; }
+}
+@media (min-width: 1024px) {
+  .masonry { column-count: 4; column-gap: 1.25rem; }
+}
+.masonry > * {
+  break-inside: avoid;
+  margin-bottom: 1.25rem;
+  display: block;
 }
