@@ -143,6 +143,10 @@ body {
     radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.35), transparent 55%),
     radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.14), transparent 60%);
   background-repeat: repeat, no-repeat, no-repeat;
+  /* Multiply the texture so its white field drops out and only the dark
+     grooves remain, letting the paper base + gold gradients show through. */
+  background-blend-mode: multiply, normal, normal;
+  opacity: 0.85;
   /* Promote to its own GPU layer once, then never repaint on scroll. */
   transform: translateZ(0);
   will-change: transform;
