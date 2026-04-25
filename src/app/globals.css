@@ -130,15 +130,28 @@ body {
 
 body {
   overflow-x: hidden;
-  /* The whole page sits on one static paper sheet — three texture
-     layers (grain + creases + crumple) anchored to the viewport so the
-     content visibly scrolls *over* the paper. */
+  background-color: var(--paper);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Paper backdrop — one fixed, GPU-promoted element holding all       */
+/*  paper texture for the whole site. Rendered as a single composited  */
+/*  layer so scrolling stays smooth even on phones (no                  */
+/*  background-attachment: fixed, no per-section blend stacks).        */
+/* ------------------------------------------------------------------ */
+.paper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-color: var(--paper);
   background-image: var(--tex-crumple), var(--tex-creases), var(--tex-grain);
   background-size: 720px 720px, 480px 480px, 220px 220px;
-  background-position: 0 0, 0 0, 0 0;
-  background-attachment: fixed, fixed, fixed;
   background-blend-mode: multiply, multiply, multiply;
+  /* Promote to its own GPU layer once, then never repaint on scroll. */
+  transform: translateZ(0);
+  will-change: transform;
+  contain: paint;
 }
 
 /* Smooth scrolling everywhere — section anchors, nav jumps, etc. */
@@ -292,53 +305,31 @@ html {
 }
 
 /* ================================================================== */
-/*  Surfaces — paper textures                                           */
+/*  Surfaces — flat translucent tints over the .paper-backdrop          */
 /*                                                                     */
-/*  Surface backgrounds are translucent tints layered on top of the    */
-/*  body's static paper sheet, plus their own attached texture so the  */
-/*  paper feels continuous from top to bottom of the page.             */
+/*  No background-image, no blend-mode, no fixed attachment — just a   */
+/*  cheap rgba() tint. The fixed paper backdrop shows through, so      */
+/*  every section reads as the same paper sheet at slightly different  */
+/*  warmth, and scrolling stays buttery on mobile.                     */
 /* ================================================================== */
-.surface-paper {
-  background-color: rgba(247,239,221,0.55);
-  background-image: var(--tex-crumple), var(--tex-creases), var(--tex-grain);
-  background-size: 720px 720px, 480px 480px, 220px 220px;
-  background-attachment: fixed, fixed, fixed;
-  background-blend-mode: multiply, multiply, multiply;
-}
-.surface-paper-warm {
-  background-color: rgba(242,229,200,0.7);
-  background-image: var(--tex-crumple), var(--tex-creases), var(--tex-grain);
-  background-size: 720px 720px, 480px 480px, 220px 220px;
-  background-attachment: fixed, fixed, fixed;
-  background-blend-mode: multiply, multiply, multiply;
-}
-.surface-paper-light {
-  background-color: rgba(251,245,230,0.7);
-  background-image: var(--tex-creases), var(--tex-grain);
-  background-size: 480px 480px, 220px 220px;
-  background-attachment: fixed, fixed;
-  background-blend-mode: multiply, multiply;
-}
+.surface-paper        { background-color: rgba(247,239,221,0.45); }
+.surface-paper-warm   { background-color: rgba(242,229,200,0.6);  }
+.surface-paper-light  { background-color: rgba(251,245,230,0.55); }
+.surface-parchment    { background-color: rgba(251,245,230,0.55); }
+
+/* Dark sections stay opaque — they cover the paper fully, then add
+   a single cheap noise overlay that scrolls with content (no fixed). */
 .surface-sacred {
   background-color: var(--krishna-blue-deep);
-  background-image: var(--tex-creases-dark), var(--tex-grain-dark);
-  background-size: 480px 480px, 240px 240px;
-  background-attachment: fixed, fixed;
-  background-blend-mode: overlay, overlay;
+  background-image: var(--tex-grain-dark);
+  background-size: 240px 240px;
+  background-blend-mode: overlay;
 }
 .surface-midnight {
   background-color: var(--krishna-blue-midnight);
-  background-image: var(--tex-creases-dark), var(--tex-grain-dark);
-  background-size: 480px 480px, 240px 240px;
-  background-attachment: fixed, fixed;
-  background-blend-mode: overlay, overlay;
-}
-.surface-parchment {
-  background-color: rgba(251,245,230,0.7);
-  background-image: var(--tex-creases), var(--tex-grain);
-  background-size: 480px 480px, 220px 220px;
-  background-attachment: fixed, fixed;
-  background-blend-mode: multiply, multiply;
+  background-image: var(--tex-grain-dark);
+  background-size: 240px 240px;
+  background-blend-mode: overlay;
 }
 
 /* Cards / glass surfaces — paper-tone, not stark white */

@@ -37,9 +37,11 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
 
   return (
     <nav
-      className="fixed inset-x-0 top-0 z-40 backdrop-blur-md"
+      className="fixed inset-x-0 top-0 z-40"
       style={{
-        background: "rgba(247,239,221,0.78)",
+        /* Solid paper colour — no backdrop-filter. Cheaper on every
+           device, especially during scroll. */
+        background: "var(--paper)",
         borderBottom: "1px solid var(--paper-edge)",
       }}
       role="navigation"

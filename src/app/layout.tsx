@@ -42,7 +42,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {/* Single GPU-promoted paper layer for the whole site.
+            Rendered once, never repainted on scroll. */}
+        <div className="paper-backdrop" aria-hidden />
+        {children}
+      </body>
     </html>
   );
 }
