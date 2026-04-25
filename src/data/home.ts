@@ -433,7 +433,7 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
     slug: "gita-classes",
     title: "Gita Classes",
     blurb: "3 weekly sessions across NJ & Brooklyn",
-    href: "/classes",
+    href: "/programs",
     icon: "book",
     color: "gold",
   },
@@ -441,7 +441,7 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
     slug: "harinam",
     title: "Kirtan & Harinam",
     blurb: "Holy names on NYC streets every Sunday",
-    href: "/classes#harinam",
+    href: "/programs",
     icon: "music",
     color: "saffron",
   },
@@ -571,10 +571,10 @@ export const HERO_SLIDES: HeroSlide[] = [
     heading: "Bhagavad Gita class in Newport",
     subheading:
       "Weekly scripture study, kirtan, and dinner together. No prior experience needed.",
-    primaryCtaLabel: "See weekly schedule",
-    primaryCtaHref: "/classes",
+    primaryCtaLabel: "See upcoming programs",
+    primaryCtaHref: "/programs",
     secondaryCtaLabel: "What to expect",
-    secondaryCtaHref: "/classes#what-to-expect",
+    secondaryCtaHref: "/programs",
     visual: {
       type: "photo",
       imageUrl: "/krishna-arjuna-chariot.jpg",
@@ -589,3 +589,12 @@ export const HERO_SLIDES: HeroSlide[] = [
 export const INSTAGRAM_HANDLE = "gitalifenyc";
 export const INSTAGRAM_URL = "https://www.instagram.com/gitalifenyc/";
 export const YOUTUBE_URL = "https://www.youtube.com/@gitalifenyc";
+
+/* ------------------------------------------------------------------ */
+/*  LUMA CALENDAR                                                      */
+/*  All registration (classes, volunteer, festivals, retreats) flows  */
+/*  through one Luma calendar surfaced at /programs.                  */
+/* ------------------------------------------------------------------ */
+export const LUMA_CALENDAR_ID = "cal-mK1bChVBUk5zpw4";
+export const LUMA_CALENDAR_URL = `https://lu.ma/${LUMA_CALENDAR_ID}`;
+export const LUMA_CALENDAR_EMBED_URL = `https://luma.com/embed/calendar/${LUMA_CALENDAR_ID}/events`;

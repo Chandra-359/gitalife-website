@@ -554,7 +554,7 @@ function ReadingTab({ verse }: { verse: Verse }) {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link
-            href="/classes"
+            href="/programs"
             className="rounded-full px-5 py-2.5 text-[13px] font-semibold text-white transition-all hover:scale-[1.03]"
             style={{
               background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,

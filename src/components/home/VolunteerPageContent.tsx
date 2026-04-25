@@ -164,14 +164,14 @@ export default function VolunteerPageContent() {
               DM us on Instagram
             </a>
             <Link
-              href="/classes"
+              href="/programs"
               className="rounded-full px-6 py-3 text-[13px] font-semibold transition-all"
               style={{
                 border: `1px solid ${C.gold}30`,
                 color: C.goldLight,
               }}
             >
-              Or drop by a class
+              Or drop by a program
             </Link>
           </div>
         </div>

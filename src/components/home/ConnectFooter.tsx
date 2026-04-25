@@ -211,10 +211,10 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
                 Home
               </Link>
               <Link
-                href="/classes"
+                href="/programs"
                 className="text-white/40 hover:text-white/70 transition-colors"
               >
-                Classes
+                Programs
               </Link>
               <Link
                 href="/festival"
