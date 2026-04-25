@@ -141,7 +141,7 @@ body {
   background-image:
     radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.30), transparent 55%),
     radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.12), transparent 60%),
-    url("https://transparenttextures.com/patterns/groovepaper.png");
+    url("/textures/groovepaper.png");
   background-repeat: no-repeat, no-repeat, repeat;
   background-blend-mode: multiply, multiply, multiply;
   /* Promote to its own GPU layer once, then never repaint on scroll. */
