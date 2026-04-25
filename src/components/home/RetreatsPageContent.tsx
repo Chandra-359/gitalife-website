@@ -220,14 +220,14 @@ export default function RetreatsPageContent() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/classes"
+              href="/programs"
               className="rounded-full px-6 py-3 text-[13px] font-semibold text-white transition-all hover:scale-[1.03]"
               style={{
                 background: `linear-gradient(135deg, ${C.gold}, ${C.saffron})`,
                 boxShadow: `0 0 25px ${C.gold}30`,
               }}
             >
-              See weekly classes
+              See upcoming programs
             </Link>
             <a
               href={INSTAGRAM_URL}

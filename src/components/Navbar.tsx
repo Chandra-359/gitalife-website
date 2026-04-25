@@ -32,14 +32,14 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
 
   const navLinks = isHomepage
     ? [
-        { label: "Classes", href: "/classes" },
+        { label: "Programs", href: "/programs" },
         { label: "Festival", href: "/festival" },
         { label: "Daily", href: "/daily" },
         { label: "Impact", href: "/impact" },
       ]
     : [
         { label: "Home", href: "/" },
-        { label: "Classes", href: "/classes" },
+        { label: "Programs", href: "/programs" },
         { label: "Festival", href: "/festival" },
         { label: "Daily", href: "/daily" },
       ];

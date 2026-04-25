@@ -198,7 +198,7 @@ const TRACKS: Array<{
     title: "Classes",
     description:
       "Weekly Bhagavad Gita classes — Newport, Jersey City, ISKCON Brooklyn, and at NYU. Tea, dinner, real conversation.",
-    href: "/classes",
+    href: "/programs",
     accent: "saffron",
     icon: "book",
     details: ["Weekly · Fri / Sat / Sun", "Open to all", "Free, prasadam included"],

@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lumacdn.com" },
     ],
   },
+  async redirects() {
+    return [
+      // /programs is now the single hub for all registration. Keep old
+      // QR codes and external links pointing at /classes working.
+      { source: "/classes", destination: "/programs", permanent: true },
+      { source: "/classes/:path*", destination: "/programs", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
