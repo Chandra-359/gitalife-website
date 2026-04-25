@@ -589,3 +589,12 @@ export const HERO_SLIDES: HeroSlide[] = [
 export const INSTAGRAM_HANDLE = "gitalifenyc";
 export const INSTAGRAM_URL = "https://www.instagram.com/gitalifenyc/";
 export const YOUTUBE_URL = "https://www.youtube.com/@gitalifenyc";
+
+/* ------------------------------------------------------------------ */
+/*  LUMA CALENDAR                                                      */
+/*  All registration (classes, volunteer, festivals, retreats) flows  */
+/*  through one Luma calendar surfaced at /programs.                  */
+/* ------------------------------------------------------------------ */
+export const LUMA_CALENDAR_ID = "cal-mK1bChVBUk5zpw4";
+export const LUMA_CALENDAR_URL = `https://lu.ma/${LUMA_CALENDAR_ID}`;
+export const LUMA_CALENDAR_EMBED_URL = `https://luma.com/embed/calendar/${LUMA_CALENDAR_ID}/events`;
