@@ -42,64 +42,9 @@ export default function VolunteerPageContent() {
     <div className="min-h-screen" style={{ background: C.cream }}>
       <Navbar />
 
-      {/* Hero */}
-      <section
-        className="relative pt-28 pb-16 px-6 overflow-hidden"
-        style={{
-          background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
-        }}
-      >
-        <div
-          className="absolute top-0 left-0 right-0 h-[2px]"
-          style={{
-            background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)`,
-          }}
-        />
-        <div className="relative max-w-3xl mx-auto text-center">
-          <span
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em]"
-            style={{
-              background: "rgba(212,168,67,0.12)",
-              border: `1px solid ${C.gold}30`,
-              color: C.goldLight,
-            }}
-          >
-            <Icon name="handshake" size={12} />
-            Seva Opportunities
-          </span>
-
-          <h1 className="mt-5 text-4xl sm:text-5xl font-bold font-serif text-white leading-tight">
-            Pick a rung that fits your life right now
-          </h1>
-
-          <p
-            className="mt-5 text-[15px] sm:text-[16px] leading-[1.75] max-w-xl mx-auto"
-            style={{ color: "rgba(255,251,242,0.72)" }}
-          >
-            From a one-hour drop-in to long-term stewardship — we have a
-            place for you wherever you are.
-          </p>
-        </div>
-      </section>
-
       {/* Upcoming volunteer events — list from VOLUNTEER_EVENTS in src/data/home.ts */}
-      <section className="relative -mt-10 px-6 pb-16">
+      <section className="relative pt-28 px-6 pb-16">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <span
-              className="text-[11px] font-bold uppercase tracking-[0.2em]"
-              style={{ color: C.gold }}
-            >
-              Register
-            </span>
-            <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
-              style={{ color: C.krishnaBlue }}
-            >
-              Upcoming volunteer opportunities
-            </h2>
-          </div>
-
           {upcomingEvents.length === 0 ? (
             <div
               className="rounded-2xl px-8 py-10 text-center"
