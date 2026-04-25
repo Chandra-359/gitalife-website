@@ -48,12 +48,14 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
           className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
           aria-label="Gita Life NYC — Home"
         >
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white"
-            style={{ background: "var(--accent-saffron)" }}
-          >
-            G
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            width={36}
+            height={36}
+            className="h-9 w-9 shrink-0"
+          />
           <span className="text-base font-semibold text-gray-900 sm:text-lg">
             Gita Life NYC
           </span>

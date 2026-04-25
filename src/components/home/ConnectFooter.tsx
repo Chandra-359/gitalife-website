@@ -158,7 +158,17 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
           {/* Footer bar */}
           <div className="mt-12 pt-8 border-t border-white/10">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-sm font-semibold text-white/80">Gita Life NYC</span>
+              <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.svg"
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 shrink-0"
+                />
+                <span className="text-sm font-semibold text-white/80">Gita Life NYC</span>
+              </Link>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
                 <Link href="/" className="text-white/50 transition-colors hover:text-white">Home</Link>
                 <Link href="/programs" className="text-white/50 transition-colors hover:text-white">Programs</Link>
