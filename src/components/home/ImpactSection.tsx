@@ -35,7 +35,7 @@ export default function ImpactSection() {
           {IMPACT_STATS.map((stat, i) => (
             <div key={i}>
               <p
-                className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight"
+                className="text-[2rem] sm:text-5xl font-bold leading-tight tracking-tight break-words"
                 style={{ color: C.goldLight }}
               >
                 {stat.number}

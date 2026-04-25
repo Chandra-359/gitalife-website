@@ -57,15 +57,30 @@ export default function UpcomingPrograms({ events }: UpcomingProgramsProps) {
         {/* "Also coming up" row */}
         {previews.length > 0 && (
           <div className="mt-10">
-            <h3
-              className="text-lg font-semibold mb-4"
-              style={{ color: C.krishnaBlue }}
+            <div className="flex items-end justify-between mb-4 gap-3">
+              <h3
+                className="text-lg font-semibold"
+                style={{ color: C.krishnaBlue }}
+              >
+                Also coming up
+              </h3>
+              <span className="sm:hidden text-[11px] uppercase tracking-[0.16em] text-gray-400">
+                Swipe →
+              </span>
+            </div>
+            <div
+              className="snap-rail snap-rail-bleed sm:m-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:p-0 lg:grid-cols-3"
+              role="list"
+              aria-label="Upcoming programs"
             >
-              Also coming up
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {previews.map((e, i) => (
-                <LumaEventCard key={e.apiId} event={e} index={i} />
+                <div
+                  key={e.apiId}
+                  role="listitem"
+                  className="w-[82%] max-w-[320px] shrink-0 sm:w-auto sm:max-w-none sm:shrink"
+                >
+                  <LumaEventCard event={e} index={i} alwaysVertical />
+                </div>
               ))}
             </div>
           </div>

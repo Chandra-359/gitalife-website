@@ -29,15 +29,29 @@ export default function Hero({ slides }: HeroProps) {
 
   return (
     <section
-      className="relative w-full px-5 pt-24 pb-12 sm:px-8 sm:pt-32 sm:pb-20"
+      className="relative w-full px-5 pt-20 pb-12 sm:px-8 sm:pt-32 sm:pb-20"
       style={{ background: "var(--krishna-blue-deep)" }}
       aria-label="Welcome to Gita Life NYC"
     >
       <div className="mx-auto max-w-5xl">
-        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+        <div className="grid items-center gap-6 sm:gap-8 md:grid-cols-2 md:gap-12">
+          {/* Image — shown above the copy on mobile, beside it on desktop */}
+          {image && (
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-[240px] overflow-hidden rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.55)] sm:max-w-sm md:order-last md:max-w-none md:shadow-none">
+              <Image
+                src={image}
+                alt=""
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 768px) 60vw, 50vw"
+              />
+            </div>
+          )}
+
           {/* Text */}
           <div className="text-center md:text-left">
-            <span className="pill-chip pill-chip-gold mb-5">
+            <span className="pill-chip pill-chip-gold mb-4 sm:mb-5">
               {slide.eyebrow}
             </span>
 
@@ -49,7 +63,7 @@ export default function Hero({ slides }: HeroProps) {
               {slide.subheading}
             </p>
 
-            <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
+            <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
               <Link
                 href={slide.primaryCtaHref}
                 className="btn-primary-gradient inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"
@@ -66,20 +80,6 @@ export default function Hero({ slides }: HeroProps) {
               )}
             </div>
           </div>
-
-          {/* Image — hidden on smallest screens to keep mobile lean */}
-          {image && (
-            <div className="relative aspect-[4/5] w-full max-w-sm mx-auto md:max-w-none rounded-2xl overflow-hidden hidden sm:block">
-              <Image
-                src={image}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 768px) 80vw, 50vw"
-              />
-            </div>
-          )}
         </div>
       </div>
     </section>
