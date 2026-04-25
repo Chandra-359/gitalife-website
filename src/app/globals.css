@@ -74,17 +74,8 @@
   --background: var(--paper);
   --foreground: var(--ink-primary);
 
-  /* ----- Texture URIs reused across surfaces -------------------------
-   *  Three layers stack to read as real crumpled paper:
-   *    1. fine grain  — pixel-scale fibre noise
-   *    2. creases     — mid-frequency directional ridges (paper folds)
-   *    3. crumple     — large soft blotches for shading variation
-   *  Opacity values are deliberately strong so the texture reads even
-   *  through the warm cream surface-color on top.
-   * ------------------------------------------------------------------ */
-  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.28 0 0 0 0 0.18 0 0 0 0 0.05 0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
-  --tex-creases: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='c'><feTurbulence type='turbulence' baseFrequency='0.04 0.012' numOctaves='2' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.21 0 0 0 0 0.07 0 0 0 0.8 0'/><feGaussianBlur stdDeviation='0.8'/></filter><rect width='100%25' height='100%25' filter='url(%23c)' opacity='0.45'/></svg>");
-  --tex-crumple: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='720'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.009' numOctaves='3' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.34 0 0 0 0 0.22 0 0 0 0 0.07 0 0 0 0.85 0'/><feGaussianBlur stdDeviation='1.4'/></filter><rect width='100%25' height='100%25' filter='url(%23b)' opacity='0.55'/></svg>");
+  /* Handmade khadi-paper fibre grain — used on cards (.glass-card, .krishna-card) */
+  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.34 0 0 0 0 0.22 0 0 0 0 0.08 0 0 0 0.34 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   /* Light grain for dark surfaces — warm paper-fleck on indigo */
   --tex-grain-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
   --tex-creases-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='c'><feTurbulence type='turbulence' baseFrequency='0.04 0.012' numOctaves='2' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.86 0 0 0 0 0.6 0 0 0 0.55 0'/><feGaussianBlur stdDeviation='0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23c)' opacity='0.22'/></svg>");
@@ -120,7 +111,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--background);
+  background-color: transparent;
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -130,14 +121,16 @@ body {
 
 body {
   overflow-x: hidden;
-  background-color: var(--paper);
 }
 
 /* ------------------------------------------------------------------ */
-/*  Paper backdrop — one fixed, GPU-promoted element holding all       */
-/*  paper texture for the whole site. Rendered as a single composited  */
-/*  layer so scrolling stays smooth even on phones (no                  */
-/*  background-attachment: fixed, no per-section blend stacks).        */
+/*  Paper backdrop — one fixed, GPU-promoted element painting the      */
+/*  page surface. Layers (top-down):                                   */
+/*    1. groovepaper texture (self-hosted, normal compositing so the   */
+/*       dark grooves render as actual dark marks, not multiplied      */
+/*       into invisibility)                                            */
+/*    2. soft warm vignette (top: gold-light, bottom: amber)           */
+/*    3. warm cream base                                               */
 /* ------------------------------------------------------------------ */
 .paper-backdrop {
   position: fixed;
@@ -145,9 +138,11 @@ body {
   z-index: -1;
   pointer-events: none;
   background-color: var(--paper);
-  background-image: var(--tex-crumple), var(--tex-creases), var(--tex-grain);
-  background-size: 720px 720px, 480px 480px, 220px 220px;
-  background-blend-mode: multiply, multiply, multiply;
+  background-image:
+    url("/textures/groovepaper.png"),
+    radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.35), transparent 55%),
+    radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.14), transparent 60%);
+  background-repeat: repeat, no-repeat, no-repeat;
   /* Promote to its own GPU layer once, then never repaint on scroll. */
   transform: translateZ(0);
   will-change: transform;
