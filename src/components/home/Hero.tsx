@@ -29,15 +29,23 @@ export default function Hero({ slides }: HeroProps) {
 
   return (
     <section
-      className="relative w-full px-5 pt-20 pb-12 sm:px-8 sm:pt-32 sm:pb-20"
-      style={{ background: "var(--krishna-blue-deep)" }}
+      className="surface-sacred relative w-full overflow-hidden px-5 pt-24 pb-14 sm:px-8 sm:pt-36 sm:pb-24"
       aria-label="Welcome to Gita Life NYC"
     >
-      <div className="mx-auto max-w-5xl">
-        <div className="grid items-center gap-6 sm:gap-8 md:grid-cols-2 md:gap-12">
+      {/* Soft gold radial glow for depth without breaking the paper feel */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 20% 0%, rgba(237,214,152,0.18), transparent 70%), radial-gradient(50% 60% at 100% 100%, rgba(217,105,26,0.16), transparent 70%)",
+        }}
+      />
+      <div className="relative mx-auto max-w-5xl">
+        <div className="grid items-center gap-8 sm:gap-10 md:grid-cols-2 md:gap-14">
           {/* Image — shown above the copy on mobile, beside it on desktop */}
           {image && (
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-[240px] overflow-hidden rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.55)] sm:max-w-sm md:order-last md:max-w-none md:shadow-none">
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-[22px] shadow-[0_24px_60px_-22px_rgba(0,0,0,0.65)] ring-1 ring-white/10 sm:max-w-sm md:order-last md:max-w-none">
               <Image
                 src={image}
                 alt=""
@@ -51,7 +59,7 @@ export default function Hero({ slides }: HeroProps) {
 
           {/* Text */}
           <div className="text-center md:text-left">
-            <span className="pill-chip pill-chip-gold mb-4 sm:mb-5">
+            <span className="pill-chip pill-chip-gold mb-5 sm:mb-6">
               {slide.eyebrow}
             </span>
 
@@ -59,11 +67,11 @@ export default function Hero({ slides }: HeroProps) {
               {slide.heading}
             </h1>
 
-            <p className="mt-4 text-base leading-relaxed sm:text-lg text-white/80 max-w-xl mx-auto md:mx-0">
+            <p className="mt-5 max-w-xl mx-auto text-base leading-relaxed text-white/85 sm:text-lg md:mx-0">
               {slide.subheading}
             </p>
 
-            <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
+            <div className="mt-7 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
               <Link
                 href={slide.primaryCtaHref}
                 className="btn-primary-gradient inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold"

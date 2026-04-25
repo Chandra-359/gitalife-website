@@ -52,7 +52,7 @@ export default function RetreatsPageContent() {
   const past = RETREATS.filter((r) => r.status === "past");
 
   return (
-    <div className="min-h-screen" style={{ background: C.cream }}>
+    <div className="surface-paper min-h-screen">
       <Navbar />
 
       {/* Hero */}

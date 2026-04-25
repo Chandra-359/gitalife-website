@@ -34,23 +34,23 @@ interface ProgramsPageProps {
 function PageHeader() {
   return (
     <section
-      className="relative px-5 sm:px-8 pt-20 pb-6 sm:pt-24 sm:pb-8"
-      style={{ background: "white", borderBottom: "1px solid rgba(15,27,77,0.06)" }}
+      className="surface-paper-light relative px-5 sm:px-8 pt-24 pb-8 sm:pt-28 sm:pb-10"
+      style={{ borderBottom: "1px solid var(--paper-edge)" }}
     >
       <div className="mx-auto max-w-5xl">
         <span
-          className="text-[11px] font-bold uppercase tracking-[0.14em]"
+          className="text-[11px] font-bold uppercase tracking-[0.18em]"
           style={{ color: C.saffron }}
         >
           Programs
         </span>
         <h1
-          className="mt-1 text-2xl sm:text-3xl font-bold"
+          className="section-heading mt-2 text-3xl sm:text-4xl"
           style={{ color: C.krishnaBlue }}
         >
           Upcoming gatherings
         </h1>
-        <p className="mt-2 max-w-xl text-sm sm:text-[15px] leading-relaxed text-gray-600">
+        <p className="mt-3 max-w-xl text-sm sm:text-[15px] leading-relaxed" style={{ color: "var(--ink-secondary)" }}>
           Classes, harinam, festivals, retreats, and seva — tap any program to RSVP on Luma.
         </p>
       </div>
@@ -338,7 +338,7 @@ function CTAStrip() {
 /* ================================================================== */
 export default function ProgramsPage({ testimonials, events }: ProgramsPageProps) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="surface-paper min-h-screen">
       <Navbar />
       <PageHeader />
       <LumaEventsSection events={events} />

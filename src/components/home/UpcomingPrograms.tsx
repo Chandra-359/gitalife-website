@@ -30,7 +30,7 @@ export default function UpcomingPrograms({ events }: UpcomingProgramsProps) {
   const previews = rest.slice(0, 3);
 
   return (
-    <section className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: C.warmBg }}>
+    <section className="surface-paper relative py-14 px-5 sm:py-20 sm:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="text-center mb-8 sm:mb-10">
           <span
@@ -41,7 +41,7 @@ export default function UpcomingPrograms({ events }: UpcomingProgramsProps) {
             What&rsquo;s coming up
           </span>
           <h2
-            className="mt-2 text-2xl sm:text-3xl font-bold"
+            className="section-heading mt-2 text-3xl sm:text-4xl"
             style={{ color: C.krishnaBlue }}
           >
             Come gather with us

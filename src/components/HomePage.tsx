@@ -40,7 +40,7 @@ export default function HomePage({ programs, events }: HomePageProps) {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <Navbar isHomepage />
       <Hero slides={HERO_SLIDES} />
       <TodayStrip />

@@ -167,19 +167,20 @@ export function Icon({
   }
 }
 
-/** Color tokens shared by homepage components. */
+/** Color tokens shared by homepage components.
+ *  Tuned to harmonise with the warm paper palette in globals.css. */
 export const C = {
-  krishnaBlue: "#1B2A6B",
+  krishnaBlue: "#15224F",
   krishnaDeep: "#0F1B4D",
   krishnaLight: "#2E3F8F",
-  gold: "#D4A843",
-  goldLight: "#F0D68A",
-  saffron: "#E8751A",
+  gold: "#C9A248",
+  goldLight: "#EDD698",
+  saffron: "#D9691A",
   peacock: "#006D5B",
   peacockLight: "#00917A",
-  lotusPink: "#D64B8A",
-  cream: "#FFFBF2",
-  warmBg: "#FFF9F0",
+  lotusPink: "#C84682",
+  cream: "#FBF5E6",
+  warmBg: "#F2E5C8",
 } as const;
 
 export function colorFor(token: "gold" | "saffron" | "peacock" | "lotus" | "krishna"): string {

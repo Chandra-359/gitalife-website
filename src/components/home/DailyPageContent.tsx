@@ -84,7 +84,7 @@ export default function DailyPageContent() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: C.cream }}>
+    <div className="surface-paper min-h-screen">
       <Navbar />
 
       {/* Hero / streak header */}

@@ -18,7 +18,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
     <>
       {/* Testimonials */}
       {testimonials.length > 0 && (
-        <section className="relative py-14 px-5 sm:py-20 sm:px-8" style={{ background: "white" }}>
+        <section className="surface-paper-light relative py-16 px-5 sm:py-24 sm:px-8">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8 sm:mb-10">
               <span
@@ -28,7 +28,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
                 Testimonials
               </span>
               <h2
-                className="mt-2 text-2xl sm:text-3xl font-bold"
+                className="section-heading mt-2 text-3xl sm:text-4xl"
                 style={{ color: C.krishnaBlue }}
               >
                 What people are saying
@@ -46,11 +46,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
                   <div
                     key={prog.id}
                     role="listitem"
-                    className="w-[85%] max-w-[340px] shrink-0 rounded-xl p-6 md:w-auto md:max-w-none md:shrink"
-                    style={{
-                      background: C.cream,
-                      border: "1px solid rgba(15,27,77,0.08)",
-                    }}
+                    className="glass-card hover-lift w-[85%] max-w-[340px] shrink-0 rounded-2xl p-6 md:w-auto md:max-w-none md:shrink"
                   >
                     <p className="text-[15px] leading-relaxed text-gray-700 mb-5">
                       &ldquo;{prog.testimonial}&rdquo;
@@ -83,17 +79,24 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
       {/* Get Connected + footer */}
       <section
         id="get-connected"
-        className="relative py-14 px-5 sm:py-20 sm:px-8"
-        style={{ background: C.krishnaDeep }}
+        className="surface-sacred relative overflow-hidden py-16 px-5 sm:py-24 sm:px-8"
       >
-        <div className="max-w-3xl mx-auto text-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-50"
+          style={{
+            background:
+              "radial-gradient(50% 50% at 50% 0%, rgba(237,214,152,0.16), transparent 70%)",
+          }}
+        />
+        <div className="relative max-w-3xl mx-auto text-center">
           <span
-            className="text-[11px] font-bold uppercase tracking-[0.14em]"
+            className="text-[11px] font-bold uppercase tracking-[0.18em]"
             style={{ color: C.goldLight }}
           >
             Join Us
           </span>
-          <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+          <h2 className="section-heading mt-2 text-3xl text-white sm:text-4xl">
             Stay connected
           </h2>
           <p className="mt-3 max-w-md mx-auto text-sm text-white/60">
