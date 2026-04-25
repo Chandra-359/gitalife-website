@@ -23,14 +23,16 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import type { Program } from "@/data/programs";
+import type { LumaEvent } from "@/lib/luma";
 import { RETREATS, INSTAGRAM_URL } from "@/data/home";
 import { C, Icon } from "@/components/home/icons";
 import Navbar from "@/components/Navbar";
 import ConnectFooter from "@/components/home/ConnectFooter";
-import LumaCalendarEmbed from "./LumaCalendarEmbed";
+import LumaEventsSection from "./LumaEventsSection";
 
 interface ProgramsPageProps {
   testimonials: Program[];
+  events: LumaEvent[];
 }
 
 /* ================================================================== */
@@ -177,52 +179,6 @@ function Hero() {
             "linear-gradient(180deg, transparent 0%, var(--bg-parchment) 100%)",
         }}
       />
-    </section>
-  );
-}
-
-/* ================================================================== */
-/*  CalendarSection — eyebrow + heading + LumaCalendarEmbed            */
-/* ================================================================== */
-function CalendarSection() {
-  return (
-    <section
-      id="calendar"
-      className="relative px-5 sm:px-6 py-16 sm:py-24 surface-parchment"
-    >
-      <div className="mx-auto max-w-5xl">
-        <div className="text-center mb-10 sm:mb-12">
-          <span
-            className="eyebrow inline-flex items-center gap-2"
-            style={{ color: C.saffron }}
-          >
-            <Icon name="sparkle" size={13} />
-            What&rsquo;s open right now
-          </span>
-          <h2
-            className="mt-3 text-3xl sm:text-4xl font-bold font-serif"
-            style={{ color: C.krishnaBlue }}
-          >
-            Upcoming programs
-          </h2>
-          <p
-            className="mx-auto mt-3 max-w-xl text-[14px] sm:text-[15px] leading-relaxed"
-            style={{ color: "var(--ink-secondary)" }}
-          >
-            Use the filters on the calendar to narrow by class, kirtan,
-            festival, or volunteer opportunity. Tap any event to RSVP — it
-            opens on Luma.
-          </p>
-        </div>
-
-        <LumaCalendarEmbed />
-
-        {/* Helper line for QR-arriving mobile users */}
-        <p className="mt-5 text-center text-[12px]" style={{ color: "#6b7280" }}>
-          Brand-new here? Start with a Sunday class or come help at any
-          program — no experience needed.
-        </p>
-      </div>
     </section>
   );
 }
@@ -544,12 +500,15 @@ function CTAStrip() {
 /* ================================================================== */
 /*  ProgramsPage — composed                                            */
 /* ================================================================== */
-export default function ProgramsPage({ testimonials }: ProgramsPageProps) {
+export default function ProgramsPage({
+  testimonials,
+  events,
+}: ProgramsPageProps) {
   return (
     <div className="min-h-screen surface-parchment">
       <Navbar />
       <Hero />
-      <CalendarSection />
+      <LumaEventsSection events={events} />
       <WhatToExpect />
       <PastPrograms />
       <CTAStrip />

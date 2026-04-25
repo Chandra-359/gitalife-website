@@ -5,13 +5,15 @@
  * for QR codes — must orient new visitors quickly and hand off to Luma
  * for registration.
  *
- * Old map-and-list split-view has moved aside; the new page is built
- * around the shared Luma calendar (LUMA_CALENDAR_EMBED_URL in home.ts)
- * with branded chrome, category onboarding, and a past-programs carousel.
+ * Server-fetches the shared Luma calendar (configured at LUMA_CALENDAR_ID
+ * in src/data/home.ts) so cards are rendered with full brand styling.
+ * If the Luma fetch fails the section gracefully falls back to the
+ * embedded calendar iframe.
  */
 
 import type { Metadata } from "next";
 import { getPrograms } from "@/lib/programs";
+import { getLumaEvents } from "@/lib/luma";
 import ProgramsPage from "@/components/programs/ProgramsPage";
 
 export const dynamic = "force-dynamic";
@@ -29,10 +31,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const programs = await getPrograms();
+  const [programs, events] = await Promise.all([
+    getPrograms(),
+    getLumaEvents({ period: "future", limit: 50 }),
+  ]);
+
   const testimonials = programs
     .filter((p) => p.testimonial && p.testimonialAuthor)
     .slice(0, 3);
 
-  return <ProgramsPage testimonials={testimonials} />;
+  return <ProgramsPage testimonials={testimonials} events={events} />;
 }
