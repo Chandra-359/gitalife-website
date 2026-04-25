@@ -124,7 +124,7 @@ export default function FestivalPageContent() {
 
       {/* RSVP — one Luma embed per upcoming monthly festival */}
       <section className="relative -mt-10 px-6 pb-16">
-        <div className="max-w-3xl mx-auto space-y-10">
+        <div className="max-w-3xl mx-auto space-y-8">
           {MONTHLY_FESTIVALS.filter((f) => f.status === "upcoming").map((festival, i) => (
             <motion.div
               key={festival.id}
@@ -133,25 +133,6 @@ export default function FestivalPageContent() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
             >
-              <div className="mb-4 text-center">
-                <span
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em]"
-                  style={{
-                    background: "white",
-                    border: `1px solid ${C.gold}40`,
-                    color: C.krishnaBlue,
-                  }}
-                >
-                  <Icon name="calendar" size={12} style={{ color: C.saffron }} />
-                  {festival.dateLabel} · {festival.timeLabel}
-                </span>
-                <h2
-                  className="mt-3 text-xl sm:text-2xl font-bold font-serif"
-                  style={{ color: C.krishnaBlue }}
-                >
-                  {festival.title}
-                </h2>
-              </div>
               <LumaEmbed
                 lumaUrl={festival.lumaUrl}
                 eventTitle={festival.title}
