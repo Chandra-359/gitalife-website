@@ -21,6 +21,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
     ? [
         { label: "Programs", href: "/programs" },
         { label: "Festival", href: "/festival" },
+        { label: "Volunteer", href: "/volunteer" },
         { label: "Daily", href: "/daily" },
         { label: "Impact", href: "/impact" },
       ]
@@ -28,6 +29,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         { label: "Home", href: "/" },
         { label: "Programs", href: "/programs" },
         { label: "Festival", href: "/festival" },
+        { label: "Volunteer", href: "/volunteer" },
         { label: "Daily", href: "/daily" },
       ];
 

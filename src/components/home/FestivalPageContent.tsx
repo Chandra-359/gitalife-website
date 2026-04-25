@@ -3,16 +3,16 @@
 /**
  * FestivalPageContent — Dedicated page for the monthly Youth Festival.
  *
- * Pattern: hero → Luma embed (RSVP) → highlights → location → FAQ.
- * Luma integration: set FEATURED_EVENT.lumaUrl in src/data/home.ts.
- * If the URL is empty, we show an inline "registration opening soon"
- * card with a mailto fallback so the page is never broken.
+ * Pattern: hero → one Luma embed per upcoming monthly festival → highlights → location → FAQ.
+ * Add a new month: append an entry to MONTHLY_FESTIVALS in src/data/home.ts.
+ * The first upcoming entry is automatically promoted to the hero (FEATURED_EVENT).
+ * If a festival has no Luma URL yet, the embed renders a "registration opening soon" card.
  */
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { FEATURED_EVENT, YOUTUBE_URL } from "@/data/home";
+import { FEATURED_EVENT, MONTHLY_FESTIVALS, YOUTUBE_URL } from "@/data/home";
 import { C, Icon } from "./icons";
 import LumaEmbed from "./LumaEmbed";
 
@@ -122,21 +122,35 @@ export default function FestivalPageContent() {
         </div>
       </section>
 
-      {/* RSVP — Luma embed or fallback card */}
+      {/* RSVP — one Luma embed per upcoming monthly festival */}
       <section className="relative -mt-10 px-6 pb-16">
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+        <div className="max-w-3xl mx-auto space-y-8">
+          {MONTHLY_FESTIVALS.filter((f) => f.status === "upcoming").map((festival, i) => (
+            <motion.div
+              key={festival.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.08 }}
+            >
+              <LumaEmbed
+                lumaUrl={festival.lumaUrl}
+                eventTitle={festival.title}
+                rsvpUrl={festival.rsvpUrl}
+              />
+            </motion.div>
+          ))}
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
+            className="text-center text-[13px]"
+            style={{ color: `${C.krishnaBlue}99` }}
           >
-            <LumaEmbed
-              lumaUrl={FEATURED_EVENT.lumaUrl}
-              eventTitle={FEATURED_EVENT.title}
-              rsvpUrl={FEATURED_EVENT.rsvpUrl}
-            />
-          </motion.div>
+            More monthly festival dates will be added here once confirmed.
+          </motion.p>
         </div>
       </section>
 

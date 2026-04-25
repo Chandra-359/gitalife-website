@@ -131,26 +131,41 @@ export interface FeaturedEventData {
   totalSpots?: number;
 }
 
-export const FEATURED_EVENT: FeaturedEventData = {
-  kind: "festival",
-  title: "April Youth Festival",
-  dateLabel: "Saturday, April 26",
-  timeLabel: "5:00 PM – 10:00 PM",
-  location: "ISKCON Brooklyn Temple",
-  description:
-    "Our monthly gathering of young devotees — kirtan, a fireside talk, prasadam feast, and dance under the stars.",
-  highlights: [
-    "Opening kirtan with temple musicians",
-    "Talk: Finding purpose through the Gita",
-    "Prasadam feast (fully vegetarian)",
-    "Open mic + community dance",
-  ],
-  /** TODO: replace with your real Luma URL — e.g. https://lu.ma/gitalife-apr26 */
-  lumaUrl: "",
-  imageUrl: "/krishna-arjuna-chariot.jpg",
-  spotsLeft: 35,
-  totalSpots: 80,
-};
+/**
+ * Monthly Youth Festival schedule.
+ * Add a new entry here each month once the date and Luma link are confirmed.
+ * The first "upcoming" entry is treated as the featured event across the site.
+ */
+export interface MonthlyFestivalData extends FeaturedEventData {
+  id: string;
+  status: "upcoming" | "past";
+}
+
+export const MONTHLY_FESTIVALS: MonthlyFestivalData[] = [
+  {
+    id: "may-2026",
+    kind: "festival",
+    status: "upcoming",
+    title: "May Youth Festival",
+    dateLabel: "Saturday, May 16",
+    timeLabel: "6:00 PM – 9:00 PM EDT",
+    location: "ISKCON Brooklyn Temple",
+    description:
+      "Our monthly gathering of young devotees — kirtan, a fireside talk, prasadam feast, and community at ISKCON Brooklyn.",
+    highlights: [
+      "Opening kirtan with temple musicians",
+      "Talk: Finding purpose through the Gita",
+      "Prasadam feast (fully vegetarian)",
+      "Open mic + community dance",
+    ],
+    lumaUrl: "https://lu.ma/5v96k21g",
+    imageUrl: "/krishna-arjuna-chariot.jpg",
+  },
+];
+
+/** The next upcoming festival — used by the homepage hero and the /festival page. */
+export const FEATURED_EVENT: FeaturedEventData =
+  MONTHLY_FESTIVALS.find((f) => f.status === "upcoming") ?? MONTHLY_FESTIVALS[0];
 
 /* ------------------------------------------------------------------ */
 /*  RETREATS (quarterly upstate immersions)                            */
@@ -216,6 +231,34 @@ export const RETREATS: Retreat[] = [
     quote:
       "The balance between philosophy, chanting, and just being in nature was exactly what I needed.",
     quoteAuthor: "Arjun, Columbia '26",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  VOLUNTEER EVENTS                                                   */
+/*  One entry per upcoming Luma event the youth crew is helping run.   */
+/*  Add a new entry → it shows up at /volunteer with a Luma RSVP card. */
+/* ------------------------------------------------------------------ */
+export interface VolunteerEvent {
+  id: string;
+  title: string;
+  dateLabel: string;
+  timeLabel: string;
+  location: string;
+  /** Luma event URL — supports both lu.ma/<slug> and luma.com/<slug>. */
+  lumaUrl: string;
+  status: "upcoming" | "past";
+}
+
+export const VOLUNTEER_EVENTS: VolunteerEvent[] = [
+  {
+    id: "nrisingha-chaturdashi-2026",
+    title: "Nrisingha Chaturdashi Volunteering",
+    dateLabel: "Thursday, April 30",
+    timeLabel: "8:00 AM – 9:00 PM EDT",
+    location: "ISKCON Brooklyn Temple",
+    lumaUrl: "https://lu.ma/tk1tl0vi",
+    status: "upcoming",
   },
 ];
 
