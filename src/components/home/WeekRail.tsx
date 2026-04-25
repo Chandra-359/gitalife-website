@@ -6,7 +6,6 @@
  */
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { WEEKLY_SCHEDULE, type WeeklyClass } from "@/data/home";
 import { C, Icon } from "./icons";
 
@@ -52,19 +51,19 @@ export default function WeekRail() {
   const todayIdx = today === 0 ? 6 : today - 1;
 
   return (
-    <section className="relative py-16 px-6" style={{ background: C.cream }}>
+    <section className="relative py-12 px-5 sm:py-16 sm:px-8" style={{ background: C.cream }}>
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
+        <div className="flex items-end justify-between mb-6 sm:mb-8 flex-wrap gap-3">
           <div>
             <span
-              className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em]"
+              className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em]"
               style={{ color: C.gold }}
             >
               <Icon name="calendar" size={14} />
               This Week
             </span>
             <h2
-              className="mt-2 text-2xl sm:text-3xl font-bold font-serif"
+              className="mt-2 text-2xl sm:text-3xl font-bold"
               style={{ color: C.krishnaBlue }}
             >
               Join a class, kirtan, or seva
@@ -85,19 +84,12 @@ export default function WeekRail() {
             const meta = kindMeta(item.kind);
             const isNext = isNextUpcoming(item, todayIdx, nextIdx);
             return (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="group relative rounded-2xl p-5 transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="group relative rounded-xl p-5 transition-colors"
                 style={{
                   background: "white",
-                  border: `1px solid ${isNext ? meta.color : C.gold + "20"}`,
-                  boxShadow: isNext
-                    ? `0 0 0 2px ${meta.color}15, 0 4px 20px rgba(27,42,107,0.06)`
-                    : "0 2px 14px rgba(27,42,107,0.03)",
+                  border: `1px solid ${isNext ? meta.color : "rgba(15,27,77,0.08)"}`,
                 }}
               >
                 {/* Upcoming badge */}
@@ -106,15 +98,14 @@ export default function WeekRail() {
                     className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white"
                     style={{ background: meta.color }}
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                     Up next
                   </span>
                 )}
 
                 {/* Day + time */}
-                <div className="flex items-baseline justify-between mb-4">
+                <div className="flex items-baseline justify-between mb-3">
                   <span
-                    className="text-[18px] font-bold font-serif"
+                    className="text-[16px] font-semibold"
                     style={{ color: C.krishnaBlue }}
                   >
                     {item.day}
@@ -145,7 +136,7 @@ export default function WeekRail() {
                     <span className="text-gray-400"> · {item.neighborhood}</span>
                   </span>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

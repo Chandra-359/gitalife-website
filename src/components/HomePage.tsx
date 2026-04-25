@@ -1,26 +1,18 @@
 "use client";
 
 /**
- * HomePage — The new hub-and-rails homepage.
+ * HomePage — Simple, mobile-first homepage.
  *
- * Scroll narrative (matches the approved wireframe, refreshed for the
- * 2026 cinematic redesign):
- *   1. ScrollProgress (pinned top — the saffron→gold→lotus bar)
- *   2. Navbar
- *   3. Hero (cinematic, parallax, Sanskrit + petals)
- *   4. TodayStrip (verse of the day, japa, reading)
- *   5. Ornament divider
- *   6. WeekRail (this week's classes & harinam)
- *   7. UpcomingPrograms (next-up + 3 previews from the Luma calendar)
- *   8. ExploreGrid (8 category tiles → sub-pages)
- *   9. ImpactSection (big numbers on sacred indigo)
- *  10. YoutubeWall (videos, wired to @gitalifenyc via Elfsight)
- *  11. InstagramWall (gallery, wired to @gitalifenyc via Elfsight)
- *  12. ConnectFooter (testimonials + subscribe + footer)
- *
- * Each section is its own component under src/components/home/.
- * Content is driven by src/data/home.ts, src/data/verses.ts, and the
- * Luma calendar (events fetched server-side in src/app/page.tsx).
+ * Sections:
+ *   1. Navbar
+ *   2. Hero
+ *   3. TodayStrip (verse + japa + reading)
+ *   4. WeekRail (this week's classes)
+ *   5. UpcomingPrograms (Luma events)
+ *   6. ExploreGrid (categories)
+ *   7. ImpactSection (stats)
+ *   8. YoutubeWall + InstagramWall
+ *   9. ConnectFooter (testimonials + subscribe + footer)
  */
 
 import type { Program } from "@/data/programs";
@@ -35,23 +27,11 @@ import ImpactSection from "@/components/home/ImpactSection";
 import YoutubeWall from "@/components/home/YoutubeWall";
 import InstagramWall from "@/components/home/InstagramWall";
 import ConnectFooter from "@/components/home/ConnectFooter";
-import ScrollProgress from "@/components/home/ScrollProgress";
 import { HERO_SLIDES } from "@/data/home";
 
 interface HomePageProps {
   programs: Program[];
   events: LumaEvent[];
-}
-
-/** Hand-inked ornamental divider between sections on parchment surfaces. */
-function OrnamentDivider() {
-  return (
-    <div
-      className="ornament-ink"
-      style={{ background: "var(--bg-parchment)" }}
-      aria-hidden
-    />
-  );
 }
 
 export default function HomePage({ programs, events }: HomePageProps) {
@@ -60,12 +40,10 @@ export default function HomePage({ programs, events }: HomePageProps) {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen surface-parchment">
-      <ScrollProgress />
+    <div className="min-h-screen bg-white">
       <Navbar isHomepage />
       <Hero slides={HERO_SLIDES} />
       <TodayStrip />
-      <OrnamentDivider />
       <WeekRail />
       <UpcomingPrograms events={events} />
       <ExploreGrid />

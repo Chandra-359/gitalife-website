@@ -14,7 +14,6 @@
  */
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import type { LumaEvent } from "@/lib/luma";
 import { C, Icon } from "@/components/home/icons";
 import { bucketEventsByWeek, getTagAccent } from "./dateUtils";
@@ -79,10 +78,10 @@ export default function LumaEventsSection({ events }: LumaEventsSectionProps) {
     return (
       <section
         id="calendar"
-        className="relative px-5 sm:px-6 py-16 sm:py-24 surface-parchment"
+        className="relative px-5 sm:px-8 py-10 sm:py-14"
+        style={{ background: "white" }}
       >
         <div className="mx-auto max-w-5xl">
-          <SectionHeader />
           <LumaCalendarEmbed />
         </div>
       </section>
@@ -92,27 +91,20 @@ export default function LumaEventsSection({ events }: LumaEventsSectionProps) {
   return (
     <section
       id="calendar"
-      className="relative px-5 sm:px-6 py-16 sm:py-24 surface-parchment"
+      className="relative px-5 sm:px-8 py-8 sm:py-12"
+      style={{ background: "white" }}
     >
       <div className="mx-auto max-w-6xl">
-        <SectionHeader />
-
-        {/* ---- Featured hero ---- */}
+        {/* Featured */}
         {featured && (
-          <div className="mb-10 sm:mb-14">
+          <div className="mb-8 sm:mb-10">
             <LumaFeaturedCard event={featured} />
           </div>
         )}
 
-        {/* ---- Filter chips (sticky on scroll) ---- */}
+        {/* Filter chips */}
         {tagOptions.length > 0 && (
-          <div
-            className="sticky top-2 z-30 -mx-5 sm:-mx-6 px-5 sm:px-6 py-3 mb-6"
-            style={{
-              background:
-                "linear-gradient(180deg, var(--bg-parchment) 0%, var(--bg-parchment) 70%, transparent 100%)",
-            }}
-          >
+          <div className="mb-6">
             <FilterRail
               options={tagOptions}
               activeTag={activeTag}
@@ -125,85 +117,52 @@ export default function LumaEventsSection({ events }: LumaEventsSectionProps) {
           </div>
         )}
 
-        {/* ---- Empty filter result ---- */}
+        {/* Events list */}
         {filtered.length === 0 ? (
           <FilteredEmptyState onReset={() => setActiveTag(ALL)} />
         ) : (
           <>
-            {/* ---- Week-bucketed sections ---- */}
-            <div className="space-y-12 sm:space-y-14">
-              <AnimatePresence mode="popLayout" initial={false}>
-                {visibleBuckets.map((bucket) => (
-                  <motion.div
-                    key={`${activeTag}-${bucket.key}`}
-                    layout
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <BucketHeader
-                      label={bucket.label}
-                      count={bucket.events.length}
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                      {bucket.events.map((e, i) => (
-                        <LumaEventCard
-                          key={e.apiId}
-                          event={e}
-                          index={i}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            <div className="space-y-8 sm:space-y-10">
+              {visibleBuckets.map((bucket) => (
+                <div key={`${activeTag}-${bucket.key}`}>
+                  <BucketHeader
+                    label={bucket.label}
+                    count={bucket.events.length}
+                  />
+                  {/* Mobile: vertical stack with tight gap. sm+: grid. */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+                    {bucket.events.map((e, i) => (
+                      <LumaEventCard key={e.apiId} event={e} index={i} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* ---- Show-all toggle ---- */}
+            {/* Show-all toggle */}
             {hiddenBuckets.length > 0 && (
-              <div className="mt-12 flex flex-col items-center gap-3">
+              <div className="mt-8 flex flex-col items-center gap-3">
                 {!showAll ? (
                   <button
                     type="button"
                     onClick={() => setShowAll(true)}
-                    className="group inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[12.5px] font-bold uppercase tracking-[0.16em] transition-all hover:scale-[1.02]"
+                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors hover:bg-gray-50"
                     style={{
                       background: "white",
                       color: C.krishnaBlue,
-                      border: `1px solid ${C.gold}40`,
-                      boxShadow:
-                        "0 1px 2px rgba(15,27,77,0.04), 0 12px 24px -12px rgba(15,27,77,0.18)",
+                      border: "1px solid rgba(15,27,77,0.15)",
                     }}
                   >
-                    <span>
-                      Show {hiddenEventCount} more program
-                      {hiddenEventCount === 1 ? "" : "s"}
-                    </span>
-                    <span
-                      className="rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums"
-                      style={{
-                        background: `${C.gold}1f`,
-                        color: C.saffron,
-                      }}
-                    >
-                      +{hiddenBuckets.length}{" "}
-                      {hiddenBuckets.length === 1 ? "week" : "weeks"}
-                    </span>
-                    <Icon
-                      name="arrowRight"
-                      size={12}
-                      className="rotate-90 transition-transform group-hover:translate-y-0.5"
-                    />
+                    Show {hiddenEventCount} more
+                    <Icon name="arrowRight" size={12} className="rotate-90" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setShowAll(false)}
-                    className="text-[12px] font-semibold transition-opacity hover:opacity-70"
-                    style={{ color: "#6b7280" }}
+                    className="text-xs font-semibold text-gray-500 transition-opacity hover:opacity-70"
                   >
-                    Collapse to upcoming weeks
+                    Collapse
                   </button>
                 )}
               </div>
@@ -211,11 +170,7 @@ export default function LumaEventsSection({ events }: LumaEventsSectionProps) {
           </>
         )}
 
-        {/* ---- Helper line ---- */}
-        <p
-          className="mt-12 text-center text-[12.5px]"
-          style={{ color: "#6b7280" }}
-        >
+        <p className="mt-8 text-center text-xs text-gray-500">
           All registration is free and powered by Luma — no app required.
         </p>
       </div>
@@ -224,64 +179,20 @@ export default function LumaEventsSection({ events }: LumaEventsSectionProps) {
 }
 
 /* ================================================================== */
-/*  SectionHeader — eyebrow + heading                                  */
-/* ================================================================== */
-function SectionHeader() {
-  return (
-    <div className="text-center mb-10 sm:mb-12">
-      <span
-        className="eyebrow inline-flex items-center gap-2"
-        style={{ color: C.saffron }}
-      >
-        <Icon name="sparkle" size={13} />
-        What&rsquo;s open right now
-      </span>
-      <h2
-        className="mt-3 text-3xl sm:text-4xl font-bold font-serif"
-        style={{ color: C.krishnaBlue }}
-      >
-        Upcoming programs
-      </h2>
-      <p
-        className="mx-auto mt-3 max-w-xl text-[14.5px] leading-relaxed"
-        style={{ color: "var(--ink-secondary)" }}
-      >
-        Tap any program to RSVP — registration opens on Luma. New here?
-        Start with a Sunday class.
-      </p>
-    </div>
-  );
-}
-
-/* ================================================================== */
-/*  BucketHeader — section divider for each week                       */
+/*  BucketHeader — week section divider                                */
 /* ================================================================== */
 function BucketHeader({ label, count }: { label: string; count: number }) {
   return (
-    <div className="flex items-center gap-4 mb-5">
+    <div className="flex items-center gap-3 mb-4">
       <h3
-        className="font-serif text-xl sm:text-2xl font-bold"
-        style={{ color: C.krishnaBlue, letterSpacing: "-0.01em" }}
+        className="text-lg sm:text-xl font-semibold"
+        style={{ color: C.krishnaBlue }}
       >
         {label}
       </h3>
-      <span
-        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.16em] tabular-nums"
-        style={{
-          background: `${C.gold}14`,
-          color: C.saffron,
-          border: `1px solid ${C.gold}33`,
-        }}
-      >
+      <span className="text-xs text-gray-500 tabular-nums">
         {count} {count === 1 ? "program" : "programs"}
       </span>
-      <div
-        aria-hidden
-        className="flex-1 h-px"
-        style={{
-          background: `linear-gradient(90deg, ${C.gold}30, transparent)`,
-        }}
-      />
     </div>
   );
 }
@@ -292,29 +203,25 @@ function BucketHeader({ label, count }: { label: string; count: number }) {
 function FilteredEmptyState({ onReset }: { onReset: () => void }) {
   return (
     <div
-      className="rounded-2xl px-6 py-14 text-center"
+      className="rounded-xl px-6 py-10 text-center"
       style={{
         background: "white",
-        border: `1px dashed ${C.gold}40`,
+        border: "1px dashed rgba(15,27,77,0.15)",
       }}
     >
-      <p
-        className="font-serif text-xl font-bold"
-        style={{ color: C.krishnaBlue }}
-      >
-        Nothing matches that filter — yet.
+      <p className="text-base font-semibold" style={{ color: C.krishnaBlue }}>
+        Nothing matches that filter.
       </p>
-      <p className="mt-2 text-[14px]" style={{ color: "var(--ink-secondary)" }}>
+      <p className="mt-1 text-sm text-gray-600">
         Try another tag or view everything.
       </p>
       <button
         type="button"
         onClick={onReset}
-        className="mt-5 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.14em]"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em]"
         style={{
           background: `${C.saffron}12`,
           color: C.saffron,
-          border: `1px solid ${C.saffron}33`,
         }}
       >
         Show all

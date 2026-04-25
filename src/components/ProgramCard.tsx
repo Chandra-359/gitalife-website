@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import type { Program } from "@/data/programs";
 import { getCategoryColor, getCategoryIcon, VOLUNTEER_COLOR } from "@/data/programs";
 import RsvpModal from "@/components/RsvpModal";
@@ -17,17 +16,15 @@ interface ProgramCardProps {
 
 export default function ProgramCard({
   program,
-  index,
   isHovered,
   onMouseEnter,
   onMouseLeave,
   onClick,
 }: ProgramCardProps) {
-  const { bg, glow } = getCategoryColor(program.category);
+  const { bg } = getCategoryColor(program.category);
   const icon = getCategoryIcon(program.category);
   const isVolunteer = program.type === "volunteer";
   const accentColor = isVolunteer ? VOLUNTEER_COLOR.bg : bg;
-  const accentGlow = isVolunteer ? VOLUNTEER_COLOR.glow : glow;
 
   const [showRsvp, setShowRsvp] = useState(false);
 
@@ -40,41 +37,20 @@ export default function ProgramCard({
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-        whileHover={{ y: -4, transition: { duration: 0.2 } }}
-        className="group relative rounded-2xl border border-white/60 cursor-pointer overflow-hidden"
+      <div
+        className="group relative rounded-xl cursor-pointer overflow-hidden transition-colors"
         style={{
-          backgroundColor: isHovered ? `${accentColor}0a` : "rgba(255,255,255,0.65)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderColor: isHovered ? `${accentColor}40` : "rgba(255,255,255,0.6)",
-          boxShadow: isHovered
-            ? `0 8px 32px ${accentGlow}, 0 0 0 1px ${accentColor}20`
-            : "0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.5)",
-          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          backgroundColor: "white",
+          border: `1px solid ${isHovered ? `${accentColor}40` : "rgba(15,27,77,0.08)"}`,
         }}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={onClick}
       >
-        {/* Shimmer sweep on hover */}
+        {/* Left accent bar */}
         <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{
-            background: `linear-gradient(105deg, transparent 40%, ${accentColor}10 50%, transparent 60%)`,
-          }}
-        />
-
-        {/* Left accent bar with gradient */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-all duration-300"
-          style={{
-            background: `linear-gradient(to bottom, ${accentColor}, ${accentColor}88)`,
-            width: isHovered ? "4px" : "3px",
-          }}
+          className="absolute left-0 top-0 bottom-0 w-1"
+          style={{ background: accentColor }}
         />
 
         <div className="relative px-5 py-4 pl-6">
@@ -170,17 +146,13 @@ export default function ProgramCard({
                   </div>
                   {/* Progress bar */}
                   <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${fillPercent}%` }}
-                      transition={{ duration: 0.8, delay: index * 0.08 + 0.3, ease: "easeOut" }}
-                      className="h-full rounded-full"
+                    <div
+                      className="h-full rounded-full transition-[width] duration-500"
                       style={{
+                        width: `${fillPercent}%`,
                         background: isFull
                           ? "#dc2626"
-                          : fillPercent > 80
-                            ? `linear-gradient(90deg, ${accentColor}, #dc2626)`
-                            : accentColor,
+                          : accentColor,
                       }}
                     />
                   </div>
@@ -193,30 +165,20 @@ export default function ProgramCard({
             </div>
 
             {/* Inline RSVP button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 if (!isFull) setShowRsvp(true);
               }}
               disabled={isFull}
-              className="shrink-0 rounded-xl px-4 py-2 text-[12px] font-bold text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: isFull ? "#9ca3af" : `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
-                boxShadow: isFull ? "none" : `0 2px 12px ${accentGlow}`,
-              }}
+              className="shrink-0 rounded-lg px-4 py-2 text-[12px] font-semibold text-white transition-opacity disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+              style={{ background: isFull ? "#9ca3af" : accentColor }}
             >
               {isFull ? "Full" : "RSVP"}
-              {!isFull && (
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="inline ml-1 -mt-px">
-                  <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </motion.button>
+            </button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* RSVP Modal */}
       {showRsvp && (
