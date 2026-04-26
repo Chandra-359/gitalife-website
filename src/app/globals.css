@@ -25,16 +25,16 @@
   --lotus-pink-light: #F0A0C4;
   --crimson: #e94560;
 
-  /* Warm paper-tone surfaces */
-  --paper:        #F7EFDD;  /* main page paper */
-  --paper-warm:   #F2E5C8;  /* slightly deeper / cream */
-  --paper-light:  #FBF5E6;  /* subtle alt for cards */
-  --paper-edge:   #E5D4AA;  /* warm hairline border */
+  /* Stone gray-warm paper-tone surfaces */
+  --paper:        #D9D1BE;  /* main page paper — stone gray-warm */
+  --paper-warm:   #CFC6AE;  /* slightly deeper */
+  --paper-light:  #E3DCCB;  /* subtle alt for cards */
+  --paper-edge:   #BCB29A;  /* hairline border */
 
   /* Legacy tokens kept for back-compat with existing inline styles */
-  --warm-bg:      #F7EFDD;
-  --warm-bg-deep: #F2E5C8;
-  --cream:        #FBF5E6;
+  --warm-bg:      #D9D1BE;
+  --warm-bg-deep: #CFC6AE;
+  --cream:        #E3DCCB;
 
   /* ----- Semantic tokens ----- */
   --bg-sacred: var(--krishna-blue-deep);
@@ -307,10 +307,10 @@ html {
 /*  every section reads as the same paper sheet at slightly different  */
 /*  warmth, and scrolling stays buttery on mobile.                     */
 /* ================================================================== */
-.surface-paper        { background-color: rgba(247,239,221,0.45); }
-.surface-paper-warm   { background-color: rgba(242,229,200,0.6);  }
-.surface-paper-light  { background-color: rgba(251,245,230,0.55); }
-.surface-parchment    { background-color: rgba(251,245,230,0.55); }
+.surface-paper        { background-color: rgba(217,209,190,0.45); }
+.surface-paper-warm   { background-color: rgba(207,198,174,0.6);  }
+.surface-paper-light  { background-color: rgba(227,220,203,0.55); }
+.surface-parchment    { background-color: rgba(227,220,203,0.55); }
 
 /* Dark sections stay opaque — they cover the paper fully, then add
    a single cheap noise overlay that scrolls with content (no fixed). */
@@ -329,7 +329,7 @@ html {
 
 /* Cards / glass surfaces — paper-tone, not stark white */
 .glass-card {
-  background: rgba(251,245,230,0.92);
+  background: rgba(227,220,203,0.92);
   background-image: var(--tex-grain);
   background-size: 220px 220px;
   background-blend-mode: multiply;
