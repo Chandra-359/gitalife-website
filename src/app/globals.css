@@ -139,7 +139,7 @@ body {
   pointer-events: none;
   background-color: var(--paper);
   background-image:
-    url("/textures/groovepaper.png"),
+    url("/textures/groovepaper.png?v=2"),
     radial-gradient(140% 80% at 50% -10%, rgba(237, 214, 152, 0.35), transparent 55%),
     radial-gradient(120% 70% at 50% 110%, rgba(168, 132, 42, 0.14), transparent 60%);
   background-repeat: repeat, no-repeat, no-repeat;
