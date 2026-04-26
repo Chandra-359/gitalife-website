@@ -313,18 +313,20 @@ html {
 .surface-parchment    { background-color: rgba(204,194,168,0.55); }
 
 /* Dark sections stay opaque — they cover the paper fully, then add
-   a single cheap noise overlay that scrolls with content (no fixed). */
+   a fine fleck + page-wash texture so the indigo reads as manuscript
+   paper rather than a flat block. `screen` blend lifts the warm
+   highlights off the dark base; `overlay` would multiply them away. */
 .surface-sacred {
   background-color: var(--krishna-blue-deep);
-  background-image: var(--tex-grain-dark);
-  background-size: 240px 240px;
-  background-blend-mode: overlay;
+  background-image: var(--tex-grain-dark), var(--tex-creases-dark);
+  background-size: 240px 240px, 480px 480px;
+  background-blend-mode: screen, screen;
 }
 .surface-midnight {
   background-color: var(--krishna-blue-midnight);
-  background-image: var(--tex-grain-dark);
-  background-size: 240px 240px;
-  background-blend-mode: overlay;
+  background-image: var(--tex-grain-dark), var(--tex-creases-dark);
+  background-size: 240px 240px, 480px 480px;
+  background-blend-mode: screen, screen;
 }
 
 /* Cards / glass surfaces — paper-tone, not stark white */
