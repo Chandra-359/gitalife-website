@@ -24,17 +24,17 @@ export default function PaperTextureBg() {
   return (
     <PaperTexture
       colorBack="#0F1B4D"
-      colorFront="#1F2C5E"
-      contrast={0.22}
-      roughness={0.08}
-      fiber={0.18}
-      fiberSize={0.28}
-      crumples={0}
-      crumpleSize={0.35}
+      colorFront="#2E3F8F"
+      contrast={0.38}
+      roughness={0.12}
+      fiber={0.32}
+      fiberSize={0.3}
+      crumples={0.08}
+      crumpleSize={0.42}
       folds={0}
       foldCount={3}
-      fade={0.15}
-      drops={0.03}
+      fade={0.2}
+      drops={0.06}
       seed={11}
       style={{
         position: "absolute",
