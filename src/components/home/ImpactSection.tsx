@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { IMPACT_STATS } from "@/data/home";
 import { C, Icon } from "./icons";
+import PaperTextureBg from "@/components/PaperTextureBg";
 
 export default function ImpactSection() {
   return (
@@ -12,6 +13,7 @@ export default function ImpactSection() {
       id="impact"
       className="surface-sacred relative overflow-hidden py-16 px-5 sm:py-24 sm:px-8"
     >
+      <PaperTextureBg />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-50"
@@ -20,7 +22,7 @@ export default function ImpactSection() {
             "radial-gradient(45% 60% at 80% 20%, rgba(237,214,152,0.16), transparent 70%), radial-gradient(50% 60% at 10% 100%, rgba(217,105,26,0.12), transparent 70%)",
         }}
       />
-      <div className="relative max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto">
         <div className="text-center mb-10 sm:mb-12">
           <span
             className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em]"

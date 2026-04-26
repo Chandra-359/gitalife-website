@@ -8,6 +8,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { HeroSlide } from "@/data/home";
+import PaperTextureBg from "@/components/PaperTextureBg";
 
 interface HeroProps {
   slides: HeroSlide[];
@@ -32,6 +33,7 @@ export default function Hero({ slides }: HeroProps) {
       className="surface-sacred relative w-full overflow-hidden px-5 pt-24 pb-14 sm:px-8 sm:pt-36 sm:pb-24"
       aria-label="Welcome to Gita Life NYC"
     >
+      <PaperTextureBg />
       {/* Soft gold radial glow for depth without breaking the paper feel */}
       <div
         aria-hidden
@@ -41,7 +43,7 @@ export default function Hero({ slides }: HeroProps) {
             "radial-gradient(60% 50% at 20% 0%, rgba(237,214,152,0.18), transparent 70%), radial-gradient(50% 60% at 100% 100%, rgba(217,105,26,0.16), transparent 70%)",
         }}
       />
-      <div className="relative mx-auto max-w-5xl">
+      <div className="relative z-10 mx-auto max-w-5xl">
         <div className="grid items-center gap-8 sm:gap-10 md:grid-cols-2 md:gap-14">
           {/* Image — shown above the copy on mobile, beside it on desktop */}
           {image && (

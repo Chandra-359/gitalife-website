@@ -8,6 +8,7 @@ import type { Program } from "@/data/programs";
 import { getCategoryColor } from "@/data/programs";
 import { INSTAGRAM_URL, YOUTUBE_URL } from "@/data/home";
 import { C } from "./icons";
+import PaperTextureBg from "@/components/PaperTextureBg";
 
 interface ConnectFooterProps {
   testimonials: Program[];
@@ -81,6 +82,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
         id="get-connected"
         className="surface-sacred relative overflow-hidden py-16 px-5 sm:py-24 sm:px-8"
       >
+        <PaperTextureBg />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-50"
@@ -89,7 +91,7 @@ export default function ConnectFooter({ testimonials }: ConnectFooterProps) {
               "radial-gradient(50% 50% at 50% 0%, rgba(237,214,152,0.16), transparent 70%)",
           }}
         />
-        <div className="relative max-w-3xl mx-auto text-center">
+        <div className="relative z-10 max-w-3xl mx-auto text-center">
           <span
             className="text-[11px] font-bold uppercase tracking-[0.18em]"
             style={{ color: C.goldLight }}

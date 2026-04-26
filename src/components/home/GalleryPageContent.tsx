@@ -19,6 +19,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/data/home";
 import { C, Icon } from "./icons";
+import PaperTextureBg from "@/components/PaperTextureBg";
 
 type GalleryCategory = "all" | "festivals" | "classes" | "kirtan" | "retreats";
 
@@ -106,13 +107,14 @@ export default function GalleryPageContent() {
       <section
         className="relative pt-32 pb-14 px-6 surface-sacred texture-grain isolate overflow-hidden"
       >
+        <PaperTextureBg />
         <div
-          className="absolute top-0 left-0 right-0 h-[2px]"
+          className="absolute top-0 left-0 right-0 h-[2px] z-10"
           style={{
             background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)`,
           }}
         />
-        <div className="relative max-w-5xl mx-auto text-center">
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
           <span className="pill-chip pill-chip-gold">
             <Icon name="camera" size={12} />
             Photo Gallery
