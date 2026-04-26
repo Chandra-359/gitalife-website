@@ -179,8 +179,8 @@ export const C = {
   peacock: "#006D5B",
   peacockLight: "#00917A",
   lotusPink: "#C84682",
-  cream: "#E3DCCB",
-  warmBg: "#CFC6AE",
+  cream: "#CCC2A8",
+  warmBg: "#AEA487",
 } as const;
 
 export function colorFor(token: "gold" | "saffron" | "peacock" | "lotus" | "krishna"): string {
