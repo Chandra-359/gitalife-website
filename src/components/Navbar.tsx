@@ -54,13 +54,20 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
           className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
           aria-label="Gita Life NYC — Home"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.svg"
-            alt=""
-            width={36}
-            height={36}
-            className="h-9 w-9 shrink-0"
+          <span
+            aria-hidden="true"
+            className="block h-9 w-9 shrink-0"
+            style={{
+              backgroundColor: "var(--krishna-blue-deep)",
+              WebkitMaskImage: "url(/logo.svg)",
+              maskImage: "url(/logo.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
           />
           <span
             className="text-base sm:text-lg"
