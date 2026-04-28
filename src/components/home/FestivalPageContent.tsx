@@ -15,6 +15,7 @@ import Navbar from "@/components/Navbar";
 import { FEATURED_EVENT, MONTHLY_FESTIVALS, YOUTUBE_URL } from "@/data/home";
 import { C, Icon } from "./icons";
 import LumaEmbed from "./LumaEmbed";
+import PaperTextureBg from "@/components/PaperTextureBg";
 
 const FAQS = [
   {
@@ -47,14 +48,15 @@ export default function FestivalPageContent() {
           background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
         }}
       >
+        <PaperTextureBg />
         <div
-          className="absolute top-0 left-0 right-0 h-[2px]"
+          className="absolute top-0 left-0 right-0 h-[2px] z-10"
           style={{
             background: `linear-gradient(90deg, transparent, ${C.gold}, ${C.saffron}, ${C.gold}, transparent)`,
           }}
         />
 
-        <div className="relative max-w-4xl mx-auto text-center">
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -265,12 +267,13 @@ export default function FestivalPageContent() {
 
       {/* FAQ */}
       <section
-        className="py-20 px-6"
+        className="relative py-20 px-6 overflow-hidden"
         style={{
           background: `linear-gradient(170deg, ${C.krishnaDeep} 0%, ${C.krishnaBlue} 100%)`,
         }}
       >
-        <div className="max-w-3xl mx-auto">
+        <PaperTextureBg />
+        <div className="relative z-10 max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <span
               className="text-[11px] font-bold uppercase tracking-[0.2em]"
