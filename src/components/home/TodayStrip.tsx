@@ -116,8 +116,11 @@ export default function TodayStrip() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0"
-                  style={{ background: `${C.saffron}12`, color: C.saffron }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0 text-white"
+                  style={{
+                    background: `linear-gradient(135deg, ${C.saffron}, ${C.saffron}CC)`,
+                    boxShadow: `0 4px 12px -4px ${C.saffron}80`,
+                  }}
                 >
                   <Icon name="flame" size={20} />
                 </div>
@@ -151,8 +154,11 @@ export default function TodayStrip() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0"
-                  style={{ background: `${C.peacock}12`, color: C.peacock }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0 text-white"
+                  style={{
+                    background: `linear-gradient(135deg, ${C.peacock}, ${C.peacock}CC)`,
+                    boxShadow: `0 4px 12px -4px ${C.peacock}80`,
+                  }}
                 >
                   <Icon name="book" size={20} />
                 </div>
