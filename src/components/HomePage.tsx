@@ -44,7 +44,7 @@ export default function HomePage({ programs, events }: HomePageProps) {
       <Navbar isHomepage />
       <Hero slides={HERO_SLIDES} />
       <TodayStrip />
-      <WeekRail />
+      <WeekRail events={events} />
       <UpcomingPrograms events={events} />
       <ExploreGrid />
       <ImpactSection />

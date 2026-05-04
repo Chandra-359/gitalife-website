@@ -1,54 +1,56 @@
 "use client";
 
 /**
- * WeekRail — "This Week" horizontal-ish grid of upcoming classes.
- * Highlights the next upcoming class based on current weekday.
+ * WeekRail — "This Week" rail of upcoming programs.
+ * Driven by the same Luma feed as /programs so day/time stay in sync.
  */
 
 import Link from "next/link";
-import { WEEKLY_SCHEDULE, type WeeklyClass } from "@/data/home";
+import type { LumaEvent } from "@/lib/luma";
+import { formatTime, getTagAccent } from "@/components/programs/dateUtils";
 import { C, Icon } from "./icons";
 
-const DAY_ORDER: WeeklyClass["day"][] = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+const DOW_LONG = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  timeZone: "America/New_York",
+});
 
-function isNextUpcoming(item: WeeklyClass, today: number, nextIdx: number): boolean {
-  return DAY_ORDER.indexOf(item.day) === nextIdx && today !== nextIdx;
-}
+const ACCENT_HEX: Record<ReturnType<typeof getTagAccent>, string> = {
+  saffron: C.saffron,
+  gold: C.gold,
+  peacock: C.peacock,
+  lotus: C.lotusPink,
+  krishna: C.krishnaBlue,
+};
 
-function getNextUpcomingIdx(items: WeeklyClass[]): number {
-  const today = new Date().getDay(); // 0=Sun..6=Sat
-  const todayIdx = today === 0 ? 6 : today - 1; // convert to Mon=0..Sun=6
-  const dayIdxs = items.map((i) => DAY_ORDER.indexOf(i.day));
-  // find the smallest dayIdx >= todayIdx, else wrap to min
-  const future = dayIdxs.filter((i) => i >= todayIdx);
-  return future.length ? Math.min(...future) : Math.min(...dayIdxs);
-}
+type IconName = "book" | "music" | "flame" | "calendar";
 
-function kindMeta(kind: WeeklyClass["kind"]) {
-  switch (kind) {
-    case "gita-class":
-      return { label: "Gita Class", color: C.gold, icon: "book" as const };
-    case "harinam":
-      return { label: "Harinam", color: C.saffron, icon: "music" as const };
-    case "japa":
-      return { label: "Japa", color: C.lotusPink, icon: "flame" as const };
-    case "book-reading":
-      return { label: "Book Reading", color: C.peacock, icon: "book" as const };
+function tagIcon(tag: string | undefined): IconName {
+  const key = (tag ?? "").toLowerCase();
+  if (key.includes("harinam") || key.includes("kirtan")) return "music";
+  if (key.includes("japa")) return "flame";
+  if (
+    key.includes("class") ||
+    key.includes("study") ||
+    key.includes("student") ||
+    key.includes("professional") ||
+    key.includes("sunday")
+  ) {
+    return "book";
   }
+  return "calendar";
 }
 
-export default function WeekRail() {
-  const nextIdx = getNextUpcomingIdx(WEEKLY_SCHEDULE);
-  const today = new Date().getDay();
-  const todayIdx = today === 0 ? 6 : today - 1;
+const MAX_ITEMS = 4;
+
+interface WeekRailProps {
+  events: LumaEvent[];
+}
+
+export default function WeekRail({ events }: WeekRailProps) {
+  const items = events.slice(0, MAX_ITEMS);
+
+  if (items.length === 0) return null;
 
   return (
     <section className="surface-paper-warm relative py-14 px-5 sm:py-20 sm:px-8">
@@ -89,23 +91,38 @@ export default function WeekRail() {
           role="list"
           aria-label="This week's schedule"
         >
-          {WEEKLY_SCHEDULE.map((item, i) => {
-            const meta = kindMeta(item.kind);
-            const isNext = isNextUpcoming(item, todayIdx, nextIdx);
+          {items.map((event, i) => {
+            const start = new Date(event.startAt);
+            const dayName = DOW_LONG.format(start);
+            const time = formatTime(event.startAt);
+            const primaryTag = event.tags[0];
+            const accent = ACCENT_HEX[getTagAccent(primaryTag ?? "")];
+            const icon = tagIcon(primaryTag);
+            const venue =
+              event.location?.venue ?? event.location?.city ?? "";
+            const neighborhood =
+              event.location?.venue && event.location?.city
+                ? event.location.city
+                : undefined;
+            const isNext = i === 0;
+
             return (
-              <div
-                key={i}
+              <a
+                key={event.apiId}
+                href={event.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 role="listitem"
                 className="glass-card hover-lift group relative w-[78%] max-w-[300px] shrink-0 rounded-xl p-5 sm:w-auto sm:max-w-none sm:shrink"
                 style={{
-                  border: `1px solid ${isNext ? meta.color : "var(--paper-edge)"}`,
+                  border: `1px solid ${isNext ? accent : "var(--paper-edge)"}`,
                 }}
               >
-                {/* Upcoming badge */}
+                {/* Up next badge */}
                 {isNext && (
                   <span
                     className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white"
-                    style={{ background: meta.color }}
+                    style={{ background: accent }}
                   >
                     Up next
                   </span>
@@ -117,35 +134,44 @@ export default function WeekRail() {
                     className="text-[16px] font-semibold"
                     style={{ color: C.krishnaBlue }}
                   >
-                    {item.day}
+                    {dayName}
                   </span>
-                  <span className="text-[12px] text-gray-500">{item.time}</span>
+                  <span className="text-[12px] text-gray-500">{time}</span>
                 </div>
 
-                {/* Kind chip */}
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold mb-3"
-                  style={{ background: `${meta.color}15`, color: meta.color }}
-                >
-                  <Icon name={meta.icon} size={10} />
-                  {meta.label}
-                </span>
+                {/* Tag chip */}
+                {primaryTag && (
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold mb-3"
+                    style={{ background: `${accent}15`, color: accent }}
+                  >
+                    <Icon name={icon} size={10} />
+                    {primaryTag}
+                  </span>
+                )}
 
                 <h3
-                  className="text-[15px] font-semibold"
+                  className="text-[15px] font-semibold line-clamp-2"
                   style={{ color: C.krishnaBlue }}
                 >
-                  {item.title}
+                  {event.name}
                 </h3>
 
-                <div className="flex items-center gap-1 mt-1 text-[12px]" style={{ color: C.peacock }}>
-                  <Icon name="mapPin" size={11} />
-                  <span>
-                    {item.location}
-                    <span className="text-gray-400"> · {item.neighborhood}</span>
-                  </span>
-                </div>
-              </div>
+                {venue && (
+                  <div
+                    className="flex items-center gap-1 mt-1 text-[12px]"
+                    style={{ color: C.peacock }}
+                  >
+                    <Icon name="mapPin" size={11} />
+                    <span className="truncate">
+                      {venue}
+                      {neighborhood && (
+                        <span className="text-gray-400"> · {neighborhood}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+              </a>
             );
           })}
         </div>
