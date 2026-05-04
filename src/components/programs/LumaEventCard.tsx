@@ -51,7 +51,7 @@ export default function LumaEventCard({ event, alwaysVertical = false }: LumaEve
       href={event.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block overflow-hidden rounded-xl bg-white transition-colors hover:bg-gray-50"
+      className="group block h-full overflow-hidden rounded-xl bg-white transition-colors hover:bg-gray-50"
       style={{ border: "1px solid rgba(15,27,77,0.08)" }}
     >
       {/* Mobile: horizontal row (suppressed when alwaysVertical is set) */}
@@ -129,7 +129,7 @@ export default function LumaEventCard({ event, alwaysVertical = false }: LumaEve
       </div>
 
       {/* sm+ (or always when alwaysVertical): vertical card */}
-      <div className={`${alwaysVertical ? "flex flex-col" : "hidden"} sm:flex sm:flex-col`}>
+      <div className={`${alwaysVertical ? "flex h-full flex-col" : "hidden"} sm:flex sm:h-full sm:flex-col`}>
         {/* Cover */}
         <div className="relative aspect-[4/3] overflow-hidden">
           {event.coverUrl ? (

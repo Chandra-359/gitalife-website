@@ -156,7 +156,7 @@ export default function LumaFeaturedCard({ event }: LumaFeaturedCardProps) {
             <LumaCountdown startIso={event.startAt} endIso={event.endAt} />
           </div>
 
-          <div className="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="mt-5">
             <a
               href={event.url}
               target="_blank"
@@ -165,16 +165,6 @@ export default function LumaFeaturedCard({ event }: LumaFeaturedCardProps) {
             >
               Reserve your spot
               <Icon name="arrowRight" size={13} />
-            </a>
-            <a
-              href={event.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
-              style={{ color: C.krishnaBlue }}
-            >
-              View on Luma
-              <Icon name="arrowRight" size={11} />
             </a>
           </div>
         </div>
