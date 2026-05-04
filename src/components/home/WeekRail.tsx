@@ -71,11 +71,7 @@ export default function WeekRail({ events }: WeekRailProps) {
               Join a class, kirtan, or seva
             </h2>
           </div>
-          <Link
-            href="/programs"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
-            style={{ color: C.krishnaBlue }}
-          >
+          <Link href="/programs" className="btn-soft btn-soft-krishna">
             See full schedule
             <Icon name="arrowRight" size={12} />
           </Link>
@@ -142,8 +138,12 @@ export default function WeekRail({ events }: WeekRailProps) {
                 {/* Tag chip */}
                 {primaryTag && (
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold mb-3"
-                    style={{ background: `${accent}15`, color: accent }}
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold mb-3"
+                    style={{
+                      background: `${accent}26`,
+                      border: `1px solid ${accent}55`,
+                      color: accent,
+                    }}
                   >
                     <Icon name={icon} size={10} />
                     {primaryTag}

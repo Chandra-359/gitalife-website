@@ -202,11 +202,7 @@ export default function FeaturedEvent() {
                   />
                 </Link>
               )}
-              <Link
-                href={subPage}
-                className="inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
-                style={{ color: C.krishnaBlue }}
-              >
+              <Link href={subPage} className="btn-soft btn-soft-krishna">
                 Full details
                 <Icon name="arrowRight" size={12} />
               </Link>

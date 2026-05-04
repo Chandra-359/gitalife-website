@@ -39,8 +39,7 @@ export default function InstagramWall() {
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
-            style={{ color: C.lotusPink }}
+            className="btn-soft btn-soft-lotus"
           >
             @{INSTAGRAM_HANDLE}
             <Icon name="arrowRight" size={12} />
