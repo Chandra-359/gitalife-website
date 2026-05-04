@@ -77,7 +77,7 @@ export default function UpcomingPrograms({ events }: UpcomingProgramsProps) {
                 <div
                   key={e.apiId}
                   role="listitem"
-                  className="w-[82%] max-w-[320px] shrink-0 sm:w-auto sm:max-w-none sm:shrink"
+                  className="w-[82%] max-w-[320px] shrink-0 sm:h-full sm:w-auto sm:max-w-none sm:shrink"
                 >
                   <LumaEventCard event={e} index={i} alwaysVertical />
                 </div>
