@@ -138,8 +138,7 @@ export default function TodayStrip() {
               </div>
               <Link
                 href="/daily#japa"
-                className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold transition-colors"
-                style={{ color: C.saffron }}
+                className="btn-soft btn-soft-saffron mt-4"
               >
                 Start today&rsquo;s round
                 <Icon name="arrowRight" size={12} />
@@ -174,8 +173,7 @@ export default function TodayStrip() {
               </div>
               <Link
                 href="/daily#reading"
-                className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold transition-colors"
-                style={{ color: C.peacock }}
+                className="btn-soft btn-soft-peacock mt-4"
               >
                 Read passage
                 <Icon name="arrowRight" size={12} />

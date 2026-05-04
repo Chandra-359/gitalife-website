@@ -589,7 +589,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     primaryCtaLabel: "Explore what we do",
     primaryCtaHref: "#explore",
     secondaryCtaLabel: "Get connected",
-    secondaryCtaHref: "/get-connected",
+    secondaryCtaHref: "#get-connected",
     visual: { type: "ornament", accent: "gold" },
   },
   // ---- Event slide: matted frame (Option B) ----

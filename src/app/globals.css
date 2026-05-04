@@ -267,6 +267,62 @@ html {
   border-color: rgba(251,245,230,0.7);
 }
 
+/* Bold pill buttons — solid color background, white text, gradient sheen.
+   Use for inline action links ("Read passage", "See full schedule") that
+   need to clearly read as tappable buttons against the khadi backdrop. */
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  color: white;
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.btn-soft:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.btn-soft-saffron {
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--saffron-deep) 100%);
+  box-shadow: 0 1px 2px rgba(80,55,15,0.15), 0 6px 14px -6px rgba(217,105,26,0.55);
+}
+.btn-soft-saffron:hover {
+  box-shadow: 0 2px 4px rgba(80,55,15,0.18), 0 10px 20px -6px rgba(217,105,26,0.65);
+}
+.btn-soft-peacock {
+  background: linear-gradient(135deg, var(--peacock-green-light) 0%, var(--peacock-green) 100%);
+  box-shadow: 0 1px 2px rgba(80,55,15,0.15), 0 6px 14px -6px rgba(0,109,91,0.55);
+}
+.btn-soft-peacock:hover {
+  box-shadow: 0 2px 4px rgba(80,55,15,0.18), 0 10px 20px -6px rgba(0,109,91,0.65);
+}
+.btn-soft-krishna {
+  background: linear-gradient(135deg, var(--krishna-blue-light) 0%, var(--krishna-blue-deep) 100%);
+  box-shadow: 0 1px 2px rgba(80,55,15,0.15), 0 6px 14px -6px rgba(15,27,77,0.55);
+}
+.btn-soft-krishna:hover {
+  box-shadow: 0 2px 4px rgba(80,55,15,0.18), 0 10px 20px -6px rgba(15,27,77,0.7);
+}
+.btn-soft-gold {
+  background: linear-gradient(135deg, var(--divine-gold) 0%, var(--divine-gold-deep) 100%);
+  box-shadow: 0 1px 2px rgba(80,55,15,0.15), 0 6px 14px -6px rgba(201,162,72,0.55);
+}
+.btn-soft-gold:hover {
+  box-shadow: 0 2px 4px rgba(80,55,15,0.18), 0 10px 20px -6px rgba(201,162,72,0.65);
+}
+.btn-soft-lotus {
+  background: linear-gradient(135deg, var(--lotus-pink-light) 0%, var(--lotus-pink) 100%);
+  box-shadow: 0 1px 2px rgba(80,55,15,0.15), 0 6px 14px -6px rgba(200,70,130,0.5);
+}
+.btn-soft-lotus:hover {
+  box-shadow: 0 2px 4px rgba(80,55,15,0.18), 0 10px 20px -6px rgba(200,70,130,0.65);
+}
+
 /* ================================================================== */
 /*  Pill chips                                                         */
 /* ================================================================== */

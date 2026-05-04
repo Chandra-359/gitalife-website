@@ -39,8 +39,7 @@ export default function YoutubeWall() {
             href={YOUTUBE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
-            style={{ color: C.saffron }}
+            className="btn-soft btn-soft-saffron"
           >
             @gitalifenyc
             <Icon name="arrowRight" size={12} />
