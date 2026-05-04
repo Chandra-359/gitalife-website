@@ -40,10 +40,10 @@ export default function ExploreGrid() {
                 className="glass-card hover-lift group flex h-full flex-col items-start gap-3 rounded-xl p-4 sm:p-5"
               >
                 <div
-                  className="flex h-11 w-11 items-center justify-center rounded-lg"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-white"
                   style={{
-                    background: `${color}12`,
-                    color: color,
+                    background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+                    boxShadow: `0 4px 12px -4px ${color}80`,
                   }}
                 >
                   <Icon name={cat.icon} size={20} />
