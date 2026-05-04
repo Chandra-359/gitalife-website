@@ -138,11 +138,10 @@ export default function WeekRail({ events }: WeekRailProps) {
                 {/* Tag chip */}
                 {primaryTag && (
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold mb-3"
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider mb-3 text-white"
                     style={{
-                      background: `${accent}26`,
-                      border: `1px solid ${accent}55`,
-                      color: accent,
+                      background: accent,
+                      boxShadow: `0 1px 2px rgba(80,55,15,0.15), 0 4px 10px -4px ${accent}88`,
                     }}
                   >
                     <Icon name={icon} size={10} />
