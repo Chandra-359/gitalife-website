@@ -222,52 +222,34 @@ function VerseTab({ verse }: { verse: Verse }) {
           </span>
         </div>
 
-        <p
-          className="mt-6 text-2xl sm:text-3xl font-serif text-white leading-[1.7]"
-          lang="sa"
-        >
-          {verse.sanskrit}
-        </p>
-
-        {verse.transliteration && (
-          <p className="mt-4 italic text-[15px]" style={{ color: C.goldLight }}>
-            {verse.transliteration}
-          </p>
-        )}
-
-        <div
-          className="my-6 h-px"
-          style={{
-            background: `linear-gradient(90deg, transparent, ${C.gold}30, transparent)`,
-          }}
-        />
-
         {hideTranslation ? (
           <button
             onClick={() => setHideTranslation(false)}
-            className="w-full py-6 rounded-xl text-[13px] font-semibold transition-all hover:bg-white/5"
+            className="mt-6 w-full py-10 rounded-xl text-[13px] font-semibold transition-all hover:bg-white/5"
             style={{
               border: `1px dashed ${C.gold}40`,
               color: `${C.goldLight}80`,
             }}
           >
-            Tap to reveal the translation
+            Tap to reveal the verse
           </button>
         ) : (
-          <p className="text-[15px] sm:text-[16px] leading-[1.75]" style={{ color: "rgba(255,251,242,0.88)" }}>
-            {verse.translation}
+          <p
+            className="mt-6 text-xl sm:text-2xl font-serif leading-[1.75] text-white"
+          >
+            &ldquo;{verse.translation}&rdquo;
           </p>
         )}
 
         {verse.purport && !hideTranslation && (
           <p
-            className="mt-5 pt-5 text-[13px] italic font-serif"
+            className="mt-6 pt-5 text-[14px] sm:text-[15px] italic font-serif leading-[1.8]"
             style={{
               borderTop: `1px solid ${C.gold}18`,
-              color: "rgba(240,214,138,0.6)",
+              color: "rgba(240,214,138,0.75)",
             }}
           >
-            &ldquo;{verse.purport}&rdquo;
+            {verse.purport}
           </p>
         )}
       </div>
@@ -282,7 +264,7 @@ function VerseTab({ verse }: { verse: Verse }) {
             color: C.krishnaBlue,
           }}
         >
-          {hideTranslation ? "Show translation" : "Test myself"}
+          {hideTranslation ? "Show verse" : "Hide verse"}
         </button>
         <button
           onClick={() => {

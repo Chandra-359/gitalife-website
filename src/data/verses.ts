@@ -1,103 +1,102 @@
 /**
  * verses.ts — Verse library for daily memorization
  *
- * SWAP INSTRUCTIONS: replace VERSES with your curated list.
- * The site picks one verse per day using the day-of-year, so the rotation
- * is deterministic and the same for every visitor on a given day.
+ * Translations are the full canonical English renderings by
+ * His Divine Grace A.C. Bhaktivedanta Swami Prabhupada from
+ * "Bhagavad-gītā As It Is" (as published on vedabase.io).
  *
- * If you have fewer verses than 365, the rotation simply wraps.
+ * The site picks one verse per day using the day-of-year, so the
+ * rotation is deterministic and the same for every visitor on a
+ * given day. If you have fewer verses than 365, the rotation wraps.
  */
 
 export interface Verse {
   chapter: number;
   verse: number;
-  sanskrit: string;       // Devanagari or transliterated Sanskrit
-  transliteration?: string;
   translation: string;
-  purport?: string;       // optional short purport / context line
+  purport?: string;
 }
 
 export const VERSES: Verse[] = [
   {
     chapter: 2,
     verse: 47,
-    sanskrit: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।",
-    transliteration: "karmaṇy-evādhikāras te mā phaleṣu kadācana",
     translation:
-      "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action.",
-    purport: "Act with devotion; release attachment to outcomes.",
+      "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action. Never consider yourself the cause of the results of your activities, and never be attached to not doing your duty.",
+    purport:
+      "Act with devotion; release attachment to outcomes. Duty performed without selfish motive becomes an offering, and the doer is freed from karmic reaction.",
   },
   {
     chapter: 4,
     verse: 7,
-    sanskrit: "यदा यदा हि धर्मस्य ग्लानिर्भवति भारत।",
-    transliteration: "yadā yadā hi dharmasya glānir bhavati bhārata",
     translation:
-      "Whenever there is a decline of dharma and a rise of adharma, at that time I manifest Myself.",
+      "Whenever and wherever there is a decline in religious practice, O descendant of Bharata, and a predominant rise of irreligion—at that time I descend Myself.",
+    purport:
+      "The Lord appears in every age to re-establish dharma. His descent is not the birth of an ordinary being but the merciful arrival of the eternal.",
   },
   {
     chapter: 18,
     verse: 66,
-    sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज।",
-    transliteration: "sarva-dharmān parityajya mām ekaṁ śaraṇaṁ vraja",
     translation:
-      "Abandon all varieties of dharma and simply surrender unto Me. I shall deliver you from all sin. Do not fear.",
+      "Abandon all varieties of religion and just surrender unto Me. I shall deliver you from all sinful reactions. Do not fear.",
+    purport:
+      "Considered the essence of the entire Gita. Pure surrender to Krishna is the supreme dharma, transcending all lesser duties and fears.",
   },
   {
     chapter: 9,
     verse: 22,
-    sanskrit: "अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते।",
-    transliteration: "ananyāś cintayanto māṁ ye janāḥ paryupāsate",
     translation:
-      "To those who are constantly devoted and worship Me with love, I give the understanding by which they can come to Me.",
+      "But those who always worship Me with exclusive devotion, meditating on My transcendental form—to them I carry what they lack, and I preserve what they have.",
+    purport:
+      "For the devotee who depends fully on Krishna, the Lord personally supplies necessities and protects what is already given. This is the promise of bhakti.",
   },
   {
     chapter: 6,
     verse: 5,
-    sanskrit: "उद्धरेदात्मनात्मानं नात्मानमवसादयेत्।",
-    transliteration: "uddhared ātmanātmānaṁ nātmānam avasādayet",
     translation:
-      "One must deliver oneself with the help of one's mind, and not degrade oneself. The mind is the friend of the conditioned soul, and also its enemy.",
+      "One must deliver himself with the help of his mind, and not degrade himself. The mind is the friend of the conditioned soul, and his enemy as well.",
+    purport:
+      "The same mind that binds us can also liberate us. Trained in remembrance of Krishna, it becomes our greatest friend on the spiritual path.",
   },
   {
     chapter: 2,
     verse: 14,
-    sanskrit: "मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः।",
-    transliteration: "mātrā-sparśās tu kaunteya śītoṣṇa-sukha-duḥkha-dāḥ",
     translation:
-      "The happiness and distress arising from the senses come and go like winter and summer. One must learn to tolerate them without being disturbed.",
+      "O son of Kuntī, the nonpermanent appearance of happiness and distress, and their disappearance in due course, are like the appearance and disappearance of winter and summer seasons. They arise from sense perception, O scion of Bharata, and one must learn to tolerate them without being disturbed.",
+    purport:
+      "Pleasure and pain come and go like the seasons. The wise endure both without losing equipoise, fixed in their spiritual duty.",
   },
   {
     chapter: 7,
     verse: 19,
-    sanskrit: "बहूनां जन्मनामन्ते ज्ञानवान्मां प्रपद्यते।",
-    transliteration: "bahūnāṁ janmanām ante jñānavān māṁ prapadyate",
     translation:
-      "After many births and deaths, one who is actually in knowledge surrenders unto Me, knowing Me to be the cause of all causes. Such a great soul is very rare.",
+      "After many births and deaths, he who is actually in knowledge surrenders unto Me, knowing Me to be the cause of all causes and all that is. Such a great soul is very rare.",
+    purport:
+      "Genuine surrender is the fruit of mature wisdom across many lifetimes. Such a soul has seen through all illusion and rests in Krishna alone.",
   },
   {
     chapter: 15,
     verse: 7,
-    sanskrit: "ममैवांशो जीवलोके जीवभूतः सनातनः।",
-    transliteration: "mamaivāṁśo jīva-loke jīva-bhūtaḥ sanātanaḥ",
     translation:
-      "The living entities in this conditioned world are My eternal fragmental parts.",
+      "The living entities in this conditioned world are My eternal fragmental parts. Due to conditioned life, they are struggling very hard with the six senses, which include the mind.",
+    purport:
+      "Every soul is eternally part of Krishna—qualitatively one with Him, quantitatively minute. Our struggle ends when we remember this origin.",
   },
   {
     chapter: 10,
     verse: 10,
-    sanskrit: "तेषां सततयुक्तानां भजतां प्रीतिपूर्वकम्।",
-    transliteration: "teṣāṁ satata-yuktānāṁ bhajatāṁ prīti-pūrvakam",
     translation:
-      "To those who are constantly devoted to serving Me with love, I give the intelligence by which they can come to Me.",
+      "To those who are constantly devoted to serving Me with love, I give the understanding by which they can come to Me.",
+    purport:
+      "Loving service itself opens the door to divine wisdom. The Lord personally illuminates the heart of the sincere devotee.",
   },
   {
     chapter: 9,
     verse: 26,
-    sanskrit: "पत्रं पुष्पं फलं तोयं यो मे भक्त्या प्रयच्छति।",
-    transliteration: "patraṁ puṣpaṁ phalaṁ toyaṁ yo me bhaktyā prayacchati",
     translation:
       "If one offers Me with love and devotion a leaf, a flower, a fruit or water, I will accept it.",
+    purport:
+      "Krishna does not require wealth or grandeur—only love. The smallest offering, made with sincere devotion, is received by the Supreme Person Himself.",
   },
 ];
 
