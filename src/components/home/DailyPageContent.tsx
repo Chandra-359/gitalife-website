@@ -223,17 +223,11 @@ function VerseTab({ verse }: { verse: Verse }) {
         </div>
 
         <p
-          className="mt-6 text-2xl sm:text-3xl font-serif text-white leading-[1.7]"
-          lang="sa"
+          className="mt-6 whitespace-pre-line text-xl sm:text-2xl font-serif italic leading-[1.7]"
+          style={{ color: C.goldLight }}
         >
-          {verse.sanskrit}
+          {verse.transliteration}
         </p>
-
-        {verse.transliteration && (
-          <p className="mt-4 italic text-[15px]" style={{ color: C.goldLight }}>
-            {verse.transliteration}
-          </p>
-        )}
 
         <div
           className="my-6 h-px"
@@ -254,20 +248,23 @@ function VerseTab({ verse }: { verse: Verse }) {
             Tap to reveal the translation
           </button>
         ) : (
-          <p className="text-[15px] sm:text-[16px] leading-[1.75]" style={{ color: "rgba(255,251,242,0.88)" }}>
-            {verse.translation}
+          <p
+            className="text-[15px] sm:text-[17px] leading-[1.8] font-serif"
+            style={{ color: "rgba(255,251,242,0.92)" }}
+          >
+            &ldquo;{verse.translation}&rdquo;
           </p>
         )}
 
         {verse.purport && !hideTranslation && (
           <p
-            className="mt-5 pt-5 text-[13px] italic font-serif"
+            className="mt-6 pt-5 text-[14px] sm:text-[15px] italic font-serif leading-[1.8]"
             style={{
               borderTop: `1px solid ${C.gold}18`,
-              color: "rgba(240,214,138,0.6)",
+              color: "rgba(240,214,138,0.75)",
             }}
           >
-            &ldquo;{verse.purport}&rdquo;
+            {verse.purport}
           </p>
         )}
       </div>

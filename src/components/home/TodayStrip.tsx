@@ -73,19 +73,27 @@ export default function TodayStrip() {
                 </span>
               </div>
 
-              {verse.sanskrit && (
+              {verse.transliteration && (
                 <p
-                  className="sanskrit text-[19px] sm:text-[22px] leading-[1.55] mb-3"
+                  className="whitespace-pre-line italic font-serif text-[15px] sm:text-[17px] leading-[1.7] mb-4"
                   style={{ color: C.goldLight }}
-                  lang="sa"
                 >
-                  {verse.sanskrit}
+                  {verse.transliteration}
                 </p>
               )}
 
-              <p className="text-[15px] sm:text-[17px] leading-[1.7] text-white/90">
+              <p className="text-[16px] sm:text-[18px] leading-[1.75] font-serif text-white/95">
                 &ldquo;{verse.translation}&rdquo;
               </p>
+
+              {verse.purport && (
+                <p
+                  className="mt-4 text-[13px] sm:text-[14px] leading-[1.7] italic"
+                  style={{ color: `${C.goldLight}CC` }}
+                >
+                  {verse.purport}
+                </p>
+              )}
 
               <div className="flex items-center justify-between mt-6 flex-wrap gap-3">
                 <span
