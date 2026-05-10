@@ -222,20 +222,35 @@ function VerseTab({ verse }: { verse: Verse }) {
           </span>
         </div>
 
+        <p
+          className="mt-6 whitespace-pre-line text-xl sm:text-2xl font-serif italic leading-[1.7]"
+          style={{ color: C.goldLight }}
+        >
+          {verse.transliteration}
+        </p>
+
+        <div
+          className="my-6 h-px"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${C.gold}30, transparent)`,
+          }}
+        />
+
         {hideTranslation ? (
           <button
             onClick={() => setHideTranslation(false)}
-            className="mt-6 w-full py-10 rounded-xl text-[13px] font-semibold transition-all hover:bg-white/5"
+            className="w-full py-6 rounded-xl text-[13px] font-semibold transition-all hover:bg-white/5"
             style={{
               border: `1px dashed ${C.gold}40`,
               color: `${C.goldLight}80`,
             }}
           >
-            Tap to reveal the verse
+            Tap to reveal the translation
           </button>
         ) : (
           <p
-            className="mt-6 text-xl sm:text-2xl font-serif leading-[1.75] text-white"
+            className="text-[15px] sm:text-[17px] leading-[1.8] font-serif"
+            style={{ color: "rgba(255,251,242,0.92)" }}
           >
             &ldquo;{verse.translation}&rdquo;
           </p>
@@ -264,7 +279,7 @@ function VerseTab({ verse }: { verse: Verse }) {
             color: C.krishnaBlue,
           }}
         >
-          {hideTranslation ? "Show verse" : "Hide verse"}
+          {hideTranslation ? "Show translation" : "Test myself"}
         </button>
         <button
           onClick={() => {

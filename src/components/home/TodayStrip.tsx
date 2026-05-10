@@ -73,7 +73,16 @@ export default function TodayStrip() {
                 </span>
               </div>
 
-              <p className="text-[17px] sm:text-[20px] leading-[1.75] font-serif text-white/95">
+              {verse.transliteration && (
+                <p
+                  className="whitespace-pre-line italic font-serif text-[15px] sm:text-[17px] leading-[1.7] mb-4"
+                  style={{ color: C.goldLight }}
+                >
+                  {verse.transliteration}
+                </p>
+              )}
+
+              <p className="text-[16px] sm:text-[18px] leading-[1.75] font-serif text-white/95">
                 &ldquo;{verse.translation}&rdquo;
               </p>
 
