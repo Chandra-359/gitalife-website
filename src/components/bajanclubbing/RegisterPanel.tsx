@@ -234,7 +234,7 @@ function TicketForm() {
               className="rounded-xl px-3 py-2 text-center"
               style={{ background: "rgba(21,34,79,0.06)", border: "1px solid rgba(154,144,120,0.5)" }}
             >
-              <p className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: "#7A6F58" }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "#7A6F58" }}>
                 Aug
               </p>
               <p className="text-[24px] font-bold leading-none tabular-nums" style={{ fontFamily: "var(--font-fraunces), Georgia, serif", color: "#15224F" }}>

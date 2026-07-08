@@ -94,10 +94,11 @@ function ClubFaq() {
         {CLUB_FAQS.map((faq) => (
           <details
             key={faq.q}
-            className="group rounded-2xl px-5 py-4"
+            className="group rounded-2xl"
             style={{ background: "rgba(251,245,230,0.045)", border: "1px solid rgba(251,245,230,0.12)" }}
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-white [&::-webkit-details-marker]:hidden">
+            {/* padding lives on the summary so the whole row is the tap target */}
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[15px] font-semibold text-white [&::-webkit-details-marker]:hidden">
               {faq.q}
               <span
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[16px] transition-transform duration-200 group-open:rotate-45"
@@ -107,7 +108,7 @@ function ClubFaq() {
                 +
               </span>
             </summary>
-            <p className="mt-3 pr-2 text-[13.5px] leading-relaxed" style={{ color: "rgba(251,245,230,0.68)" }}>
+            <p className="-mt-1 px-5 pb-4 pr-7 text-[13.5px] leading-relaxed" style={{ color: "rgba(251,245,230,0.68)" }}>
               {faq.a}
             </p>
           </details>

@@ -539,6 +539,35 @@ html {
   transform-origin: top center;
 }
 
+/* Floating bhajan instruments — gentle bob around base rotation --r */
+@keyframes bc-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  50%      { transform: translate3d(0, -12px, 0) rotate(calc(var(--r, 0deg) + 2.5deg)); }
+}
+.bc-float {
+  animation: bc-float var(--t, 9s) ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+/* Instrument sprites scale down on phones so gutter art stays out of text */
+.bc-sprite svg { width: var(--w, 96px); height: auto; }
+@media (max-width: 640px) {
+  .bc-sprite svg { width: calc(var(--w, 96px) * 0.6); }
+}
+
+/* Music notes rising from the floor */
+@keyframes bc-note-rise {
+  0%   { transform: translate3d(0, 4vh, 0) rotate(0deg); opacity: 0; }
+  12%  { opacity: var(--o, 0.45); }
+  85%  { opacity: var(--o, 0.45); }
+  100% { transform: translate3d(var(--sway, 3vw), -44vh, 0) rotate(var(--rr, 14deg)); opacity: 0; }
+}
+.bc-note {
+  position: absolute;
+  animation: bc-note-rise var(--t, 16s) linear infinite;
+  animation-delay: var(--d, 0s);
+}
+
 /* Dark glass card with a 1px gradient edge (per-artist accent via vars) */
 .bc-neon-card {
   position: relative;

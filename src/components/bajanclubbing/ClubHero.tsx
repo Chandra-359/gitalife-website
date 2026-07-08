@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { C, Icon } from "@/components/home/icons";
 import { EVENT } from "@/data/bajanClubbing";
+import { InstrumentSprite } from "./FestivalBackdrop";
 
 /* ------------------------------------------------------------------ */
 /*  Countdown — dark-styled, SSR-safe (renders placeholder pre-mount)  */
@@ -230,6 +231,11 @@ export default function ClubHero() {
       />
 
       <DiscoChakra />
+
+      {/* Instruments drifting at the hero's edges (desktop only) */}
+      <InstrumentSprite kind="bansuri" size={130} rotate={-22} opacity={0.17} className="hidden md:block" style={{ left: "4%", bottom: "22%" }} floatDuration="10s" />
+      <InstrumentSprite kind="mridanga" size={110} rotate={12} opacity={0.15} className="hidden md:block" style={{ right: "5%", top: "30%" }} floatDelay="-4s" floatDuration="11s" />
+      <InstrumentSprite kind="kartals" size={70} rotate={-10} opacity={0.14} className="hidden lg:block" style={{ left: "12%", top: "24%" }} floatDelay="-7s" floatDuration="8s" />
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-6 pb-20 pt-32 text-center sm:pt-36">
