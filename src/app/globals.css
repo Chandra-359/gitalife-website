@@ -501,6 +501,44 @@ html {
 }
 .bc-glow-pulse { animation: bc-glow-pulse 3.2s ease-in-out infinite; }
 
+/* Marigold petals — local fall loop; per-petal var(--t/--d/--sway/--fall) */
+@keyframes bc-petal-fall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: var(--o, 0.75); }
+  85%  { opacity: var(--o, 0.75); }
+  100% { transform: translate3d(var(--sway, 4vw), var(--fall, 56vh), 0) rotate(300deg); opacity: 0; }
+}
+.bc-petal {
+  position: absolute;
+  animation: bc-petal-fall var(--t, 18s) linear infinite;
+  animation-delay: var(--d, 0s);
+  will-change: transform, opacity;
+}
+
+/* Fairy-light bulbs + sparkle stars */
+@keyframes bc-twinkle {
+  0%, 100% { opacity: 0.18; transform: scale(0.82); }
+  50%      { opacity: 0.9;  transform: scale(1.08); }
+}
+.bc-twinkle {
+  animation: bc-twinkle var(--t, 2.8s) ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Bunting pennants — gentle sway from the string */
+@keyframes bc-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+.bc-sway {
+  animation: bc-sway var(--t, 4.2s) ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
 /* Dark glass card with a 1px gradient edge (per-artist accent via vars) */
 .bc-neon-card {
   position: relative;

@@ -17,6 +17,7 @@ import Navbar from "@/components/Navbar";
 import { C, Icon } from "@/components/home/icons";
 import { CLUB_FAQS, VIBE_FACTS } from "@/data/bajanClubbing";
 import ClubHero from "./ClubHero";
+import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import Lineup from "./Lineup";
 import NightFlow from "./NightFlow";
 import RegisterPanel from "./RegisterPanel";
@@ -213,25 +214,18 @@ export default function BajanClubbingPage() {
             style={{ background: `radial-gradient(60% 100% at 50% 0%, ${C.saffron}0d, transparent 70%)` }}
             aria-hidden
           />
+          {/* festival dressing: string lights, bunting, petals, stars, rangoli */}
+          <FestivalBackdrop />
           <VibeStrip />
           <Lineup />
 
-          {/* laser divider */}
-          <div
-            className="mx-auto h-[2px] max-w-3xl"
-            style={{ background: `linear-gradient(90deg, transparent, ${C.peacockLight}66, ${C.gold}88, ${C.lotusPink}66, transparent)` }}
-            aria-hidden
-          />
+          <DiyaRow />
 
           <NightFlow />
           <RegisterPanel />
           <ShareCrew />
 
-          <div
-            className="mx-auto h-[2px] max-w-3xl"
-            style={{ background: `linear-gradient(90deg, transparent, ${C.gold}66, transparent)` }}
-            aria-hidden
-          />
+          <DiyaRow />
 
           <ClubFaq />
           <Outro />

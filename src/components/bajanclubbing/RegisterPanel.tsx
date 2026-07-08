@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { C, Icon } from "@/components/home/icons";
 import { EVENT, SHARE } from "@/data/bajanClubbing";
+import { StringLights } from "./FestivalBackdrop";
 
 interface PassFormData {
   name: string;
@@ -439,6 +440,8 @@ function TicketForm() {
 export default function RegisterPanel() {
   return (
     <section className="relative mx-auto max-w-5xl px-6 py-16 sm:py-24">
+      {/* lights strung over the box office */}
+      <StringLights flags={false} className="absolute inset-x-0 top-1 z-0 opacity-90" />
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
