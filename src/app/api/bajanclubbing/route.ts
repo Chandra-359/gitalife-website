@@ -58,7 +58,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, guests, notes } = body;
+    const { name, email, phone, guests, notes, tier } = body;
 
     if (!name || !email) {
       return NextResponse.json(
@@ -102,13 +102,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Tier rides in notes so it shows in the admin table without a migration
+    const tierLabel = typeof tier === "string" && tier.trim() ? `[${tier.trim().slice(0, 40)}]` : null;
+    const combinedNotes = [tierLabel, notes || null].filter(Boolean).join(" ") || null;
+
     const rsvp = await prisma.rsvp.create({
       data: {
         name,
         email,
         phone: phone || null,
         guests: guestCount,
-        notes: notes || null,
+        notes: combinedNotes,
         programId: EVENT.programId,
       },
     });

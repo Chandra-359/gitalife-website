@@ -1,12 +1,13 @@
 "use client";
 
 /**
- * BajanClubbingPage — full composition for /bajanclubbing.
+ * BajanClubbingPage — "Transcendental Neon" composition for /bajanclubbing.
  *
- * One continuous midnight canvas (the rest of the site is light khadi
- * paper — stepping onto this page should feel like walking into the
- * club night). Order: hero → vibe tiles → lineup → run of show →
- * venue + ticket form → share → FAQ → outro.
+ * Premium dark mode: deep purple canvas, saffron / electric blue / violet
+ * neon, frosted-glass panels over a pulsing aurora. Structure follows the
+ * event-page spec: hero → the vibe → lineup → bento details → multi-step
+ * tickets → share → FAQ → outro. The festival layer (string lights,
+ * diyas, petals, instruments, rising notes) persists underneath it all.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -14,63 +15,18 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
-import { C, Icon } from "@/components/home/icons";
-import { CLUB_FAQS, VIBE_FACTS } from "@/data/bajanClubbing";
-import ClubHero from "./ClubHero";
+import { Icon } from "@/components/home/icons";
+import { CLUB_FAQS } from "@/data/bajanClubbing";
+import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
-import Lineup from "./Lineup";
-import NightFlow from "./NightFlow";
-import RegisterPanel from "./RegisterPanel";
+import NeonHero from "./NeonHero";
+import NeonLineup from "./NeonLineup";
 import ShareCrew from "./ShareCrew";
-
-const ACCENT_HEX: Record<string, string> = {
-  gold: C.gold,
-  saffron: C.saffron,
-  peacock: C.peacockLight,
-  lotus: C.lotusPink,
-};
+import TheVibe from "./TheVibe";
+import TicketFlow from "./TicketFlow";
 
 /* ------------------------------------------------------------------ */
-/*  Vibe tiles — what makes the night the night                        */
-/* ------------------------------------------------------------------ */
-function VibeStrip() {
-  return (
-    <section className="relative mx-auto max-w-5xl px-6 pt-16 sm:pt-20">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {VIBE_FACTS.map((fact, i) => {
-          const accent = ACCENT_HEX[fact.accent];
-          return (
-            <motion.div
-              key={fact.title}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, delay: i * 0.07 }}
-              className="rounded-2xl p-5"
-              style={{ background: "rgba(251,245,230,0.045)", border: "1px solid rgba(251,245,230,0.12)" }}
-            >
-              <span
-                className="flex h-11 w-11 items-center justify-center rounded-xl"
-                style={{ background: `${accent}1a`, border: `1px solid ${accent}40`, color: accent }}
-              >
-                <Icon name={fact.icon} size={20} />
-              </span>
-              <h3 className="mt-3.5 text-[16.5px] font-semibold text-white" style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}>
-                {fact.title}
-              </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: "rgba(251,245,230,0.62)" }}>
-                {fact.detail}
-              </p>
-            </motion.div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  FAQ                                                                */
+/*  FAQ — compact glass accordions                                     */
 /* ------------------------------------------------------------------ */
 function ClubFaq() {
   return (
@@ -82,33 +38,28 @@ function ClubFaq() {
         transition={{ duration: 0.6 }}
         className="text-center"
       >
-        <p className="eyebrow" style={{ color: C.goldLight }}>
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           Real Questions
         </p>
-        <h2 className="mt-3 text-3xl text-white sm:text-4xl" style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}>
-          Before you <em style={{ color: C.goldLight }}>ask</em>
+        <h2 className="bc2-display mt-4 text-[28px] text-white sm:text-[36px]">
+          Before you <span className="bc2-headline-grad">ask</span>
         </h2>
       </motion.div>
 
       <div className="mt-10 space-y-3">
         {CLUB_FAQS.map((faq) => (
-          <details
-            key={faq.q}
-            className="group rounded-2xl"
-            style={{ background: "rgba(251,245,230,0.045)", border: "1px solid rgba(251,245,230,0.12)" }}
-          >
-            {/* padding lives on the summary so the whole row is the tap target */}
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[15px] font-semibold text-white [&::-webkit-details-marker]:hidden">
+          <details key={faq.q} className="bc2-glass group !rounded-2xl">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[14.5px] font-bold text-white [&::-webkit-details-marker]:hidden">
               {faq.q}
               <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[16px] transition-transform duration-200 group-open:rotate-45"
-                style={{ border: `1px solid ${C.gold}59`, color: C.goldLight }}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[15px] transition-transform duration-200 group-open:rotate-45"
+                style={{ border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
                 aria-hidden
               >
                 +
               </span>
             </summary>
-            <p className="-mt-1 px-5 pb-4 pr-7 text-[13.5px] leading-relaxed" style={{ color: "rgba(251,245,230,0.68)" }}>
+            <p className="-mt-1 px-5 pb-4 pr-8 text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               {faq.a}
             </p>
           </details>
@@ -123,27 +74,26 @@ function ClubFaq() {
 /* ------------------------------------------------------------------ */
 function Outro() {
   return (
-    <section className="relative overflow-hidden px-6 pb-14 pt-10 text-center">
+    <section className="relative overflow-hidden px-6 pb-16 pt-8 text-center">
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-[300px] w-[600px] -translate-x-1/2 rounded-full"
-        style={{ background: `radial-gradient(ellipse, ${C.saffron}1f, transparent 65%)`, filter: "blur(30px)" }}
+        className="pointer-events-none absolute left-1/2 top-0 h-[320px] w-[640px] -translate-x-1/2 rounded-full"
+        style={{ background: "radial-gradient(ellipse, rgba(255,122,26,0.14), transparent 65%)", filter: "blur(34px)" }}
         aria-hidden
       />
-      <p
-        className="relative mx-auto max-w-xl text-[22px] leading-snug sm:text-[26px]"
-        style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontStyle: "italic", color: "rgba(251,245,230,0.9)" }}
-      >
-        Come for the beat. Leave with a mantra stuck in your soul.
+      <p className="bc2-display relative mx-auto max-w-2xl text-[22px] leading-[1.2] text-white sm:text-[30px]">
+        Come for the beat.
+        <br />
+        <span className="bc2-headline-grad">Leave with a mantra stuck in your soul.</span>
       </p>
-      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
-        <a href="#register" className="btn-primary-gradient rounded-full px-7 py-3.5 text-[14px] font-bold text-white">
-          Claim your free pass
+      <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
+        <a href="#tickets" className="bc2-btn-glow rounded-full px-8 py-3.5 text-[13.5px] font-extrabold uppercase tracking-[0.08em]">
+          Get Tickets
         </a>
-        <Link href="/programs" className="btn-ghost-light rounded-full px-7 py-3.5 text-[14px] font-semibold">
+        <Link href="/programs" className="bc2-btn-ghost rounded-full px-7 py-3.5 text-[13.5px] font-semibold">
           Explore weekly programs
         </Link>
       </div>
-      <p className="relative mt-12 text-[11.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "rgba(251,245,230,0.4)" }}>
+      <p className="relative mt-12 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
         Gita Life NYC · A community initiative under ISKCON
       </p>
     </section>
@@ -151,19 +101,18 @@ function Outro() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Sticky mobile CTA — hides once the register section is on screen   */
+/*  Sticky mobile CTA — hides when the ticket flow is on screen        */
 /* ------------------------------------------------------------------ */
-function StickyPassBar() {
+function StickyTicketBar() {
   const [hidden, setHidden] = useState(false);
   const observed = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const target = document.getElementById("register");
+    const target = document.getElementById("tickets");
     if (!target) return;
-    observed.current = new IntersectionObserver(
-      ([entry]) => setHidden(entry.isIntersecting),
-      { rootMargin: "0px 0px -20% 0px" },
-    );
+    observed.current = new IntersectionObserver(([entry]) => setHidden(entry.isIntersecting), {
+      rootMargin: "0px 0px -15% 0px",
+    });
     observed.current.observe(target);
     return () => observed.current?.disconnect();
   }, []);
@@ -175,21 +124,19 @@ function StickyPassBar() {
       }`}
     >
       <a
-        href="#register"
-        className="flex items-center justify-between rounded-full py-3.5 pl-6 pr-2 shadow-2xl"
+        href="#tickets"
+        className="flex items-center justify-between rounded-full py-3 pl-6 pr-2 shadow-2xl"
         style={{
-          background: `linear-gradient(135deg, ${C.saffron}, #B85308)`,
-          border: "1px solid rgba(255,255,255,0.25)",
-          boxShadow: `0 12px 34px -8px ${C.saffron}b3`,
+          background: "linear-gradient(135deg, rgba(21,10,56,0.92), rgba(11,6,32,0.95))",
+          border: "1px solid rgba(255,122,26,0.45)",
+          backdropFilter: "blur(12px)",
+          boxShadow: "0 12px 40px -10px rgba(255,122,26,0.55)",
         }}
       >
-        <span className="text-[13.5px] font-bold text-white">Sat Aug 15 · Free with pass</span>
-        <span
-          className="flex items-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-bold"
-          style={{ background: "rgba(255,255,255,0.95)", color: "#B85308" }}
-        >
-          Get pass
-          <Icon name="arrowRight" size={13} />
+        <span className="text-[13px] font-bold text-white">Sat Aug 15 · Free entry</span>
+        <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.06em]" style={{ animation: "none" }}>
+          Get Tickets
+          <Icon name="arrowRight" size={12} />
         </span>
       </a>
     </div>
@@ -201,39 +148,44 @@ function StickyPassBar() {
 /* ------------------------------------------------------------------ */
 export default function BajanClubbingPage() {
   return (
-    <div className="min-h-screen" style={{ background: "#080E2A" }}>
+    <div className="min-h-screen" style={{ background: "var(--bc2-bg)" }}>
       <Navbar />
-      <Toaster position="top-center" toastOptions={{ style: { background: "#15224F", color: "#FBF5E6" } }} />
+      <Toaster position="top-center" toastOptions={{ style: { background: "#150A38", color: "#F4EFFF", border: "1px solid rgba(139,92,246,0.4)" } }} />
 
       <main>
-        <ClubHero />
+        <NeonHero />
 
-        <div className="surface-midnight relative">
-          {/* faint standing glow down the whole body of the page */}
+        <div className="relative" style={{ background: "linear-gradient(180deg, var(--bc2-bg-2) 0%, var(--bc2-bg) 32%, #0E0728 68%, #070313 100%)" }}>
+          {/* grain over the whole body */}
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[520px]"
-            style={{ background: `radial-gradient(60% 100% at 50% 0%, ${C.saffron}0d, transparent 70%)` }}
+            className="pointer-events-none absolute inset-0"
+            style={{ backgroundImage: "var(--tex-grain-dark)", backgroundSize: "240px 240px", opacity: 0.4, mixBlendMode: "screen" }}
             aria-hidden
           />
-          {/* festival dressing: string lights, bunting, petals, stars, rangoli */}
+
+          {/* standing aurora glows down the body */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+            <span className="bc2-aurora left-[-14%] top-[18%] h-[560px] w-[560px]" style={{ background: "var(--bc2-blue-deep)", "--o": 0.16, "--t": "24s" } as React.CSSProperties} />
+            <span className="bc2-aurora right-[-16%] top-[46%] h-[620px] w-[620px]" style={{ background: "var(--bc2-purple)", "--o": 0.18, "--t": "28s", "--d": "-9s" } as React.CSSProperties} />
+            <span className="bc2-aurora left-[10%] top-[74%] h-[520px] w-[520px]" style={{ background: "var(--bc2-saffron)", "--o": 0.12, "--t": "26s", "--d": "-14s" } as React.CSSProperties} />
+          </div>
+
+          {/* festival layer: lights, bunting, diyas, petals, instruments, notes */}
           <FestivalBackdrop />
-          <VibeStrip />
-          <Lineup />
 
+          <TheVibe />
+          <NeonLineup />
           <DiyaRow />
-
-          <NightFlow />
-          <RegisterPanel />
+          <BentoDetails />
+          <TicketFlow />
           <ShareCrew />
-
           <DiyaRow />
-
           <ClubFaq />
           <Outro />
         </div>
       </main>
 
-      <StickyPassBar />
+      <StickyTicketBar />
     </div>
   );
 }

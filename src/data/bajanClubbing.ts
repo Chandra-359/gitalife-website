@@ -20,6 +20,8 @@ export interface ClubArtist {
   role: string;          // e.g. "Headline Kirtan", "Mantra-House DJ"
   setTime: string;       // e.g. "9:15 PM"
   bio: string;           // one-liner
+  instrument: string;    // hover-reveal: what they play
+  style: string;         // hover-reveal: their bhajan style
   tags: string[];        // instruments / style chips
   accent: AccentToken;
   headliner?: boolean;
@@ -92,6 +94,8 @@ export const LINEUP: ClubArtist[] = [
     role: "Headline Kirtan",
     setTime: "9:15 PM",
     bio: "Six voices, one harmonium, and a wall of mridanga — the call-and-response set that ends with the whole room on its feet.",
+    instrument: "Harmonium · Mridanga · Kartals",
+    style: "High-energy nagar kirtan, stadium scale",
     tags: ["Kirtan", "Harmonium", "Mridanga", "Kartals"],
     accent: "saffron",
     headliner: true,
@@ -102,6 +106,8 @@ export const LINEUP: ClubArtist[] = [
     role: "Mantra-House DJ",
     setTime: "7:30 PM",
     bio: "Devotional classics re-cut over deep house and lo-fi beats. The warm-up and the afterglow.",
+    instrument: "Decks · Sampler",
+    style: "Mantra-house & lo-fi bhajan edits",
     tags: ["DJ set", "Mantra-house", "Lo-fi bhajan"],
     accent: "peacock",
   },
@@ -111,6 +117,8 @@ export const LINEUP: ClubArtist[] = [
     role: "Candlelight Bhajans",
     setTime: "8:00 PM",
     bio: "Slow, soulful Mirabai and Surdas bhajans under low light — the breath before the storm.",
+    instrument: "Voice · Tanpura",
+    style: "Mirabai & Surdas bhajans, unplugged",
     tags: ["Vocals", "Tanpura", "Bhajan"],
     accent: "lotus",
   },
@@ -120,7 +128,76 @@ export const LINEUP: ClubArtist[] = [
     role: "Percussion Storm",
     setTime: "8:45 PM",
     bio: "Tabla versus mridanga versus dhol. A ten-minute rhythm battle that turns the floor into one heartbeat.",
+    instrument: "Tabla · Mridanga · Dhol",
+    style: "Taal battle — cycles that climb until the room shakes",
     tags: ["Tabla", "Mridanga", "Dhol"],
+    accent: "gold",
+  },
+  {
+    id: "bansuri-blue",
+    name: "Bansuri Blue",
+    role: "Ambient Flute",
+    setTime: "Doors",
+    bio: "Krishna's instrument over slow ambient pads while the room fills — the sound of the Yamuna at dusk.",
+    instrument: "Bansuri · Ambient pads",
+    style: "Raga-ambient, Vrindavan twilight",
+    tags: ["Bansuri", "Ambient", "Raga"],
+    accent: "peacock",
+  },
+  {
+    id: "kirtan-shakti",
+    name: "Kirtan Shakti",
+    role: "Women-Led Chorus",
+    setTime: "10:00 PM",
+    bio: "A twelve-voice chorus that closes the night — one mantra, a hundred harmonies, zero dry eyes.",
+    instrument: "Voices · Kartals · Harmonium",
+    style: "Layered choral kirtan, slow-build ecstatics",
+    tags: ["Chorus", "Kirtan", "Harmonies"],
+    accent: "lotus",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Ticket tiers — free event; VIP is a seva donation via Stripe       */
+/* ------------------------------------------------------------------ */
+export interface TicketTier {
+  id: string;
+  name: string;
+  tag: string;
+  priceUsd: number; // 0 = free
+  blurb: string;
+  perks: string[];
+  accent: AccentToken;
+  limited?: boolean;
+}
+
+export const TIERS: TicketTier[] = [
+  {
+    id: "general",
+    name: "General Vibes",
+    tag: "Free",
+    priceUsd: 0,
+    blurb: "Everything that matters: the floor, the chant, the feast.",
+    perks: ["Full floor access", "Chai + mocktail bar", "Midnight prasadam feast"],
+    accent: "saffron",
+  },
+  {
+    id: "frontrow",
+    name: "Front Row Bhakti",
+    tag: "Free · Limited",
+    priceUsd: 0,
+    blurb: "First two rows at the stage rail. For the ones who sing back loudest.",
+    perks: ["Stage-rail spot", "Everything in General", "First in line for the feast"],
+    accent: "peacock",
+    limited: true,
+  },
+  {
+    id: "vip",
+    name: "VIP Seva Pass",
+    tag: "$21 donation",
+    priceUsd: 21,
+    blurb: "Backstage chai with the artists — and your donation funds the free feast.",
+    perks: ["Backstage chai meet", "Reserved cushion seating", "Feast sponsor shout-out"],
     accent: "gold",
   },
 ];

@@ -586,6 +586,125 @@ html {
 }
 
 /* ================================================================== */
+/*  Bhajan Clubbing v2 — "Transcendental Neon" (bc2-*)                 */
+/*  Deep purple base, electric blue + saffron neon, real glass.        */
+/* ================================================================== */
+:root {
+  --bc2-bg: #0B0620;
+  --bc2-bg-2: #150A38;
+  --bc2-saffron: #FF7A1A;
+  --bc2-amber: #FFB25C;
+  --bc2-blue: #4D9FFF;
+  --bc2-blue-deep: #2E5BFF;
+  --bc2-purple: #8B5CF6;
+  --bc2-pink: #E86BB7;
+  --bc2-ink: #F4EFFF;
+  --bc2-ink-dim: rgba(244,239,255,0.66);
+  --bc2-ink-faint: rgba(244,239,255,0.42);
+}
+
+/* Frosted glass panel — the core surface of the design */
+.bc2-glass {
+  background: linear-gradient(165deg, rgba(139,92,246,0.10), rgba(21,10,56,0.42) 55%, rgba(11,6,32,0.5));
+  backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid rgba(244,239,255,0.13);
+  box-shadow: inset 0 1px 0 rgba(244,239,255,0.09), 0 18px 48px -22px rgba(0,0,0,0.7);
+  border-radius: var(--radius-2xl);
+}
+.bc2-glass-hover {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.bc2-glass-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(244,239,255,0.26);
+  box-shadow: inset 0 1px 0 rgba(244,239,255,0.12), 0 24px 60px -20px var(--bc2-hover-glow, rgba(255,122,26,0.4));
+}
+
+/* Aurora blobs — slow pulse + drift behind the glass */
+@keyframes bc2-aurora {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: var(--o, 0.5); }
+  33%      { transform: translate3d(4vw, -3vh, 0) scale(1.18); opacity: calc(var(--o, 0.5) * 1.35); }
+  66%      { transform: translate3d(-3vw, 3vh, 0) scale(0.92); opacity: calc(var(--o, 0.5) * 0.8); }
+}
+.bc2-aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  animation: bc2-aurora var(--t, 16s) ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  pointer-events: none;
+}
+
+/* Club light-rig beams — conic wheel, rotated by bc-spin-slow */
+.bc2-beams {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 14deg, rgba(255,122,26,0.12) 20deg, transparent 26deg 58deg,
+    rgba(77,159,255,0.12) 64deg, transparent 70deg 118deg,
+    rgba(139,92,246,0.13) 124deg, transparent 130deg 172deg,
+    rgba(255,178,92,0.1) 178deg, transparent 184deg 236deg,
+    rgba(77,159,255,0.1) 242deg, transparent 248deg 298deg,
+    rgba(232,107,183,0.1) 304deg, transparent 310deg 360deg
+  );
+  mask-image: radial-gradient(circle at center, black 0%, black 55%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, black 55%, transparent 78%);
+}
+
+/* Massive neon headline */
+.bc2-display {
+  font-family: var(--font-unbounded), var(--font-inter), system-ui, sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.96;
+}
+.bc2-headline-grad {
+  background: linear-gradient(100deg, #FFD9B0 0%, var(--bc2-saffron) 34%, var(--bc2-pink) 58%, var(--bc2-blue) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 26px rgba(255,122,26,0.45)) drop-shadow(0 0 60px rgba(77,159,255,0.3));
+}
+
+/* Glowing CTA */
+@keyframes bc2-btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,26,0.55), 0 10px 34px -8px rgba(255,122,26,0.75); }
+  50%      { box-shadow: 0 0 0 9px rgba(255,122,26,0), 0 10px 44px -6px rgba(255,122,26,0.95); }
+}
+.bc2-btn-glow {
+  background: linear-gradient(135deg, var(--bc2-amber) 0%, var(--bc2-saffron) 45%, #E8511A 100%);
+  color: #1C0A02;
+  animation: bc2-btn-pulse 2.6s ease-in-out infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.bc2-btn-glow:hover { transform: translateY(-2px) scale(1.02); filter: brightness(1.07); }
+
+.bc2-btn-ghost {
+  border: 1px solid rgba(244,239,255,0.28);
+  color: var(--bc2-ink);
+  background: rgba(244,239,255,0.05);
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.bc2-btn-ghost:hover { background: rgba(244,239,255,0.1); border-color: rgba(244,239,255,0.45); transform: translateY(-2px); }
+
+/* Neon edge accent for bento / lineup cards (uses --bc2-edge) */
+.bc2-edge-top { position: relative; overflow: hidden; }
+.bc2-edge-top::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bc2-edge, var(--bc2-saffron)), transparent);
+  opacity: 0.85;
+}
+
+/* Stepper dots */
+.bc2-step-line { background: linear-gradient(90deg, rgba(244,239,255,0.12), rgba(244,239,255,0.12)); }
+
+/* ================================================================== */
 /*  Scrollbar                                                          */
 /* ================================================================== */
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }

@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
+import { Unbounded } from "next/font/google";
 import BajanClubbingPage from "@/components/bajanclubbing/BajanClubbingPage";
-import { EVENT, LINEUP } from "@/data/bajanClubbing";
+import { EVENT, LINEUP, TIERS } from "@/data/bajanClubbing";
+
+/** Wide club-poster display face (closest Google Fonts analog to
+ *  Monument Extended / Clash Display). Scoped to this route via its
+ *  CSS variable — the rest of the site stays Fraunces + Inter. */
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  variable: "--font-unbounded",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: `${EVENT.title} ${EVENT.volume} — Gita Life NYC`,
@@ -19,7 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-/** MusicEvent structured data so the event is eligible for rich results. */
+/** MusicEvent structured data — one offer per ticket tier. */
 function eventJsonLd() {
   return {
     "@context": "https://schema.org",
@@ -46,24 +56,25 @@ function eventJsonLd() {
       name: "Gita Life NYC",
       url: "https://gitalifenyc.org",
     },
-    offers: {
+    offers: TIERS.map((tier) => ({
       "@type": "Offer",
-      price: "0",
+      name: tier.name,
+      price: String(tier.priceUsd),
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
-      url: EVENT.url,
-    },
+      url: `${EVENT.url}#tickets`,
+    })),
   };
 }
 
 export default function Page() {
   return (
-    <>
+    <div className={unbounded.variable}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd()) }}
       />
       <BajanClubbingPage />
-    </>
+    </div>
   );
 }
