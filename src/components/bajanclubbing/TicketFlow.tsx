@@ -9,11 +9,14 @@
  *           hands off to Stripe Checkout when the server has keys, and
  *           falls back to pay-at-the-door when it doesn't.
  *
- * Returning from Stripe with ?paid=1 (read client-side) shows the paid
- * confirmation. Registration rows land in the existing admin RSVP table.
+ * Live availability (GET /api/bajanclubbing) drives the pass meter,
+ * per-tier "X left" chips, guest-count caps, and the sold-out panel.
+ * Returning from Stripe with ?paid=1&session_id=… verifies the session
+ * server-side before showing the paid confirmation. Registration rows
+ * land in the existing admin RSVP table.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -32,6 +35,66 @@ interface DetailsForm {
   email: string;
   phone?: string;
   guests: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Live availability — GET /api/bajanclubbing                         */
+/* ------------------------------------------------------------------ */
+interface TierAvailability {
+  limit: number;
+  taken: number;
+  remaining: number;
+}
+
+interface Availability {
+  capacity: number;
+  confirmed: number | null;
+  remaining: number | null; // null → DB offline, fall back to static copy
+  tiers: Record<string, TierAvailability> | null;
+}
+
+function useAvailability() {
+  const [availability, setAvailability] = useState<Availability | null>(null);
+  const refresh = useCallback(() => {
+    fetch("/api/bajanclubbing", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setAvailability(data))
+      .catch(() => {
+        /* the meter is progressive enhancement — static copy still stands */
+      });
+  }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+  return { availability, refresh };
+}
+
+function PassMeter({ availability }: { availability: Availability | null }) {
+  if (availability?.remaining == null) return null;
+  const capacity = availability.capacity || EVENT.capacity;
+  const remaining = availability.remaining;
+  const pct = Math.min(100, Math.round(((capacity - remaining) / capacity) * 100));
+  const low = remaining > 0 && remaining <= Math.ceil(capacity * 0.15);
+  const color = remaining === 0 ? "#FF6E6E" : low ? "#FFB25C" : "#4DFFA6";
+
+  return (
+    <div className="mx-auto mt-6 max-w-md" role="status" aria-live="polite">
+      <div className="flex items-baseline justify-between gap-4">
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.22em]" style={{ color: "var(--bc2-ink-faint)" }}>
+          Pass meter
+        </span>
+        <span className="text-[12.5px] font-bold" style={{ color }}>
+          {remaining === 0 ? "Sold out" : low ? `Only ${remaining} of ${capacity} passes left` : `${remaining} of ${capacity} passes left`}
+        </span>
+      </div>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full" style={{ background: "rgba(244,239,255,0.09)" }}>
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${Math.max(pct, 2)}%`, background: `linear-gradient(90deg, #FF7A1A, ${color})`, boxShadow: `0 0 12px ${color}59` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 function googleCalendarUrl() {
@@ -89,32 +152,56 @@ function Stepper({ step }: { step: number }) {
 /* ------------------------------------------------------------------ */
 /*  Step 1 — tier cards                                                */
 /* ------------------------------------------------------------------ */
-function TierStep({ selected, onSelect, onNext }: { selected: TicketTier; onSelect: (t: TicketTier) => void; onNext: () => void }) {
+function TierStep({
+  selected,
+  onSelect,
+  onNext,
+  availability,
+}: {
+  selected: TicketTier;
+  onSelect: (t: TicketTier) => void;
+  onNext: () => void;
+  availability: Availability | null;
+}) {
   return (
     <div>
       <div className="grid gap-4 sm:grid-cols-3">
         {TIERS.map((tier) => {
           const a = ACCENT[tier.accent];
-          const active = selected.id === tier.id;
+          const info = availability?.tiers?.[tier.id];
+          const soldOut = !!info && info.remaining <= 0;
+          const active = selected.id === tier.id && !soldOut;
           return (
             <button
               key={tier.id}
               type="button"
-              onClick={() => onSelect(tier)}
-              className="bc2-edge-top relative rounded-2xl p-5 text-left transition-all"
+              onClick={() => !soldOut && onSelect(tier)}
+              disabled={soldOut}
+              className="bc2-edge-top relative rounded-2xl p-5 text-left transition-all disabled:cursor-not-allowed"
               style={{
                 "--bc2-edge": a,
                 background: active ? `linear-gradient(165deg, ${a}1f, rgba(11,6,32,0.6))` : "rgba(244,239,255,0.045)",
                 border: active ? `1.5px solid ${a}99` : "1px solid rgba(244,239,255,0.13)",
                 boxShadow: active ? `0 16px 44px -16px ${a}66` : "none",
                 transform: active ? "translateY(-3px)" : "none",
+                opacity: soldOut ? 0.5 : 1,
+                filter: soldOut ? "saturate(0.4)" : "none",
               } as React.CSSProperties}
               aria-pressed={active}
+              aria-disabled={soldOut}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.16em]" style={{ background: `${a}1f`, border: `1px solid ${a}59`, color: a }}>
-                  {tier.tag}
+                  {soldOut ? "Sold out" : tier.tag}
                 </span>
+                {!soldOut && info && info.remaining <= (tier.tierLimit ?? 0) / 2 && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[9.5px] font-extrabold uppercase tracking-[0.12em]"
+                    style={{ background: "rgba(255,110,110,0.12)", border: "1px solid rgba(255,110,110,0.4)", color: "#FF9E9E" }}
+                  >
+                    {info.remaining} left
+                  </span>
+                )}
                 <span
                   className="flex h-5 w-5 items-center justify-center rounded-full border transition-all"
                   style={{ borderColor: active ? a : "rgba(244,239,255,0.25)", background: active ? a : "transparent" }}
@@ -163,17 +250,59 @@ export default function TicketFlow() {
   const [tier, setTier] = useState<TicketTier>(TIERS[0]);
   const [details, setDetails] = useState<DetailsForm | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [done, setDone] = useState<null | { name: string; paid: boolean; payAtDoor: boolean }>(null);
+  const { availability, refresh } = useAvailability();
 
-  // Returning from Stripe Checkout (?paid=1) — client-only read
+  // If the selected tier sells out under you, fall back to an open one
+  useEffect(() => {
+    setTier((current) => {
+      const info = availability?.tiers?.[current.id];
+      if (!info || info.remaining > 0) return current;
+      return TIERS.find((t) => (availability?.tiers?.[t.id]?.remaining ?? 1) > 0) ?? current;
+    });
+  }, [availability]);
+
+  // Returning from Stripe Checkout — verify the session before celebrating
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    if (q.get("paid") === "1") {
-      setDone({ name: "", paid: true, payAtDoor: false });
-      document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
-    } else if (q.get("canceled") === "1") {
+    const paid = q.get("paid") === "1";
+    const canceled = q.get("canceled") === "1";
+    const sessionId = q.get("session_id");
+    if (!paid && !canceled) return;
+
+    // Scrub the query so refresh/share doesn't replay the redirect handling
+    window.history.replaceState(null, "", window.location.pathname + (window.location.hash || "#tickets"));
+
+    if (canceled) {
       toast("Payment canceled — your free registration still counts.", { icon: "ℹ️" });
+      return;
     }
+
+    document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
+
+    const holdAtDoor = () => {
+      setDone({ name: "", paid: false, payAtDoor: true });
+      toast("We couldn't confirm the card payment — if it went through, your Stripe receipt is in your inbox.", {
+        icon: "ℹ️",
+        duration: 6000,
+      });
+    };
+
+    if (!sessionId) {
+      holdAtDoor();
+      return;
+    }
+
+    setVerifying(true);
+    fetch(`/api/bajanclubbing/checkout?session_id=${encodeURIComponent(sessionId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.paid) setDone({ name: String(data.name || "").split(" ")[0], paid: true, payAtDoor: false });
+        else holdAtDoor();
+      })
+      .catch(holdAtDoor)
+      .finally(() => setVerifying(false));
   }, []);
 
   const {
@@ -193,6 +322,7 @@ export default function TicketFlow() {
         phone: d.phone || null,
         guests: d.guests || 1,
         tier: tier.name,
+        tierId: tier.id,
       }),
     });
     if (!res.ok) {
@@ -227,12 +357,18 @@ export default function TicketFlow() {
         setDone({ name: d.name.split(" ")[0], paid: false, payAtDoor: false });
         toast.success("Pass confirmed — see you on the floor!", { duration: 4500 });
       }
+      refresh(); // pull the pass meter down for the next visitor
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to register. Please try again.");
+      refresh(); // a capacity rejection means the meter just moved
     } finally {
       setSubmitting(false);
     }
   };
+
+  const tierInfo = availability?.tiers?.[tier.id];
+  const maxGuests = Math.max(1, Math.min(5, availability?.remaining ?? 5, tierInfo?.remaining ?? 5));
+  const soldOut = availability?.remaining === 0;
 
   const shareText = encodeURIComponent(`${SHARE.message} ${EVENT.url}`);
   const stepMotion = {
@@ -260,6 +396,7 @@ export default function TicketFlow() {
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
           {EVENT.capacity} spots total. Free tiers confirm instantly; the VIP seva donation checks out securely without leaving the page flow.
         </p>
+        <PassMeter availability={availability} />
       </motion.div>
 
       <motion.div
@@ -310,6 +447,48 @@ export default function TicketFlow() {
               </a>
             </div>
           </motion.div>
+        ) : verifying ? (
+          /* ---------- verifying the Stripe return ---------- */
+          <div className="flex flex-col items-center gap-4 py-14 text-center" role="status">
+            <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" style={{ color: "var(--bc2-amber)" }}>
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-[14px] font-bold text-white">Confirming your payment…</p>
+            <p className="text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
+              One second — we&rsquo;re checking with Stripe.
+            </p>
+          </div>
+        ) : soldOut ? (
+          /* ---------- sold out ---------- */
+          <div className="py-8 text-center">
+            <p
+              className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
+              style={{ background: "rgba(255,110,110,0.1)", border: "1px solid rgba(255,110,110,0.4)", color: "#FF9E9E" }}
+            >
+              Sold out
+            </p>
+            <h3 className="bc2-display mt-5 text-[26px] text-white">All {EVENT.capacity} passes are claimed</h3>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+              No-show spots open at the door — the line starts at 6:45 PM. Bring your crew and your patience; the chai bar makes the wait easy.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
+              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
+                <Icon name="calendar" size={14} />
+                Save the date anyway
+              </a>
+              <a
+                href={`https://wa.me/?text=${shareText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bc2-btn-glow inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-extrabold sm:w-auto"
+                style={{ animation: "none" }}
+              >
+                <Icon name="share" size={14} />
+                Rally the door line
+              </a>
+            </div>
+          </div>
         ) : (
           <>
             <Stepper step={step} />
@@ -317,7 +496,7 @@ export default function TicketFlow() {
               <AnimatePresence mode="wait">
                 {step === 0 && (
                   <motion.div key="tier" {...stepMotion}>
-                    <TierStep selected={tier} onSelect={setTier} onNext={() => setStep(1)} />
+                    <TierStep selected={tier} onSelect={setTier} onNext={() => setStep(1)} availability={availability} />
                   </motion.div>
                 )}
 
@@ -368,13 +547,22 @@ export default function TicketFlow() {
                           <label htmlFor="tf-guests" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
                             Crew
                           </label>
-                          <select id="tf-guests" className={`${inputClass} cursor-pointer appearance-none`} style={inputStyle()} {...register("guests", { valueAsNumber: true })}>
-                            {[1, 2, 3, 4, 5].map((n) => (
+                          <select
+                            id="tf-guests"
+                            className={`${inputClass} cursor-pointer appearance-none`}
+                            style={inputStyle()}
+                            {...register("guests", {
+                              valueAsNumber: true,
+                              validate: (n) => n <= maxGuests || `Only ${maxGuests} pass${maxGuests === 1 ? "" : "es"} left for this tier`,
+                            })}
+                          >
+                            {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
                               <option key={n} value={n} style={{ background: "#150A38" }}>
                                 {n === 1 ? "Just me" : `${n} of us`}
                               </option>
                             ))}
                           </select>
+                          {errors.guests && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.guests.message}</p>}
                         </div>
                       </div>
                       <div className="flex gap-3 pt-2">

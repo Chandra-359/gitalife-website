@@ -46,10 +46,11 @@ function getOrCreatePrismaClient(): PrismaClient | null {
     client = new PrismaClient({ accelerateUrl });
   } else if (directUrl) {
     // Direct postgres:// connection via driver adapter
-    // Create pool with explicit SSL config to avoid pg v8 SSL mode warnings
+    // Explicit SSL config avoids pg v8 SSL mode warnings; honor
+    // sslmode=disable so local/dev databases without SSL still connect.
     const pool = new pg.Pool({
       connectionString: directUrl,
-      ssl: { rejectUnauthorized: false },
+      ssl: /[?&]sslmode=disable/.test(directUrl) ? undefined : { rejectUnauthorized: false },
     });
     const adapter = new PrismaPg(pool);
     client = new PrismaClient({ adapter });
@@ -60,6 +61,16 @@ function getOrCreatePrismaClient(): PrismaClient | null {
   globalForPrisma.prisma = client;
 
   return client;
+}
+
+/**
+ * The real client instance (or null when no database URL is configured).
+ * Use this instead of the `prisma` proxy for APIs that must run on the
+ * actual PrismaClient — e.g. `$transaction`, whose internals rely on
+ * `this` being the real instance rather than a forwarding proxy.
+ */
+export function getPrismaClient(): PrismaClient | null {
+  return getOrCreatePrismaClient();
 }
 
 /** Lazy proxy — the PrismaClient is only instantiated on first property access at runtime */
