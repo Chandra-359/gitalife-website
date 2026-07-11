@@ -54,7 +54,7 @@ function eventJsonLd() {
     organizer: {
       "@type": "Organization",
       name: "Gita Life NYC",
-      url: "https://gitalifenyc.org",
+      url: "https://www.gitalifenyc.com",
     },
     offers: TIERS.map((tier) => ({
       "@type": "Offer",

@@ -63,7 +63,7 @@ export const EVENT = {
   capacity: 200,
   priceLabel: "Free with pass",
   /** Canonical URL used for social sharing + JSON-LD. */
-  url: "https://gitalifenyc.org/bajanclubbing",
+  url: "https://www.gitalifenyc.com/bajanclubbing",
 } as const;
 
 export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; title: string; detail: string; accent: AccentToken }[] = [

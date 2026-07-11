@@ -8,7 +8,7 @@
  *   SMTP_PORT    587 (STARTTLS, default) or 465  (optional)
  *   SMTP_USER    mailbox login                   (required)
  *   SMTP_PASS    mailbox password / app password (required)
- *   SMTP_FROM    display From, e.g. "Gita Life NYC <hello@gitalifenyc.org>"
+ *   SMTP_FROM    display From, e.g. "Gita Life NYC <hello@gitalifenyc.com>"
  *                (optional — defaults to SMTP_USER)
  *   SMTP_REPLY_TO  where replies land, e.g. a monitored Gmail inbox
  *                  (optional — set this when SMTP_FROM is a send-only
@@ -63,7 +63,7 @@ function eventIcs(): string {
     "VERSION:2.0",
     "PRODID:-//Gita Life NYC//Bhajan Clubbing//EN",
     "BEGIN:VEVENT",
-    `UID:${EVENT.programId}@gitalifenyc.org`,
+    `UID:${EVENT.programId}@gitalifenyc.com`,
     `DTSTAMP:${toCalStamp(EVENT.startIso)}`,
     `DTSTART:${toCalStamp(EVENT.startIso)}`,
     `DTEND:${toCalStamp(EVENT.endIso)}`,
