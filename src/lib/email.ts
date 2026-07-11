@@ -10,6 +10,9 @@
  *   SMTP_PASS    mailbox password / app password (required)
  *   SMTP_FROM    display From, e.g. "Gita Life NYC <hello@gitalifenyc.org>"
  *                (optional — defaults to SMTP_USER)
+ *   SMTP_REPLY_TO  where replies land, e.g. a monitored Gmail inbox
+ *                  (optional — set this when SMTP_FROM is a send-only
+ *                  address on a transactional service like Resend)
  *
  * Sending is best-effort: when SMTP isn't configured or the send fails,
  * callers get `false` back and the registration flow carries on.
@@ -201,6 +204,7 @@ export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<
   try {
     await t.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      replyTo: process.env.SMTP_REPLY_TO || undefined,
       to: d.to,
       subject:
         d.seva === "paid"
