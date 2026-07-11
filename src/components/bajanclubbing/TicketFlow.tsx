@@ -5,9 +5,11 @@
  *
  *   Step 1  Pick a tier (General / Front Row — free · VIP — $21 seva)
  *   Step 2  Details (name, email, phone, crew size)
- *   Step 3  Review → free tiers register instantly; VIP registers then
- *           hands off to Square Checkout when the server has keys, and
- *           falls back to pay-at-the-door when it doesn't.
+ *   Step 3  Review → free tiers register instantly; VIP is pay-first —
+ *           it hands off to Square Checkout and the RSVP is only created
+ *           once the returned order verifies as paid. No payment, no
+ *           registration. With Square unconfigured the VIP tier is
+ *           disabled entirely.
  *
  * Live availability (GET /api/bajanclubbing) drives the pass meter,
  * per-tier "X left" chips, guest-count caps, and the sold-out panel.
@@ -51,6 +53,7 @@ interface Availability {
   confirmed: number | null;
   remaining: number | null; // null → DB offline, fall back to static copy
   tiers: Record<string, TierAvailability> | null;
+  payments?: boolean; // false → Square unconfigured, paid tiers unavailable
 }
 
 function useAvailability() {
@@ -170,13 +173,15 @@ function TierStep({
           const a = ACCENT[tier.accent];
           const info = availability?.tiers?.[tier.id];
           const soldOut = !!info && info.remaining <= 0;
-          const active = selected.id === tier.id && !soldOut;
+          const paymentsOff = tier.priceUsd > 0 && availability?.payments === false;
+          const disabled = soldOut || paymentsOff;
+          const active = selected.id === tier.id && !disabled;
           return (
             <button
               key={tier.id}
               type="button"
-              onClick={() => !soldOut && onSelect(tier)}
-              disabled={soldOut}
+              onClick={() => !disabled && onSelect(tier)}
+              disabled={disabled}
               className="bc2-edge-top relative rounded-2xl p-5 text-left transition-all disabled:cursor-not-allowed"
               style={{
                 "--bc2-edge": a,
@@ -184,15 +189,15 @@ function TierStep({
                 border: active ? `1.5px solid ${a}99` : "1px solid rgba(244,239,255,0.13)",
                 boxShadow: active ? `0 16px 44px -16px ${a}66` : "none",
                 transform: active ? "translateY(-3px)" : "none",
-                opacity: soldOut ? 0.5 : 1,
-                filter: soldOut ? "saturate(0.4)" : "none",
+                opacity: disabled ? 0.5 : 1,
+                filter: disabled ? "saturate(0.4)" : "none",
               } as React.CSSProperties}
               aria-pressed={active}
-              aria-disabled={soldOut}
+              aria-disabled={disabled}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.16em]" style={{ background: `${a}1f`, border: `1px solid ${a}59`, color: a }}>
-                  {soldOut ? "Sold out" : tier.tag}
+                  {soldOut ? "Sold out" : paymentsOff ? "Back soon" : tier.tag}
                 </span>
                 {!soldOut && info && info.remaining <= (tier.tierLimit ?? 0) / 2 && (
                   <span
@@ -251,17 +256,43 @@ export default function TicketFlow() {
   const [details, setDetails] = useState<DetailsForm | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [done, setDone] = useState<null | { name: string; paid: boolean; payAtDoor: boolean }>(null);
+  const [pendingOrder, setPendingOrder] = useState<string | null>(null);
+  const [done, setDone] = useState<null | { name: string; paid: boolean }>(null);
   const { availability, refresh } = useAvailability();
 
-  // If the selected tier sells out under you, fall back to an open one
+  // If the selected tier sells out (or payments go down for a paid tier),
+  // fall back to an open one
   useEffect(() => {
     setTier((current) => {
-      const info = availability?.tiers?.[current.id];
-      if (!info || info.remaining > 0) return current;
-      return TIERS.find((t) => (availability?.tiers?.[t.id]?.remaining ?? 1) > 0) ?? current;
+      const blocked = (t: TicketTier) =>
+        (availability?.tiers?.[t.id]?.remaining ?? 1) <= 0 ||
+        (t.priceUsd > 0 && availability?.payments === false);
+      if (!blocked(current)) return current;
+      return TIERS.find((t) => !blocked(t)) ?? current;
     });
   }, [availability]);
+
+  // Verify a Square order; the RSVP is only created server-side once the
+  // order is confirmed paid, so this IS the registration step for VIP.
+  const verifyOrder = useCallback(
+    (orderId: string) => {
+      setPendingOrder(null);
+      setVerifying(true);
+      fetch(`/api/bajanclubbing/checkout?order=${encodeURIComponent(orderId)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.paid) {
+            setDone({ name: String(data.name || "").split(" ")[0], paid: true });
+            refresh();
+          } else {
+            setPendingOrder(orderId); // show the retry panel
+          }
+        })
+        .catch(() => setPendingOrder(orderId))
+        .finally(() => setVerifying(false));
+    },
+    [refresh],
+  );
 
   // Returning from Square Checkout — verify the order before celebrating
   useEffect(() => {
@@ -276,34 +307,19 @@ export default function TicketFlow() {
     window.history.replaceState(null, "", window.location.pathname + (window.location.hash || "#tickets"));
 
     if (canceled) {
-      toast("Payment canceled — your free registration still counts.", { icon: "ℹ️" });
+      toast("Payment canceled — no charge was made.", { icon: "ℹ️" });
       return;
     }
 
     document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
 
-    const holdAtDoor = () => {
-      setDone({ name: "", paid: false, payAtDoor: true });
-      toast("We couldn't confirm the card payment — if it went through, your Square receipt is in your inbox.", {
-        icon: "ℹ️",
-        duration: 6000,
-      });
-    };
-
     if (!orderId) {
-      holdAtDoor();
+      toast.error("We couldn't identify your payment. If you were charged, your Square receipt is in your inbox — reply to it and we'll sort your pass.");
       return;
     }
 
-    setVerifying(true);
-    fetch(`/api/bajanclubbing/checkout?order=${encodeURIComponent(orderId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.paid) setDone({ name: String(data.name || "").split(" ")[0], paid: true, payAtDoor: false });
-        else holdAtDoor();
-      })
-      .catch(holdAtDoor)
-      .finally(() => setVerifying(false));
+    verifyOrder(orderId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const {
@@ -328,7 +344,7 @@ export default function TicketFlow() {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "Something went wrong" }));
-      // Already registered still lets a VIP proceed to payment
+      // 409 = this email is already on the list — that's a success for a free pass
       if (res.status !== 409) throw new Error(err.error || "Failed to register");
     }
   };
@@ -337,27 +353,25 @@ export default function TicketFlow() {
     const d = details ?? getValues();
     setSubmitting(true);
     try {
-      await registerPass(d);
-
       if (tier.priceUsd > 0) {
-        // VIP → Square Checkout (server returns url when keys are set)
+        // VIP is PAY-FIRST: no registration exists until Square confirms
+        // the payment — the verified return trip creates the RSVP.
         const res = await fetch("/api/bajanclubbing/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: d.name, email: d.email, guests: d.guests || 1 }),
+          body: JSON.stringify({ name: d.name, email: d.email, phone: d.phone || null, guests: d.guests || 1 }),
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.url) {
           window.location.href = data.url as string; // → Square, returns with ?paid=1&order=…
           return;
         }
-        // Stripe not configured — registered; take seva at the door
-        setDone({ name: d.name.split(" ")[0], paid: false, payAtDoor: true });
-        toast.success("You're in! Seva donation collected at the door.", { duration: 5000 });
-      } else {
-        setDone({ name: d.name.split(" ")[0], paid: false, payAtDoor: false });
-        toast.success("Pass confirmed — see you on the floor!", { duration: 4500 });
+        throw new Error(data.error || "Couldn't start checkout — please try again");
       }
+
+      await registerPass(d);
+      setDone({ name: d.name.split(" ")[0], paid: false });
+      toast.success("Pass confirmed — see you on the floor!", { duration: 4500 });
       refresh(); // pull the pass meter down for the next visitor
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to register. Please try again.");
@@ -427,9 +441,7 @@ export default function TicketFlow() {
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               {done.paid
                 ? "Your seva funds the free feast — thank you. Check your inbox for the receipt and the backstage chai details."
-                : done.payAtDoor
-                  ? "Your VIP spot is held — bring the $21 seva donation to the door (card or cash) and walk straight in."
-                  : "Check your inbox for the details. Doors at 7 — come early, the chai goes fast."}
+                : "Check your inbox for the details. Doors at 7 — come early, the chai goes fast."}
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -449,7 +461,7 @@ export default function TicketFlow() {
             </div>
           </motion.div>
         ) : verifying ? (
-          /* ---------- verifying the Stripe return ---------- */
+          /* ---------- verifying the Square return ---------- */
           <div className="flex flex-col items-center gap-4 py-14 text-center" role="status">
             <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" style={{ color: "var(--bc2-amber)" }}>
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -457,8 +469,41 @@ export default function TicketFlow() {
             </svg>
             <p className="text-[14px] font-bold text-white">Confirming your payment…</p>
             <p className="text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
-              One second — we&rsquo;re checking with Stripe.
+              One second — we&rsquo;re checking with Square.
             </p>
+          </div>
+        ) : pendingOrder ? (
+          /* ---------- payment made but not confirmed yet ---------- */
+          <div className="py-8 text-center">
+            <p
+              className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
+              style={{ background: "rgba(255,178,92,0.1)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+            >
+              Almost there
+            </p>
+            <h3 className="bc2-display mt-5 text-[24px] text-white">We couldn&rsquo;t confirm your payment yet</h3>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+              Card payments can take a few seconds to settle. If you completed the payment, tap retry — your pass is
+              issued the moment it confirms. If you were charged and this keeps failing, reply to your Square receipt
+              and we&rsquo;ll sort it.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => verifyOrder(pendingOrder)}
+                className="bc2-btn-glow inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3 text-[13px] font-extrabold sm:w-auto"
+                style={{ animation: "none" }}
+              >
+                Retry confirmation
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingOrder(null)}
+                className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto"
+              >
+                Back to passes
+              </button>
+            </div>
           </div>
         ) : soldOut ? (
           /* ---------- sold out ---------- */
@@ -612,7 +657,7 @@ export default function TicketFlow() {
                           <rect x="3" y="7" width="10" height="7" rx="1.5" />
                           <path d="M5 7V5a3 3 0 0 1 6 0v2" />
                         </svg>
-                        Secure card payment via Square — you&rsquo;ll hop over and come right back.
+                        Secure card payment via Square — your pass is issued the moment the payment confirms.
                       </p>
                     )}
 
