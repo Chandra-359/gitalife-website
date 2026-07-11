@@ -108,7 +108,7 @@ const TILES: { key: string; label: string; sub: string; color: string; icon: Rea
 
 export default function ShareCrew() {
   return (
-    <section className="relative mx-auto max-w-4xl px-6 py-16 sm:py-20">
+    <section id="crew" className="relative mx-auto max-w-4xl scroll-mt-20 px-6 py-16 sm:py-20">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
