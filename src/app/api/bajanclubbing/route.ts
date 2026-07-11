@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmation } from "@/lib/email";
+import { countGuests, ensureEventProgram, paymentsConfigured, tierTag } from "@/lib/clubbing";
 import { EVENT, TIERS } from "@/data/bajanClubbing";
 
 /**
@@ -21,53 +22,17 @@ import { EVENT, TIERS } from "@/data/bajanClubbing";
  * overselling (or conflict-storming under serializable isolation).
  */
 
-/** Tier tag stamped at the front of notes — also used to count tier usage. */
-const tierTag = (tierName: string) => `[${tierName}]`;
-
-/** Ensure the event's Program row exists and is current with the data file. */
-async function ensureEventProgram(db: PrismaClient) {
-  const data = {
-    title: `${EVENT.title} — ${EVENT.volume}`,
-    category: "Kirtan & Prasadam",
-    description: EVENT.description,
-    subtitle: EVENT.tagline,
-    latitude: 40.6881,
-    longitude: -73.9834,
-    dayOfWeek: "Saturday",
-    time: EVENT.timeLabel,
-    venueName: EVENT.venue.name,
-    address: EVENT.venue.address,
-    duration: "4 hours",
-    level: "All levels",
-    capacity: EVENT.capacity,
-    status: "published",
-    featured: true,
-  };
-  return db.program.upsert({
-    where: { id: EVENT.programId },
-    update: data,
-    create: { id: EVENT.programId, ...data },
-  });
-}
-
 type TxClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
-
-/** Confirmed guest count for the event, optionally narrowed to one tier. */
-async function countGuests(db: TxClient, tierName?: string) {
-  const sum = await db.rsvp.aggregate({
-    where: {
-      programId: EVENT.programId,
-      status: "confirmed",
-      ...(tierName ? { notes: { startsWith: tierTag(tierName) } } : {}),
-    },
-    _sum: { guests: true },
-  });
-  return sum._sum.guests ?? 0;
-}
 
 /** GET — remaining passes (overall + per limited tier) for the live meter. */
 export async function GET() {
-  const offline = { capacity: EVENT.capacity, confirmed: null, remaining: null, tiers: null };
+  const offline = {
+    capacity: EVENT.capacity,
+    confirmed: null,
+    remaining: null,
+    tiers: null,
+    payments: paymentsConfigured(),
+  };
   try {
     const db = getPrismaClient();
     if (!db) return NextResponse.json(offline);
@@ -89,6 +54,7 @@ export async function GET() {
       confirmed: taken,
       remaining: Math.max(0, EVENT.capacity - taken),
       tiers: Object.fromEntries(tierEntries),
+      payments: paymentsConfigured(),
     });
   } catch {
     return NextResponse.json(offline);
@@ -133,6 +99,16 @@ export async function POST(request: Request) {
     const tierDef =
       TIERS.find((t) => t.id === tierId) ??
       TIERS.find((t) => typeof tier === "string" && t.name === tier.trim());
+
+    // Paid tiers are never registered here — a verified Square payment
+    // creates the RSVP (checkout route). Blocks pay-wall bypass via
+    // direct POSTs too.
+    if (tierDef && tierDef.priceUsd > 0) {
+      return NextResponse.json(
+        { error: `${tierDef.name} is issued after payment — complete checkout to claim it` },
+        { status: 400 },
+      );
+    }
 
     // Tier rides in notes so it shows in the admin table without a migration
     const tierLabel = tierDef
@@ -205,7 +181,7 @@ export async function POST(request: Request) {
       name,
       tierName: tierDef?.name ?? (typeof tier === "string" && tier.trim() ? tier.trim() : "General Vibes"),
       guests: guestCount,
-      seva: tierDef && tierDef.priceUsd > 0 ? "door" : null,
+      seva: null, // paid tiers never reach this route; receipts go out on verified payment
     });
 
     return NextResponse.json(
