@@ -21,6 +21,7 @@ import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
 import NeonLineup from "./NeonLineup";
+import SectionTracker from "./SectionTracker";
 import ShareCrew from "./ShareCrew";
 import TheVibe from "./TheVibe";
 import TicketFlow from "./TicketFlow";
@@ -30,7 +31,7 @@ import TicketFlow from "./TicketFlow";
 /* ------------------------------------------------------------------ */
 function ClubFaq() {
   return (
-    <section className="relative mx-auto max-w-2xl px-6 py-16 sm:py-20">
+    <section id="faq" className="relative mx-auto max-w-2xl scroll-mt-20 px-6 py-16 sm:py-20">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -150,6 +151,7 @@ export default function BajanClubbingPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bc2-bg)" }}>
       <Navbar />
+      <SectionTracker />
       <Toaster position="top-center" toastOptions={{ style: { background: "#150A38", color: "#F4EFFF", border: "1px solid rgba(139,92,246,0.4)" } }} />
 
       <main>
