@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
+import { sendClubbingConfirmation } from "@/lib/email";
 import { EVENT, TIERS } from "@/data/bajanClubbing";
 
 /**
@@ -197,8 +198,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Best-effort confirmation email via the org's domain mailbox —
+    // a mail hiccup must never fail a registration that's already saved.
+    const emailed = await sendClubbingConfirmation({
+      to: email,
+      name,
+      tierName: tierDef?.name ?? (typeof tier === "string" && tier.trim() ? tier.trim() : "General Vibes"),
+      guests: guestCount,
+      seva: tierDef && tierDef.priceUsd > 0 ? "door" : null,
+    });
+
     return NextResponse.json(
-      { id: result.id, message: "Pass confirmed" },
+      { id: result.id, message: "Pass confirmed", emailed },
       { status: 201 },
     );
   } catch (error) {

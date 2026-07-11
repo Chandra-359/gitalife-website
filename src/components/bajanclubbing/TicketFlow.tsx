@@ -6,12 +6,12 @@
  *   Step 1  Pick a tier (General / Front Row — free · VIP — $21 seva)
  *   Step 2  Details (name, email, phone, crew size)
  *   Step 3  Review → free tiers register instantly; VIP registers then
- *           hands off to Stripe Checkout when the server has keys, and
+ *           hands off to Square Checkout when the server has keys, and
  *           falls back to pay-at-the-door when it doesn't.
  *
  * Live availability (GET /api/bajanclubbing) drives the pass meter,
  * per-tier "X left" chips, guest-count caps, and the sold-out panel.
- * Returning from Stripe with ?paid=1&session_id=… verifies the session
+ * Returning from Square Checkout with ?paid=1&order=… verifies the order
  * server-side before showing the paid confirmation. Registration rows
  * land in the existing admin RSVP table.
  */
@@ -263,12 +263,13 @@ export default function TicketFlow() {
     });
   }, [availability]);
 
-  // Returning from Stripe Checkout — verify the session before celebrating
+  // Returning from Square Checkout — verify the order before celebrating
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const paid = q.get("paid") === "1";
     const canceled = q.get("canceled") === "1";
-    const sessionId = q.get("session_id");
+    // `order` is pinned by our checkout API; `orderId` is Square's own param
+    const orderId = q.get("order") ?? q.get("orderId");
     if (!paid && !canceled) return;
 
     // Scrub the query so refresh/share doesn't replay the redirect handling
@@ -283,19 +284,19 @@ export default function TicketFlow() {
 
     const holdAtDoor = () => {
       setDone({ name: "", paid: false, payAtDoor: true });
-      toast("We couldn't confirm the card payment — if it went through, your Stripe receipt is in your inbox.", {
+      toast("We couldn't confirm the card payment — if it went through, your Square receipt is in your inbox.", {
         icon: "ℹ️",
         duration: 6000,
       });
     };
 
-    if (!sessionId) {
+    if (!orderId) {
       holdAtDoor();
       return;
     }
 
     setVerifying(true);
-    fetch(`/api/bajanclubbing/checkout?session_id=${encodeURIComponent(sessionId)}`)
+    fetch(`/api/bajanclubbing/checkout?order=${encodeURIComponent(orderId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.paid) setDone({ name: String(data.name || "").split(" ")[0], paid: true, payAtDoor: false });
@@ -339,7 +340,7 @@ export default function TicketFlow() {
       await registerPass(d);
 
       if (tier.priceUsd > 0) {
-        // VIP → Stripe Checkout (server returns url when keys are set)
+        // VIP → Square Checkout (server returns url when keys are set)
         const res = await fetch("/api/bajanclubbing/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -347,7 +348,7 @@ export default function TicketFlow() {
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.url) {
-          window.location.href = data.url as string; // → Stripe, returns with ?paid=1
+          window.location.href = data.url as string; // → Square, returns with ?paid=1&order=…
           return;
         }
         // Stripe not configured — registered; take seva at the door
@@ -611,7 +612,7 @@ export default function TicketFlow() {
                           <rect x="3" y="7" width="10" height="7" rx="1.5" />
                           <path d="M5 7V5a3 3 0 0 1 6 0v2" />
                         </svg>
-                        Secure card payment via Stripe — you&rsquo;ll hop over and come right back.
+                        Secure card payment via Square — you&rsquo;ll hop over and come right back.
                       </p>
                     )}
 

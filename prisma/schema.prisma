@@ -85,6 +85,7 @@ model Rsvp {
   guests    Int      @default(1)             // Total attendees including the person
   notes     String?                          // Dietary restrictions, accessibility needs, etc.
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
+  checkedInAt DateTime?                      // Set when the party is checked in at the door
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId String
   createdAt DateTime @default(now())
