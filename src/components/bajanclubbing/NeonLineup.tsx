@@ -1,14 +1,19 @@
 "use client";
 
 /**
- * NeonLineup — six interactive frosted-glass artist cards.
+ * NeonLineup — conference-style speaker grid.
  *
- * Hover (or tap, on touch) reveals the artist's instrument and bhajan
- * style in a panel that slides over the card's lower half. Keyboard
- * users get the same reveal via focus-within.
+ * Six uniform portrait tiles, the way tech events showcase speakers:
+ * at rest each tile is just the artist's portrait with their name and
+ * role over a bottom scrim. Hover (tap on touch, focus on keyboard)
+ * zooms the portrait and slides up a panel with the bio, instrument
+ * and style. Artists without a photo yet get a neon monogram poster
+ * in their accent colour — set `photo` in src/data/bajanClubbing.ts
+ * (files in public/lineup/) and the real portrait drops in.
  */
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bajanClubbing";
 
@@ -28,7 +33,41 @@ function initials(name: string) {
     .join("");
 }
 
-function ArtistCard({ artist, index }: { artist: ClubArtist; index: number }) {
+/** Placeholder portrait — accent aura, orbit rings, giant monogram. */
+function MonogramPoster({ artist }: { artist: ClubArtist }) {
+  const a = ACCENT[artist.accent];
+  return (
+    <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #1A0D42 0%, #0B0620 78%)" }}>
+      <div
+        className="absolute inset-0"
+        style={{ background: `radial-gradient(circle at 50% 34%, ${a.main}38, transparent 62%)` }}
+        aria-hidden
+      />
+      <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2" aria-hidden>
+        {[120, 184, 248].map((d) => (
+          <span
+            key={d}
+            className="absolute rounded-full"
+            style={{ width: d, height: d, left: -d / 2, top: -d / 2, border: `1px solid ${a.main}24` }}
+          />
+        ))}
+      </div>
+      <span
+        className="bc2-display absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 select-none text-[56px] sm:text-[64px]"
+        style={{ color: a.soft, textShadow: `0 0 34px ${a.main}99, 0 0 80px ${a.main}4d` }}
+      >
+        {initials(artist.name)}
+      </span>
+      <div
+        className="absolute inset-0"
+        style={{ backgroundImage: "var(--tex-grain-dark)", backgroundSize: "240px 240px", opacity: 0.35, mixBlendMode: "screen" }}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
+function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
   const a = ACCENT[artist.accent];
   const [revealed, setRevealed] = useState(false);
 
@@ -38,105 +77,111 @@ function ArtistCard({ artist, index }: { artist: ClubArtist; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
-      className={`bc2-glass bc2-glass-hover bc2-edge-top group relative overflow-hidden p-6 text-left ${
-        artist.headliner ? "sm:col-span-2 lg:col-span-2" : ""
-      }`}
-      style={{ "--bc2-edge": a.main, "--bc2-hover-glow": `${a.main}59` } as React.CSSProperties}
+      className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2"
+      style={
+        {
+          border: `1px solid ${artist.headliner ? `${a.main}59` : "rgba(244,239,255,0.13)"}`,
+          boxShadow: artist.headliner ? `0 18px 48px -16px ${a.main}59` : "0 18px 48px -22px rgba(0,0,0,0.7)",
+          "--tw-ring-color": a.main,
+        } as React.CSSProperties
+      }
       onClick={() => setRevealed((v) => !v)}
       tabIndex={0}
-      aria-label={`${artist.name} — tap to see instrument and style`}
+      aria-label={`${artist.name} — ${artist.role}. Tap for set details.`}
     >
-      <div className={`flex items-start gap-5 ${artist.headliner ? "sm:items-center" : ""}`}>
-        {/* avatar disc */}
-        <div className="relative shrink-0">
-          {artist.headliner && (
-            <span
-              className="bc-glow-pulse absolute -inset-2 rounded-full"
-              style={{ background: `radial-gradient(circle, ${a.main}4d, transparent 70%)` }}
-              aria-hidden
-            />
-          )}
-          <div
-            className="relative flex items-center justify-center rounded-full"
-            style={{
-              width: artist.headliner ? 96 : 68,
-              height: artist.headliner ? 96 : 68,
-              background: `radial-gradient(circle at 32% 28%, ${a.soft}66, ${a.main}26 45%, rgba(11,6,32,0.9))`,
-              border: `1px solid ${a.main}73`,
-              boxShadow: `0 10px 30px -12px ${a.main}66`,
-            }}
-          >
-            <span
-              className="bc2-display select-none"
-              style={{ fontSize: artist.headliner ? 30 : 21, color: a.soft }}
-            >
-              {initials(artist.name)}
-            </span>
-          </div>
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            {artist.headliner && (
-              <span
-                className="rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.2em]"
-                style={{ background: `${a.main}24`, border: `1px solid ${a.main}66`, color: a.soft }}
-              >
-                ★ Headliner
-              </span>
-            )}
-            <span className="text-[10.5px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
-              {artist.setTime} set
-            </span>
-          </div>
-          <h3 className={`bc2-display mt-2 text-white ${artist.headliner ? "text-[24px] sm:text-[30px]" : "text-[18px]"}`} style={{ fontWeight: 700 }}>
-            {artist.name}
-          </h3>
-          <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: a.main }}>
-            {artist.role}
-          </p>
-          <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-            {artist.bio}
-          </p>
-        </div>
+      {/* portrait */}
+      <div
+        className={`absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.05] group-focus-visible:scale-[1.05] ${
+          revealed ? "scale-[1.05]" : ""
+        }`}
+      >
+        {artist.photo ? (
+          <Image src={artist.photo} alt={artist.name} fill sizes="(min-width: 768px) 33vw, 50vw" className="object-cover" />
+        ) : (
+          <MonogramPoster artist={artist} />
+        )}
+        {/* accent wash pulls any portrait into the neon palette */}
+        <div
+          className="absolute inset-0"
+          style={{ background: `linear-gradient(180deg, ${a.main}1f, transparent 45%)`, mixBlendMode: "screen" }}
+          aria-hidden
+        />
       </div>
 
-      {/* hover / tap / focus reveal — instrument & style */}
+      {/* bottom scrim under the labels */}
       <div
-        className={`absolute inset-x-0 bottom-0 translate-y-full p-5 pt-8 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-within:translate-y-0 ${
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+        style={{ background: "linear-gradient(180deg, transparent, rgba(7,3,19,0.5) 48%, rgba(7,3,19,0.92))" }}
+        aria-hidden
+      />
+
+      {/* top chips */}
+      <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+        <span
+          className="rounded-full px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.18em]"
+          style={{
+            background: "rgba(7,3,19,0.55)",
+            border: "1px solid rgba(244,239,255,0.16)",
+            color: "var(--bc2-ink-dim)",
+            backdropFilter: "blur(6px)",
+          }}
+        >
+          {artist.setTime} set
+        </span>
+        {artist.headliner && (
+          <span
+            className="rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.2em]"
+            style={{ background: `${a.main}2b`, border: `1px solid ${a.main}66`, color: a.soft, backdropFilter: "blur(6px)" }}
+          >
+            ★ Headliner
+          </span>
+        )}
+      </div>
+
+      {/* resting label — name + role only */}
+      <div
+        className={`absolute inset-x-0 bottom-0 p-4 transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 sm:p-5 ${
+          revealed ? "opacity-0" : ""
+        }`}
+      >
+        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[20px]">{artist.name}</h3>
+        <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-[0.18em] sm:text-[10.5px]" style={{ color: a.main }}>
+          {artist.role}
+        </p>
+      </div>
+
+      {/* hover / tap / focus panel — the full story */}
+      <div
+        className={`absolute inset-0 flex translate-y-full flex-col justify-end p-4 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0 sm:p-5 ${
           revealed ? "!translate-y-0" : ""
         }`}
         style={{
-          background: `linear-gradient(180deg, transparent, rgba(7,3,19,0.88) 30%, rgba(7,3,19,0.96))`,
-          backdropFilter: "blur(6px)",
+          background: "linear-gradient(180deg, rgba(7,3,19,0) 10%, rgba(7,3,19,0.6) 38%, rgba(7,3,19,0.95) 62%, rgba(7,3,19,0.97) 100%)",
+          backdropFilter: "blur(8px)",
         }}
       >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.24em]" style={{ color: a.main }}>
+        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[19px]">{artist.name}</h3>
+        <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-[0.18em]" style={{ color: a.main }}>
+          {artist.role}
+        </p>
+        <p className="mt-2.5 line-clamp-3 text-[11.5px] leading-relaxed sm:line-clamp-none sm:text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
+          {artist.bio}
+        </p>
+        <div className="mt-3 space-y-1.5 border-t pt-3" style={{ borderColor: "rgba(244,239,255,0.12)" }}>
+          <p className="text-[11px] sm:text-[12px]">
+            <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
               Plays
-            </p>
-            <p className="mt-1 text-[13px] font-semibold text-white">{artist.instrument}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.24em]" style={{ color: a.main }}>
+            </span>
+            <span className="font-semibold text-white">{artist.instrument}</span>
+          </p>
+          <p className="hidden text-[11px] leading-snug sm:block sm:text-[12px]">
+            <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
               Style
-            </p>
-            <p className="mt-1 max-w-[240px] text-[12px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
-              {artist.style}
-            </p>
-          </div>
+            </span>
+            <span style={{ color: "var(--bc2-ink-dim)" }}>{artist.style}</span>
+          </p>
         </div>
       </div>
-
-      {/* reveal hint */}
-      <span
-        className="absolute right-4 top-4 text-[9px] font-bold uppercase tracking-[0.18em] opacity-60 transition-opacity group-hover:opacity-0"
-        style={{ color: "var(--bc2-ink-faint)" }}
-        aria-hidden
-      >
-        + info
-      </span>
     </motion.article>
   );
 }
@@ -158,13 +203,13 @@ export default function NeonLineup() {
           Six acts. <span className="bc2-headline-grad">Zero proof.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          Hover a card — or tap on mobile — to see what each act plays and how they take the room up.
+          Hover a card — or tap on mobile — for the set details.
         </p>
       </motion.div>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5">
         {LINEUP.map((artist, i) => (
-          <ArtistCard key={artist.id} artist={artist} index={i} />
+          <ArtistTile key={artist.id} artist={artist} index={i} />
         ))}
       </div>
     </section>
