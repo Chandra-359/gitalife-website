@@ -3,7 +3,10 @@
  *
  * WHERE TO EDIT EACH THING:
  *  - Date/time/venue         → EVENT (startIso/endIso drive the countdown + JSON-LD)
- *  - Artists                 → LINEUP (first `headliner: true` entry gets the big card)
+ *  - Artists                 → LINEUP (`headliner: true` gets the badge + accent glow)
+ *  - Artist photos           → LINEUP[].photo — drop a 3:4 portrait in public/lineup/
+ *                              and set e.g. photo: "/lineup/dj-keshava.jpg". Tiles
+ *                              without a photo render a neon monogram poster.
  *  - Run of show             → NIGHT_FLOW
  *  - Registration capacity   → EVENT.capacity (enforced server-side too)
  *  - Front Row cap            → TIERS[].tierLimit (guests counted, server-enforced)
@@ -26,6 +29,8 @@ export interface ClubArtist {
   tags: string[];        // instruments / style chips
   accent: AccentToken;
   headliner?: boolean;
+  /** 3:4 portrait served from public/, e.g. "/lineup/dj-keshava.jpg". */
+  photo?: string;
 }
 
 export interface NightFlowStop {
