@@ -109,7 +109,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
   const sevaBlock =
     d.seva === "paid"
       ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(77,255,166,0.08);border:1px solid rgba(77,255,166,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
-           <strong>Seva received — thank you.</strong> Your donation funds the free midnight prasadam feast. Backstage chai details will be shared at the door.
+           <strong>Seva received — thank you.</strong> Your donation funds the free prasadam feast. Backstage chai details will be shared at the door.
          </p>`
       : d.seva === "door"
         ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(255,178,92,0.08);border:1px solid rgba(255,178,92,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
@@ -156,7 +156,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
       </table>
       <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
         ${EVENT.venue.transit}.<br/>
-        ${EVENT.venue.note} Come early — the chai goes fast. 100% alcohol-free, midnight prasadam feast included.
+        ${EVENT.venue.note} Come early — the chai goes fast. 100% alcohol-free, prasadam feast included.
       </p>
     </td></tr>
     <tr><td style="padding:18px 8px 0;text-align:center;">
@@ -173,7 +173,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
 function confirmationText(d: ConfirmationDetails): string {
   const seva =
     d.seva === "paid"
-      ? "\nSeva received — thank you! Your donation funds the free midnight feast.\n"
+      ? "\nSeva received — thank you! Your donation funds the free prasadam feast.\n"
       : d.seva === "door"
         ? "\nVIP spot held — bring the $21 seva donation to the door (card or cash).\n"
         : "";
@@ -191,7 +191,7 @@ ${seva}
 Directions: ${EVENT.venue.mapsUrl}
 ${EVENT.venue.transit}
 
-100% alcohol-free · midnight prasadam feast included
+100% alcohol-free · prasadam feast included
 ${EVENT.url}`;
 }
 

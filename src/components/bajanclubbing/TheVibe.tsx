@@ -40,7 +40,7 @@ export default function TheVibe() {
             vertical. Nobody drinks, everybody dances, and by the last chorus a room of strangers is one voice.
           </p>
           <p className="mt-4 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
-            Born in Mumbai, now filling halls from Delhi to Kathmandu — and this summer, Brooklyn gets its first night.
+            Born in Mumbai, now filling halls from Delhi to Kathmandu — and this summer, Jersey City gets its first night.
           </p>
         </motion.div>
 

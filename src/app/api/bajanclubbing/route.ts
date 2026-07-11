@@ -168,7 +168,7 @@ export async function POST(request: Request) {
           error:
             remaining > 0
               ? `Only ${remaining} pass${remaining === 1 ? "" : "es"} left`
-              : "Passes are sold out — join the door line at 6:45 PM",
+              : "Passes are sold out — join the door line at 5:45 PM",
         },
         { status: 400 },
       );

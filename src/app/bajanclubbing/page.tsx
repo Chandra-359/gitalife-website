@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: EVENT.description,
   openGraph: {
     title: `${EVENT.title} ${EVENT.volume} — ${EVENT.tagline}`,
-    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan, devotional DJ sets, chai bar, midnight prasadam. 100% alcohol-free. Free passes.`,
+    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan, devotional DJ sets, chai bar, prasadam feast. 100% alcohol-free. Free passes.`,
     url: EVENT.url,
     type: "website",
     images: [{ url: "/krishna-arjuna-chariot.jpg", width: 1200, height: 630, alt: "Bhajan Clubbing — Gita Life NYC" }],

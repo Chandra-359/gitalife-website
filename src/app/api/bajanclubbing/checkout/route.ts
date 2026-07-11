@@ -84,7 +84,7 @@ export async function POST(request: Request) {
           error:
             remaining > 0
               ? `Only ${remaining} pass${remaining === 1 ? "" : "es"} left`
-              : "Passes are sold out — join the door line at 6:45 PM",
+              : "Passes are sold out — join the door line at 5:45 PM",
         },
         { status: 400 },
       );
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
             {
               name: `${EVENT.title} ${EVENT.volume} — ${vip.name}`,
               quantity: String(qty),
-              note: "Seva donation · funds the free midnight prasadam feast",
+              note: "Seva donation · funds the free prasadam feast",
               base_price_money: { amount: vip.priceUsd * 100, currency: "USD" },
             },
           ],
