@@ -6,6 +6,7 @@
  *  - Artists                 → LINEUP (first `headliner: true` entry gets the big card)
  *  - Run of show             → NIGHT_FLOW
  *  - Registration capacity   → EVENT.capacity (enforced server-side too)
+ *  - Front Row cap            → TIERS[].tierLimit (guests counted, server-enforced)
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *
  * The registration API (src/app/api/bajanclubbing/route.ts) upserts a Program
@@ -169,6 +170,8 @@ export interface TicketTier {
   perks: string[];
   accent: AccentToken;
   limited?: boolean;
+  /** Hard cap for limited tiers, counted in guests. Enforced server-side. */
+  tierLimit?: number;
 }
 
 export const TIERS: TicketTier[] = [
@@ -190,6 +193,7 @@ export const TIERS: TicketTier[] = [
     perks: ["Stage-rail spot", "Everything in General", "First in line for the feast"],
     accent: "peacock",
     limited: true,
+    tierLimit: 40,
   },
   {
     id: "vip",
