@@ -3,7 +3,7 @@
 /**
  * NeonLineup — conference-style speaker grid.
  *
- * Six uniform portrait tiles, the way tech events showcase speakers:
+ * Uniform portrait tiles, the way tech events showcase speakers:
  * at rest each tile is just the artist's portrait with their name and
  * role over a bottom scrim. Hover (tap on touch, focus on keyboard)
  * zooms the portrait and slides up a panel with the bio, instrument
@@ -16,6 +16,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bajanClubbing";
+
+/** Heading stays literate as the lineup grows — "Two acts", "Three acts", … */
+const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 
 const ACCENT: Record<AccentToken, { main: string; soft: string }> = {
   gold: { main: "#FFB25C", soft: "#FFD9B0" },
@@ -200,7 +203,7 @@ export default function NeonLineup() {
           The Lineup
         </p>
         <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
-          Six acts. <span className="bc2-headline-grad">Zero proof.</span>
+          {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
           Hover a card — or tap on mobile — for the set details.
