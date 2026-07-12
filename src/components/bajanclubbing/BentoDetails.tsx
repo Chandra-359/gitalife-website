@@ -48,7 +48,7 @@ function StylizedMap() {
         className="absolute bottom-2.5 left-3 rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.16em]"
         style={{ background: "rgba(7,3,19,0.75)", color: "var(--bc2-amber)", border: "1px solid rgba(255,178,92,0.3)" }}
       >
-        Downtown Brooklyn
+        Jersey City
       </span>
     </div>
   );

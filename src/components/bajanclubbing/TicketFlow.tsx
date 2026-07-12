@@ -516,7 +516,7 @@ export default function TicketFlow() {
             </p>
             <h3 className="bc2-display mt-5 text-[26px] text-white">All {EVENT.capacity} passes are claimed</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              No-show spots open at the door — the line starts at 6:45 PM. Bring your crew and your patience; the chai bar makes the wait easy.
+              No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience; the chai bar makes the wait easy.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">

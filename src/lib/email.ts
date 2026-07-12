@@ -8,8 +8,11 @@
  *   SMTP_PORT    587 (STARTTLS, default) or 465  (optional)
  *   SMTP_USER    mailbox login                   (required)
  *   SMTP_PASS    mailbox password / app password (required)
- *   SMTP_FROM    display From, e.g. "Gita Life NYC <hello@gitalifenyc.org>"
+ *   SMTP_FROM    display From, e.g. "Gita Life NYC <hello@gitalifenyc.com>"
  *                (optional — defaults to SMTP_USER)
+ *   SMTP_REPLY_TO  where replies land, e.g. a monitored Gmail inbox
+ *                  (optional — set this when SMTP_FROM is a send-only
+ *                  address on a transactional service like Resend)
  *
  * Sending is best-effort: when SMTP isn't configured or the send fails,
  * callers get `false` back and the registration flow carries on.
@@ -60,7 +63,7 @@ function eventIcs(): string {
     "VERSION:2.0",
     "PRODID:-//Gita Life NYC//Bhajan Clubbing//EN",
     "BEGIN:VEVENT",
-    `UID:${EVENT.programId}@gitalifenyc.org`,
+    `UID:${EVENT.programId}@gitalifenyc.com`,
     `DTSTAMP:${toCalStamp(EVENT.startIso)}`,
     `DTSTART:${toCalStamp(EVENT.startIso)}`,
     `DTEND:${toCalStamp(EVENT.endIso)}`,
@@ -106,7 +109,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
   const sevaBlock =
     d.seva === "paid"
       ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(77,255,166,0.08);border:1px solid rgba(77,255,166,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
-           <strong>Seva received — thank you.</strong> Your donation funds the free midnight prasadam feast. Backstage chai details will be shared at the door.
+           <strong>Seva received — thank you.</strong> Your donation funds the free prasadam feast. Backstage chai details will be shared at the door.
          </p>`
       : d.seva === "door"
         ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(255,178,92,0.08);border:1px solid rgba(255,178,92,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
@@ -153,7 +156,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
       </table>
       <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
         ${EVENT.venue.transit}.<br/>
-        ${EVENT.venue.note} Come early — the chai goes fast. 100% alcohol-free, midnight prasadam feast included.
+        ${EVENT.venue.note} Come early — the chai goes fast. 100% alcohol-free, prasadam feast included.
       </p>
     </td></tr>
     <tr><td style="padding:18px 8px 0;text-align:center;">
@@ -170,7 +173,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
 function confirmationText(d: ConfirmationDetails): string {
   const seva =
     d.seva === "paid"
-      ? "\nSeva received — thank you! Your donation funds the free midnight feast.\n"
+      ? "\nSeva received — thank you! Your donation funds the free prasadam feast.\n"
       : d.seva === "door"
         ? "\nVIP spot held — bring the $21 seva donation to the door (card or cash).\n"
         : "";
@@ -188,7 +191,7 @@ ${seva}
 Directions: ${EVENT.venue.mapsUrl}
 ${EVENT.venue.transit}
 
-100% alcohol-free · midnight prasadam feast included
+100% alcohol-free · prasadam feast included
 ${EVENT.url}`;
 }
 
@@ -201,6 +204,7 @@ export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<
   try {
     await t.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      replyTo: process.env.SMTP_REPLY_TO || undefined,
       to: d.to,
       subject:
         d.seva === "paid"
