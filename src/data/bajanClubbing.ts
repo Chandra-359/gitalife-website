@@ -96,7 +96,7 @@ export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; tit
 export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
-    name: "HG Govinda Krishna Prabhuji",
+    name: "HG Govinda Krishna Das",
     role: "Headline Kirtan",
     setTime: "7:30 PM",
     bio: "Leading the room deep into the maha-mantra — call-and-response kirtan that builds until everyone is on their feet.",
@@ -109,7 +109,7 @@ export const LINEUP: ClubArtist[] = [
   },
   {
     id: "srikar-prabhuji",
-    name: "Srikar Prabhuji",
+    name: "Srikar",
     role: "Opening Kirtan",
     setTime: "6:30 PM",
     bio: "Opens the night — soulful bhajans that ease the room from chai-bar chatter into one voice.",
@@ -178,14 +178,14 @@ export const NIGHT_FLOW: NightFlowStop[] = [
   },
   {
     time: "6:30",
-    title: "Srikar Prabhuji opens",
+    title: "Srikar opens",
     detail: "Soulful bhajans that ease the room into one voice.",
     accent: "peacock",
   },
   {
     time: "7:30",
     title: "Headline kirtan",
-    detail: "HG Govinda Krishna Prabhuji. Call-and-response until the walls sweat.",
+    detail: "HG Govinda Krishna Das. Call-and-response until the walls sweat.",
     accent: "saffron",
   },
   {
