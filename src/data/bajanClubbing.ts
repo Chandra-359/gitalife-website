@@ -105,7 +105,7 @@ export const LINEUP: ClubArtist[] = [
     tags: ["Kirtan", "Harmonium", "Maha-mantra"],
     accent: "saffron",
     headliner: true,
-    photo: "/lineup/govinda-krishna-prabhuji.jpg",
+    photo: "/lineup/GKD 3.png",
   },
   {
     id: "srikar-prabhuji",
