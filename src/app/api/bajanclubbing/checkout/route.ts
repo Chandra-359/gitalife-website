@@ -111,7 +111,7 @@ export async function POST(request: Request) {
             {
               name: `${EVENT.title} ${EVENT.volume} — ${ticket.name}`,
               quantity: String(qty),
-              note: "Includes the chai + mocktail bar and the prasadam feast",
+              note: "Includes the sattvic mocktail bar and the prasadam feast",
               // Math.round guards against float cents (49.99 * 100 = 4998.99…)
               base_price_money: { amount: Math.round(ticket.priceUsd * 100), currency: "USD" },
             },

@@ -239,7 +239,7 @@ export default function TicketFlow() {
           Lock in <span className="bc2-headline-grad">your night</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          {EVENT.capacity} spots total · {TICKET.tag} per person. Secure card checkout via Square — chai bar and prasadam feast included.
+          {EVENT.capacity} spots total · {TICKET.tag} per person. Secure card checkout via Square — sattvic mocktail bar and prasadam feast included.
         </p>
       </motion.div>
 
@@ -268,7 +268,7 @@ export default function TicketFlow() {
               {done.name ? `Payment received — you're in, ${done.name}` : "Payment received — you're in"}
             </h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              Check your inbox for your receipt and the event details. Doors at 6 — come early, the chai goes fast.
+              Check your inbox for your receipt and the event details. Doors at 6 — come early, the mocktails go fast.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -343,7 +343,7 @@ export default function TicketFlow() {
             </p>
             <h3 className="bc2-display mt-5 text-[26px] text-white">All {EVENT.capacity} tickets are claimed</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience; the chai bar makes the wait easy.
+              No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience; the mocktail bar makes the wait easy.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">

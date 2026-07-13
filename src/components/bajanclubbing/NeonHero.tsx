@@ -71,10 +71,10 @@ function CountdownPill() {
 const TICKER = [
   "Live kirtan",
   "Mantra-house DJ",
-  "Chai + mocktail bar",
+  "Sattvic mocktail bar",
   "Smoke + lasers",
   "Prasadam feast",
-  "100% alcohol-free",
+  "100% sattvic",
   "All ages",
 ];
 
@@ -198,7 +198,7 @@ export default function NeonHero() {
           </div>
 
           <p className="mt-6 text-[11.5px] font-semibold uppercase tracking-[0.22em]" style={{ color: "var(--bc2-ink-faint)" }}>
-            {EVENT.priceLabel} · {EVENT.capacity} spots · 100% alcohol-free
+            {EVENT.priceLabel} · {EVENT.capacity} spots · 100% sattvic
           </p>
         </motion.div>
 
