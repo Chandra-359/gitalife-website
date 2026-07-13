@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: EVENT.description,
   openGraph: {
     title: `${EVENT.title} ${EVENT.volume} — ${EVENT.tagline}`,
-    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan, devotional DJ sets, chai bar, prasadam feast. 100% alcohol-free. Free passes.`,
+    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan, devotional DJ sets, chai bar, prasadam feast. 100% alcohol-free. Tickets ${EVENT.priceLabel}.`,
     url: EVENT.url,
     type: "website",
     images: [{ url: "/krishna-arjuna-chariot.jpg", width: 1200, height: 630, alt: "Bhajan Clubbing — Gita Life NYC" }],
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${EVENT.title} ${EVENT.volume} — ${EVENT.tagline}`,
-    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. The city's most blissful night out. Free passes.`,
+    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. The city's most blissful night out. Tickets ${EVENT.priceLabel}.`,
   },
 };
 
@@ -40,7 +40,7 @@ function eventJsonLd() {
     endDate: EVENT.endIso,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    isAccessibleForFree: true,
+    isAccessibleForFree: false,
     url: EVENT.url,
     location: {
       "@type": "Place",

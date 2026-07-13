@@ -84,8 +84,8 @@ export interface ConfirmationDetails {
   name: string;
   tierName: string;
   guests: number;
-  /** VIP variants: "paid" → receipt copy, "door" → bring-seva copy. */
-  seva?: "paid" | "door" | null;
+  /** "paid" → payment-receipt copy (every ticket is paid via Square). */
+  seva?: "paid" | null;
 }
 
 const S = {
@@ -109,13 +109,9 @@ function confirmationHtml(d: ConfirmationDetails): string {
   const sevaBlock =
     d.seva === "paid"
       ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(77,255,166,0.08);border:1px solid rgba(77,255,166,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
-           <strong>Seva received — thank you.</strong> Your donation funds the free prasadam feast. Backstage chai details will be shared at the door.
+           <strong>Payment received — thank you.</strong> Your ticket covers the whole night: live kirtan, the chai + mocktail bar, and the full prasadam feast. Your Square receipt is on its way separately.
          </p>`
-      : d.seva === "door"
-        ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(255,178,92,0.08);border:1px solid rgba(255,178,92,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
-             <strong>VIP spot held.</strong> Bring the $21 seva donation to the door (card or cash) and walk straight in.
-           </p>`
-        : "";
+      : "";
 
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:${S.bg};">
@@ -173,10 +169,8 @@ function confirmationHtml(d: ConfirmationDetails): string {
 function confirmationText(d: ConfirmationDetails): string {
   const seva =
     d.seva === "paid"
-      ? "\nSeva received — thank you! Your donation funds the free prasadam feast.\n"
-      : d.seva === "door"
-        ? "\nVIP spot held — bring the $21 seva donation to the door (card or cash).\n"
-        : "";
+      ? "\nPayment received — thank you! Your ticket covers the whole night, chai bar and prasadam feast included.\n"
+      : "";
   return `You're on the list, ${d.name.split(" ")[0]}!
 
 ${EVENT.title} — ${EVENT.volume}
@@ -208,7 +202,7 @@ export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<
       to: d.to,
       subject:
         d.seva === "paid"
-          ? `Seva received — you're VIP at ${EVENT.title} ${EVENT.volume} 🔥`
+          ? `Payment received — you're in at ${EVENT.title} ${EVENT.volume} 🔥`
           : `You're in! ${EVENT.title} ${EVENT.volume} — ${EVENT.dateLabel}`,
       html: confirmationHtml(d),
       text: confirmationText(d),

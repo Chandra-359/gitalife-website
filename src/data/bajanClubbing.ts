@@ -9,7 +9,7 @@
  *                              without a photo render a neon monogram poster.
  *  - Run of show             → NIGHT_FLOW
  *  - Registration capacity   → EVENT.capacity (enforced server-side too)
- *  - Front Row cap            → TIERS[].tierLimit (guests counted, server-enforced)
+ *  - Ticket price            → TIERS[0].priceUsd (charged via Square checkout)
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *
  * The registration API (src/app/api/bajanclubbing/route.ts) upserts a Program
@@ -61,7 +61,7 @@ export const EVENT = {
     note: "Comfortable clothes you can move in. Festival fits loudly encouraged.",
   },
   capacity: 200,
-  priceLabel: "Free with pass",
+  priceLabel: "$49.99",
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bajanclubbing",
 } as const;
@@ -122,7 +122,7 @@ export const LINEUP: ClubArtist[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Ticket tiers — free event; VIP is a seva donation via Stripe       */
+/*  Ticket — single paid tier, charged via Square checkout             */
 /* ------------------------------------------------------------------ */
 export interface TicketTier {
   id: string;
@@ -140,32 +140,12 @@ export interface TicketTier {
 export const TIERS: TicketTier[] = [
   {
     id: "general",
-    name: "General Vibes",
-    tag: "Free",
-    priceUsd: 0,
-    blurb: "Everything that matters: the floor, the chant, the feast.",
+    name: "General Admission",
+    tag: "$49.99",
+    priceUsd: 49.99,
+    blurb: "One ticket, the whole night: the floor, the chant, the feast.",
     perks: ["Full floor access", "Chai + mocktail bar", "Full prasadam feast"],
     accent: "saffron",
-  },
-  {
-    id: "frontrow",
-    name: "Front Row Bhakti",
-    tag: "Free · Limited",
-    priceUsd: 0,
-    blurb: "First two rows at the stage rail. For the ones who sing back loudest.",
-    perks: ["Stage-rail spot", "Everything in General", "First in line for the feast"],
-    accent: "peacock",
-    limited: true,
-    tierLimit: 40,
-  },
-  {
-    id: "vip",
-    name: "VIP Seva Pass",
-    tag: "$21 donation",
-    priceUsd: 21,
-    blurb: "Backstage chai with the artists — and your donation funds the free feast.",
-    perks: ["Backstage chai meet", "Reserved cushion seating", "Feast sponsor shout-out"],
-    accent: "gold",
   },
 ];
 
@@ -211,12 +191,12 @@ export const CLUB_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does it cost?",
-    a: "Nothing. Passes are free (capacity is capped, so grab one), and the prasadam feast is included.",
+    a: "$49.99 per person. That covers the whole night — live kirtan, the chai + mocktail bar, and the full prasadam feast. Capacity is capped, so grab yours early.",
   },
 ];
 
 export const SHARE = {
   message:
-    "I'm going to Bhajan Clubbing — a totally sober, totally electric kirtan night in Jersey City. Live kirtan, chai bar, prasadam feast. Aug 15. Free passes:",
+    "I'm going to Bhajan Clubbing — a totally sober, totally electric kirtan night in Jersey City. Live kirtan, chai bar, prasadam feast. Aug 15. Tickets:",
   hashtags: "BhajanClubbing,GitaLifeNYC,KirtanNight",
 } as const;

@@ -12,7 +12,7 @@ import { EVENT } from "@/data/bajanClubbing";
 
 export const dynamic = "force-dynamic";
 
-/** Notes are stamped like "[Front Row Bhakti]" or "[VIP Seva Pass · PAID] …". */
+/** Notes are stamped like "[General Admission · PAID] …". */
 function parseNotes(notes: string | null): { tier: string | null; paid: boolean; rest: string | null } {
   if (!notes) return { tier: null, paid: false, rest: null };
   const match = notes.match(/^\[([^\]]*)\]\s*([\s\S]*)$/);

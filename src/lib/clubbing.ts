@@ -49,7 +49,7 @@ export async function countGuests(db: Pick<PrismaClient, "rsvp">, tierName?: str
   return sum._sum.guests ?? 0;
 }
 
-/** Whether Square is configured, i.e. the VIP tier can actually be sold. */
+/** Whether Square is configured, i.e. tickets can actually be sold. */
 export function paymentsConfigured(): boolean {
   return !!(process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_LOCATION_ID);
 }
