@@ -47,7 +47,7 @@ export const EVENT = {
   title: "Bhajan Clubbing",
   tagline: "Temple soul. Club energy.",
   description:
-    "One night where the bass is a mridanga, the drop is a mantra, and nobody needs a drink to dance. Live kirtan, devotional DJ sets, a sattvic mocktail bar, and a full prasadam feast — a completely sattvic night.",
+    "One night where the bass is a mridanga, the drop is a mantra, and nobody needs a drink to dance. Live kirtan, devotional DJ sets, a sattvic mocktail bar, and packed prasadam — a completely sattvic night.",
   dateLabel: "Saturday, August 15, 2026",
   timeLabel: "6:00 PM – 10:00 PM",
   doorsLabel: "Doors 6:00 PM",
@@ -82,7 +82,7 @@ export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; tit
   {
     icon: "food",
     title: "Sattvic mocktail bar",
-    detail: "Rose lassi mocktails, fresh fruit coolers, and a full prasadam feast.",
+    detail: "Rose lassi mocktails, fresh fruit coolers, and packed prasadam to take home.",
     accent: "lotus",
   },
   {
@@ -143,8 +143,8 @@ export const TIERS: TicketTier[] = [
     name: "General Admission",
     tag: "$49.99",
     priceUsd: 49.99,
-    blurb: "One ticket, the whole night: the floor, the chant, the feast.",
-    perks: ["Full floor access", "Sattvic mocktail bar", "Full prasadam feast"],
+    blurb: "One ticket, the whole night: the floor, the chant, the prasadam.",
+    perks: ["Full floor access", "Sattvic mocktail bar", "Packed prasadam"],
     accent: "saffron",
   },
 ];
@@ -170,8 +170,8 @@ export const NIGHT_FLOW: NightFlowStop[] = [
   },
   {
     time: "9:15",
-    title: "Prasadam feast",
-    detail: "A full sanctified feast to close the night. Stay and hang.",
+    title: "Packed prasadam",
+    detail: "Sanctified packed prasadam to close the night. Grab yours, stay and hang.",
     accent: "peacock",
   },
 ];
@@ -191,12 +191,12 @@ export const CLUB_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does it cost?",
-    a: "$49.99 per person. That covers the whole night — live kirtan, the sattvic mocktail bar, and the full prasadam feast. Capacity is capped, so grab yours early.",
+    a: "$49.99 per person. That covers the whole night — live kirtan, the sattvic mocktail bar, and packed prasadam. Capacity is capped, so grab yours early.",
   },
 ];
 
 export const SHARE = {
   message:
-    "I'm going to Bhajan Clubbing — a totally sattvic, totally electric kirtan night in Jersey City. Live kirtan, sattvic mocktails, prasadam feast. Aug 15. Tickets:",
+    "I'm going to Bhajan Clubbing — a totally sattvic, totally electric kirtan night in Jersey City. Live kirtan, sattvic mocktails, packed prasadam. Aug 15. Tickets:",
   hashtags: "BhajanClubbing,GitaLifeNYC,KirtanNight",
 } as const;

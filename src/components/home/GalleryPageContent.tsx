@@ -47,7 +47,7 @@ const CATEGORIES: { key: GalleryCategory; label: string }[] = [
 // in a masonry column even without real imagery behind them.
 const PHOTOS: Photo[] = [
   { id: "p1", alt: "Evening kirtan at ISKCON Brooklyn", category: "kirtan", ratio: "portrait", caption: "Mangal Arati, Brooklyn" },
-  { id: "p2", alt: "Monthly festival prasadam feast", category: "festivals", ratio: "landscape", caption: "April Youth Festival" },
+  { id: "p2", alt: "Monthly festival packed prasadam", category: "festivals", ratio: "landscape", caption: "April Youth Festival" },
   { id: "p3", alt: "Book distribution at NYU", category: "classes", ratio: "square", caption: "NYU book table" },
   { id: "p4", alt: "Fall foliage retreat hike", category: "retreats", ratio: "tall", caption: "Hudson Valley" },
   { id: "p5", alt: "Sunday Harinam in Union Square", category: "kirtan", ratio: "square", caption: "Union Square Harinam" },
