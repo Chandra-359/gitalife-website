@@ -1,8 +1,9 @@
 /**
  * /api/admin/checkin — door check-in for Bhajan Clubbing (admin only)
  *
- * GET   — event registrations with parsed tier/paid info + live stats
- * PATCH — { id, checkedIn } toggles a party's checkedInAt timestamp
+ * GET    — event registrations with parsed tier/paid info + live stats
+ * PATCH  — { id, checkedIn } toggles a party's checkedInAt timestamp
+ * DELETE — { id } permanently removes a registration (test rows, dupes)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -104,5 +105,33 @@ export async function PATCH(request: NextRequest) {
     }
     console.error("Check-in toggle failed:", error);
     return NextResponse.json({ error: "Check-in failed" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!prisma) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  try {
+    const { id } = await request.json();
+    if (typeof id !== "string" || !id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+
+    // Scoped to this event's program so the endpoint can't touch other RSVPs
+    await prisma.rsvp.delete({ where: { id, programId: EVENT.programId } });
+
+    return NextResponse.json({ deleted: id });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && (error as { code: string }).code === "P2025") {
+      return NextResponse.json({ error: "Registration not found" }, { status: 404 });
+    }
+    console.error("Registration delete failed:", error);
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }
