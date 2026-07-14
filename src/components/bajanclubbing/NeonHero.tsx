@@ -73,7 +73,7 @@ const TICKER = [
   "Mantra-house DJ",
   "Sattvic mocktail bar",
   "Smoke + lasers",
-  "Prasadam feast",
+  "Packed prasadam",
   "100% sattvic",
   "All ages",
 ];
@@ -155,8 +155,8 @@ export default function NeonHero() {
 
           {/* tagline */}
           <p className="mx-auto mt-6 max-w-xl text-[16px] leading-relaxed sm:text-[18px]" style={{ color: "var(--bc2-ink-dim)" }}>
-            {EVENT.tagline} High-energy kirtan on a concert rig, lights like a rave, a room completely sober — and a
-            prasadam feast to land it.
+            {EVENT.tagline} High-energy kirtan on a concert rig, lights like a rave, a room completely sober — and
+            packed prasadam to land it.
           </p>
 
           {/* meta chips */}

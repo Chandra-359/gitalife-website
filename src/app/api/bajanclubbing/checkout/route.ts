@@ -62,6 +62,9 @@ export async function POST(request: Request) {
     if (!name || !String(name).trim()) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
+    if (!phone || !String(phone).trim()) {
+      return NextResponse.json({ error: "Phone number is required" }, { status: 400 });
+    }
 
     const ticket = TIERS.find((t) => t.priceUsd > 0);
     if (!ticket) return NextResponse.json({ error: "No paid ticket configured" }, { status: 400 });
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
             {
               name: `${EVENT.title} ${EVENT.volume} — ${ticket.name}`,
               quantity: String(qty),
-              note: "Includes the sattvic mocktail bar and the prasadam feast",
+              note: "Includes the sattvic mocktail bar and the packed prasadam",
               // Math.round guards against float cents (49.99 * 100 = 4998.99…)
               base_price_money: { amount: Math.round(ticket.priceUsd * 100), currency: "USD" },
             },

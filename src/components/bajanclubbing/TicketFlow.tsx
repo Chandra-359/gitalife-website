@@ -28,7 +28,7 @@ const TICKET = TIERS[0];
 interface DetailsForm {
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
   guests: number;
 }
 
@@ -195,7 +195,7 @@ export default function TicketFlow() {
       const res = await fetch("/api/bajanclubbing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: d.name, email: d.email, phone: d.phone || null, guests: d.guests || 1 }),
+        body: JSON.stringify({ name: d.name, email: d.email, phone: d.phone, guests: d.guests || 1 }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) {
@@ -239,7 +239,7 @@ export default function TicketFlow() {
           Lock in <span className="bc2-headline-grad">your night</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          {EVENT.capacity} spots total · {TICKET.tag} per person. Secure card checkout via Square — sattvic mocktail bar and prasadam feast included.
+          {EVENT.capacity} spots total · {TICKET.tag} per person. Secure card checkout via Square — sattvic mocktail bar and packed prasadam included.
         </p>
       </motion.div>
 
@@ -374,7 +374,7 @@ export default function TicketFlow() {
             <h3 className="bc2-display mt-5 text-[24px] text-white">Ticket sales are briefly paused</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               Online checkout is momentarily offline. Save the date and check back shortly — tickets are {TICKET.tag} per
-              person, feast included.
+              person, packed prasadam included.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -427,9 +427,20 @@ export default function TicketFlow() {
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
                           <label htmlFor="tf-phone" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Phone <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
+                            Phone <span style={{ color: "var(--bc2-saffron)" }}>*</span>
                           </label>
-                          <input id="tf-phone" type="tel" placeholder="(555) 123-4567" className={inputClass} style={inputStyle()} {...register("phone")} />
+                          <input
+                            id="tf-phone"
+                            type="tel"
+                            placeholder="(555) 123-4567"
+                            className={inputClass}
+                            style={inputStyle(!!errors.phone)}
+                            {...register("phone", {
+                              required: "Phone number is required",
+                              pattern: { value: /^[+()\d\s.-]{7,20}$/, message: "Please enter a valid phone number" },
+                            })}
+                          />
+                          {errors.phone && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.phone.message}</p>}
                         </div>
                         <div>
                           <label htmlFor="tf-guests" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -470,6 +481,7 @@ export default function TicketFlow() {
                         { k: "Ticket", v: `${TICKET.name} · ${TICKET.tag}${details.guests > 1 ? ` × ${details.guests}` : ""}` },
                         { k: "Name", v: details.name },
                         { k: "Email", v: details.email },
+                        { k: "Phone", v: details.phone },
                         { k: "Crew", v: details.guests === 1 ? "Just you" : `${details.guests} people` },
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
                       ].map((row) => (
@@ -517,7 +529,7 @@ export default function TicketFlow() {
                       </button>
                     </div>
                     <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
-                      No spam · Sober by design · Feast included
+                      No spam · Sober by design · Packed prasadam included
                     </p>
                   </motion.div>
                 )}

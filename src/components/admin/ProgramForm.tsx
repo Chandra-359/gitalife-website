@@ -452,7 +452,7 @@ export default function ProgramForm({ mode, programId, initialData }: ProgramFor
           </div>
           <div>
             <label className={labelClass}>What to Expect <span className="normal-case tracking-normal text-white/25">(one item per line)</span></label>
-            <textarea {...register("whatToExpect")} className={inputClass + " min-h-[80px] resize-y"} placeholder={"Live kirtan with mridanga\nHome-cooked prasadam feast\nGuided meditation"} />
+            <textarea {...register("whatToExpect")} className={inputClass + " min-h-[80px] resize-y"} placeholder={"Live kirtan with mridanga\nHome-cooked packed prasadam\nGuided meditation"} />
           </div>
           <div>
             <label className={labelClass}>What You&apos;ll Get <span className="normal-case tracking-normal text-white/25">(one item per line)</span></label>

@@ -71,7 +71,7 @@ export const CLASS_LOCATIONS: ClassLocation[] = [
     mapsUrl: "https://maps.google.com/?q=ISKCON+Brooklyn",
     color: "krishna",
     description:
-      "Our home temple — Sunday morning class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's prasadam feast.",
+      "Our home temple — Sunday morning class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's packed prasadam.",
     transit: "2, 3, 4, 5, B, Q trains — Hoyt-Schermerhorn or Atlantic",
   },
 ];
@@ -151,11 +151,11 @@ export const MONTHLY_FESTIVALS: MonthlyFestivalData[] = [
     timeLabel: "6:00 PM – 9:00 PM EDT",
     location: "ISKCON Brooklyn Temple",
     description:
-      "Our monthly gathering of young devotees — kirtan, a fireside talk, prasadam feast, and community at ISKCON Brooklyn.",
+      "Our monthly gathering of young devotees — kirtan, a fireside talk, packed prasadam, and community at ISKCON Brooklyn.",
     highlights: [
       "Opening kirtan with temple musicians",
       "Talk: Finding purpose through the Gita",
-      "Prasadam feast (fully vegetarian)",
+      "Packed prasadam (fully vegetarian)",
       "Open mic + community dance",
     ],
     lumaUrl: "https://lu.ma/5v96k21g",
