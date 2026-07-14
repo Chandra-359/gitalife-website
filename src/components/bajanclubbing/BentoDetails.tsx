@@ -194,7 +194,7 @@ export default function BentoDetails() {
             {EVENT.dateLabel}
           </h3>
           <p className="mt-1.5 text-[13px]" style={{ color: "var(--bc2-ink-dim)" }}>
-            {EVENT.timeLabel} · {EVENT.doorsLabel} — the chai bar opens with the doors.
+            {EVENT.timeLabel} · {EVENT.doorsLabel} — the mocktail bar opens with the doors.
           </p>
           <BentoCountdown />
         </Bento>
@@ -216,7 +216,7 @@ export default function BentoDetails() {
             House Rules
           </BentoLabel>
           <ul className="mt-3 space-y-2.5">
-            {["Zero alcohol, zero substances", "All ages — bring your grandmother", "Phones down during the final kirtan"].map((rule) => (
+            {["Fully sattvic — zero intoxicants", "All ages — bring your grandmother", "Phones down during the final kirtan"].map((rule) => (
               <li key={rule} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
                 <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "#8B5CF6", boxShadow: "0 0 8px #8B5CF6" }} aria-hidden />
                 {rule}

@@ -5,7 +5,7 @@ import { countGuests, ensureEventProgram } from "@/lib/clubbing";
 import { EVENT, TIERS } from "@/data/bajanClubbing";
 
 /**
- * VIP Seva Pass checkout — Square Checkout API (payment links).
+ * Ticket checkout — Square Checkout API (payment links).
  *
  * PAY-FIRST: no RSVP exists until Square confirms the money. The
  * registrant's details ride along in the Square order's metadata, and the
@@ -16,8 +16,8 @@ import { EVENT, TIERS } from "@/data/bajanClubbing";
  *   SQUARE_ACCESS_TOKEN   required — from the Square developer dashboard
  *   SQUARE_LOCATION_ID    required — the seller location to credit
  *   SQUARE_ENVIRONMENT    "production" (default) or "sandbox"
- * Without credentials POST returns 503 and the client greys out the VIP
- * tier instead of registering anyone unpaid.
+ * Without credentials POST returns 503 and the client pauses ticket
+ * sales instead of registering anyone unpaid.
  *
  *  POST → validate capacity, create a payment link (order metadata =
  *         name/email/phone/guests), pin our own `order=<id>` onto the
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     const sq = squareConfig();
     if (!sq) {
       return NextResponse.json(
-        { error: "Online payment isn't available right now — grab a free pass and give seva at the event" },
+        { error: "Online payment isn't available right now — please check back shortly" },
         { status: 503 },
       );
     }
@@ -63,8 +63,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const vip = TIERS.find((t) => t.priceUsd > 0);
-    if (!vip) return NextResponse.json({ error: "No paid tier configured" }, { status: 400 });
+    const ticket = TIERS.find((t) => t.priceUsd > 0);
+    if (!ticket) return NextResponse.json({ error: "No paid ticket configured" }, { status: 400 });
 
     // The paid RSVP is written after payment — refuse to take money we
     // couldn't record, and don't sell passes past capacity.
@@ -109,10 +109,11 @@ export async function POST(request: Request) {
           },
           line_items: [
             {
-              name: `${EVENT.title} ${EVENT.volume} — ${vip.name}`,
+              name: `${EVENT.title} ${EVENT.volume} — ${ticket.name}`,
               quantity: String(qty),
-              note: "Seva donation · funds the free prasadam feast",
-              base_price_money: { amount: vip.priceUsd * 100, currency: "USD" },
+              note: "Includes the sattvic mocktail bar and the prasadam feast",
+              // Math.round guards against float cents (49.99 * 100 = 4998.99…)
+              base_price_money: { amount: Math.round(ticket.priceUsd * 100), currency: "USD" },
             },
           ],
         },
@@ -174,16 +175,16 @@ interface PaidOrder {
 
 /**
  * Turn a verified paid order into a confirmed RSVP (idempotent).
- * New registrant → create as PAID; existing registrant (e.g. upgraded
- * from a free tier) → restamp their notes as VIP · PAID.
+ * New registrant → create as PAID; existing registrant → restamp
+ * their notes as PAID.
  */
 async function recordPaidRsvp(order: PaidOrder, email: string) {
   const db = getPrismaClient();
   if (!db) return { receipt: false, name: null as string | null, guests: 1 };
 
-  const vip = TIERS.find((t) => t.priceUsd > 0);
-  const vipName = vip?.name ?? "VIP Seva Pass";
-  const paidTag = `[${vipName} · PAID]`;
+  const ticket = TIERS.find((t) => t.priceUsd > 0);
+  const ticketName = ticket?.name ?? "General Admission";
+  const paidTag = `[${ticketName} · PAID]`;
   const guests = Math.min(5, Math.max(1, parseInt(order.metadata?.guests ?? "1") || 1));
 
   await ensureEventProgram(db);
@@ -210,7 +211,7 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
     return { receipt: false, name: existing.name, guests: existing.guests };
   }
 
-  // Upgrade an existing (free-tier) registration to paid VIP
+  // Restamp an existing registration (e.g. from before the paid switch) as paid
   const stripped = existing.notes?.replace(/^\[[^\]]*\]\s*/, "") ?? "";
   await db.rsvp.update({
     where: { id: existing.id },
@@ -268,11 +269,11 @@ export async function GET(request: Request) {
 
     const { receipt, name, guests } = await recordPaidRsvp(order, email);
     if (receipt) {
-      const vip = TIERS.find((t) => t.priceUsd > 0);
+      const ticket = TIERS.find((t) => t.priceUsd > 0);
       await sendClubbingConfirmation({
         to: email,
         name: name || order.metadata?.name || "friend",
-        tierName: vip?.name ?? "VIP Seva Pass",
+        tierName: ticket?.name ?? "General Admission",
         guests,
         seva: "paid",
       });

@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
 import { Icon } from "@/components/home/icons";
-import { CLUB_FAQS } from "@/data/bajanClubbing";
+import { CLUB_FAQS, EVENT } from "@/data/bajanClubbing";
 import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
@@ -134,7 +134,7 @@ function StickyTicketBar() {
           boxShadow: "0 12px 40px -10px rgba(255,122,26,0.55)",
         }}
       >
-        <span className="text-[13px] font-bold text-white">Sat Aug 15 · Free entry</span>
+        <span className="text-[13px] font-bold text-white">Sat Aug 15 · {EVENT.priceLabel}</span>
         <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.06em]" style={{ animation: "none" }}>
           Get Tickets
           <Icon name="arrowRight" size={12} />

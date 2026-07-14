@@ -100,12 +100,12 @@ export async function POST(request: Request) {
       TIERS.find((t) => t.id === tierId) ??
       TIERS.find((t) => typeof tier === "string" && t.name === tier.trim());
 
-    // Paid tiers are never registered here — a verified Square payment
-    // creates the RSVP (checkout route). Blocks pay-wall bypass via
-    // direct POSTs too.
-    if (tierDef && tierDef.priceUsd > 0) {
+    // Every ticket is paid — RSVPs are only ever created by a verified
+    // Square payment (checkout route). Rejecting unknown/paid tiers here
+    // blocks pay-wall bypass via direct POSTs.
+    if (!tierDef || tierDef.priceUsd > 0) {
       return NextResponse.json(
-        { error: `${tierDef.name} is issued after payment — complete checkout to claim it` },
+        { error: `${tierDef?.name ?? "Your ticket"} is issued after payment — complete checkout to claim it` },
         { status: 400 },
       );
     }
@@ -157,8 +157,8 @@ export async function POST(request: Request) {
           {
             error:
               remaining > 0
-                ? `Only ${remaining} ${tierDef.name} pass${remaining === 1 ? "" : "es"} left — drop your crew size or pick another tier`
-                : `${tierDef.name} is sold out — General Vibes still gets you everything that matters`,
+                ? `Only ${remaining} ${tierDef.name} ticket${remaining === 1 ? "" : "s"} left — drop your crew size and try again`
+                : `${tierDef.name} is sold out`,
           },
           { status: 400 },
         );
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
     const emailed = await sendClubbingConfirmation({
       to: email,
       name,
-      tierName: tierDef?.name ?? (typeof tier === "string" && tier.trim() ? tier.trim() : "General Vibes"),
+      tierName: tierDef.name,
       guests: guestCount,
       seva: null, // paid tiers never reach this route; receipts go out on verified payment
     });

@@ -9,7 +9,7 @@
  *                              without a photo render a neon monogram poster.
  *  - Run of show             → NIGHT_FLOW
  *  - Registration capacity   → EVENT.capacity (enforced server-side too)
- *  - Front Row cap            → TIERS[].tierLimit (guests counted, server-enforced)
+ *  - Ticket price            → TIERS[0].priceUsd (charged via Square checkout)
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *
  * The registration API (src/app/api/bajanclubbing/route.ts) upserts a Program
@@ -47,7 +47,7 @@ export const EVENT = {
   title: "Bhajan Clubbing",
   tagline: "Temple soul. Club energy.",
   description:
-    "One night where the bass is a mridanga, the drop is a mantra, and nobody needs a drink to dance. Live kirtan, devotional DJ sets, a chai + mocktail bar, and a full prasadam feast — completely alcohol-free.",
+    "One night where the bass is a mridanga, the drop is a mantra, and nobody needs a drink to dance. Live kirtan, devotional DJ sets, a sattvic mocktail bar, and a full prasadam feast — a completely sattvic night.",
   dateLabel: "Saturday, August 15, 2026",
   timeLabel: "6:00 PM – 10:00 PM",
   doorsLabel: "Doors 6:00 PM",
@@ -61,7 +61,7 @@ export const EVENT = {
     note: "Comfortable clothes you can move in. Festival fits loudly encouraged.",
   },
   capacity: 200,
-  priceLabel: "Free with pass",
+  priceLabel: "$49.99",
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bajanclubbing",
 } as const;
@@ -75,14 +75,14 @@ export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; tit
   },
   {
     icon: "sparkle",
-    title: "Lights, no liquor",
-    detail: "Smoke, lasers and LED walls. Zero alcohol — the high is the chant.",
+    title: "A sattvic rave",
+    detail: "Smoke, lasers and LED walls. Everything pure — the high is the chant.",
     accent: "gold",
   },
   {
     icon: "food",
-    title: "Chai + mocktail bar",
-    detail: "Masala chai on tap, lassi mocktails, and a full prasadam feast.",
+    title: "Sattvic mocktail bar",
+    detail: "Rose lassi mocktails, fresh fruit coolers, and a full prasadam feast.",
     accent: "lotus",
   },
   {
@@ -96,7 +96,7 @@ export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; tit
 export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
-    name: "HG Govinda Krishna Prabhuji",
+    name: "HG Govinda Krishna Das",
     role: "Headline Kirtan",
     setTime: "7:30 PM",
     bio: "Leading the room deep into the maha-mantra — call-and-response kirtan that builds until everyone is on their feet.",
@@ -105,14 +105,14 @@ export const LINEUP: ClubArtist[] = [
     tags: ["Kirtan", "Harmonium", "Maha-mantra"],
     accent: "saffron",
     headliner: true,
-    photo: "/lineup/govinda-krishna-prabhuji.jpg",
+    photo: "/lineup/GKD 3.png",
   },
   {
     id: "srikar-prabhuji",
-    name: "Srikar Prabhuji",
+    name: "Srikar",
     role: "Opening Kirtan",
     setTime: "6:30 PM",
-    bio: "Opens the night — soulful bhajans that ease the room from chai-bar chatter into one voice.",
+    bio: "Opens the night — soulful bhajans that ease the room from mocktail-bar chatter into one voice.",
     instrument: "Voice · Mridanga",
     style: "Soulful bhajans building into kirtan",
     tags: ["Kirtan", "Bhajan", "Mridanga"],
@@ -122,7 +122,7 @@ export const LINEUP: ClubArtist[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Ticket tiers — free event; VIP is a seva donation via Stripe       */
+/*  Ticket — single paid tier, charged via Square checkout             */
 /* ------------------------------------------------------------------ */
 export interface TicketTier {
   id: string;
@@ -140,52 +140,32 @@ export interface TicketTier {
 export const TIERS: TicketTier[] = [
   {
     id: "general",
-    name: "General Vibes",
-    tag: "Free",
-    priceUsd: 0,
-    blurb: "Everything that matters: the floor, the chant, the feast.",
-    perks: ["Full floor access", "Chai + mocktail bar", "Full prasadam feast"],
+    name: "General Admission",
+    tag: "$49.99",
+    priceUsd: 49.99,
+    blurb: "One ticket, the whole night: the floor, the chant, the feast.",
+    perks: ["Full floor access", "Sattvic mocktail bar", "Full prasadam feast"],
     accent: "saffron",
-  },
-  {
-    id: "frontrow",
-    name: "Front Row Bhakti",
-    tag: "Free · Limited",
-    priceUsd: 0,
-    blurb: "First two rows at the stage rail. For the ones who sing back loudest.",
-    perks: ["Stage-rail spot", "Everything in General", "First in line for the feast"],
-    accent: "peacock",
-    limited: true,
-    tierLimit: 40,
-  },
-  {
-    id: "vip",
-    name: "VIP Seva Pass",
-    tag: "$21 donation",
-    priceUsd: 21,
-    blurb: "Backstage chai with the artists — and your donation funds the free feast.",
-    perks: ["Backstage chai meet", "Reserved cushion seating", "Feast sponsor shout-out"],
-    accent: "gold",
   },
 ];
 
 export const NIGHT_FLOW: NightFlowStop[] = [
   {
     time: "6:00",
-    title: "Doors + chai bar",
-    detail: "Roll in, grab a masala chai or a rose lassi mocktail, find your people.",
+    title: "Doors + mocktail bar",
+    detail: "Roll in, grab a rose lassi mocktail or a fresh fruit cooler, find your people.",
     accent: "gold",
   },
   {
     time: "6:30",
-    title: "Srikar Prabhuji opens",
+    title: "Srikar opens",
     detail: "Soulful bhajans that ease the room into one voice.",
     accent: "peacock",
   },
   {
     time: "7:30",
     title: "Headline kirtan",
-    detail: "HG Govinda Krishna Prabhuji. Call-and-response until the walls sweat.",
+    detail: "HG Govinda Krishna Das. Call-and-response until the walls sweat.",
     accent: "saffron",
   },
   {
@@ -198,8 +178,8 @@ export const NIGHT_FLOW: NightFlowStop[] = [
 
 export const CLUB_FAQS: { q: string; a: string }[] = [
   {
-    q: "Is it really alcohol-free?",
-    a: "Completely. No bar, no BYOB — and nobody misses it. The energy comes from a few hundred people chanting over a serious sound system.",
+    q: "Is it really a fully sattvic night?",
+    a: "Completely. Everything served is sattvic — pure, vegetarian, and intoxicant-free — and nobody misses a thing. The energy comes from a few hundred people chanting over a serious sound system.",
   },
   {
     q: "I don't know any of the words. Is that okay?",
@@ -211,12 +191,12 @@ export const CLUB_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does it cost?",
-    a: "Nothing. Passes are free (capacity is capped, so grab one), and the prasadam feast is included.",
+    a: "$49.99 per person. That covers the whole night — live kirtan, the sattvic mocktail bar, and the full prasadam feast. Capacity is capped, so grab yours early.",
   },
 ];
 
 export const SHARE = {
   message:
-    "I'm going to Bhajan Clubbing — a totally sober, totally electric kirtan night in Jersey City. Live kirtan, chai bar, prasadam feast. Aug 15. Free passes:",
+    "I'm going to Bhajan Clubbing — a totally sattvic, totally electric kirtan night in Jersey City. Live kirtan, sattvic mocktails, prasadam feast. Aug 15. Tickets:",
   hashtags: "BhajanClubbing,GitaLifeNYC,KirtanNight",
 } as const;
