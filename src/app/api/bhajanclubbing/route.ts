@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmation } from "@/lib/email";
+import { appendRegistrationToSheet } from "@/lib/sheets";
 import { countGuests, ensureEventProgram, paymentsConfigured, tierTag } from "@/lib/clubbing";
 import { EVENT, TIERS } from "@/data/bhajanClubbing";
 
@@ -176,15 +177,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Best-effort confirmation email via the org's domain mailbox —
-    // a mail hiccup must never fail a registration that's already saved.
-    const emailed = await sendClubbingConfirmation({
-      to: email,
-      name,
-      tierName: tierDef.name,
-      guests: guestCount,
-      seva: null, // paid tiers never reach this route; receipts go out on verified payment
-    });
+    // Best-effort confirmation email + Google Sheet row — a hiccup in
+    // either must never fail a registration that's already saved.
+    const [emailed] = await Promise.all([
+      sendClubbingConfirmation({
+        to: email,
+        name,
+        tierName: tierDef.name,
+        guests: guestCount,
+        seva: null, // paid tiers never reach this route; receipts go out on verified payment
+      }),
+      appendRegistrationToSheet({
+        name,
+        email,
+        phone: phone || "",
+        guests: guestCount,
+        hearAbout: typeof hearAbout === "string" ? hearAbout.trim() : "",
+        emailOptIn: !!emailOptIn,
+        ticket: tierDef.name,
+        payment: "Free",
+      }),
+    ]);
 
     return NextResponse.json(
       { id: result.id, message: "Pass confirmed", emailed },
