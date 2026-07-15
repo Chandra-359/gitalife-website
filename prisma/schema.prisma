@@ -84,6 +84,8 @@ model Rsvp {
   email     String
   guests    Int      @default(1)             // Total attendees including the person
   notes     String?                          // Dietary restrictions, accessibility needs, etc.
+  hearAbout String?                          // "How did you hear about this event?" (optional)
+  emailOptIn Boolean @default(false)         // Agreed to receive event/program updates by email
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
   checkedInAt DateTime?                      // Set when the party is checked in at the door
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)

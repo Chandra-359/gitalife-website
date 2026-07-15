@@ -5,7 +5,7 @@
  */
 
 import type { PrismaClient } from "@prisma/client";
-import { EVENT } from "@/data/bajanClubbing";
+import { EVENT } from "@/data/bhajanClubbing";
 
 /** Tier tag stamped at the front of RSVP notes — also used to count tier usage. */
 export const tierTag = (tierName: string) => `[${tierName}]`;
@@ -17,13 +17,13 @@ export async function ensureEventProgram(db: Pick<PrismaClient, "program">) {
     category: "Kirtan & Prasadam",
     description: EVENT.description,
     subtitle: EVENT.tagline,
-    latitude: 40.7178,
-    longitude: -74.0431,
+    latitude: EVENT.venue.lat,
+    longitude: EVENT.venue.lng,
     dayOfWeek: "Saturday",
     time: EVENT.timeLabel,
     venueName: EVENT.venue.name,
     address: EVENT.venue.address,
-    duration: "4 hours",
+    duration: "3 hours",
     level: "All levels",
     capacity: EVENT.capacity,
     status: "published",

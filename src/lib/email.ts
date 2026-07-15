@@ -19,7 +19,7 @@
  */
 
 import nodemailer, { type Transporter } from "nodemailer";
-import { EVENT } from "@/data/bajanClubbing";
+import { EVENT } from "@/data/bhajanClubbing";
 
 export function emailConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
@@ -109,7 +109,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
   const sevaBlock =
     d.seva === "paid"
       ? `<p style="margin:18px 0 0;padding:12px 16px;background:rgba(77,255,166,0.08);border:1px solid rgba(77,255,166,0.35);border-radius:10px;font-size:13px;line-height:1.6;color:${S.ink};">
-           <strong>Payment received — thank you.</strong> Your ticket covers the whole night: live kirtan, the sattvic mocktail bar, and packed prasadam. Your Square receipt is on its way separately.
+           <strong>Payment received — thank you.</strong> Your ticket covers the whole night: live kirtan and free packed prasadam. Your Square receipt is on its way separately.
          </p>`
       : "";
 
@@ -152,7 +152,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
       </table>
       <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
         ${EVENT.venue.transit}.<br/>
-        ${EVENT.venue.note} Come early — the mocktails go fast. 100% sattvic, packed prasadam included.
+        ${EVENT.venue.note} Come early. 100% sattvic, free packed prasadam included.
       </p>
     </td></tr>
     <tr><td style="padding:18px 8px 0;text-align:center;">
@@ -169,7 +169,7 @@ function confirmationHtml(d: ConfirmationDetails): string {
 function confirmationText(d: ConfirmationDetails): string {
   const seva =
     d.seva === "paid"
-      ? "\nPayment received — thank you! Your ticket covers the whole night, sattvic mocktail bar and packed prasadam included.\n"
+      ? "\nPayment received — thank you! Your ticket covers the whole night, free packed prasadam included.\n"
       : "";
   return `You're on the list, ${d.name.split(" ")[0]}!
 
@@ -185,7 +185,7 @@ ${seva}
 Directions: ${EVENT.venue.mapsUrl}
 ${EVENT.venue.transit}
 
-100% sattvic · packed prasadam included
+100% sattvic · free packed prasadam included
 ${EVENT.url}`;
 }
 
