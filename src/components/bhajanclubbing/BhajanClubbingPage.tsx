@@ -42,10 +42,10 @@ function ClubFaq() {
         className="text-center"
       >
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
-          Real Questions
+          FAQ
         </p>
         <h2 className="bc2-display mt-4 text-[28px] text-white sm:text-[36px]">
-          Before you <span className="bc2-headline-grad">ask</span>
+          Frequently asked <span className="bc2-headline-grad">questions</span>
         </h2>
       </motion.div>
 
@@ -62,9 +62,37 @@ function ClubFaq() {
                 +
               </span>
             </summary>
-            <p className="-mt-1 px-5 pb-4 pr-8 text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              {faq.a}
-            </p>
+            <div className="-mt-1 px-5 pb-4 pr-8 text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+              <p>{faq.a}</p>
+              {faq.points && (
+                <ul className="mt-2.5 space-y-1.5">
+                  {faq.points.map((point) => (
+                    <li key={point} className="flex items-start gap-2.5">
+                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(255,178,92,0.7)" }} aria-hidden />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {faq.links && (
+                <ul className="mt-2.5 space-y-1.5">
+                  {faq.links.map((link) => (
+                    <li key={link.href} className="flex items-start gap-2.5">
+                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(255,178,92,0.7)" }} aria-hidden />
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold underline decoration-[rgba(255,178,92,0.5)] underline-offset-4 transition-colors hover:text-white"
+                        style={{ color: "var(--bc2-amber)" }}
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </details>
         ))}
       </div>

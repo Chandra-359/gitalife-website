@@ -159,22 +159,61 @@ export const TIERS: TicketTier[] = [
   },
 ];
 
-export const CLUB_FAQS: { q: string; a: string }[] = [
+/* ------------------------------------------------------------------ */
+/*  Official Gita Life NYC profiles — hero buttons + FAQ links         */
+/* ------------------------------------------------------------------ */
+export const SOCIALS = {
+  instagram: "https://www.instagram.com/gitalifenyc",
+  youtube: "https://www.youtube.com/channel/UCgOD-piH4XFlphyEwLnpMCQ",
+} as const;
+
+export interface ClubFaq {
+  q: string;
+  a: string;
+  /** Optional bullet list rendered after the intro line. */
+  points?: string[];
+  /** Optional contact/profile links rendered after the answer. */
+  links?: { label: string; href: string }[];
+}
+
+export const CLUB_FAQS: ClubFaq[] = [
   {
-    q: "Is it really a fully sattvic night?",
-    a: "Completely. Everything served is sattvic — pure and vegetarian — and nobody misses a thing. The energy comes from a few hundred people chanting over a serious sound system.",
+    q: "What is Bhajan Clubbing?",
+    a: "Bhajan Clubbing is an uplifting evening of live devotional music, community, meaningful conversations, and authentic vegetarian prasadam in a welcoming environment. Whether you're spiritually curious or simply looking for a unique cultural experience, you're welcome to join us.",
   },
   {
-    q: "I don't know any of the words. Is that okay?",
-    a: "Perfect, actually. Kirtan is call-and-response: the artist sings a line, you sing it back. You'll have the melody by the second round.",
+    q: "Who is this event for?",
+    a: "This event is open to everyone. It is especially designed for young adults, working professionals, students, and married couples who are looking for an uplifting evening of music, community, and spiritual inspiration.",
   },
   {
-    q: "What do I wear?",
-    a: "Whatever you can dance in. Kurtas, sneakers, festival fits — all welcome. Modest is appreciated — it's still a devotional night.",
+    q: "What happens during the event?",
+    a: "The evening includes:",
+    points: [
+      "Live bhajans and kirtan",
+      "A short inspirational reflection",
+      "Opportunities to connect with like-minded people",
+      "A complimentary vegetarian prasadam meal",
+    ],
   },
   {
-    q: "How much does it cost?",
-    a: "$49.99 per person. That covers the whole night — live kirtan and free packed prasadam from Sri Sri Radha Govinda Temple. Capacity is capped, so grab yours early.",
+    q: "Who is organizing this event?",
+    a: "The event is organized by volunteers from Gita Life NYC, a local Bhakti community dedicated to sharing spiritual wisdom, devotional music, and authentic community experiences.",
+  },
+  {
+    q: "What should I wear?",
+    a: "There is no dress code. Comfortable casual or smart-casual attire is recommended.",
+  },
+  {
+    q: "Is food included?",
+    a: "Yes. A freshly prepared vegetarian prasadam meal is included with your admission. To help the event conclude on time and give guests added flexibility, the meal will be packed in a convenient to-go box and distributed after the program.",
+  },
+  {
+    q: "Are there opportunities to stay connected after the event?",
+    a: "Yes. If you enjoy the experience, you'll have the opportunity to join our weekly Bhagavad Gita discussion groups, kirtan gatherings, and future community events. You can stay connected through:",
+    links: [
+      { label: "Instagram — @gitalifenyc", href: SOCIALS.instagram },
+      { label: "YouTube — Gita Life NYC", href: SOCIALS.youtube },
+    ],
   },
 ];
 
@@ -182,14 +221,6 @@ export const SHARE = {
   message:
     "I'm going to Bhajan Clubbing — a totally sattvic, totally electric kirtan night in Jersey City. Live kirtan, free packed prasadam. Aug 15. Tickets:",
   hashtags: "BhajanClubbing,GitaLifeNYC,KirtanNight",
-} as const;
-
-/* ------------------------------------------------------------------ */
-/*  Official Gita Life NYC profiles — footer follow buttons            */
-/* ------------------------------------------------------------------ */
-export const SOCIALS = {
-  instagram: "https://www.instagram.com/gitalifenyc",
-  youtube: "https://www.youtube.com/channel/UCgOD-piH4XFlphyEwLnpMCQ",
 } as const;
 
 /** Who's behind the night — shown in the page footer. */

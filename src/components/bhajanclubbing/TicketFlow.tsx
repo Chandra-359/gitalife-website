@@ -3,8 +3,8 @@
 /**
  * TicketFlow — in-page two-step checkout for the single paid ticket.
  *
- *   Step 1  Details (name, mobile, email, ticket count, how-heard,
- *           email-updates consent)
+ *   Step 1  Details (name, mobile, email, ticket count, optional
+ *           how-heard + email-updates opt-in)
  *   Step 2  Review → PAY-FIRST: hands off to Square Checkout and the
  *           RSVP is only created once the returned order verifies as
  *           paid. No payment, no registration. With Square unconfigured
@@ -33,7 +33,7 @@ interface DetailsForm {
   guests: number;
   /** Optional — "How did you hear about this event?" */
   hearAbout: string;
-  /** Required consent — email updates about events/programs. */
+  /** Optional consent — email updates about events/programs. */
   emailOptIn: boolean;
 }
 
@@ -505,20 +505,19 @@ export default function TicketFlow() {
                         className="flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5"
                         style={{
                           background: "rgba(244,239,255,0.04)",
-                          borderColor: errors.emailOptIn ? "rgba(255,110,110,0.6)" : "rgba(244,239,255,0.14)",
+                          borderColor: "rgba(244,239,255,0.14)",
                         }}
                       >
                         <input
                           id="tf-optin"
                           type="checkbox"
                           className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#FF7A1A]"
-                          {...register("emailOptIn", { required: "Please agree to receive event updates by email" })}
+                          {...register("emailOptIn")}
                         />
                         <span className="text-[12.5px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
-                          I agree to receive updates regarding events/programs by email <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                          I agree to receive updates regarding events/programs by email
                         </span>
                       </label>
-                      {errors.emailOptIn && <p className="-mt-2 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.emailOptIn.message}</p>}
                       <div className="pt-2">
                         <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
