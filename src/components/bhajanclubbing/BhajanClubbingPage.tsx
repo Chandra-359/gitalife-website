@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
 import { Icon } from "@/components/home/icons";
-import { CLUB_FAQS, EVENT, ORGANIZER_NOTE, SOCIALS } from "@/data/bhajanClubbing";
+import { CLUB_FAQS, EVENT, ORGANIZER_NOTE } from "@/data/bhajanClubbing";
 import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
@@ -101,36 +101,6 @@ function Outro() {
       <p className="relative mx-auto mt-12 max-w-xl text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
         {ORGANIZER_NOTE}
       </p>
-
-      {/* official profiles */}
-      <div className="relative mt-7 flex items-center justify-center gap-3">
-        <a
-          href={SOCIALS.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Gita Life NYC on Instagram"
-          className="bc2-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[12.5px] font-semibold"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
-            <circle cx="12" cy="12" r="4.2" />
-            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
-          </svg>
-          Instagram
-        </a>
-        <a
-          href={SOCIALS.youtube}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Gita Life NYC on YouTube"
-          className="bc2-btn-ghost inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[12.5px] font-semibold"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M23 7.6a3 3 0 0 0-2.1-2.2C19 4.9 12 4.9 12 4.9s-7 0-8.9.5A3 3 0 0 0 1 7.6 32.6 32.6 0 0 0 .5 12 32.6 32.6 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A32.6 32.6 0 0 0 23.5 12 32.6 32.6 0 0 0 23 7.6ZM9.7 15.1V8.9l6 3.1-6 3.1Z" />
-          </svg>
-          YouTube
-        </a>
-      </div>
 
       <p className="relative mt-10 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
         Gita Life NYC · A community initiative under ISKCON

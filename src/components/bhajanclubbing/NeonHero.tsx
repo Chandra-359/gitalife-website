@@ -13,8 +13,51 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Icon } from "@/components/home/icons";
-import { EVENT } from "@/data/bhajanClubbing";
+import { EVENT, SOCIALS } from "@/data/bhajanClubbing";
 import { InstrumentSprite } from "./FestivalBackdrop";
+
+/* ------------------------------------------------------------------ */
+/*  Official profiles — top of the page for visibility                 */
+/* ------------------------------------------------------------------ */
+function SocialLinks() {
+  const linkStyle: React.CSSProperties = {
+    background: "rgba(244,239,255,0.06)",
+    border: "1px solid rgba(244,239,255,0.18)",
+    backdropFilter: "blur(8px)",
+  };
+  return (
+    <div className="flex items-center justify-center gap-2.5">
+      <a
+        href={SOCIALS.instagram}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Gita Life NYC on Instagram"
+        title="Follow on Instagram"
+        className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 hover:border-[#F5AED8]"
+        style={{ ...linkStyle, color: "#F5AED8" }}
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+          <circle cx="12" cy="12" r="4.2" />
+          <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
+        </svg>
+      </a>
+      <a
+        href={SOCIALS.youtube}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Gita Life NYC on YouTube"
+        title="Watch on YouTube"
+        className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 hover:border-[#FF8E8E]"
+        style={{ ...linkStyle, color: "#FF8E8E" }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M23 7.6a3 3 0 0 0-2.1-2.2C19 4.9 12 4.9 12 4.9s-7 0-8.9.5A3 3 0 0 0 1 7.6 32.6 32.6 0 0 0 .5 12 32.6 32.6 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A32.6 32.6 0 0 0 23.5 12 32.6 32.6 0 0 0 23 7.6ZM9.7 15.1V8.9l6 3.1-6 3.1Z" />
+        </svg>
+      </a>
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Slim countdown pill (full countdown lives in the bento grid)       */
@@ -139,6 +182,11 @@ export default function NeonHero() {
         style={{ y: contentY, opacity: contentOpacity }}
       >
         <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          {/* official profiles */}
+          <div className="mb-5">
+            <SocialLinks />
+          </div>
+
           {/* eyebrow */}
           <p className="text-[11px] font-bold uppercase tracking-[0.34em]" style={{ color: "var(--bc2-ink-faint)" }}>
             Gita Life NYC presents · {EVENT.volume}

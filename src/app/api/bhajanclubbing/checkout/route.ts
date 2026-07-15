@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmation } from "@/lib/email";
+import { appendRegistrationToSheet } from "@/lib/sheets";
 import { countGuests, ensureEventProgram } from "@/lib/clubbing";
 import { EVENT, TIERS } from "@/data/bhajanClubbing";
 
@@ -290,13 +291,26 @@ export async function GET(request: Request) {
     const { receipt, name, guests } = await recordPaidRsvp(order, email);
     if (receipt) {
       const ticket = TIERS.find((t) => t.priceUsd > 0);
-      await sendClubbingConfirmation({
-        to: email,
-        name: name || order.metadata?.name || "friend",
-        tierName: ticket?.name ?? "General Admission",
-        guests,
-        seva: "paid",
-      });
+      // Receipt email + Google Sheet row — both best-effort, side by side
+      await Promise.all([
+        sendClubbingConfirmation({
+          to: email,
+          name: name || order.metadata?.name || "friend",
+          tierName: ticket?.name ?? "General Admission",
+          guests,
+          seva: "paid",
+        }),
+        appendRegistrationToSheet({
+          name: name || order.metadata?.name || email,
+          email,
+          phone: order.metadata?.phone || "",
+          guests,
+          hearAbout: order.metadata?.hear_about || "",
+          emailOptIn: order.metadata?.email_opt_in === "yes",
+          ticket: ticket?.name ?? "General Admission",
+          payment: "PAID via Square",
+        }),
+      ]);
     }
 
     return NextResponse.json({ paid: true, name: String(name || order.metadata?.name || "") });
