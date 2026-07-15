@@ -25,6 +25,7 @@ import NeonLineup from "./NeonLineup";
 import PrasadamFeast from "./PrasadamFeast";
 import SectionTracker from "./SectionTracker";
 import ShareCrew from "./ShareCrew";
+import SocialLinks from "./SocialLinks";
 import TheVibe from "./TheVibe";
 import TicketFlow from "./TicketFlow";
 
@@ -129,6 +130,16 @@ function Outro() {
       <p className="relative mx-auto mt-12 max-w-xl text-[13px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
         {ORGANIZER_NOTE}
       </p>
+
+      {/* official profiles — repeated at the bottom of the page */}
+      <div className="relative mt-12">
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
+          Follow us
+        </p>
+        <div className="mt-5">
+          <SocialLinks />
+        </div>
+      </div>
 
       <p className="relative mt-10 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
         Gita Life NYC · A community initiative under ISKCON

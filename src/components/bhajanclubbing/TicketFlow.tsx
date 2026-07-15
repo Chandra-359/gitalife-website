@@ -4,7 +4,7 @@
  * TicketFlow — in-page two-step checkout for the single paid ticket.
  *
  *   Step 1  Details (name, mobile, email, ticket count, optional
- *           how-heard + email-updates opt-in)
+ *           how-heard + required email-updates yes/no)
  *   Step 2  Review → PAY-FIRST: hands off to Square Checkout and the
  *           RSVP is only created once the returned order verifies as
  *           paid. No payment, no registration. With Square unconfigured
@@ -33,8 +33,8 @@ interface DetailsForm {
   guests: number;
   /** Optional — "How did you hear about this event?" */
   hearAbout: string;
-  /** Optional consent — email updates about events/programs. */
-  emailOptIn: boolean;
+  /** Required consent — "yes" | "no" to email updates about events/programs. */
+  emailUpdates: string;
 }
 
 const HEAR_ABOUT_OPTIONS = [
@@ -198,7 +198,7 @@ export default function TicketFlow() {
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailOptIn: false } });
+  } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailUpdates: "" } });
 
   const onConfirm = async () => {
     const d = details ?? getValues();
@@ -215,7 +215,7 @@ export default function TicketFlow() {
           phone: d.phone,
           guests: d.guests || 1,
           hearAbout: d.hearAbout || null,
-          emailOptIn: !!d.emailOptIn,
+          emailOptIn: d.emailUpdates === "yes",
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -500,24 +500,28 @@ export default function TicketFlow() {
                           ))}
                         </select>
                       </div>
-                      <label
-                        htmlFor="tf-optin"
-                        className="flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5"
-                        style={{
-                          background: "rgba(244,239,255,0.04)",
-                          borderColor: "rgba(244,239,255,0.14)",
-                        }}
-                      >
-                        <input
-                          id="tf-optin"
-                          type="checkbox"
-                          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#FF7A1A]"
-                          {...register("emailOptIn")}
-                        />
-                        <span className="text-[12.5px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
-                          I agree to receive updates regarding events/programs by email
-                        </span>
-                      </label>
+                      <div>
+                        <label htmlFor="tf-updates" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
+                          Would you like to receive updates regarding events/programs by email? <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                        </label>
+                        <select
+                          id="tf-updates"
+                          className={`${inputClass} cursor-pointer appearance-none`}
+                          style={inputStyle(!!errors.emailUpdates)}
+                          {...register("emailUpdates", { required: "Please select Yes or No" })}
+                        >
+                          <option value="" style={{ background: "#150A38" }}>
+                            Select Yes or No
+                          </option>
+                          <option value="yes" style={{ background: "#150A38" }}>
+                            Yes
+                          </option>
+                          <option value="no" style={{ background: "#150A38" }}>
+                            No
+                          </option>
+                        </select>
+                        {errors.emailUpdates && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.emailUpdates.message}</p>}
+                      </div>
                       <div className="pt-2">
                         <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
@@ -538,6 +542,7 @@ export default function TicketFlow() {
                         { k: "Mobile", v: details.phone },
                         { k: "Tickets", v: details.guests === 1 ? "1 ticket" : `${details.guests} tickets` },
                         ...(details.hearAbout ? [{ k: "Heard via", v: details.hearAbout }] : []),
+                        { k: "Email updates", v: details.emailUpdates === "yes" ? "Yes" : "No" },
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
                       ].map((row) => (
                         <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(244,239,255,0.07)" }}>
