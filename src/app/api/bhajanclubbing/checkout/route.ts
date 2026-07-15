@@ -66,12 +66,6 @@ export async function POST(request: Request) {
     if (!phone || !String(phone).trim()) {
       return NextResponse.json({ error: "Mobile number is required" }, { status: 400 });
     }
-    if (!emailOptIn) {
-      return NextResponse.json(
-        { error: "Please agree to receive event updates by email to complete your registration" },
-        { status: 400 },
-      );
-    }
 
     const ticket = TIERS.find((t) => t.priceUsd > 0);
     if (!ticket) return NextResponse.json({ error: "No paid ticket configured" }, { status: 400 });
@@ -118,7 +112,7 @@ export async function POST(request: Request) {
             guests: String(qty),
             // Square requires metadata values to be non-empty — omit when blank
             ...(String(hearAbout ?? "").trim() ? { hear_about: String(hearAbout).trim().slice(0, 100) } : {}),
-            email_opt_in: "yes",
+            email_opt_in: emailOptIn ? "yes" : "no",
           },
           line_items: [
             {
