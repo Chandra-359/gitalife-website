@@ -3,7 +3,8 @@
  *
  * WHERE TO EDIT EACH THING:
  *  - Date/time/venue         → EVENT (startIso/endIso drive the countdown + JSON-LD)
- *  - Artists                 → LINEUP (`headliner: true` gets the badge + accent glow)
+ *  - Artists                 → LINEUP (cards show photo + name only; bio/instrument/
+ *                              style reveal on hover — no set times or headliner tags)
  *  - Artist photos           → LINEUP[].photo — drop a 3:4 portrait in public/lineup/
  *                              and set e.g. photo: "/lineup/dj-keshava.jpg". Tiles
  *                              without a photo render a neon monogram poster.
@@ -22,14 +23,11 @@ export type AccentToken = "gold" | "saffron" | "peacock" | "lotus";
 export interface ClubArtist {
   id: string;
   name: string;
-  role: string;          // e.g. "Headline Kirtan", "Opening Kirtan"
-  setTime: string;       // e.g. "9:15 PM"
-  bio: string;           // one-liner
+  bio: string;           // one-liner — what kind of artist they are
   instrument: string;    // hover-reveal: what they play
   style: string;         // hover-reveal: their bhajan style
   tags: string[];        // instruments / style chips
   accent: AccentToken;
-  headliner?: boolean;
   /** 3:4 portrait served from public/, e.g. "/lineup/dj-keshava.jpg". */
   photo?: string;
 }
@@ -96,22 +94,17 @@ export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
     name: "HG Govinda Krishna Das (GKD)",
-    role: "Headline Kirtan",
-    setTime: "7:30 PM",
-    bio: "Leading the room deep into the maha-mantra — call-and-response kirtan that builds until everyone is on their feet.",
+    bio: "Highly energetic — call-and-response kirtan that leads the room deep into the maha-mantra and builds until everyone is on their feet.",
     instrument: "Voice · Harmonium",
     style: "High-energy call-and-response kirtan",
     tags: ["Kirtan", "Harmonium", "Maha-mantra"],
     accent: "saffron",
-    headliner: true,
     photo: "/lineup/GKD 3.png",
   },
   {
     id: "srikar-prabhuji",
     name: "Srikar",
-    role: "Opening Kirtan",
-    setTime: "6:30 PM",
-    bio: "Opens the night — soulful bhajans that ease the room into one voice.",
+    bio: "Soulful — heartfelt bhajans that ease the room into one voice.",
     instrument: "Voice · Mridanga",
     style: "Soulful bhajans building into kirtan",
     tags: ["Kirtan", "Bhajan", "Mridanga"],
@@ -206,6 +199,14 @@ export const CLUB_FAQS: ClubFaq[] = [
   {
     q: "Is food included?",
     a: "Yes. A freshly prepared vegetarian prasadam meal is included with your admission. To help the event conclude on time and give guests added flexibility, the meal will be packed in a convenient to-go box and distributed after the program.",
+  },
+  {
+    q: "What is your refund policy?",
+    a: "All ticket sales are final and are non-refundable. As this is a nonprofit community event, all proceeds directly support the community and future programs. Refunds will only be issued if the event is cancelled by the organizers. If you have any questions, please contact us before purchasing your ticket.",
+  },
+  {
+    q: "Are seats assigned?",
+    a: "No. Your ticket reserves your admission to the event; however, individual seats are not assigned. You may choose any available seat upon arrival. We encourage you to arrive early for the best seat selection.",
   },
   {
     q: "Are there opportunities to stay connected after the event?",

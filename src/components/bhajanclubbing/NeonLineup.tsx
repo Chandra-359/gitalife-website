@@ -4,8 +4,9 @@
  * NeonLineup — conference-style speaker grid.
  *
  * Uniform portrait tiles, the way tech events showcase speakers:
- * at rest each tile is just the artist's portrait with their name and
- * role over a bottom scrim. Hover (tap on touch, focus on keyboard)
+ * at rest each tile is just the artist's portrait with their name over
+ * a bottom scrim — no set times, no headliner/opener labels, every
+ * artist presented equally. Hover (tap on touch, focus on keyboard)
  * zooms the portrait and slides up a panel with the bio, instrument
  * and style. Artists without a photo yet get a neon monogram poster
  * in their accent colour — set `photo` in src/data/bhajanClubbing.ts
@@ -83,14 +84,14 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2 sm:w-[280px]"
       style={
         {
-          border: `1px solid ${artist.headliner ? `${a.main}59` : "rgba(244,239,255,0.13)"}`,
-          boxShadow: artist.headliner ? `0 18px 48px -16px ${a.main}59` : "0 18px 48px -22px rgba(0,0,0,0.7)",
+          border: "1px solid rgba(244,239,255,0.13)",
+          boxShadow: "0 18px 48px -22px rgba(0,0,0,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
       onClick={() => setRevealed((v) => !v)}
       tabIndex={0}
-      aria-label={`${artist.name} — ${artist.role}. Tap for set details.`}
+      aria-label={`${artist.name}. Tap for artist details.`}
     >
       {/* portrait */}
       <div
@@ -118,39 +119,13 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         aria-hidden
       />
 
-      {/* top chips */}
-      <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
-        <span
-          className="rounded-full px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.18em]"
-          style={{
-            background: "rgba(7,3,19,0.55)",
-            border: "1px solid rgba(244,239,255,0.16)",
-            color: "var(--bc2-ink-dim)",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          {artist.setTime} set
-        </span>
-        {artist.headliner && (
-          <span
-            className="rounded-full px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.2em]"
-            style={{ background: `${a.main}2b`, border: `1px solid ${a.main}66`, color: a.soft, backdropFilter: "blur(6px)" }}
-          >
-            ★ Headliner
-          </span>
-        )}
-      </div>
-
-      {/* resting label — name + role only */}
+      {/* resting label — name only */}
       <div
         className={`absolute inset-x-0 bottom-0 p-4 transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 sm:p-5 ${
           revealed ? "opacity-0" : ""
         }`}
       >
         <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[20px]">{artist.name}</h3>
-        <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-[0.18em] sm:text-[10.5px]" style={{ color: a.main }}>
-          {artist.role}
-        </p>
       </div>
 
       {/* hover / tap / focus panel — the full story */}
@@ -164,9 +139,6 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         }}
       >
         <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[19px]">{artist.name}</h3>
-        <p className="mt-1.5 text-[9.5px] font-bold uppercase tracking-[0.18em]" style={{ color: a.main }}>
-          {artist.role}
-        </p>
         <p className="mt-2.5 line-clamp-3 text-[11.5px] leading-relaxed sm:line-clamp-none sm:text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
           {artist.bio}
         </p>
@@ -206,7 +178,7 @@ export default function NeonLineup() {
           {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          Hover a card — or tap on mobile — for the set details.
+          Hover a card — or tap on mobile — to get to know each artist.
         </p>
       </motion.div>
 
