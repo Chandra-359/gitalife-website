@@ -7,7 +7,7 @@
 
 import { motion } from "framer-motion";
 import { Icon } from "@/components/home/icons";
-import { VIBE_FACTS } from "@/data/bajanClubbing";
+import { VIBE_FACTS } from "@/data/bhajanClubbing";
 
 const ACCENT: Record<string, string> = {
   gold: "#FFB25C",
@@ -36,7 +36,7 @@ export default function TheVibe() {
           </h2>
           <p className="mt-6 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
             Bhajan clubbing takes the centuries-old practice of devotional call-and-response singing and puts it on a
-            concert rig — smoke, lasers, LED walls, a serious sound system. The lyrics stay sacred. The energy goes
+            concert rig with a serious sound system. The lyrics stay sacred. The energy goes
             vertical. Nobody drinks, everybody dances, and by the last chorus a room of strangers is one voice.
           </p>
           <p className="mt-4 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>

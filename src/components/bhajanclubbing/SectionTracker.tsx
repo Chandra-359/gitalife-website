@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SectionTracker — fixed top-right scroll-spy rail for /bajanclubbing.
+ * SectionTracker — fixed top-right scroll-spy rail for /bhajanclubbing.
  *
  * A frosted neon pill pinned under the navbar: one dot per section, the
  * on-screen section lit saffron with its label in amber, plus a thin
@@ -20,6 +20,7 @@ const SECTIONS = [
   { id: "vibe", label: "Vibe" },
   { id: "lineup", label: "Lineup" },
   { id: "details", label: "Details" },
+  { id: "prasadam", label: "Prasadam" },
   { id: "tickets", label: "Tickets" },
   { id: "crew", label: "Crew" },
   { id: "faq", label: "FAQ" },

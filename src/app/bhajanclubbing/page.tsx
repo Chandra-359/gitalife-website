@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Unbounded } from "next/font/google";
-import BajanClubbingPage from "@/components/bajanclubbing/BajanClubbingPage";
-import { EVENT, LINEUP, TIERS } from "@/data/bajanClubbing";
+import BhajanClubbingPage from "@/components/bhajanclubbing/BhajanClubbingPage";
+import { EVENT, LINEUP, TIERS } from "@/data/bhajanClubbing";
 
 /** Wide club-poster display face (closest Google Fonts analog to
  *  Monument Extended / Clash Display). Scoped to this route via its
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: EVENT.description,
   openGraph: {
     title: `${EVENT.title} ${EVENT.volume} — ${EVENT.tagline}`,
-    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan, devotional DJ sets, sattvic mocktail bar, packed prasadam. 100% sattvic. Tickets ${EVENT.priceLabel}.`,
+    description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan and free packed prasadam from Sri Sri Radha Govinda Temple. 100% sattvic. Tickets ${EVENT.priceLabel}.`,
     url: EVENT.url,
     type: "website",
     images: [{ url: "/krishna-arjuna-chariot.jpg", width: 1200, height: 630, alt: "Bhajan Clubbing — Gita Life NYC" }],
@@ -74,7 +74,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd()) }}
       />
-      <BajanClubbingPage />
+      <BhajanClubbingPage />
     </div>
   );
 }

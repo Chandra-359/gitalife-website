@@ -13,7 +13,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Icon } from "@/components/home/icons";
-import { EVENT } from "@/data/bajanClubbing";
+import { EVENT } from "@/data/bhajanClubbing";
 import { InstrumentSprite } from "./FestivalBackdrop";
 
 /* ------------------------------------------------------------------ */
@@ -70,12 +70,11 @@ function CountdownPill() {
 /* ------------------------------------------------------------------ */
 const TICKER = [
   "Live kirtan",
-  "Mantra-house DJ",
-  "Sattvic mocktail bar",
-  "Smoke + lasers",
-  "Packed prasadam",
+  "Free packed prasadam",
   "100% sattvic",
   "All ages",
+  "Jersey City",
+  "Sat · Aug 15",
 ];
 
 function TickerStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
@@ -198,7 +197,7 @@ export default function NeonHero() {
           </div>
 
           <p className="mt-6 text-[11.5px] font-semibold uppercase tracking-[0.22em]" style={{ color: "var(--bc2-ink-faint)" }}>
-            {EVENT.priceLabel} · {EVENT.capacity} spots · 100% sattvic
+            {EVENT.priceLabel} · 100% sattvic
           </p>
         </motion.div>
 

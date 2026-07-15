@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { EVENT } from "@/data/bajanClubbing";
+import { EVENT } from "@/data/bhajanClubbing";
 
 export const dynamic = "force-dynamic";
 

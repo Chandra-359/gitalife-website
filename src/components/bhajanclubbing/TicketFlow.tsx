@@ -3,13 +3,14 @@
 /**
  * TicketFlow — in-page two-step checkout for the single paid ticket.
  *
- *   Step 1  Details (name, email, phone, crew size)
+ *   Step 1  Details (name, mobile, email, ticket count, how-heard,
+ *           email-updates consent)
  *   Step 2  Review → PAY-FIRST: hands off to Square Checkout and the
  *           RSVP is only created once the returned order verifies as
  *           paid. No payment, no registration. With Square unconfigured
  *           the flow shows a "sales paused" panel instead of the form.
  *
- * Live availability (GET /api/bajanclubbing) drives guest-count caps and
+ * Live availability (GET /api/bhajanclubbing) drives guest-count caps and
  * the sold-out panel. Returning from Square Checkout with ?paid=1&order=…
  * verifies the order server-side before showing the paid confirmation.
  * Registration rows land in the existing admin RSVP table.
@@ -20,7 +21,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Icon } from "@/components/home/icons";
-import { EVENT, SHARE, TIERS } from "@/data/bajanClubbing";
+import { EVENT, SHARE, TIERS } from "@/data/bhajanClubbing";
 
 /** The one ticket on sale — price, tag, and perks live in the data file. */
 const TICKET = TIERS[0];
@@ -30,10 +31,23 @@ interface DetailsForm {
   email: string;
   phone: string;
   guests: number;
+  /** Optional — "How did you hear about this event?" */
+  hearAbout: string;
+  /** Required consent — email updates about events/programs. */
+  emailOptIn: boolean;
 }
 
+const HEAR_ABOUT_OPTIONS = [
+  "Instagram",
+  "WhatsApp",
+  "Friend or family",
+  "Temple announcement",
+  "YouTube",
+  "Other",
+];
+
 /* ------------------------------------------------------------------ */
-/*  Live availability — GET /api/bajanclubbing                         */
+/*  Live availability — GET /api/bhajanclubbing                         */
 /* ------------------------------------------------------------------ */
 interface TierAvailability {
   limit: number;
@@ -52,7 +66,7 @@ interface Availability {
 function useAvailability() {
   const [availability, setAvailability] = useState<Availability | null>(null);
   const refresh = useCallback(() => {
-    fetch("/api/bajanclubbing", { cache: "no-store" })
+    fetch("/api/bhajanclubbing", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => data && setAvailability(data))
       .catch(() => {
@@ -135,7 +149,7 @@ export default function TicketFlow() {
     (orderId: string) => {
       setPendingOrder(null);
       setVerifying(true);
-      fetch(`/api/bajanclubbing/checkout?order=${encodeURIComponent(orderId)}`)
+      fetch(`/api/bhajanclubbing/checkout?order=${encodeURIComponent(orderId)}`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.paid) {
@@ -184,7 +198,7 @@ export default function TicketFlow() {
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<DetailsForm>({ defaultValues: { guests: 1 } });
+  } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailOptIn: false } });
 
   const onConfirm = async () => {
     const d = details ?? getValues();
@@ -192,10 +206,17 @@ export default function TicketFlow() {
     try {
       // PAY-FIRST: no registration exists until Square confirms the
       // payment — the verified return trip creates the RSVP.
-      const res = await fetch("/api/bajanclubbing/checkout", {
+      const res = await fetch("/api/bhajanclubbing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: d.name, email: d.email, phone: d.phone, guests: d.guests || 1 }),
+        body: JSON.stringify({
+          name: d.name,
+          email: d.email,
+          phone: d.phone,
+          guests: d.guests || 1,
+          hearAbout: d.hearAbout || null,
+          emailOptIn: !!d.emailOptIn,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) {
@@ -239,7 +260,7 @@ export default function TicketFlow() {
           Lock in <span className="bc2-headline-grad">your night</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          {EVENT.capacity} spots total · {TICKET.tag} per person. Secure card checkout via Square — sattvic mocktail bar and packed prasadam included.
+          {TICKET.tag} per person. Secure card checkout via Square — free packed prasadam included.
         </p>
       </motion.div>
 
@@ -268,7 +289,7 @@ export default function TicketFlow() {
               {done.name ? `Payment received — you're in, ${done.name}` : "Payment received — you're in"}
             </h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              Check your inbox for your receipt and the event details. Doors at 6 — come early, the mocktails go fast.
+              Check your inbox for your receipt and the event details. Doors at 6 — come early.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -341,9 +362,9 @@ export default function TicketFlow() {
             >
               Sold out
             </p>
-            <h3 className="bc2-display mt-5 text-[26px] text-white">All {EVENT.capacity} tickets are claimed</h3>
+            <h3 className="bc2-display mt-5 text-[26px] text-white">Every ticket is claimed</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience; the mocktail bar makes the wait easy.
+              No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -374,7 +395,7 @@ export default function TicketFlow() {
             <h3 className="bc2-display mt-5 text-[24px] text-white">Ticket sales are briefly paused</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               Online checkout is momentarily offline. Save the date and check back shortly — tickets are {TICKET.tag} per
-              person, packed prasadam included.
+              person, free packed prasadam included.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -401,14 +422,14 @@ export default function TicketFlow() {
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                           <label htmlFor="tf-name" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Your name <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                            Full name <span style={{ color: "var(--bc2-saffron)" }}>*</span>
                           </label>
-                          <input id="tf-name" type="text" placeholder="Who's coming?" className={inputClass} style={inputStyle(!!errors.name)} {...register("name", { required: "Name is required" })} />
+                          <input id="tf-name" type="text" placeholder="Who's coming?" className={inputClass} style={inputStyle(!!errors.name)} {...register("name", { required: "Full name is required" })} />
                           {errors.name && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.name.message}</p>}
                         </div>
                         <div>
                           <label htmlFor="tf-email" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Email <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                            Email address <span style={{ color: "var(--bc2-saffron)" }}>*</span>
                           </label>
                           <input
                             id="tf-email"
@@ -427,7 +448,7 @@ export default function TicketFlow() {
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
                           <label htmlFor="tf-phone" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Phone <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                            Mobile number <span style={{ color: "var(--bc2-saffron)" }}>*</span>
                           </label>
                           <input
                             id="tf-phone"
@@ -436,15 +457,15 @@ export default function TicketFlow() {
                             className={inputClass}
                             style={inputStyle(!!errors.phone)}
                             {...register("phone", {
-                              required: "Phone number is required",
-                              pattern: { value: /^[+()\d\s.-]{7,20}$/, message: "Please enter a valid phone number" },
+                              required: "Mobile number is required",
+                              pattern: { value: /^[+()\d\s.-]{7,20}$/, message: "Please enter a valid mobile number" },
                             })}
                           />
                           {errors.phone && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.phone.message}</p>}
                         </div>
                         <div>
                           <label htmlFor="tf-guests" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Crew
+                            Tickets <span style={{ color: "var(--bc2-saffron)" }}>*</span>
                           </label>
                           <select
                             id="tf-guests"
@@ -457,13 +478,47 @@ export default function TicketFlow() {
                           >
                             {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
                               <option key={n} value={n} style={{ background: "#150A38" }}>
-                                {n === 1 ? "Just me" : `${n} of us`}
+                                {n === 1 ? "1 ticket" : `${n} tickets`}
                               </option>
                             ))}
                           </select>
                           {errors.guests && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.guests.message}</p>}
                         </div>
                       </div>
+                      <div>
+                        <label htmlFor="tf-hear" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
+                          How did you hear about this event? <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
+                        </label>
+                        <select id="tf-hear" className={`${inputClass} cursor-pointer appearance-none`} style={inputStyle()} {...register("hearAbout")}>
+                          <option value="" style={{ background: "#150A38" }}>
+                            Pick one (optional)
+                          </option>
+                          {HEAR_ABOUT_OPTIONS.map((option) => (
+                            <option key={option} value={option} style={{ background: "#150A38" }}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <label
+                        htmlFor="tf-optin"
+                        className="flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5"
+                        style={{
+                          background: "rgba(244,239,255,0.04)",
+                          borderColor: errors.emailOptIn ? "rgba(255,110,110,0.6)" : "rgba(244,239,255,0.14)",
+                        }}
+                      >
+                        <input
+                          id="tf-optin"
+                          type="checkbox"
+                          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#FF7A1A]"
+                          {...register("emailOptIn", { required: "Please agree to receive event updates by email" })}
+                        />
+                        <span className="text-[12.5px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
+                          I agree to receive updates regarding events/programs by email <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                        </span>
+                      </label>
+                      {errors.emailOptIn && <p className="-mt-2 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.emailOptIn.message}</p>}
                       <div className="pt-2">
                         <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
@@ -481,8 +536,9 @@ export default function TicketFlow() {
                         { k: "Ticket", v: `${TICKET.name} · ${TICKET.tag}${details.guests > 1 ? ` × ${details.guests}` : ""}` },
                         { k: "Name", v: details.name },
                         { k: "Email", v: details.email },
-                        { k: "Phone", v: details.phone },
-                        { k: "Crew", v: details.guests === 1 ? "Just you" : `${details.guests} people` },
+                        { k: "Mobile", v: details.phone },
+                        { k: "Tickets", v: details.guests === 1 ? "1 ticket" : `${details.guests} tickets` },
+                        ...(details.hearAbout ? [{ k: "Heard via", v: details.hearAbout }] : []),
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
                       ].map((row) => (
                         <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(244,239,255,0.07)" }}>

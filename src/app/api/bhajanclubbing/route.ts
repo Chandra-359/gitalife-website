@@ -3,7 +3,7 @@ import type { PrismaClient } from "@prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmation } from "@/lib/email";
 import { countGuests, ensureEventProgram, paymentsConfigured, tierTag } from "@/lib/clubbing";
-import { EVENT, TIERS } from "@/data/bajanClubbing";
+import { EVENT, TIERS } from "@/data/bhajanClubbing";
 
 /**
  * Bhajan Clubbing registration API.
@@ -69,7 +69,7 @@ type BookingResult =
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, guests, notes, tier, tierId } = body;
+    const { name, email, phone, guests, notes, tier, tierId, hearAbout, emailOptIn } = body;
 
     if (!name || !email) {
       return NextResponse.json(
@@ -140,6 +140,8 @@ export async function POST(request: Request) {
             phone: phone || null,
             guests: guestCount,
             notes: combinedNotes,
+            hearAbout: typeof hearAbout === "string" && hearAbout.trim() ? hearAbout.trim().slice(0, 100) : null,
+            emailOptIn: !!emailOptIn,
             programId: EVENT.programId,
           },
         });

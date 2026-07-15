@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmation } from "@/lib/email";
 import { countGuests, ensureEventProgram } from "@/lib/clubbing";
-import { EVENT, TIERS } from "@/data/bajanClubbing";
+import { EVENT, TIERS } from "@/data/bhajanClubbing";
 
 /**
  * Ticket checkout — Square Checkout API (payment links).
@@ -55,15 +55,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, guests } = await request.json();
+    const { name, email, phone, guests, hearAbout, emailOptIn } = await request.json();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
     if (!name || !String(name).trim()) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+      return NextResponse.json({ error: "Full name is required" }, { status: 400 });
     }
     if (!phone || !String(phone).trim()) {
-      return NextResponse.json({ error: "Phone number is required" }, { status: 400 });
+      return NextResponse.json({ error: "Mobile number is required" }, { status: 400 });
+    }
+    if (!emailOptIn) {
+      return NextResponse.json(
+        { error: "Please agree to receive event updates by email to complete your registration" },
+        { status: 400 },
+      );
     }
 
     const ticket = TIERS.find((t) => t.priceUsd > 0);
@@ -109,19 +115,22 @@ export async function POST(request: Request) {
             name: String(name).trim().slice(0, 255),
             phone: String(phone ?? "").slice(0, 100),
             guests: String(qty),
+            // Square requires metadata values to be non-empty — omit when blank
+            ...(String(hearAbout ?? "").trim() ? { hear_about: String(hearAbout).trim().slice(0, 100) } : {}),
+            email_opt_in: "yes",
           },
           line_items: [
             {
               name: `${EVENT.title} ${EVENT.volume} — ${ticket.name}`,
               quantity: String(qty),
-              note: "Includes the sattvic mocktail bar and the packed prasadam",
+              note: "Includes the free packed prasadam",
               // Math.round guards against float cents (49.99 * 100 = 4998.99…)
               base_price_money: { amount: Math.round(ticket.priceUsd * 100), currency: "USD" },
             },
           ],
         },
         checkout_options: {
-          redirect_url: `${requestOrigin(request)}/bajanclubbing?paid=1`,
+          redirect_url: `${requestOrigin(request)}/bhajanclubbing?paid=1`,
           ask_for_shipping_address: false,
         },
         pre_populated_data: { buyer_email: String(email) },
@@ -150,7 +159,7 @@ export async function POST(request: Request) {
             payment_link: {
               version: link.version,
               checkout_options: {
-                redirect_url: `${requestOrigin(request)}/bajanclubbing?paid=1&order=${encodeURIComponent(link.order_id)}`,
+                redirect_url: `${requestOrigin(request)}/bhajanclubbing?paid=1&order=${encodeURIComponent(link.order_id)}`,
               },
             },
           }),
@@ -189,6 +198,8 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
   const ticketName = ticket?.name ?? "General Admission";
   const paidTag = `[${ticketName} · PAID]`;
   const guests = Math.min(5, Math.max(1, parseInt(order.metadata?.guests ?? "1") || 1));
+  const hearAbout = order.metadata?.hear_about?.trim() || null;
+  const emailOptIn = order.metadata?.email_opt_in === "yes";
 
   await ensureEventProgram(db);
 
@@ -204,6 +215,8 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
         phone: order.metadata?.phone || null,
         guests,
         notes: paidTag,
+        hearAbout,
+        emailOptIn,
         programId: EVENT.programId,
       },
     });
@@ -218,7 +231,11 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
   const stripped = existing.notes?.replace(/^\[[^\]]*\]\s*/, "") ?? "";
   await db.rsvp.update({
     where: { id: existing.id },
-    data: { notes: [paidTag, stripped].filter(Boolean).join(" ") },
+    data: {
+      notes: [paidTag, stripped].filter(Boolean).join(" "),
+      hearAbout: hearAbout ?? existing.hearAbout,
+      emailOptIn: emailOptIn || existing.emailOptIn,
+    },
   });
   return { receipt: true, name: existing.name, guests: existing.guests };
 }

@@ -18,6 +18,8 @@ interface Rsvp {
   phone: string | null;
   guests: number;
   notes: string | null;
+  hearAbout: string | null;
+  emailOptIn: boolean;
   status: string;
   createdAt: string;
   program: {
@@ -90,13 +92,15 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
 
   // Export CSV
   function exportCsv() {
-    const header = "Name,Email,Phone,Guests,Notes,Status,Program,Day,RSVP Date\n";
+    const header = "Name,Email,Phone,Guests,Heard Via,Email Opt-In,Notes,Status,Program,Day,RSVP Date\n";
     const rows = rsvps.map((r) =>
       [
         `"${r.name}"`,
         r.email,
         r.phone || "",
         r.guests,
+        `"${(r.hearAbout || "").replace(/"/g, '""')}"`,
+        r.emailOptIn ? "yes" : "no",
         `"${(r.notes || "").replace(/"/g, '""')}"`,
         r.status,
         `"${r.program.title}"`,
@@ -217,6 +221,8 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
                 <th className="px-4 py-3 font-medium text-center">Guests</th>
                 <th className="px-4 py-3 font-medium">Program</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Heard Via</th>
+                <th className="px-4 py-3 font-medium text-center">Updates</th>
                 <th className="px-4 py-3 font-medium">Notes</th>
                 <th className="px-4 py-3 font-medium">RSVP Date</th>
               </tr>
@@ -224,13 +230,13 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-white/30">
+                  <td colSpan={10} className="px-4 py-12 text-center text-white/30">
                     Loading RSVPs...
                   </td>
                 </tr>
               ) : rsvps.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-white/30">
+                  <td colSpan={10} className="px-4 py-12 text-center text-white/30">
                     {selectedProgram || search ? "No RSVPs match your filters." : "No RSVPs yet."}
                   </td>
                 </tr>
@@ -253,6 +259,16 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_COLORS[r.status] || STATUS_COLORS.confirmed}`}>
                         {r.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-white/50 max-w-[140px] truncate text-xs">
+                      {r.hearAbout || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-center text-xs">
+                      {r.emailOptIn ? (
+                        <span className="text-emerald-400" title="Agreed to receive email updates">✓</span>
+                      ) : (
+                        <span className="text-white/25">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-white/40 max-w-[200px] truncate text-xs">
                       {r.notes || "—"}

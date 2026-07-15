@@ -8,7 +8,7 @@
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { C } from "@/components/home/icons";
-import { EVENT, SHARE } from "@/data/bajanClubbing";
+import { EVENT, SHARE } from "@/data/bhajanClubbing";
 
 const text = `${SHARE.message} ${EVENT.url}`;
 
@@ -68,7 +68,7 @@ const TILES: { key: string; label: string; sub: string; color: string; icon: Rea
   {
     key: "facebook",
     label: "Facebook",
-    sub: "For the aunties",
+    sub: "Share the event",
     color: "#3b82f6",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

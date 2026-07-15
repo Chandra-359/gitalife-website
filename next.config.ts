@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
       // QR codes and external links pointing at /classes working.
       { source: "/classes", destination: "/programs", permanent: true },
       { source: "/classes/:path*", destination: "/programs", permanent: true },
+      // The event page was originally shipped with "bajan" misspelled —
+      // keep already-shared links (and Square return URLs) working.
+      { source: "/bajanclubbing", destination: "/bhajanclubbing", permanent: true },
     ];
   },
 };

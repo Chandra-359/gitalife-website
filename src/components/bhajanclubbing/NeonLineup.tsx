@@ -8,14 +8,14 @@
  * role over a bottom scrim. Hover (tap on touch, focus on keyboard)
  * zooms the portrait and slides up a panel with the bio, instrument
  * and style. Artists without a photo yet get a neon monogram poster
- * in their accent colour — set `photo` in src/data/bajanClubbing.ts
+ * in their accent colour — set `photo` in src/data/bhajanClubbing.ts
  * (files in public/lineup/) and the real portrait drops in.
  */
 
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bajanClubbing";
+import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing";
 
 /** Heading stays literate as the lineup grows — "Two acts", "Three acts", … */
 const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
@@ -80,7 +80,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
-      className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2"
+      className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2 sm:w-[280px]"
       style={
         {
           border: `1px solid ${artist.headliner ? `${a.main}59` : "rgba(244,239,255,0.13)"}`,
@@ -210,7 +210,8 @@ export default function NeonLineup() {
         </p>
       </motion.div>
 
-      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5">
+      {/* centered flex row (not a left-anchored grid) so a short lineup sits in the middle */}
+      <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-5">
         {LINEUP.map((artist, i) => (
           <ArtistTile key={artist.id} artist={artist} index={i} />
         ))}
