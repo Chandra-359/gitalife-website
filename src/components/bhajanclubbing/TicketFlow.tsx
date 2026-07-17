@@ -140,7 +140,7 @@ export default function TicketFlow() {
   const [submitting, setSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<string | null>(null);
-  const [done, setDone] = useState<null | { name: string }>(null);
+  const [done, setDone] = useState<null | { name: string; emailed: boolean }>(null);
   const { availability, refresh } = useAvailability();
 
   // Verify a Square order; the RSVP is only created server-side once the
@@ -153,7 +153,9 @@ export default function TicketFlow() {
         .then((res) => res.json())
         .then((data) => {
           if (data?.paid) {
-            setDone({ name: String(data.name || "").split(" ")[0] });
+            // emailed === false → registration saved but the email failed;
+            // null/undefined (already-handled order) counts as fine.
+            setDone({ name: String(data.name || "").split(" ")[0], emailed: data.emailed !== false });
             refresh();
           } else {
             setPendingOrder(orderId); // show the retry panel
@@ -289,7 +291,9 @@ export default function TicketFlow() {
               {done.name ? `Payment received — you're in, ${done.name}` : "Payment received — you're in"}
             </h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              Check your inbox for your receipt and the event details. Doors at 6 — come early.
+              {done.emailed
+                ? "Check your inbox for your receipt and the event details. Doors at 6 — come early."
+                : "You're on the door list under your name. We couldn't send your confirmation email, but your Square receipt is your proof of purchase. Doors at 6 — come early."}
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">

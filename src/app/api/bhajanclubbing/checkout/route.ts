@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
-import { sendClubbingConfirmation } from "@/lib/email";
+import { sendClubbingConfirmationDetailed } from "@/lib/email";
 import { appendRegistrationToSheet } from "@/lib/sheets";
 import { countGuests, ensureEventProgram } from "@/lib/clubbing";
 import { EVENT, TIERS } from "@/data/bhajanClubbing";
@@ -181,17 +181,20 @@ interface PaidOrder {
 }
 
 /**
- * Turn a verified paid order into a confirmed RSVP (idempotent).
- * New registrant → create as PAID; existing registrant → restamp
- * their notes as PAID.
+ * Turn a verified paid order into a confirmed RSVP, idempotent per Square
+ * order: every processed order id is stamped into notes as "sq:<id>", so
+ * re-verifying the same order (refresh, retry) records and emails nothing,
+ * while a genuinely new order from an already-registered email still gets
+ * its tickets counted and its confirmation email sent.
  */
-async function recordPaidRsvp(order: PaidOrder, email: string) {
+async function recordPaidRsvp(order: PaidOrder, email: string, orderId: string) {
   const db = getPrismaClient();
   if (!db) return { receipt: false, name: null as string | null, guests: 1 };
 
   const ticket = TIERS.find((t) => t.priceUsd > 0);
   const ticketName = ticket?.name ?? "General Admission";
   const paidTag = `[${ticketName} · PAID]`;
+  const orderMarker = `sq:${orderId}`;
   const guests = Math.min(5, Math.max(1, parseInt(order.metadata?.guests ?? "1") || 1));
   const hearAbout = order.metadata?.hear_about?.trim() || null;
   const emailOptIn = order.metadata?.email_opt_in === "yes";
@@ -209,7 +212,7 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
         email,
         phone: order.metadata?.phone || null,
         guests,
-        notes: paidTag,
+        notes: `${paidTag} ${orderMarker}`,
         hearAbout,
         emailOptIn,
         programId: EVENT.programId,
@@ -218,8 +221,24 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
     return { receipt: true, name: rsvp.name, guests: rsvp.guests };
   }
 
-  if (existing.notes?.includes("PAID")) {
+  // This exact order was already recorded — nothing new to count or send.
+  if (existing.notes?.includes(orderMarker)) {
     return { receipt: false, name: existing.name, guests: existing.guests };
+  }
+
+  if (existing.notes?.includes("PAID")) {
+    // Rows stamped PAID before order tracking existed carry no sq: marker,
+    // so an unseen order id there is almost certainly the same purchase
+    // being re-verified — adopt the marker and (re)send the email without
+    // touching the ticket count. With markers present it's a real second
+    // purchase: add its tickets.
+    const isNewPurchase = /(^|\s)sq:/.test(existing.notes);
+    const totalGuests = isNewPurchase ? existing.guests + guests : existing.guests;
+    await db.rsvp.update({
+      where: { id: existing.id },
+      data: { guests: totalGuests, notes: `${existing.notes} ${orderMarker}` },
+    });
+    return { receipt: true, name: existing.name, guests: totalGuests };
   }
 
   // Restamp an existing registration (e.g. from before the paid switch) as paid
@@ -227,7 +246,7 @@ async function recordPaidRsvp(order: PaidOrder, email: string) {
   await db.rsvp.update({
     where: { id: existing.id },
     data: {
-      notes: [paidTag, stripped].filter(Boolean).join(" "),
+      notes: [paidTag, stripped, orderMarker].filter(Boolean).join(" "),
       hearAbout: hearAbout ?? existing.hearAbout,
       emailOptIn: emailOptIn || existing.emailOptIn,
     },
@@ -282,12 +301,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ paid: true, name: String(order.metadata?.name ?? "") });
     }
 
-    const { receipt, name, guests } = await recordPaidRsvp(order, email);
+    const { receipt, name, guests } = await recordPaidRsvp(order, email, orderId);
+    // null → this order was already handled earlier, nothing new was sent
+    let emailed: boolean | null = null;
     if (receipt) {
       const ticket = TIERS.find((t) => t.priceUsd > 0);
       // Receipt email + Google Sheet row — both best-effort, side by side
-      await Promise.all([
-        sendClubbingConfirmation({
+      const [sent] = await Promise.all([
+        sendClubbingConfirmationDetailed({
           to: email,
           name: name || order.metadata?.name || "friend",
           tierName: ticket?.name ?? "General Admission",
@@ -305,9 +326,13 @@ export async function GET(request: Request) {
           payment: "PAID via Square",
         }),
       ]);
+      emailed = sent.ok;
+      if (!sent.ok) {
+        console.error(`Order ${orderId} registered but the confirmation email was NOT sent:`, sent.error);
+      }
     }
 
-    return NextResponse.json({ paid: true, name: String(name || order.metadata?.name || "") });
+    return NextResponse.json({ paid: true, name: String(name || order.metadata?.name || ""), emailed });
   } catch (error) {
     console.error("Checkout verify error:", error);
     return NextResponse.json({ paid: false }, { status: 500 });
