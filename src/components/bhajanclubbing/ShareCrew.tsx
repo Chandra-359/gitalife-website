@@ -116,13 +116,11 @@ export default function ShareCrew() {
         transition={{ duration: 0.6 }}
         className="text-center"
       >
-        <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
-          Spread the Word
-        </p>
-        <h2 className="bc2-display mt-4 text-[28px] text-white sm:text-[36px]">
-          Bring your <span className="bc2-headline-grad">crew</span>
+        <p className="bc3-eyebrow">Spread the Word</p>
+        <h2 className="bc3-display mt-4 text-[28px] text-white sm:text-[36px]">
+          Bring your <span className="bc3-headline-warm">crew</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+        <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
           A kirtan night hits different with your people. One tap, straight to the group chat.
         </p>
       </motion.div>
@@ -139,7 +137,7 @@ export default function ShareCrew() {
             transition={{ duration: 0.45, delay: i * 0.06 }}
             whileHover={{ y: -3 }}
             whileTap={{ scale: 0.97 }}
-            className={`bc2-glass flex flex-col items-center gap-2.5 !rounded-2xl px-4 py-6 ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
+            className={`bc3-panel flex flex-col items-center gap-2.5 !rounded-2xl px-4 py-6 ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
             style={{ cursor: "pointer" }}
             aria-label={`Share via ${tile.label}`}
           >

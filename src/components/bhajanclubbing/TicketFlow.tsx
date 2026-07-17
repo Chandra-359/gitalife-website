@@ -92,10 +92,10 @@ function googleCalendarUrl() {
 }
 
 const inputClass =
-  "w-full rounded-xl border px-4 py-3 text-[14px] text-white outline-none transition-all placeholder:text-[rgba(244,239,255,0.3)] focus:ring-2 focus:ring-[#FF7A1A]/25";
+  "w-full rounded-xl border px-4 py-3 text-[14px] text-white outline-none transition-all placeholder:text-[rgba(251,245,230,0.3)] focus:ring-2 focus:ring-[#D9691A]/25";
 const inputStyle = (err?: boolean): React.CSSProperties => ({
-  background: "rgba(244,239,255,0.06)",
-  borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(244,239,255,0.16)",
+  background: "rgba(251,245,230,0.06)",
+  borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(251,245,230,0.16)",
 });
 
 /* ------------------------------------------------------------------ */
@@ -112,18 +112,18 @@ function Stepper({ step }: { step: number }) {
               className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-extrabold transition-all"
               style={
                 i <= step
-                  ? { background: "linear-gradient(135deg, #FFB25C, #FF7A1A)", color: "#1C0A02", boxShadow: "0 0 18px rgba(255,122,26,0.55)" }
-                  : { background: "rgba(244,239,255,0.07)", color: "var(--bc2-ink-faint)", border: "1px solid rgba(244,239,255,0.15)" }
+                  ? { background: "linear-gradient(135deg, #EDD698, #D9691A)", color: "#241205", boxShadow: "0 0 18px rgba(217,105,26,0.55)" }
+                  : { background: "rgba(251,245,230,0.07)", color: "var(--bc3-ink-faint)", border: "1px solid rgba(251,245,230,0.15)" }
               }
             >
               {i < step ? "✓" : i + 1}
             </span>
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.18em]" style={{ color: i <= step ? "var(--bc2-amber)" : "var(--bc2-ink-faint)" }}>
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.18em]" style={{ color: i <= step ? "var(--bc3-gold-hi)" : "var(--bc3-ink-faint)" }}>
               {label}
             </span>
           </div>
           {i < labels.length - 1 && (
-            <span className="bc2-step-line mx-3 mb-5 h-px w-10 sm:w-16" style={i < step ? { background: "linear-gradient(90deg, #FF7A1A, #FFB25C)" } : undefined} />
+            <span className="bc3-step-line mx-3 mb-5 h-px w-10 sm:w-16" style={i < step ? { background: "linear-gradient(90deg, #D9691A, #EDD698)" } : undefined} />
           )}
         </div>
       ))}
@@ -253,13 +253,13 @@ export default function TicketFlow() {
         transition={{ duration: 0.7 }}
         className="text-center"
       >
-        <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc3-gold)" }}>
           Tickets
         </p>
-        <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
-          Lock in <span className="bc2-headline-grad">your night</span>
+        <h2 className="bc3-display mt-4 text-[30px] text-white sm:text-[40px]">
+          Lock in <span className="bc3-headline-warm">your night</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
+        <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc3-ink-dim)" }}>
           {TICKET.tag} per person. Secure card checkout via Square — free packed prasadam included.
         </p>
       </motion.div>
@@ -269,7 +269,7 @@ export default function TicketFlow() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.7, delay: 0.08 }}
-        className="bc2-glass mt-12 p-6 sm:p-9"
+        className="bc3-panel mt-12 p-6 sm:p-9"
       >
         {done ? (
           /* ---------- confirmation ---------- */
@@ -285,14 +285,14 @@ export default function TicketFlow() {
                 <path d="M5 12l5 5L19 7" stroke="#4DFFA6" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </motion.div>
-            <h3 className="bc2-display mt-5 text-[26px] text-white">
+            <h3 className="bc3-display mt-5 text-[26px] text-white">
               {done.name ? `Payment received — you're in, ${done.name}` : "Payment received — you're in"}
             </h3>
-            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
               Check your inbox for your receipt and the event details. Doors at 6 — come early.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
-              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
+              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc3-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
                 <Icon name="calendar" size={14} />
                 Add to Google Calendar
               </a>
@@ -300,7 +300,7 @@ export default function TicketFlow() {
                 href={`https://wa.me/?text=${shareText}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bc2-btn-glow inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-extrabold sm:w-auto"
+                className="bc3-btn inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-extrabold sm:w-auto"
                 style={{ animation: "none" }}
               >
                 <Icon name="share" size={14} />
@@ -311,12 +311,12 @@ export default function TicketFlow() {
         ) : verifying ? (
           /* ---------- verifying the Square return ---------- */
           <div className="flex flex-col items-center gap-4 py-14 text-center" role="status">
-            <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" style={{ color: "var(--bc2-amber)" }}>
+            <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" style={{ color: "var(--bc3-gold-hi)" }}>
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
             <p className="text-[14px] font-bold text-white">Confirming your payment…</p>
-            <p className="text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
+            <p className="text-[12.5px]" style={{ color: "var(--bc3-ink-dim)" }}>
               One second — we&rsquo;re checking with Square.
             </p>
           </div>
@@ -325,12 +325,12 @@ export default function TicketFlow() {
           <div className="py-8 text-center">
             <p
               className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
-              style={{ background: "rgba(255,178,92,0.1)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+              style={{ background: "rgba(201,162,72,0.1)", border: "1px solid rgba(201,162,72,0.4)", color: "var(--bc3-gold-hi)" }}
             >
               Almost there
             </p>
-            <h3 className="bc2-display mt-5 text-[24px] text-white">We couldn&rsquo;t confirm your payment yet</h3>
-            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+            <h3 className="bc3-display mt-5 text-[24px] text-white">We couldn&rsquo;t confirm your payment yet</h3>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
               Card payments can take a few seconds to settle. If you completed the payment, tap retry — your ticket is
               issued the moment it confirms. If you were charged and this keeps failing, reply to your Square receipt
               and we&rsquo;ll sort it.
@@ -339,7 +339,7 @@ export default function TicketFlow() {
               <button
                 type="button"
                 onClick={() => verifyOrder(pendingOrder)}
-                className="bc2-btn-glow inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3 text-[13px] font-extrabold sm:w-auto"
+                className="bc3-btn inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3 text-[13px] font-extrabold sm:w-auto"
                 style={{ animation: "none" }}
               >
                 Retry confirmation
@@ -347,7 +347,7 @@ export default function TicketFlow() {
               <button
                 type="button"
                 onClick={() => setPendingOrder(null)}
-                className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto"
+                className="bc3-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto"
               >
                 Back to tickets
               </button>
@@ -362,12 +362,12 @@ export default function TicketFlow() {
             >
               Sold out
             </p>
-            <h3 className="bc2-display mt-5 text-[26px] text-white">Every ticket is claimed</h3>
-            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+            <h3 className="bc3-display mt-5 text-[26px] text-white">Every ticket is claimed</h3>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
               No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
-              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
+              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc3-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
                 <Icon name="calendar" size={14} />
                 Save the date anyway
               </a>
@@ -375,7 +375,7 @@ export default function TicketFlow() {
                 href={`https://wa.me/?text=${shareText}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bc2-btn-glow inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-extrabold sm:w-auto"
+                className="bc3-btn inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-extrabold sm:w-auto"
                 style={{ animation: "none" }}
               >
                 <Icon name="share" size={14} />
@@ -388,17 +388,17 @@ export default function TicketFlow() {
           <div className="py-8 text-center">
             <p
               className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
-              style={{ background: "rgba(255,178,92,0.1)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+              style={{ background: "rgba(201,162,72,0.1)", border: "1px solid rgba(201,162,72,0.4)", color: "var(--bc3-gold-hi)" }}
             >
               Back soon
             </p>
-            <h3 className="bc2-display mt-5 text-[24px] text-white">Ticket sales are briefly paused</h3>
-            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+            <h3 className="bc3-display mt-5 text-[24px] text-white">Ticket sales are briefly paused</h3>
+            <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
               Online checkout is momentarily offline. Save the date and check back shortly — tickets are {TICKET.tag} per
               person, free packed prasadam included.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
-              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
+              <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc3-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
                 <Icon name="calendar" size={14} />
                 Save the date
               </a>
@@ -421,15 +421,15 @@ export default function TicketFlow() {
                     >
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label htmlFor="tf-name" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Full name <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                          <label htmlFor="tf-name" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                            Full name <span style={{ color: "var(--bc3-saffron)" }}>*</span>
                           </label>
                           <input id="tf-name" type="text" placeholder="Who's coming?" className={inputClass} style={inputStyle(!!errors.name)} {...register("name", { required: "Full name is required" })} />
                           {errors.name && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.name.message}</p>}
                         </div>
                         <div>
-                          <label htmlFor="tf-email" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Email address <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                          <label htmlFor="tf-email" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                            Email address <span style={{ color: "var(--bc3-saffron)" }}>*</span>
                           </label>
                           <input
                             id="tf-email"
@@ -447,8 +447,8 @@ export default function TicketFlow() {
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2">
-                          <label htmlFor="tf-phone" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Mobile number <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                          <label htmlFor="tf-phone" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                            Mobile number <span style={{ color: "var(--bc3-saffron)" }}>*</span>
                           </label>
                           <input
                             id="tf-phone"
@@ -464,8 +464,8 @@ export default function TicketFlow() {
                           {errors.phone && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.phone.message}</p>}
                         </div>
                         <div>
-                          <label htmlFor="tf-guests" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                            Tickets <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                          <label htmlFor="tf-guests" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                            Tickets <span style={{ color: "var(--bc3-saffron)" }}>*</span>
                           </label>
                           <select
                             id="tf-guests"
@@ -477,7 +477,7 @@ export default function TicketFlow() {
                             })}
                           >
                             {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
-                              <option key={n} value={n} style={{ background: "#150A38" }}>
+                              <option key={n} value={n} style={{ background: "#241811" }}>
                                 {n === 1 ? "1 ticket" : `${n} tickets`}
                               </option>
                             ))}
@@ -486,23 +486,23 @@ export default function TicketFlow() {
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="tf-hear" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                          How did you hear about this event? <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
+                        <label htmlFor="tf-hear" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                          How did you hear about this event? <span className="normal-case tracking-normal" style={{ color: "var(--bc3-ink-faint)" }}>(optional)</span>
                         </label>
                         <select id="tf-hear" className={`${inputClass} cursor-pointer appearance-none`} style={inputStyle()} {...register("hearAbout")}>
-                          <option value="" style={{ background: "#150A38" }}>
+                          <option value="" style={{ background: "#241811" }}>
                             Pick one (optional)
                           </option>
                           {HEAR_ABOUT_OPTIONS.map((option) => (
-                            <option key={option} value={option} style={{ background: "#150A38" }}>
+                            <option key={option} value={option} style={{ background: "#241811" }}>
                               {option}
                             </option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <label htmlFor="tf-updates" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
-                          Would you like to receive updates regarding events/programs by email? <span style={{ color: "var(--bc2-saffron)" }}>*</span>
+                        <label htmlFor="tf-updates" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-dim)" }}>
+                          Would you like to receive updates regarding events/programs by email? <span style={{ color: "var(--bc3-saffron)" }}>*</span>
                         </label>
                         <select
                           id="tf-updates"
@@ -510,20 +510,20 @@ export default function TicketFlow() {
                           style={inputStyle(!!errors.emailUpdates)}
                           {...register("emailUpdates", { required: "Please select Yes or No" })}
                         >
-                          <option value="" style={{ background: "#150A38" }}>
+                          <option value="" style={{ background: "#241811" }}>
                             Select Yes or No
                           </option>
-                          <option value="yes" style={{ background: "#150A38" }}>
+                          <option value="yes" style={{ background: "#241811" }}>
                             Yes
                           </option>
-                          <option value="no" style={{ background: "#150A38" }}>
+                          <option value="no" style={{ background: "#241811" }}>
                             No
                           </option>
                         </select>
                         {errors.emailUpdates && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.emailUpdates.message}</p>}
                       </div>
                       <div className="pt-2">
-                        <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
+                        <button type="submit" className="bc3-btn w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
                         </button>
                       </div>
@@ -534,7 +534,7 @@ export default function TicketFlow() {
                 {step === 1 && details && (
                   <motion.div key="confirm" {...stepMotion}>
                     {/* order summary */}
-                    <div className="rounded-2xl p-5" style={{ background: "rgba(7,3,19,0.5)", border: "1px solid rgba(244,239,255,0.12)" }}>
+                    <div className="rounded-2xl p-5" style={{ background: "rgba(16,10,5,0.5)", border: "1px solid rgba(251,245,230,0.12)" }}>
                       {[
                         { k: "Ticket", v: `${TICKET.name} · ${TICKET.tag}${details.guests > 1 ? ` × ${details.guests}` : ""}` },
                         { k: "Name", v: details.name },
@@ -545,24 +545,24 @@ export default function TicketFlow() {
                         { k: "Email updates", v: details.emailUpdates === "yes" ? "Yes" : "No" },
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
                       ].map((row) => (
-                        <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(244,239,255,0.07)" }}>
-                          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-faint)" }}>
+                        <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(251,245,230,0.07)" }}>
+                          <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-faint)" }}>
                             {row.k}
                           </span>
                           <span className="text-right text-[13px] font-semibold text-white">{row.v}</span>
                         </div>
                       ))}
                       <div className="flex items-baseline justify-between pt-3">
-                        <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-faint)" }}>
+                        <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc3-ink-faint)" }}>
                           Total
                         </span>
-                        <span className="bc2-display text-[24px]" style={{ color: "var(--bc2-amber)", fontWeight: 700 }}>
+                        <span className="bc3-display text-[24px]" style={{ color: "var(--bc3-gold-hi)", fontWeight: 700 }}>
                           ${(TICKET.priceUsd * details.guests).toFixed(2)}
                         </span>
                       </div>
                     </div>
 
-                    <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px]" style={{ color: "var(--bc2-ink-faint)" }}>
+                    <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px]" style={{ color: "var(--bc3-ink-faint)" }}>
                       <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <rect x="3" y="7" width="10" height="7" rx="1.5" />
                         <path d="M5 7V5a3 3 0 0 1 6 0v2" />
@@ -571,10 +571,10 @@ export default function TicketFlow() {
                     </p>
 
                     <div className="mt-5 flex gap-3">
-                      <button type="button" onClick={() => setStep(0)} className="bc2-btn-ghost flex-1 rounded-full py-4 text-[13px] font-bold" disabled={submitting}>
+                      <button type="button" onClick={() => setStep(0)} className="bc3-btn-ghost flex-1 rounded-full py-4 text-[13px] font-bold" disabled={submitting}>
                         Back
                       </button>
-                      <button type="button" onClick={onConfirm} disabled={submitting} className="bc2-btn-glow flex-[2] rounded-full py-4 text-[14px] font-extrabold uppercase tracking-[0.08em] disabled:opacity-60">
+                      <button type="button" onClick={onConfirm} disabled={submitting} className="bc3-btn flex-[2] rounded-full py-4 text-[14px] font-extrabold uppercase tracking-[0.08em] disabled:opacity-60">
                         {submitting ? (
                           <span className="inline-flex items-center gap-2">
                             <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
@@ -588,7 +588,7 @@ export default function TicketFlow() {
                         )}
                       </button>
                     </div>
-                    <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
+                    <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--bc3-ink-faint)" }}>
                       No spam · Sober by design · Packed prasadam included
                     </p>
                   </motion.div>

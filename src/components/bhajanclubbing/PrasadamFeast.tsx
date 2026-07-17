@@ -19,30 +19,28 @@ export default function PrasadamFeast() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.7 }}
-        className="bc2-glass bc2-edge-top relative overflow-hidden p-8 text-center sm:p-12"
-        style={{ "--bc2-edge": "#FFB25C" } as React.CSSProperties}
+        className="bc3-panel bc3-edge-top relative overflow-hidden p-8 text-center sm:p-12"
+        style={{ "--bc3-edge": "#EDD698" } as React.CSSProperties}
       >
         {/* warm glow behind the card content */}
         <div
-          className="pointer-events-none absolute left-1/2 top-0 h-[260px] w-[520px] -translate-x-1/2 rounded-full"
-          style={{ background: "radial-gradient(ellipse, rgba(255,178,92,0.16), transparent 65%)", filter: "blur(30px)" }}
+          className="bc3-glow left-1/2 top-0 h-[260px] w-[520px] -translate-x-1/2"
+          style={{ "--glow": "rgba(201,162,72,0.14)" } as React.CSSProperties}
           aria-hidden
         />
 
         <span
           className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ background: "rgba(255,178,92,0.12)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+          style={{ background: "rgba(201,162,72,0.12)", border: "1px solid var(--bc3-line)", color: "var(--bc3-gold-hi)" }}
         >
           <Icon name="food" size={26} />
         </span>
 
-        <p className="relative mt-5 text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
-          From {PRASADAM.temple}
-        </p>
-        <h2 className="bc2-display relative mt-4 text-[28px] leading-[1.1] text-white sm:text-[38px]">
-          Free <span className="bc2-headline-grad">prasadam</span> for every guest
+        <p className="bc3-eyebrow relative mt-5">From {PRASADAM.temple}</p>
+        <h2 className="bc3-display relative mt-4 text-[28px] leading-[1.1] text-white sm:text-[38px]">
+          Free <span className="bc3-headline-warm">prasadam</span> for every guest
         </h2>
-        <p className="relative mx-auto mt-5 max-w-xl text-[14.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+        <p className="relative mx-auto mt-5 max-w-xl text-[14.5px] leading-relaxed" style={{ color: "var(--bc3-ink-dim)" }}>
           {PRASADAM.detail}
         </p>
 
@@ -52,12 +50,12 @@ export default function PrasadamFeast() {
               key={point}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold"
               style={{
-                background: "rgba(244,239,255,0.06)",
-                border: "1px solid rgba(255,178,92,0.32)",
-                color: "var(--bc2-ink)",
+                background: "rgba(251,245,230,0.05)",
+                border: "1px solid var(--bc3-line)",
+                color: "var(--bc3-ink)",
               }}
             >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(255,178,92,0.9)" }} aria-hidden />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--bc3-gold)" }} aria-hidden />
               {point}
             </span>
           ))}

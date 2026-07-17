@@ -3,13 +3,14 @@
 /**
  * SectionTracker — fixed top-right scroll-spy rail for /bhajanclubbing.
  *
- * A frosted neon pill pinned under the navbar: one dot per section, the
- * on-screen section lit saffron with its label in amber, plus a thin
- * headline-gradient line along the bottom tracking overall page
- * progress. Clicking an entry jumps straight to that section —
- * deliberately instant, bypassing the site-wide smooth scroll. Below
- * `md` the inactive labels collapse so only dots + the current label
- * render and the pill stays compact.
+ * A warm pill pinned under the navbar: one dot per section, the
+ * on-screen section lit gold with its label in cream, plus a thin gold
+ * line along the bottom tracking overall page progress. Clicking an
+ * entry jumps straight to that section — deliberately instant,
+ * bypassing the site-wide smooth scroll. Below `md` the inactive labels
+ * collapse so only dots + the current label render and the pill stays
+ * compact. (Prasadam/crew/connect scroll normally but stay off the rail
+ * so it fits on one line.)
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -17,12 +18,12 @@ import { motion } from "framer-motion";
 
 const SECTIONS = [
   { id: "top", label: "Top" },
-  { id: "vibe", label: "Vibe" },
-  { id: "lineup", label: "Lineup" },
+  { id: "vibe", label: "Kirtan" },
+  { id: "story", label: "Story" },
+  { id: "listen", label: "Listen" },
+  { id: "lineup", label: "Artists" },
   { id: "details", label: "Details" },
-  { id: "prasadam", label: "Prasadam" },
   { id: "tickets", label: "Tickets" },
-  { id: "crew", label: "Crew" },
   { id: "faq", label: "FAQ" },
 ] as const;
 
@@ -99,11 +100,11 @@ export default function SectionTracker() {
       <div
         className="relative overflow-hidden rounded-full"
         style={{
-          background: "linear-gradient(165deg, rgba(139,92,246,0.14), rgba(21,10,56,0.72) 55%, rgba(11,6,32,0.8))",
-          border: "1px solid rgba(244,239,255,0.14)",
-          backdropFilter: "blur(14px) saturate(1.35)",
-          WebkitBackdropFilter: "blur(14px) saturate(1.35)",
-          boxShadow: "inset 0 1px 0 rgba(244,239,255,0.09), 0 14px 40px -16px rgba(0,0,0,0.75)",
+          background: "linear-gradient(165deg, rgba(201,162,72,0.12), rgba(36,24,17,0.82) 55%, rgba(25,16,9,0.88))",
+          border: "1px solid var(--bc3-line)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          boxShadow: "inset 0 1px 0 rgba(251,245,230,0.08), 0 14px 40px -16px rgba(0,0,0,0.75)",
         }}
       >
         <ul className="flex items-center gap-0.5 px-2 py-1">
@@ -119,23 +120,23 @@ export default function SectionTracker() {
                 >
                   <span
                     className={`h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-200 ${
-                      isActive ? "" : "group-hover:bg-[rgba(244,239,255,0.6)]"
+                      isActive ? "" : "group-hover:bg-[rgba(251,245,230,0.6)]"
                     }`}
                     style={
                       isActive
                         ? {
-                            background: "var(--bc2-saffron)",
-                            boxShadow: "0 0 8px rgba(255,122,26,0.9), 0 0 18px rgba(255,122,26,0.5)",
+                            background: "var(--bc3-gold)",
+                            boxShadow: "0 0 8px rgba(201,162,72,0.9), 0 0 18px rgba(201,162,72,0.5)",
                           }
-                        : { background: "rgba(244,239,255,0.28)" }
+                        : { background: "rgba(251,245,230,0.28)" }
                     }
                     aria-hidden
                   />
                   <span
                     className={`text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
                       isActive
-                        ? "text-[#FFD9B0]"
-                        : "hidden text-[rgba(244,239,255,0.45)] group-hover:text-[rgba(244,239,255,0.85)] md:inline"
+                        ? "text-[#EDD698]"
+                        : "hidden text-[rgba(251,245,230,0.45)] group-hover:text-[rgba(251,245,230,0.85)] md:inline"
                     }`}
                   >
                     {label}
@@ -146,14 +147,14 @@ export default function SectionTracker() {
           })}
         </ul>
 
-        {/* overall page progress — headline gradient underline */}
+        {/* overall page progress — gold underline */}
         <div className="pointer-events-none absolute inset-x-3 bottom-0 h-[2px] overflow-hidden rounded-full" aria-hidden>
           <div
             className="h-full rounded-full"
             style={{
               width: `${progress * 100}%`,
-              background: "linear-gradient(90deg, var(--bc2-amber), var(--bc2-saffron), var(--bc2-pink), var(--bc2-blue))",
-              boxShadow: "0 0 8px rgba(255,122,26,0.6)",
+              background: "linear-gradient(90deg, var(--divine-gold-light), var(--divine-gold), var(--saffron))",
+              boxShadow: "0 0 8px rgba(201,162,72,0.6)",
             }}
           />
         </div>

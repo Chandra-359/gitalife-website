@@ -63,6 +63,66 @@ export const EVENT = {
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
 
+/* ------------------------------------------------------------------ */
+/*  Teach-first copy — hero subline + "What is kirtan?" prose           */
+/*  (Radhika Das pattern: explain the practice before selling it.)      */
+/* ------------------------------------------------------------------ */
+export const INTRO = {
+  /** One-sentence definition shown in the hero, before any CTA. */
+  definition:
+    "Kirtan is call-and-response mantra meditation — one voice leads, the room answers, and the repetition does the rest.",
+  /** Teach paragraphs for the "What is kirtan?" section. */
+  body: [
+    "No experience needed, no lyrics to memorize. The lead singer offers a mantra, you sing it back, and within a few rounds the whole room is moving on one breath. It has worked this way for five hundred years.",
+    "Bhajan Clubbing takes that practice and puts it on a concert rig with a serious sound system. The lyrics stay sacred. The energy goes vertical. Nobody drinks, everybody dances, and by the last chorus a room of strangers is one voice.",
+  ],
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Story — who's behind the night, in prose (credibility section)      */
+/* ------------------------------------------------------------------ */
+export const STORY = {
+  eyebrow: "Who's behind this",
+  heading: "A temple tradition, a city sound",
+  pullQuote: "What began as small gatherings is filling rooms from Mumbai to London to New York.",
+  paragraphs: [
+    "Gita Life NYC is a volunteer-run Bhakti community rooted in Sri Sri Radha Govinda Temple. Week in, week out we host Bhagavad Gita discussions, kirtan gatherings, and retreats for young adults, students, and families across the city.",
+    "Kirtan nights like this one are part of a movement — mantra meditation evenings now fill halls in Mumbai, Delhi, London, and New York. Bhajan Clubbing is our way of bringing that sound home to Jersey City: a night with all the energy of a club and none of the intoxication.",
+  ],
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Listen — hear the sound before you buy (LiteYouTube facade)         */
+/*  Swap `id` for any YouTube video id from the Gita Life NYC channel.  */
+/* ------------------------------------------------------------------ */
+export const MEDIA = {
+  eyebrow: "Listen",
+  heading: "Hear it before you feel it",
+  blurb: "One kirtan says more than any flyer. Press play, close your eyes, and picture it on a concert rig.",
+  videos: [{ id: "e5jylnA2KdQ", title: "Govinda Hare Krishna Das — NYC Kirtan" }],
+  channelUrl: "https://www.youtube.com/channel/UCgOD-piH4XFlphyEwLnpMCQ",
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Upcoming nights — tour-dates strip above the ticket flow.           */
+/*  Add future volumes here and they render as extra rows.              */
+/* ------------------------------------------------------------------ */
+export const UPCOMING: { volume: string; dateLabel: string; city: string; status: "on-sale" | "tba" }[] = [
+  { volume: "Vol. 01", dateLabel: "Saturday, August 15, 2026", city: "Jersey City, NJ", status: "on-sale" },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Stay connected — community capture at the end of the page.          */
+/*  `whatsapp` is optional: leave "" and the row stays hidden.          */
+/* ------------------------------------------------------------------ */
+export const CONNECT = {
+  eyebrow: "Stay connected",
+  heading: "Don't let the night end here",
+  blurb:
+    "If the music moves you, there's more where it came from — weekly Bhagavad Gita circles, kirtan gatherings, and future volumes of Bhajan Clubbing. Ticket holders who opt in get event updates by email automatically.",
+  whatsapp: "",
+} as const;
+
 export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; title: string; detail: string; accent: AccentToken }[] = [
   {
     icon: "music",

@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import { Unbounded } from "next/font/google";
 import BhajanClubbingPage from "@/components/bhajanclubbing/BhajanClubbingPage";
 import { EVENT, LINEUP, TIERS } from "@/data/bhajanClubbing";
-
-/** Wide club-poster display face (closest Google Fonts analog to
- *  Monument Extended / Clash Display). Scoped to this route via its
- *  CSS variable — the rest of the site stays Fraunces + Inter. */
-const unbounded = Unbounded({
-  subsets: ["latin"],
-  variable: "--font-unbounded",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: `${EVENT.title} ${EVENT.volume} — Gita Life NYC`,
@@ -69,7 +59,7 @@ function eventJsonLd() {
 
 export default function Page() {
   return (
-    <div className={unbounded.variable}>
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd()) }}
