@@ -21,8 +21,29 @@
 import nodemailer, { type Transporter } from "nodemailer";
 import { EVENT } from "@/data/bhajanClubbing";
 
+/** Read an SMTP env var, stripping wrapping quotes — dashboard UIs (Vercel)
+ *  store values verbatim, so a value pasted with the quotes from .env.example
+ *  ("smtp.resend.com") would otherwise silently break DNS/auth/From. */
+function env(name: string): string | undefined {
+  const raw = process.env[name]?.trim();
+  if (!raw) return undefined;
+  return raw.replace(/^(["'])([\s\S]*)\1$/, "$2").trim() || undefined;
+}
+
 export function emailConfigured(): boolean {
-  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return !!(env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS"));
+}
+
+/** Password-free view of the effective SMTP config, for logs and the
+ *  admin diagnostic endpoint. */
+export function smtpSummary() {
+  return {
+    host: env("SMTP_HOST") ?? null,
+    port: env("SMTP_PORT") ?? "587",
+    user: env("SMTP_USER") ?? null,
+    from: env("SMTP_FROM") ?? env("SMTP_USER") ?? null,
+    replyTo: env("SMTP_REPLY_TO") ?? null,
+  };
 }
 
 let transporter: Transporter | null = null;
@@ -30,12 +51,12 @@ let transporter: Transporter | null = null;
 function getTransporter(): Transporter | null {
   if (!emailConfigured()) return null;
   if (transporter) return transporter;
-  const port = parseInt(process.env.SMTP_PORT || "587", 10);
+  const port = parseInt(env("SMTP_PORT") || "587", 10);
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: env("SMTP_HOST"),
     port,
     secure: port === 465, // 465 = implicit TLS; 587/25 upgrade via STARTTLS
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    auth: { user: env("SMTP_USER"), pass: env("SMTP_PASS") },
   });
   return transporter;
 }
@@ -192,13 +213,32 @@ ${EVENT.url}`;
 /* ------------------------------------------------------------------ */
 /*  Senders (best-effort — never throw)                                */
 /* ------------------------------------------------------------------ */
-export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<boolean> {
+export interface SendOutcome {
+  ok: boolean;
+  /** Transport/SMTP error text when ok is false — e.g. Resend rejecting an
+   *  unverified From domain, or bad credentials. */
+  error?: string;
+}
+
+/** Connection + auth handshake only, no message sent. */
+export async function verifySmtpConnection(): Promise<SendOutcome> {
   const t = getTransporter();
-  if (!t) return false;
+  if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };
+  try {
+    await t.verify();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+export async function sendClubbingConfirmationDetailed(d: ConfirmationDetails): Promise<SendOutcome> {
+  const t = getTransporter();
+  if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };
   try {
     await t.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      replyTo: process.env.SMTP_REPLY_TO || undefined,
+      from: env("SMTP_FROM") || env("SMTP_USER"),
+      replyTo: env("SMTP_REPLY_TO"),
       to: d.to,
       subject:
         d.seva === "paid"
@@ -214,9 +254,14 @@ export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<
         },
       ],
     });
-    return true;
+    return { ok: true };
   } catch (error) {
-    console.error("Confirmation email failed:", error);
-    return false;
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Confirmation email to ${d.to} failed with SMTP config ${JSON.stringify(smtpSummary())}:`, message);
+    return { ok: false, error: message };
   }
+}
+
+export async function sendClubbingConfirmation(d: ConfirmationDetails): Promise<boolean> {
+  return (await sendClubbingConfirmationDetailed(d)).ok;
 }
