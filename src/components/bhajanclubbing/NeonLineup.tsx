@@ -8,7 +8,7 @@
  * a bottom scrim — no set times, no headliner/opener labels, every
  * artist presented equally. Hover (tap on touch, focus on keyboard)
  * zooms the portrait and slides up a panel with the bio, instrument
- * and style. Artists without a photo yet get a neon monogram poster
+ * and style. Artists without a photo yet get a monogram poster
  * in their accent colour — set `photo` in src/data/bhajanClubbing.ts
  * (files in public/lineup/) and the real portrait drops in.
  */
@@ -81,10 +81,9 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
-      className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2 sm:w-[280px]"
+      className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none focus-visible:ring-2 sm:w-[280px]"
       style={
         {
-          border: "1px solid rgba(244,240,235,0.13)",
           boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
@@ -100,18 +99,24 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         }`}
       >
         {artist.photo ? (
+          /* Warm, moody, desaturated grade at rest so press shots read as
+             one set; hover / tap / focus melts it back to full colour. */
           <Image
             src={artist.photo}
             alt={artist.name}
             fill
             sizes="(min-width: 768px) 33vw, 50vw"
-            className="object-cover"
+            className={`object-cover transition-[filter] duration-700 ease-in-out ${
+              revealed
+                ? "grayscale-0 sepia-0 saturate-100"
+                : "grayscale-[55%] sepia-[24%] saturate-[85%] group-hover:grayscale-0 group-hover:sepia-0 group-hover:saturate-100 group-focus-visible:grayscale-0 group-focus-visible:sepia-0 group-focus-visible:saturate-100"
+            }`}
             style={artist.photoPosition ? { objectPosition: artist.photoPosition } : undefined}
           />
         ) : (
           <MonogramPoster artist={artist} />
         )}
-        {/* accent wash pulls any portrait into the neon palette */}
+        {/* accent wash pulls any portrait into the warm palette */}
         <div
           className="absolute inset-0"
           style={{ background: `linear-gradient(180deg, ${a.main}1f, transparent 45%)`, mixBlendMode: "screen" }}
