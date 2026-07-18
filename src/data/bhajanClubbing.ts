@@ -30,6 +30,12 @@ export interface ClubArtist {
   accent: AccentToken;
   /** 3:4 portrait served from public/, e.g. "/lineup/dj-keshava.jpg". */
   photo?: string;
+  /**
+   * CSS object-position for the photo inside the 3:4 tile — set this when the
+   * subject isn't centered in the source image (e.g. "20% center" pulls the
+   * crop toward the left of a landscape shot). Defaults to center.
+   */
+  photoPosition?: string;
 }
 
 export const EVENT = {
@@ -120,6 +126,8 @@ export const LINEUP: ClubArtist[] = [
     tags: ["Kirtan", "Bhajan", "Vocals"],
     accent: "lotus",
     photo: "/lineup/mayuri-gandharvika.jpg",
+    // Landscape source with the singer on the left third — keep her face in frame.
+    photoPosition: "20% center",
   },
 ];
 
