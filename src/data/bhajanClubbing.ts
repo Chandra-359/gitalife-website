@@ -111,6 +111,16 @@ export const LINEUP: ClubArtist[] = [
     accent: "peacock",
     photo: "/lineup/srikar-prabhuji.jpg",
   },
+  {
+    id: "mayuri-gandharvika",
+    name: "Mayuri Gandharvika",
+    bio: "Sweet and meditative — melodious bhajans sung from the heart that draw the whole room gently into the chant.",
+    instrument: "Voice",
+    style: "Sweet, meditative bhajan and kirtan",
+    tags: ["Kirtan", "Bhajan", "Vocals"],
+    accent: "lotus",
+    photo: "/lineup/mayuri-gandharvika.jpg",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
