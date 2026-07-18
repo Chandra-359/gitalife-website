@@ -99,8 +99,17 @@ export const MEDIA = {
   eyebrow: "Listen",
   heading: "Hear it before you feel it",
   blurb: "One kirtan says more than any flyer. Press play, close your eyes, and picture it on a concert rig.",
-  videos: [{ id: "e5jylnA2KdQ", title: "Govinda Hare Krishna Das — NYC Kirtan" }],
+  videos: [{ id: "km6NN32JhwU", title: "Live Kirtan — Gita Life NYC" }],
   channelUrl: "https://www.youtube.com/channel/UCgOD-piH4XFlphyEwLnpMCQ",
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Hero ambient video — muted looping backdrop behind the hero on     */
+/*  desktop (radhikadas.com pattern). Kept separate from MEDIA so the  */
+/*  hero and the Listen section can feature different videos.          */
+/* ------------------------------------------------------------------ */
+export const HERO_MEDIA = {
+  youtubeId: "km6NN32JhwU",
 } as const;
 
 /* ------------------------------------------------------------------ */

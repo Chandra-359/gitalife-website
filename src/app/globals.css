@@ -530,6 +530,23 @@ html {
 }
 .bc3-breathe { animation: bc3-breathe 8s ease-in-out infinite; }
 
+/* Floating embers — sparks rising through the mobile hero. Per-ember
+   timing/sway via --t/--d/--x; transform+opacity only, stilled by the
+   global prefers-reduced-motion rule. */
+@keyframes bc3-ember-rise {
+  0%   { transform: translate3d(0, 6vh, 0) scale(0.8); opacity: 0; }
+  12%  { opacity: var(--o, 0.6); }
+  80%  { opacity: var(--o, 0.6); }
+  100% { transform: translate3d(var(--x, 3vw), -52vh, 0) scale(1.1); opacity: 0; }
+}
+.bc3-ember {
+  position: absolute;
+  border-radius: 9999px;
+  animation: bc3-ember-rise var(--t, 12s) linear infinite;
+  animation-delay: var(--d, 0s);
+  will-change: transform, opacity;
+}
+
 /* Serif display — Fraunces, sentence case, editorial */
 .bc3-display {
   font-family: var(--font-fraunces), "Cormorant Garamond", Georgia, serif;

@@ -15,6 +15,47 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Icon } from "@/components/home/icons";
 import { EVENT, INTRO } from "@/data/bhajanClubbing";
 import { StringLights } from "./FestivalBackdrop";
+import HeroAmbientVideo from "./HeroAmbientVideo";
+
+/* ------------------------------------------------------------------ */
+/*  EmberField — floating sparks rising through the hero on mobile,    */
+/*  where the ambient video doesn't run. Index-derived positions       */
+/*  (no Math.random) so SSR and client agree.                          */
+/* ------------------------------------------------------------------ */
+const EMBER_COLORS = ["#EDD698", "#F2B95C", "#E8873C", "#C9A248"];
+
+function EmberField() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden md:hidden" aria-hidden>
+      {Array.from({ length: 14 }, (_, i) => {
+        const left = (i * 37 + 13) % 92;
+        const top = 55 + ((i * 23) % 40);
+        const size = 3 + (i % 4);
+        const color = EMBER_COLORS[i % EMBER_COLORS.length];
+        return (
+          <span
+            key={i}
+            className="bc3-ember"
+            style={
+              {
+                left: `${left}%`,
+                top: `${top}%`,
+                width: size,
+                height: size,
+                background: color,
+                boxShadow: `0 0 ${size * 2.5}px ${color}`,
+                "--t": `${9 + (i % 6) * 1.6}s`,
+                "--d": `${-(i * 1.9)}s`,
+                "--x": i % 2 === 0 ? `${2 + (i % 3)}vw` : `-${2 + (i % 3)}vw`,
+                "--o": i % 3 === 0 ? "0.85" : "0.55",
+              } as React.CSSProperties
+            }
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Slim countdown pill (full countdown lives in the bento grid)       */
@@ -75,6 +116,9 @@ export default function EmberHero() {
 
   return (
     <header ref={ref} className="relative overflow-hidden" style={{ background: "linear-gradient(180deg, #100A05 0%, var(--bc3-bg) 45%, var(--bc3-bg-2) 100%)" }}>
+      {/* ambient kirtan video (desktop) + sound toggle */}
+      <HeroAmbientVideo />
+
       {/* grain */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -93,6 +137,9 @@ export default function EmberHero() {
           style={{ "--glow": "rgba(217,105,26,0.1)" } as React.CSSProperties}
         />
       </div>
+
+      {/* floating embers (mobile, where the video doesn't run) */}
+      <EmberField />
 
       {/* string lights sealing the top */}
       <StringLights className="absolute inset-x-0 top-0 opacity-80" flags={false} />
