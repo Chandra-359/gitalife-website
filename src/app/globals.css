@@ -685,6 +685,29 @@ html {
   letter-spacing: -0.015em;
   line-height: 1.06;
 }
+
+/* Light-leak aura — warm muted radials (saffron / rose / sand), heavily
+   blurred, drifting slowly behind hero headlines. Drop it inside a
+   relatively-positioned heading; its own inset spills past the text.
+   The keyframe animates transform only (GPU-cheap), and the global
+   prefers-reduced-motion rule stills it. */
+@keyframes bc2-leak-drift {
+  0%, 100% { transform: translate3d(-3%, -2%, 0) scale(1) rotate(0deg); }
+  33%      { transform: translate3d(3%, 3%, 0) scale(1.1) rotate(6deg); }
+  66%      { transform: translate3d(-2%, 4%, 0) scale(0.95) rotate(-5deg); }
+}
+.bc2-light-leak {
+  position: absolute;
+  inset: -42% -22%;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 44% at 30% 40%, rgba(217,138,74,0.4), transparent 70%),
+    radial-gradient(32% 40% at 70% 34%, rgba(192,140,166,0.34), transparent 70%),
+    radial-gradient(48% 46% at 50% 68%, rgba(229,192,141,0.3), transparent 72%);
+  filter: blur(64px);
+  animation: bc2-leak-drift 26s ease-in-out infinite;
+  will-change: transform;
+}
 .bc2-headline-grad {
   background: linear-gradient(105deg, var(--bc2-ink) 0%, var(--bc2-amber) 48%, #C9A248 100%);
   -webkit-background-clip: text;
@@ -692,17 +715,20 @@ html {
   color: transparent;
 }
 
-/* Primary CTA — warm candlelit gradient, calm static shadow */
+/* Primary CTA — smooth low-saturation warm gradient; slow, gentle
+   lift + glow on hover */
 .bc2-btn-glow {
-  background: linear-gradient(135deg, var(--bc2-amber) 0%, var(--bc2-saffron) 55%, #B06A32 100%);
+  background: linear-gradient(135deg, #EACDA3 0%, #DBA46A 52%, #C68B52 100%);
   color: #241505;
-  box-shadow: 0 1px 2px rgba(16,12,20,0.35), 0 12px 30px -12px rgba(217,138,74,0.55);
-  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 2px rgba(16,12,20,0.3), 0 10px 26px -14px rgba(217,138,74,0.45);
+  transition: all 0.5s ease-in-out;
 }
 .bc2-btn-glow:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow: 0 2px 4px rgba(16,12,20,0.35), 0 16px 36px -12px rgba(217,138,74,0.65);
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 6px rgba(16,12,20,0.3),
+    0 18px 44px -12px rgba(229,192,141,0.6),
+    0 0 30px rgba(217,138,74,0.35);
 }
 
 .bc2-btn-ghost {

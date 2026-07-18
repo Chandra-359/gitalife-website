@@ -144,12 +144,19 @@ export default function NeonHero() {
             Gita Life NYC presents · {EVENT.volume}
           </p>
 
-          {/* massive headline */}
-          <h1 className="bc2-display mt-6" style={{ fontSize: "clamp(2.7rem, 11.5vw, 7.2rem)" }}>
-            <span className="block text-club-ink" style={{ textShadow: "0 2px 40px rgba(122,92,158,0.35)" }}>
+          {/* massive headline — sans kicker over italic serif, lit from
+              behind by a slow warm light leak instead of a gradient fill */}
+          <h1 className="relative mt-6 text-club-ink">
+            <span className="bc2-light-leak" aria-hidden />
+            <span
+              className="relative block font-sans font-bold uppercase"
+              style={{ fontSize: "clamp(1.25rem, 4vw, 2.3rem)", letterSpacing: "0.4em", marginLeft: "0.4em" }}
+            >
               Bhajan
             </span>
-            <span className="bc2-headline-grad block">Clubbing</span>
+            <span className="bc2-display relative block italic" style={{ fontSize: "clamp(3rem, 12.5vw, 7.6rem)", fontWeight: 500 }}>
+              Clubbing
+            </span>
           </h1>
 
           {/* tagline */}

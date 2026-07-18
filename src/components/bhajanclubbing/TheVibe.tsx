@@ -30,9 +30,13 @@ export default function TheVibe() {
           <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
             The Vibe
           </p>
-          <h2 className="bc2-display mt-4 text-[30px] leading-[1.05] text-club-ink sm:text-[40px]">
-            A rave where the{" "}
-            <span className="bc2-headline-grad">drop is a mantra</span>
+          <h2 className="mt-4 leading-[1.2] text-club-ink">
+            <span className="block font-sans text-[22px] font-bold uppercase tracking-[0.08em] sm:text-[28px]">
+              A rave where the drop is a
+            </span>
+            <span className="bc2-display block italic text-[34px] sm:text-[46px]" style={{ fontWeight: 500 }}>
+              mantra
+            </span>
           </h2>
           <p className="mt-6 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
             Bhajan clubbing takes the centuries-old practice of devotional call-and-response singing and puts it on a
