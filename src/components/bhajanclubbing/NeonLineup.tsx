@@ -1,19 +1,22 @@
 "use client";
 
 /**
- * NeonLineup — conference-style speaker grid.
+ * NeonLineup — streaming-platform poster rail.
  *
- * Uniform portrait tiles, the way tech events showcase speakers:
- * at rest each tile is just the artist's portrait with their name over
- * a bottom scrim — no set times, no headliner/opener labels, every
- * artist presented equally. Hover (tap on touch, focus on keyboard)
- * zooms the portrait and slides up a panel with the bio, instrument
- * and style. Artists without a photo yet get a neon monogram poster
- * in their accent colour — set `photo` in src/data/bhajanClubbing.ts
- * (files in public/lineup/) and the real portrait drops in.
+ * Movie-poster tiles (2:3) in a horizontal slideway: centered when the
+ * lineup fits the viewport, snap-scrollable when it doesn't. Hovering
+ * a poster spotlights it — the card scales up while its neighbours dim
+ * and soften (opacity-40 + blur) — and quietly cross-fades the graded
+ * still into a live performance loop. Tap on touch, focus on keyboard,
+ * do the same and slide up the bio panel.
+ *
+ * Performance footage: drop /videos/artist-<id>.mp4 (ids from
+ * src/data/bhajanClubbing.ts) and that artist's hover loop plays it;
+ * until then the shared ambient loop stands in. Stills come from
+ * `photo` (public/lineup/); artists without one get a monogram poster.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing";
@@ -22,10 +25,10 @@ import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing
 const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 
 const ACCENT: Record<AccentToken, { main: string; soft: string }> = {
-  gold: { main: "#FFB25C", soft: "#FFD9B0" },
-  saffron: { main: "#FF7A1A", soft: "#FFBE8F" },
-  peacock: { main: "#4D9FFF", soft: "#9DC8FF" },
-  lotus: { main: "#E86BB7", soft: "#F5AED8" },
+  gold: { main: "#E5C08D", soft: "#F0DEC0" },
+  saffron: { main: "#D98A4A", soft: "#E8B98C" },
+  peacock: { main: "#A9B8D6", soft: "#C9D4E6" },
+  lotus: { main: "#C08CA6", soft: "#DBB8C8" },
 };
 
 function initials(name: string) {
@@ -41,7 +44,7 @@ function initials(name: string) {
 function MonogramPoster({ artist }: { artist: ClubArtist }) {
   const a = ACCENT[artist.accent];
   return (
-    <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #1A0D42 0%, #0B0620 78%)" }}>
+    <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, var(--bc2-bg-2) 0%, var(--bc2-bg) 78%)" }}>
       <div
         className="absolute inset-0"
         style={{ background: `radial-gradient(circle at 50% 34%, ${a.main}38, transparent 62%)` }}
@@ -74,22 +77,47 @@ function MonogramPoster({ artist }: { artist: ClubArtist }) {
 function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
   const a = ACCENT[artist.accent];
   const [revealed, setRevealed] = useState(false);
+  /* True when the shared ambient loop is standing in for real footage —
+     then the video screen-blends over the still as a light wash instead
+     of replacing the artist's face with plain haze. */
+  const [placeholder, setPlaceholder] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const playLoop = () => videoRef.current?.play().catch(() => {});
+  const pauseLoop = (force = false) => {
+    if (force || !revealed) videoRef.current?.pause();
+  };
 
   return (
-    <motion.article
+    /* Entrance animation lives on the wrapper so framer's inline opacity
+       never fights the spotlight dim classes on the article itself. */
+    <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
-      className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2 sm:w-[280px]"
+      className="shrink-0 snap-center"
+    >
+    <article
+      className="group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none transition-[opacity,filter,scale] duration-500 ease-in-out focus-visible:ring-2 group-hover/rail:opacity-40 group-hover/rail:blur-sm hover:scale-[1.04] hover:opacity-100! hover:blur-none! sm:w-[300px] md:w-[320px]"
       style={
         {
-          border: "1px solid rgba(244,239,255,0.13)",
-          boxShadow: "0 18px 48px -22px rgba(0,0,0,0.7)",
+          boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
-      onClick={() => setRevealed((v) => !v)}
+      onClick={() =>
+        setRevealed((v) => {
+          const next = !v;
+          if (next) playLoop();
+          else pauseLoop(true);
+          return next;
+        })
+      }
+      onPointerEnter={playLoop}
+      onPointerLeave={() => pauseLoop()}
+      onFocus={playLoop}
+      onBlur={() => pauseLoop()}
       tabIndex={0}
       aria-label={`${artist.name}. Tap for artist details.`}
     >
@@ -100,18 +128,51 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         }`}
       >
         {artist.photo ? (
+          /* Warm, moody, desaturated grade at rest so press shots read as
+             one set; hover / tap / focus melts it back to full colour. */
           <Image
             src={artist.photo}
             alt={artist.name}
             fill
             sizes="(min-width: 768px) 33vw, 50vw"
-            className="object-cover"
+            className={`object-cover transition-[filter] duration-700 ease-in-out ${
+              revealed
+                ? "grayscale-0 sepia-0 saturate-100"
+                : "grayscale-[55%] sepia-[24%] saturate-[85%] group-hover:grayscale-0 group-hover:sepia-0 group-hover:saturate-100 group-focus-visible:grayscale-0 group-focus-visible:sepia-0 group-focus-visible:saturate-100"
+            }`}
             style={artist.photoPosition ? { objectPosition: artist.photoPosition } : undefined}
           />
         ) : (
           <MonogramPoster artist={artist} />
         )}
-        {/* accent wash pulls any portrait into the neon palette */}
+        {/* live performance loop — quietly cross-fades in over the still.
+            Real footage goes to /videos/artist-<id>.mp4; the shared
+            ambient loop stands in until then. preload="none" keeps the
+            rail cheap — the clip only loads on first hover/tap/focus. */}
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${
+            revealed
+              ? placeholder
+                ? "opacity-60"
+                : "opacity-100"
+              : placeholder
+                ? "opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60"
+                : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+          }`}
+          style={placeholder ? { mixBlendMode: "screen" } : undefined}
+          onLoadedMetadata={(e) => setPlaceholder(e.currentTarget.currentSrc.endsWith("hero-loop.webm"))}
+          muted
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          aria-hidden
+        >
+          <source src={`/videos/artist-${artist.id}.mp4`} type="video/mp4" />
+          <source src="/videos/hero-loop.webm" type="video/webm" />
+        </video>
+        {/* accent wash pulls any portrait into the warm palette */}
         <div
           className="absolute inset-0"
           style={{ background: `linear-gradient(180deg, ${a.main}1f, transparent 45%)`, mixBlendMode: "screen" }}
@@ -122,7 +183,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       {/* bottom scrim under the labels */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
-        style={{ background: "linear-gradient(180deg, transparent, rgba(7,3,19,0.5) 48%, rgba(7,3,19,0.92))" }}
+        style={{ background: "linear-gradient(180deg, transparent, rgba(26,22,35,0.5) 48%, rgba(26,22,35,0.92))" }}
         aria-hidden
       />
 
@@ -132,7 +193,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           revealed ? "opacity-0" : ""
         }`}
       >
-        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[20px]">{artist.name}</h3>
+        <h3 className="bc2-display text-[16px] leading-tight text-club-ink sm:text-[20px]">{artist.name}</h3>
       </div>
 
       {/* hover / tap / focus panel — the full story */}
@@ -141,20 +202,20 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           revealed ? "!translate-y-0" : ""
         }`}
         style={{
-          background: "linear-gradient(180deg, rgba(7,3,19,0) 10%, rgba(7,3,19,0.6) 38%, rgba(7,3,19,0.95) 62%, rgba(7,3,19,0.97) 100%)",
+          background: "linear-gradient(180deg, rgba(26,22,35,0) 10%, rgba(26,22,35,0.6) 38%, rgba(26,22,35,0.95) 62%, rgba(26,22,35,0.97) 100%)",
           backdropFilter: "blur(8px)",
         }}
       >
-        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[19px]">{artist.name}</h3>
+        <h3 className="bc2-display text-[16px] leading-tight text-club-ink sm:text-[19px]">{artist.name}</h3>
         <p className="mt-2.5 line-clamp-3 text-[11.5px] leading-relaxed sm:line-clamp-none sm:text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
           {artist.bio}
         </p>
-        <div className="mt-3 space-y-1.5 border-t pt-3" style={{ borderColor: "rgba(244,239,255,0.12)" }}>
+        <div className="mt-3 space-y-1.5 border-t pt-3" style={{ borderColor: "rgba(244,240,235,0.12)" }}>
           <p className="text-[11px] sm:text-[12px]">
             <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
               Plays
             </span>
-            <span className="font-semibold text-white">{artist.instrument}</span>
+            <span className="font-semibold text-club-ink">{artist.instrument}</span>
           </p>
           <p className="hidden text-[11px] leading-snug sm:block sm:text-[12px]">
             <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
@@ -164,7 +225,8 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           </p>
         </div>
       </div>
-    </motion.article>
+    </article>
+    </motion.div>
   );
 }
 
@@ -181,7 +243,7 @@ export default function NeonLineup() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           The Lineup
         </p>
-        <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
+        <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
           {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -189,11 +251,14 @@ export default function NeonLineup() {
         </p>
       </motion.div>
 
-      {/* centered flex row (not a left-anchored grid) so a short lineup sits in the middle */}
-      <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-5">
-        {LINEUP.map((artist, i) => (
-          <ArtistTile key={artist.id} artist={artist} index={i} />
-        ))}
+      {/* poster slideway — centered while the lineup fits, snap-scroll once
+          it grows past the viewport. group/rail drives the spotlight dim. */}
+      <div className="group/rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
+        <div className="mx-auto flex w-max items-stretch gap-5 md:gap-6">
+          {LINEUP.map((artist, i) => (
+            <ArtistTile key={artist.id} artist={artist} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );

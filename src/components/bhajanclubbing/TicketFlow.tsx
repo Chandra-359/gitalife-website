@@ -92,10 +92,10 @@ function googleCalendarUrl() {
 }
 
 const inputClass =
-  "w-full rounded-xl border px-4 py-3 text-[14px] text-white outline-none transition-all placeholder:text-[rgba(244,239,255,0.3)] focus:ring-2 focus:ring-[#FF7A1A]/25";
+  "w-full rounded-xl border px-4 py-3 text-[14px] text-club-ink outline-none transition-all placeholder:text-[rgba(244,240,235,0.3)] focus:ring-2 focus:ring-[#D98A4A]/30";
 const inputStyle = (err?: boolean): React.CSSProperties => ({
-  background: "rgba(244,239,255,0.06)",
-  borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(244,239,255,0.16)",
+  background: "rgba(244,240,235,0.06)",
+  borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(244,240,235,0.16)",
 });
 
 /* ------------------------------------------------------------------ */
@@ -112,8 +112,8 @@ function Stepper({ step }: { step: number }) {
               className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-extrabold transition-all"
               style={
                 i <= step
-                  ? { background: "linear-gradient(135deg, #FFB25C, #FF7A1A)", color: "#1C0A02", boxShadow: "0 0 18px rgba(255,122,26,0.55)" }
-                  : { background: "rgba(244,239,255,0.07)", color: "var(--bc2-ink-faint)", border: "1px solid rgba(244,239,255,0.15)" }
+                  ? { background: "linear-gradient(135deg, #E5C08D, #D98A4A)", color: "#241505", boxShadow: "0 0 18px rgba(217,138,74,0.55)" }
+                  : { background: "rgba(244,240,235,0.07)", color: "var(--bc2-ink-faint)", border: "1px solid rgba(244,240,235,0.15)" }
               }
             >
               {i < step ? "✓" : i + 1}
@@ -123,7 +123,7 @@ function Stepper({ step }: { step: number }) {
             </span>
           </div>
           {i < labels.length - 1 && (
-            <span className="bc2-step-line mx-3 mb-5 h-px w-10 sm:w-16" style={i < step ? { background: "linear-gradient(90deg, #FF7A1A, #FFB25C)" } : undefined} />
+            <span className="bc2-step-line mx-3 mb-5 h-px w-10 sm:w-16" style={i < step ? { background: "linear-gradient(90deg, #D98A4A, #E5C08D)" } : undefined} />
           )}
         </div>
       ))}
@@ -258,7 +258,7 @@ export default function TicketFlow() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           Tickets
         </p>
-        <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
+        <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
           Lock in <span className="bc2-headline-grad">your night</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -281,13 +281,13 @@ export default function TicketFlow() {
               animate={{ scale: 1 }}
               transition={{ type: "spring", damping: 13 }}
               className="mx-auto flex h-18 w-18 items-center justify-center rounded-full p-5"
-              style={{ background: "rgba(77,255,166,0.1)", border: "1.5px solid rgba(77,255,166,0.45)" }}
+              style={{ background: "rgba(143,207,168,0.1)", border: "1.5px solid rgba(143,207,168,0.45)" }}
             >
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12l5 5L19 7" stroke="#4DFFA6" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 12l5 5L19 7" stroke="#8FCFA8" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </motion.div>
-            <h3 className="bc2-display mt-5 text-[26px] text-white">
+            <h3 className="bc2-display mt-5 text-[26px] text-club-ink">
               {done.name ? `Payment received — you're in, ${done.name}` : "Payment received — you're in"}
             </h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -319,7 +319,7 @@ export default function TicketFlow() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <p className="text-[14px] font-bold text-white">Confirming your payment…</p>
+            <p className="text-[14px] font-bold text-club-ink">Confirming your payment…</p>
             <p className="text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
               One second — we&rsquo;re checking with Square.
             </p>
@@ -329,11 +329,11 @@ export default function TicketFlow() {
           <div className="py-8 text-center">
             <p
               className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
-              style={{ background: "rgba(255,178,92,0.1)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+              style={{ background: "rgba(229,192,141,0.1)", border: "1px solid rgba(229,192,141,0.4)", color: "var(--bc2-amber)" }}
             >
               Almost there
             </p>
-            <h3 className="bc2-display mt-5 text-[24px] text-white">We couldn&rsquo;t confirm your payment yet</h3>
+            <h3 className="bc2-display mt-5 text-[24px] text-club-ink">We couldn&rsquo;t confirm your payment yet</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               Card payments can take a few seconds to settle. If you completed the payment, tap retry — your ticket is
               issued the moment it confirms. If you were charged and this keeps failing, reply to your Square receipt
@@ -366,7 +366,7 @@ export default function TicketFlow() {
             >
               Sold out
             </p>
-            <h3 className="bc2-display mt-5 text-[26px] text-white">Every ticket is claimed</h3>
+            <h3 className="bc2-display mt-5 text-[26px] text-club-ink">Every ticket is claimed</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               No-show spots open at the door — the line starts at 5:45 PM. Bring your crew and your patience.
             </p>
@@ -392,11 +392,11 @@ export default function TicketFlow() {
           <div className="py-8 text-center">
             <p
               className="mx-auto inline-block rounded-full px-4 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.22em]"
-              style={{ background: "rgba(255,178,92,0.1)", border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+              style={{ background: "rgba(229,192,141,0.1)", border: "1px solid rgba(229,192,141,0.4)", color: "var(--bc2-amber)" }}
             >
               Back soon
             </p>
-            <h3 className="bc2-display mt-5 text-[24px] text-white">Ticket sales are briefly paused</h3>
+            <h3 className="bc2-display mt-5 text-[24px] text-club-ink">Ticket sales are briefly paused</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               Online checkout is momentarily offline. Save the date and check back shortly — tickets are {TICKET.tag} per
               person, free packed prasadam included.
@@ -481,7 +481,7 @@ export default function TicketFlow() {
                             })}
                           >
                             {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
-                              <option key={n} value={n} style={{ background: "#150A38" }}>
+                              <option key={n} value={n} style={{ background: "#241831" }}>
                                 {n === 1 ? "1 ticket" : `${n} tickets`}
                               </option>
                             ))}
@@ -494,11 +494,11 @@ export default function TicketFlow() {
                           How did you hear about this event? <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
                         </label>
                         <select id="tf-hear" className={`${inputClass} cursor-pointer appearance-none`} style={inputStyle()} {...register("hearAbout")}>
-                          <option value="" style={{ background: "#150A38" }}>
+                          <option value="" style={{ background: "#241831" }}>
                             Pick one (optional)
                           </option>
                           {HEAR_ABOUT_OPTIONS.map((option) => (
-                            <option key={option} value={option} style={{ background: "#150A38" }}>
+                            <option key={option} value={option} style={{ background: "#241831" }}>
                               {option}
                             </option>
                           ))}
@@ -514,13 +514,13 @@ export default function TicketFlow() {
                           style={inputStyle(!!errors.emailUpdates)}
                           {...register("emailUpdates", { required: "Please select Yes or No" })}
                         >
-                          <option value="" style={{ background: "#150A38" }}>
+                          <option value="" style={{ background: "#241831" }}>
                             Select Yes or No
                           </option>
-                          <option value="yes" style={{ background: "#150A38" }}>
+                          <option value="yes" style={{ background: "#241831" }}>
                             Yes
                           </option>
-                          <option value="no" style={{ background: "#150A38" }}>
+                          <option value="no" style={{ background: "#241831" }}>
                             No
                           </option>
                         </select>
@@ -538,7 +538,7 @@ export default function TicketFlow() {
                 {step === 1 && details && (
                   <motion.div key="confirm" {...stepMotion}>
                     {/* order summary */}
-                    <div className="rounded-2xl p-5" style={{ background: "rgba(7,3,19,0.5)", border: "1px solid rgba(244,239,255,0.12)" }}>
+                    <div className="rounded-2xl p-5" style={{ background: "rgba(26,22,35,0.5)", border: "1px solid rgba(244,240,235,0.12)" }}>
                       {[
                         { k: "Ticket", v: `${TICKET.name} · ${TICKET.tag}${details.guests > 1 ? ` × ${details.guests}` : ""}` },
                         { k: "Name", v: details.name },
@@ -549,11 +549,11 @@ export default function TicketFlow() {
                         { k: "Email updates", v: details.emailUpdates === "yes" ? "Yes" : "No" },
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
                       ].map((row) => (
-                        <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(244,239,255,0.07)" }}>
+                        <div key={row.k} className="flex items-baseline justify-between gap-4 border-b py-2.5 last:border-0" style={{ borderColor: "rgba(244,240,235,0.07)" }}>
                           <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-faint)" }}>
                             {row.k}
                           </span>
-                          <span className="text-right text-[13px] font-semibold text-white">{row.v}</span>
+                          <span className="text-right text-[13px] font-semibold text-club-ink">{row.v}</span>
                         </div>
                       ))}
                       <div className="flex items-baseline justify-between pt-3">

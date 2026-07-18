@@ -1,10 +1,11 @@
 "use client";
 
 /**
- * BhajanClubbingPage — "Transcendental Neon" composition for /bhajanclubbing.
+ * BhajanClubbingPage — "Velvet Ritual" composition for /bhajanclubbing.
  *
- * Premium dark mode: deep purple canvas, saffron / electric blue / violet
- * neon, frosted-glass panels over a pulsing aurora. Structure follows the
+ * High-end conscious club: deep plum/midnight canvas, soft off-white
+ * editorial serif, warm candlelit accents, frosted-glass panels, and a
+ * fixed film-grain wash over everything. Structure follows the
  * event-page spec: hero → the vibe → lineup → bento details → free
  * prasadam → multi-step tickets → share → FAQ → outro. The festival
  * layer (string lights,
@@ -45,7 +46,7 @@ function ClubFaq() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           FAQ
         </p>
-        <h2 className="bc2-display mt-4 text-[28px] text-white sm:text-[36px]">
+        <h2 className="bc2-display mt-4 text-[28px] text-club-ink sm:text-[36px]">
           Frequently asked <span className="bc2-headline-grad">questions</span>
         </h2>
       </motion.div>
@@ -53,11 +54,11 @@ function ClubFaq() {
       <div className="mt-10 space-y-3">
         {CLUB_FAQS.map((faq) => (
           <details key={faq.q} className="bc2-glass group !rounded-2xl">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[14.5px] font-bold text-white [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[14.5px] font-bold text-club-ink [&::-webkit-details-marker]:hidden">
               {faq.q}
               <span
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[15px] transition-transform duration-200 group-open:rotate-45"
-                style={{ border: "1px solid rgba(255,178,92,0.4)", color: "var(--bc2-amber)" }}
+                style={{ border: "1px solid rgba(229,192,141,0.4)", color: "var(--bc2-amber)" }}
                 aria-hidden
               >
                 +
@@ -69,7 +70,7 @@ function ClubFaq() {
                 <ul className="mt-2.5 space-y-1.5">
                   {faq.points.map((point) => (
                     <li key={point} className="flex items-start gap-2.5">
-                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(255,178,92,0.7)" }} aria-hidden />
+                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(229,192,141,0.7)" }} aria-hidden />
                       {point}
                     </li>
                   ))}
@@ -79,12 +80,12 @@ function ClubFaq() {
                 <ul className="mt-2.5 space-y-1.5">
                   {faq.links.map((link) => (
                     <li key={link.href} className="flex items-start gap-2.5">
-                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(255,178,92,0.7)" }} aria-hidden />
+                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--bc2-amber)", boxShadow: "0 0 8px rgba(229,192,141,0.7)" }} aria-hidden />
                       <a
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-semibold underline decoration-[rgba(255,178,92,0.5)] underline-offset-4 transition-colors hover:text-white"
+                        className="font-semibold underline decoration-[rgba(229,192,141,0.5)] underline-offset-4 transition-colors hover:text-club-ink"
                         style={{ color: "var(--bc2-amber)" }}
                       >
                         {link.label}
@@ -109,10 +110,10 @@ function Outro() {
     <section className="relative overflow-hidden px-6 pb-16 pt-8 text-center">
       <div
         className="pointer-events-none absolute left-1/2 top-0 h-[320px] w-[640px] -translate-x-1/2 rounded-full"
-        style={{ background: "radial-gradient(ellipse, rgba(255,122,26,0.14), transparent 65%)", filter: "blur(34px)" }}
+        style={{ background: "radial-gradient(ellipse, rgba(217,138,74,0.14), transparent 65%)", filter: "blur(34px)" }}
         aria-hidden
       />
-      <p className="bc2-display relative mx-auto max-w-2xl text-[22px] leading-[1.2] text-white sm:text-[30px]">
+      <p className="bc2-display relative mx-auto max-w-2xl text-[22px] leading-[1.2] text-club-ink sm:text-[30px]">
         Come for the beat.
         <br />
         <span className="bc2-headline-grad">Leave with a mantra stuck in your soul.</span>
@@ -175,14 +176,14 @@ function StickyTicketBar() {
         href="#tickets"
         className="flex items-center justify-between rounded-full py-3 pl-6 pr-2 shadow-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(21,10,56,0.92), rgba(11,6,32,0.95))",
-          border: "1px solid rgba(255,122,26,0.45)",
+          background: "linear-gradient(135deg, rgba(42,27,56,0.92), rgba(26,26,29,0.95))",
+          border: "1px solid rgba(217,138,74,0.4)",
           backdropFilter: "blur(12px)",
-          boxShadow: "0 12px 40px -10px rgba(255,122,26,0.55)",
+          boxShadow: "0 12px 40px -10px rgba(16,12,20,0.6)",
         }}
       >
-        <span className="text-[13px] font-bold text-white">Sat Aug 15 · {EVENT.priceLabel}</span>
-        <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.06em]" style={{ animation: "none" }}>
+        <span className="text-[13px] font-bold text-club-ink">Sat Aug 15 · {EVENT.priceLabel}</span>
+        <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-bold tracking-[0.02em]">
           Get Tickets
           <Icon name="arrowRight" size={12} />
         </span>
@@ -196,22 +197,18 @@ function StickyTicketBar() {
 /* ------------------------------------------------------------------ */
 export default function BhajanClubbingPage() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bc2-bg)" }}>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg, var(--bc2-bg) 0%, var(--bc2-bg-2) 100%)" }}>
       <Navbar />
       <SectionTracker />
-      <Toaster position="top-center" toastOptions={{ style: { background: "#150A38", color: "#F4EFFF", border: "1px solid rgba(139,92,246,0.4)" } }} />
+      <Toaster position="top-center" toastOptions={{ style: { background: "#241831", color: "#F4F0EB", border: "1px solid rgba(122,92,158,0.4)" } }} />
+
+      {/* fixed film grain over the entire page — analog warmth */}
+      <div className="bc2-film-grain" aria-hidden />
 
       <main>
         <NeonHero />
 
-        <div className="relative" style={{ background: "linear-gradient(180deg, var(--bc2-bg-2) 0%, var(--bc2-bg) 32%, #0E0728 68%, #070313 100%)" }}>
-          {/* grain over the whole body */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ backgroundImage: "var(--tex-grain-dark)", backgroundSize: "240px 240px", opacity: 0.4, mixBlendMode: "screen" }}
-            aria-hidden
-          />
-
+        <div className="relative" style={{ background: "linear-gradient(180deg, var(--bc2-bg-2) 0%, var(--bc2-bg-mid) 40%, var(--bc2-bg) 100%)" }}>
           {/* standing aurora glows down the body */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
             <span className="bc2-aurora left-[-14%] top-[18%] h-[560px] w-[560px]" style={{ background: "var(--bc2-blue-deep)", "--o": 0.16, "--t": "24s" } as React.CSSProperties} />

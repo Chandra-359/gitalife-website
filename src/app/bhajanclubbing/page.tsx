@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import { Unbounded } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import BhajanClubbingPage from "@/components/bhajanclubbing/BhajanClubbingPage";
 import { EVENT, LINEUP, TIERS } from "@/data/bhajanClubbing";
 
-/** Wide club-poster display face (closest Google Fonts analog to
- *  Monument Extended / Clash Display). Scoped to this route via its
- *  CSS variable — the rest of the site stays Fraunces + Inter. */
-const unbounded = Unbounded({
+/** High-contrast editorial display serif (Google Fonts). Scoped to this
+ *  route via its CSS variable and consumed globally as `font-heading` /
+ *  var(--font-heading) (set up in globals.css, falling back to Fraunces
+ *  on routes that don't load it). Body copy stays Inter. */
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-unbounded",
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -69,7 +71,7 @@ function eventJsonLd() {
 
 export default function Page() {
   return (
-    <div className={unbounded.variable}>
+    <div className={playfair.variable}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd()) }}

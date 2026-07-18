@@ -13,7 +13,7 @@ const LINKS = [
     href: SOCIALS.instagram,
     label: "Instagram",
     aria: "Gita Life NYC on Instagram",
-    color: "#F5AED8",
+    color: "#DBB8C8",
     icon: (
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
@@ -51,7 +51,7 @@ export default function SocialLinks() {
           <span
             className="flex h-14 w-14 items-center justify-center rounded-full sm:h-16 sm:w-16"
             style={{
-              background: "rgba(244,239,255,0.07)",
+              background: "rgba(244,240,235,0.07)",
               border: `1.5px solid ${link.color}66`,
               boxShadow: `0 0 24px ${link.color}40`,
               backdropFilter: "blur(8px)",
