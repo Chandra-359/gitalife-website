@@ -9,10 +9,12 @@ import { motion } from "framer-motion";
 import { Icon } from "@/components/home/icons";
 import { VIBE_FACTS } from "@/data/bhajanClubbing";
 
+/* Warm accents only — every icon ties back into the hero aura
+   (muted saffron / soft rose / warm sand). */
 const ACCENT: Record<string, string> = {
   gold: "#E5C08D",
   saffron: "#D98A4A",
-  peacock: "#A9B8D6",
+  peacock: "#D89E8A",
   lotus: "#C08CA6",
 };
 
@@ -59,8 +61,7 @@ export default function TheVibe() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.55, delay: i * 0.08 }}
-                className="bc2-glass bc2-glass-hover bc2-edge-top p-5"
-                style={{ "--bc2-edge": accent, "--bc2-hover-glow": `${accent}55` } as React.CSSProperties}
+                className="rounded-[22px] border border-white/10 bg-white/5 p-5 backdrop-blur-lg transition-all duration-500 ease-in-out hover:-translate-y-[3px] hover:bg-white/10"
               >
                 <span
                   className="flex h-10 w-10 items-center justify-center rounded-xl"
