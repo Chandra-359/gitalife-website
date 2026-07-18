@@ -15,7 +15,8 @@
  * ambient placeholder loop.
  */
 
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   motion,
   useMotionValue,
@@ -92,12 +93,35 @@ function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: s
         }}
         aria-hidden
       />
-      {/* instrument line-art, floating gently in the haze */}
+      {/* instrument visual, floating gently in the haze */}
       <span
         className="bc-float pointer-events-none absolute inset-0 flex items-center justify-center"
         style={{ "--t": "7s" } as React.CSSProperties}
         aria-hidden
       >
+        <InstrumentVisual sprite={sprite} glow={glow} />
+      </span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Instrument visual — uploaded image with line-art fallback          */
+/*                                                                     */
+/*  Tries /instruments/<sprite>.png → .webp → .jpg (see                */
+/*  public/instruments/README.md). The glyph renders immediately and   */
+/*  hands over to the image once one loads; if none exists, the glyph  */
+/*  simply stays.                                                      */
+/* ------------------------------------------------------------------ */
+const IMG_EXTS = ["png", "webp", "jpg"] as const;
+
+function InstrumentVisual({ sprite, glow }: { sprite: InstrumentKind; glow: string }) {
+  const [extIdx, setExtIdx] = useState(0);
+  const [imgReady, setImgReady] = useState(false);
+
+  return (
+    <>
+      {!imgReady && (
         <svg
           viewBox="0 0 48 48"
           width="88"
@@ -111,8 +135,20 @@ function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: s
         >
           {GLYPHS[sprite]}
         </svg>
-      </span>
-    </div>
+      )}
+      {extIdx < IMG_EXTS.length && (
+        <Image
+          src={`/instruments/${sprite}.${IMG_EXTS[extIdx]}`}
+          alt=""
+          fill
+          sizes="320px"
+          className={`object-contain p-7 transition-opacity duration-500 ${imgReady ? "opacity-100" : "opacity-0"}`}
+          style={{ filter: `drop-shadow(0 8px 20px rgba(16,12,20,0.55)) drop-shadow(0 0 18px ${glow}40)` }}
+          onLoad={() => setImgReady(true)}
+          onError={() => setExtIdx((i) => i + 1)}
+        />
+      )}
+    </>
   );
 }
 
