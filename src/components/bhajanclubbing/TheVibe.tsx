@@ -51,17 +51,28 @@ const SHOWCASE: Record<
 };
 
 /* ------------------------------------------------------------------ */
-/*  Masked looping media window with a floating instrument glyph       */
+/*  Masked media window — uploaded instrument art with video fallback  */
+/*                                                                     */
+/*  Tries /instruments/<sprite>.webp → .png → .jpg (see                */
+/*  public/instruments/README.md). Full-scene images fill the window   */
+/*  as card art; until one exists and loads, the ambient video loop    */
+/*  plays with the floating line-art glyph over it. The accent tint    */
+/*  and scrim sit above either, keeping the four cards graded alike.   */
 /* ------------------------------------------------------------------ */
+const IMG_EXTS = ["webp", "png", "jpg"] as const;
+
 function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: string; glow: string }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const [extIdx, setExtIdx] = useState(0);
+  const [imgReady, setImgReady] = useState(false);
 
-  // Pause the loop for users who prefer reduced motion.
+  // Pause the fallback loop for users who prefer reduced motion.
   useEffect(() => {
     const vid = ref.current;
     if (!vid) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
+      if (!vid.isConnected) return;
       if (mq.matches) vid.pause();
       else vid.play().catch(() => {});
     };
@@ -72,20 +83,34 @@ function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: s
 
   return (
     <div className="relative aspect-[16/9] overflow-hidden">
-      <video
-        ref={ref}
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        disablePictureInPicture
-        aria-hidden
-      >
-        <source src={`/videos/vibe-${clip}.mp4`} type="video/mp4" />
-        <source src="/videos/hero-loop.webm" type="video/webm" />
-      </video>
-      {/* accent tint + dark mask so the glyph and copy stay legible */}
+      {!imgReady && (
+        <video
+          ref={ref}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          disablePictureInPicture
+          aria-hidden
+        >
+          <source src={`/videos/vibe-${clip}.mp4`} type="video/mp4" />
+          <source src="/videos/hero-loop.webm" type="video/webm" />
+        </video>
+      )}
+      {extIdx < IMG_EXTS.length && (
+        <Image
+          src={`/instruments/${sprite}.${IMG_EXTS[extIdx]}`}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 320px, 90vw"
+          className={`object-cover transition-opacity duration-700 ease-in-out ${imgReady ? "opacity-100" : "opacity-0"}`}
+          onLoad={() => setImgReady(true)}
+          onError={() => setExtIdx((i) => i + 1)}
+          aria-hidden
+        />
+      )}
+      {/* accent tint + dark mask so the art and copy stay legible */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -93,62 +118,29 @@ function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: s
         }}
         aria-hidden
       />
-      {/* instrument visual, floating gently in the haze */}
-      <span
-        className="bc-float pointer-events-none absolute inset-0 flex items-center justify-center"
-        style={{ "--t": "7s" } as React.CSSProperties}
-        aria-hidden
-      >
-        <InstrumentVisual sprite={sprite} glow={glow} />
-      </span>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Instrument visual — uploaded image with line-art fallback          */
-/*                                                                     */
-/*  Tries /instruments/<sprite>.png → .webp → .jpg (see                */
-/*  public/instruments/README.md). The glyph renders immediately and   */
-/*  hands over to the image once one loads; if none exists, the glyph  */
-/*  simply stays.                                                      */
-/* ------------------------------------------------------------------ */
-const IMG_EXTS = ["png", "webp", "jpg"] as const;
-
-function InstrumentVisual({ sprite, glow }: { sprite: InstrumentKind; glow: string }) {
-  const [extIdx, setExtIdx] = useState(0);
-  const [imgReady, setImgReady] = useState(false);
-
-  return (
-    <>
+      {/* line-art glyph, floating in the haze until real art arrives */}
       {!imgReady && (
-        <svg
-          viewBox="0 0 48 48"
-          width="88"
-          height="88"
-          fill="none"
-          stroke={glow}
-          strokeWidth="1.3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ filter: `drop-shadow(0 0 14px ${glow}66)` }}
+        <span
+          className="bc-float pointer-events-none absolute inset-0 flex items-center justify-center"
+          style={{ "--t": "7s" } as React.CSSProperties}
+          aria-hidden
         >
-          {GLYPHS[sprite]}
-        </svg>
+          <svg
+            viewBox="0 0 48 48"
+            width="88"
+            height="88"
+            fill="none"
+            stroke={glow}
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ filter: `drop-shadow(0 0 14px ${glow}66)` }}
+          >
+            {GLYPHS[sprite]}
+          </svg>
+        </span>
       )}
-      {extIdx < IMG_EXTS.length && (
-        <Image
-          src={`/instruments/${sprite}.${IMG_EXTS[extIdx]}`}
-          alt=""
-          fill
-          sizes="320px"
-          className={`object-contain p-7 transition-opacity duration-500 ${imgReady ? "opacity-100" : "opacity-0"}`}
-          style={{ filter: `drop-shadow(0 8px 20px rgba(16,12,20,0.55)) drop-shadow(0 0 18px ${glow}40)` }}
-          onLoad={() => setImgReady(true)}
-          onError={() => setExtIdx((i) => i + 1)}
-        />
-      )}
-    </>
+    </div>
   );
 }
 
