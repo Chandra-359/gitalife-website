@@ -100,7 +100,14 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         }`}
       >
         {artist.photo ? (
-          <Image src={artist.photo} alt={artist.name} fill sizes="(min-width: 768px) 33vw, 50vw" className="object-cover" />
+          <Image
+            src={artist.photo}
+            alt={artist.name}
+            fill
+            sizes="(min-width: 768px) 33vw, 50vw"
+            className="object-cover"
+            style={artist.photoPosition ? { objectPosition: artist.photoPosition } : undefined}
+          />
         ) : (
           <MonogramPoster artist={artist} />
         )}
