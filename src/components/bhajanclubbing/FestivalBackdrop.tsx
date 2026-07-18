@@ -92,7 +92,7 @@ export function StringLights({ className = "", flags = true }: { className?: str
 /* ------------------------------------------------------------------ */
 /*  Bhajan instruments — floating line-art glyphs                      */
 /* ------------------------------------------------------------------ */
-const GLYPHS = {
+export const GLYPHS = {
   bansuri: (
     <>
       <rect x="2" y="21" width="44" height="6.5" rx="3.2" />
