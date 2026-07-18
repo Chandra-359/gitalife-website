@@ -708,6 +708,16 @@ html {
   animation: bc2-leak-drift 26s ease-in-out infinite;
   will-change: transform;
 }
+
+/* LIVE badge dot — soft blink with a muted neon-red halo */
+@keyframes bc2-live-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+.bc2-live-dot {
+  animation: bc2-live-blink 1.7s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(228,87,79,0.85), 0 0 24px rgba(228,87,79,0.4);
+}
 .bc2-headline-grad {
   background: linear-gradient(105deg, var(--bc2-ink) 0%, var(--bc2-amber) 48%, #C9A248 100%);
   -webkit-background-clip: text;
