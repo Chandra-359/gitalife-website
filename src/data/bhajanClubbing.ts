@@ -46,7 +46,7 @@ export const EVENT = {
   title: "Bhajan Clubbing",
   tagline: "Temple soul. Club energy.",
   description:
-    "One night where the bass is a mridanga, the drop is a mantra, and nobody needs a drink to dance. Live kirtan, a room full of voices, and free packed prasadam from Sri Sri Radha Govinda Temple — a completely sattvic night.",
+    "One night where the bass is a mridanga, the drop is a mantra, and the whole room dances as one. Live kirtan, a room full of voices, and free packed prasadam from Sri Sri Radha Govinda Temple — a completely sattvic night.",
   dateLabel: "Saturday, August 15, 2026",
   timeLabel: "6:00 PM – 9:00 PM",
   doorsLabel: "Doors 6:00 PM",

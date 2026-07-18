@@ -214,10 +214,10 @@ export default function TheVibe() {
           <motion.p variants={rise} className="mt-6 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
             Bhajan clubbing takes the centuries-old practice of devotional call-and-response singing and puts it on a
             concert rig with a serious sound system. The lyrics stay sacred. The energy goes
-            vertical. Nobody drinks, everybody dances, and by the last chorus a room of strangers is one voice.
+            vertical. Everybody dances, and by the last chorus a room of strangers is one voice.
           </motion.p>
           <motion.p variants={rise} className="mt-4 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
-            Born in Mumbai, now filling halls from Delhi to Kathmandu — and this summer, Jersey City gets its first night.
+            Inspired by ISKCON NYC&apos;s Times Square harinam — where the holy name stops Midtown in its tracks every week — and this summer, Jersey City gets its first night.
           </motion.p>
         </motion.div>
 
