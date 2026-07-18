@@ -2,12 +2,26 @@
 
 /**
  * TheVibe — short manifesto on the kirtan × club fusion, with the four
- * vibe facts as frosted glass tiles.
+ * vibe facts as frosted glass tiles. The manifesto typography unfolds
+ * on scroll: heading words rise word-by-word, then the serif line and
+ * paragraphs follow, all driven by one staggered viewport trigger.
  */
 
-import { motion } from "framer-motion";
+import { Fragment } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Icon } from "@/components/home/icons";
 import { VIBE_FACTS } from "@/data/bhajanClubbing";
+
+const unfold: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+};
+const rise: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const HEADLINE_WORDS = "A rave where the drop is a".split(" ");
 
 /* Warm accents only — every icon ties back into the hero aura
    (muted saffron / soft rose / warm sand). */
@@ -19,35 +33,43 @@ const ACCENT: Record<string, string> = {
 };
 
 export default function TheVibe() {
+  const reduce = useReducedMotion();
   return (
     <section id="vibe" className="relative mx-auto max-w-5xl scroll-mt-20 px-6 py-20 sm:py-28">
       <div className="grid items-start gap-10 lg:grid-cols-[1.1fr_1fr]">
-        {/* manifesto */}
+        {/* manifesto — unfolds word-by-word, then line-by-line on scroll */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={unfold}
+          initial={reduce ? false : "hidden"}
+          whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
+          <motion.p variants={rise} className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
             The Vibe
-          </p>
+          </motion.p>
           <h2 className="mt-4 leading-[1.2] text-club-ink">
             <span className="block font-sans text-[22px] font-bold uppercase tracking-[0.08em] sm:text-[28px]">
-              A rave where the drop is a
+              {HEADLINE_WORDS.map((word, i) => (
+                <Fragment key={i}>
+                  <motion.span variants={rise} className="inline-block">
+                    {word}
+                  </motion.span>
+                  {i < HEADLINE_WORDS.length - 1 ? " " : null}
+                </Fragment>
+              ))}
             </span>
-            <span className="bc2-display block italic text-[34px] sm:text-[46px]" style={{ fontWeight: 500 }}>
+            <motion.span variants={rise} className="bc2-display block italic text-[34px] sm:text-[46px]" style={{ fontWeight: 500 }}>
               mantra
-            </span>
+            </motion.span>
           </h2>
-          <p className="mt-6 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
+          <motion.p variants={rise} className="mt-6 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
             Bhajan clubbing takes the centuries-old practice of devotional call-and-response singing and puts it on a
             concert rig with a serious sound system. The lyrics stay sacred. The energy goes
             vertical. Nobody drinks, everybody dances, and by the last chorus a room of strangers is one voice.
-          </p>
-          <p className="mt-4 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
+          </motion.p>
+          <motion.p variants={rise} className="mt-4 text-[15.5px] leading-[1.8]" style={{ color: "var(--bc2-ink-dim)" }}>
             Born in Mumbai, now filling halls from Delhi to Kathmandu — and this summer, Jersey City gets its first night.
-          </p>
+          </motion.p>
         </motion.div>
 
         {/* vibe tiles */}
