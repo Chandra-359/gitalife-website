@@ -1,19 +1,22 @@
 "use client";
 
 /**
- * NeonLineup — conference-style speaker grid.
+ * NeonLineup — streaming-platform poster rail.
  *
- * Uniform portrait tiles, the way tech events showcase speakers:
- * at rest each tile is just the artist's portrait with their name over
- * a bottom scrim — no set times, no headliner/opener labels, every
- * artist presented equally. Hover (tap on touch, focus on keyboard)
- * zooms the portrait and slides up a panel with the bio, instrument
- * and style. Artists without a photo yet get a monogram poster
- * in their accent colour — set `photo` in src/data/bhajanClubbing.ts
- * (files in public/lineup/) and the real portrait drops in.
+ * Movie-poster tiles (2:3) in a horizontal slideway: centered when the
+ * lineup fits the viewport, snap-scrollable when it doesn't. Hovering
+ * a poster spotlights it — the card scales up while its neighbours dim
+ * and soften (opacity-40 + blur) — and quietly cross-fades the graded
+ * still into a live performance loop. Tap on touch, focus on keyboard,
+ * do the same and slide up the bio panel.
+ *
+ * Performance footage: drop /videos/artist-<id>.mp4 (ids from
+ * src/data/bhajanClubbing.ts) and that artist's hover loop plays it;
+ * until then the shared ambient loop stands in. Stills come from
+ * `photo` (public/lineup/); artists without one get a monogram poster.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing";
@@ -74,21 +77,47 @@ function MonogramPoster({ artist }: { artist: ClubArtist }) {
 function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
   const a = ACCENT[artist.accent];
   const [revealed, setRevealed] = useState(false);
+  /* True when the shared ambient loop is standing in for real footage —
+     then the video screen-blends over the still as a light wash instead
+     of replacing the artist's face with plain haze. */
+  const [placeholder, setPlaceholder] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const playLoop = () => videoRef.current?.play().catch(() => {});
+  const pauseLoop = (force = false) => {
+    if (force || !revealed) videoRef.current?.pause();
+  };
 
   return (
-    <motion.article
+    /* Entrance animation lives on the wrapper so framer's inline opacity
+       never fights the spotlight dim classes on the article itself. */
+    <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
-      className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none focus-visible:ring-2 sm:w-[280px]"
+      className="shrink-0 snap-center"
+    >
+    <article
+      className="group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none transition-[opacity,filter,scale] duration-500 ease-in-out focus-visible:ring-2 group-hover/rail:opacity-40 group-hover/rail:blur-sm hover:scale-[1.04] hover:opacity-100! hover:blur-none! sm:w-[300px] md:w-[320px]"
       style={
         {
           boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
-      onClick={() => setRevealed((v) => !v)}
+      onClick={() =>
+        setRevealed((v) => {
+          const next = !v;
+          if (next) playLoop();
+          else pauseLoop(true);
+          return next;
+        })
+      }
+      onPointerEnter={playLoop}
+      onPointerLeave={() => pauseLoop()}
+      onFocus={playLoop}
+      onBlur={() => pauseLoop()}
       tabIndex={0}
       aria-label={`${artist.name}. Tap for artist details.`}
     >
@@ -116,6 +145,33 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         ) : (
           <MonogramPoster artist={artist} />
         )}
+        {/* live performance loop — quietly cross-fades in over the still.
+            Real footage goes to /videos/artist-<id>.mp4; the shared
+            ambient loop stands in until then. preload="none" keeps the
+            rail cheap — the clip only loads on first hover/tap/focus. */}
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${
+            revealed
+              ? placeholder
+                ? "opacity-60"
+                : "opacity-100"
+              : placeholder
+                ? "opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60"
+                : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+          }`}
+          style={placeholder ? { mixBlendMode: "screen" } : undefined}
+          onLoadedMetadata={(e) => setPlaceholder(e.currentTarget.currentSrc.endsWith("hero-loop.webm"))}
+          muted
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          aria-hidden
+        >
+          <source src={`/videos/artist-${artist.id}.mp4`} type="video/mp4" />
+          <source src="/videos/hero-loop.webm" type="video/webm" />
+        </video>
         {/* accent wash pulls any portrait into the warm palette */}
         <div
           className="absolute inset-0"
@@ -169,7 +225,8 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           </p>
         </div>
       </div>
-    </motion.article>
+    </article>
+    </motion.div>
   );
 }
 
@@ -194,11 +251,14 @@ export default function NeonLineup() {
         </p>
       </motion.div>
 
-      {/* centered flex row (not a left-anchored grid) so a short lineup sits in the middle */}
-      <div className="mt-12 flex flex-wrap justify-center gap-4 md:gap-5">
-        {LINEUP.map((artist, i) => (
-          <ArtistTile key={artist.id} artist={artist} index={i} />
-        ))}
+      {/* poster slideway — centered while the lineup fits, snap-scroll once
+          it grows past the viewport. group/rail drives the spotlight dim. */}
+      <div className="group/rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
+        <div className="mx-auto flex w-max items-stretch gap-5 md:gap-6">
+          {LINEUP.map((artist, i) => (
+            <ArtistTile key={artist.id} artist={artist} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );
