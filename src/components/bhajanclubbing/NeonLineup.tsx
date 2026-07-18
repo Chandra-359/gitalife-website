@@ -22,10 +22,10 @@ import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing
 const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 
 const ACCENT: Record<AccentToken, { main: string; soft: string }> = {
-  gold: { main: "#FFB25C", soft: "#FFD9B0" },
-  saffron: { main: "#FF7A1A", soft: "#FFBE8F" },
-  peacock: { main: "#4D9FFF", soft: "#9DC8FF" },
-  lotus: { main: "#E86BB7", soft: "#F5AED8" },
+  gold: { main: "#E5C08D", soft: "#F0DEC0" },
+  saffron: { main: "#D98A4A", soft: "#E8B98C" },
+  peacock: { main: "#A9B8D6", soft: "#C9D4E6" },
+  lotus: { main: "#C08CA6", soft: "#DBB8C8" },
 };
 
 function initials(name: string) {
@@ -41,7 +41,7 @@ function initials(name: string) {
 function MonogramPoster({ artist }: { artist: ClubArtist }) {
   const a = ACCENT[artist.accent];
   return (
-    <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #1A0D42 0%, #0B0620 78%)" }}>
+    <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, var(--bc2-bg-2) 0%, var(--bc2-bg) 78%)" }}>
       <div
         className="absolute inset-0"
         style={{ background: `radial-gradient(circle at 50% 34%, ${a.main}38, transparent 62%)` }}
@@ -84,8 +84,8 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       className="group relative aspect-[3/4] w-[calc(50%-0.5rem)] max-w-[300px] cursor-pointer overflow-hidden rounded-3xl outline-none focus-visible:ring-2 sm:w-[280px]"
       style={
         {
-          border: "1px solid rgba(244,239,255,0.13)",
-          boxShadow: "0 18px 48px -22px rgba(0,0,0,0.7)",
+          border: "1px solid rgba(244,240,235,0.13)",
+          boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
@@ -122,7 +122,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       {/* bottom scrim under the labels */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
-        style={{ background: "linear-gradient(180deg, transparent, rgba(7,3,19,0.5) 48%, rgba(7,3,19,0.92))" }}
+        style={{ background: "linear-gradient(180deg, transparent, rgba(26,22,35,0.5) 48%, rgba(26,22,35,0.92))" }}
         aria-hidden
       />
 
@@ -132,7 +132,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           revealed ? "opacity-0" : ""
         }`}
       >
-        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[20px]">{artist.name}</h3>
+        <h3 className="bc2-display text-[16px] leading-tight text-club-ink sm:text-[20px]">{artist.name}</h3>
       </div>
 
       {/* hover / tap / focus panel — the full story */}
@@ -141,20 +141,20 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           revealed ? "!translate-y-0" : ""
         }`}
         style={{
-          background: "linear-gradient(180deg, rgba(7,3,19,0) 10%, rgba(7,3,19,0.6) 38%, rgba(7,3,19,0.95) 62%, rgba(7,3,19,0.97) 100%)",
+          background: "linear-gradient(180deg, rgba(26,22,35,0) 10%, rgba(26,22,35,0.6) 38%, rgba(26,22,35,0.95) 62%, rgba(26,22,35,0.97) 100%)",
           backdropFilter: "blur(8px)",
         }}
       >
-        <h3 className="bc2-display text-[16px] leading-tight text-white sm:text-[19px]">{artist.name}</h3>
+        <h3 className="bc2-display text-[16px] leading-tight text-club-ink sm:text-[19px]">{artist.name}</h3>
         <p className="mt-2.5 line-clamp-3 text-[11.5px] leading-relaxed sm:line-clamp-none sm:text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
           {artist.bio}
         </p>
-        <div className="mt-3 space-y-1.5 border-t pt-3" style={{ borderColor: "rgba(244,239,255,0.12)" }}>
+        <div className="mt-3 space-y-1.5 border-t pt-3" style={{ borderColor: "rgba(244,240,235,0.12)" }}>
           <p className="text-[11px] sm:text-[12px]">
             <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
               Plays
             </span>
-            <span className="font-semibold text-white">{artist.instrument}</span>
+            <span className="font-semibold text-club-ink">{artist.instrument}</span>
           </p>
           <p className="hidden text-[11px] leading-snug sm:block sm:text-[12px]">
             <span className="mr-2 text-[9px] font-extrabold uppercase tracking-[0.22em]" style={{ color: a.main }}>
@@ -181,7 +181,7 @@ export default function NeonLineup() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           The Lineup
         </p>
-        <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
+        <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
           {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>

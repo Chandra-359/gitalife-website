@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * NeonHero — full-screen "Transcendental Neon" hero.
+ * NeonHero — full-screen "Velvet Ritual" hero.
  *
- * Layers (back → front): deep purple gradient + grain → parallax aurora
- * blobs (saffron / electric blue / violet) → rotating light-rig beam
- * wheel → content (eyebrow, massive Unbounded headline, meta chips,
- * glowing Get Tickets CTA) → marquee ticker on the bottom edge.
+ * Layers (back → front): deep plum/midnight gradient → parallax aurora
+ * washes (amber / dusty blue / soft violet) → slow ambient light wheel →
+ * content (eyebrow, massive editorial serif headline, meta chips, warm
+ * Get Tickets CTA) → marquee ticker on the bottom edge.
  * Parallax is framer-motion useScroll/useTransform (no extra deps).
  */
 
@@ -33,7 +33,7 @@ function CountdownPill() {
     };
   }, []);
 
-  if (now === null) return <div className="mx-auto h-9 w-56 rounded-full" style={{ background: "rgba(244,239,255,0.05)" }} />;
+  if (now === null) return <div className="mx-auto h-9 w-56 rounded-full" style={{ background: "rgba(244,240,235,0.05)" }} />;
 
   const start = new Date(EVENT.startIso).getTime();
   const end = new Date(EVENT.endIso).getTime();
@@ -50,9 +50,9 @@ function CountdownPill() {
     <span
       className="inline-flex items-center gap-2.5 rounded-full px-5 py-2 text-[12px] font-bold uppercase tracking-[0.2em]"
       style={{
-        background: "rgba(244,239,255,0.06)",
-        border: "1px solid rgba(255,122,26,0.4)",
-        color: "#FFD9B0",
+        background: "rgba(244,240,235,0.06)",
+        border: "1px solid rgba(217,138,74,0.4)",
+        color: "var(--bc2-amber)",
         backdropFilter: "blur(8px)",
       }}
       role="timer"
@@ -108,13 +108,7 @@ export default function NeonHero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   return (
-    <header ref={ref} className="relative overflow-hidden" style={{ background: "linear-gradient(180deg, #070313 0%, var(--bc2-bg) 40%, var(--bc2-bg-2) 100%)" }}>
-      {/* grain */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: "var(--tex-grain-dark)", backgroundSize: "240px 240px", opacity: 0.5, mixBlendMode: "screen" }}
-        aria-hidden
-      />
+    <header ref={ref} className="relative overflow-hidden" style={{ background: "linear-gradient(180deg, var(--bc2-bg) 0%, var(--bc2-bg-mid) 45%, var(--bc2-bg-2) 100%)" }}>
 
       {/* aurora blobs (parallax) */}
       <motion.div className="pointer-events-none absolute inset-0" style={{ y: auroraY }} aria-hidden>
@@ -130,9 +124,9 @@ export default function NeonHero() {
       </motion.div>
 
       {/* floating instruments at the edges (desktop) */}
-      <InstrumentSprite kind="bansuri" size={128} rotate={-22} color="#9DB8FF" opacity={0.15} className="hidden md:block" style={{ left: "4%", bottom: "24%" }} floatDuration="10s" />
-      <InstrumentSprite kind="mridanga" size={112} rotate={12} color="#FFB25C" opacity={0.14} className="hidden md:block" style={{ right: "4%", top: "30%" }} floatDelay="-4s" floatDuration="11s" />
-      <InstrumentSprite kind="kartals" size={72} rotate={-10} color="#C9A8FF" opacity={0.13} className="hidden lg:block" style={{ left: "13%", top: "22%" }} floatDelay="-7s" floatDuration="8s" />
+      <InstrumentSprite kind="bansuri" size={128} rotate={-22} color="#A9B8D6" opacity={0.15} className="hidden md:block" style={{ left: "4%", bottom: "24%" }} floatDuration="10s" />
+      <InstrumentSprite kind="mridanga" size={112} rotate={12} color="#E5C08D" opacity={0.14} className="hidden md:block" style={{ right: "4%", top: "30%" }} floatDelay="-4s" floatDuration="11s" />
+      <InstrumentSprite kind="kartals" size={72} rotate={-10} color="#B7A6CE" opacity={0.13} className="hidden lg:block" style={{ left: "13%", top: "22%" }} floatDelay="-7s" floatDuration="8s" />
 
       {/* content */}
       <motion.div
@@ -152,7 +146,7 @@ export default function NeonHero() {
 
           {/* massive headline */}
           <h1 className="bc2-display mt-6" style={{ fontSize: "clamp(2.7rem, 11.5vw, 7.2rem)" }}>
-            <span className="block text-white" style={{ textShadow: "0 0 44px rgba(139,92,246,0.55)" }}>
+            <span className="block text-club-ink" style={{ textShadow: "0 2px 40px rgba(122,92,158,0.35)" }}>
               Bhajan
             </span>
             <span className="bc2-headline-grad block">Clubbing</span>
@@ -175,8 +169,8 @@ export default function NeonHero() {
                 key={chip.label}
                 className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-semibold"
                 style={{
-                  background: "rgba(244,239,255,0.06)",
-                  border: "1px solid rgba(244,239,255,0.14)",
+                  background: "rgba(244,240,235,0.06)",
+                  border: "1px solid rgba(244,240,235,0.14)",
                   color: "var(--bc2-ink)",
                   backdropFilter: "blur(8px)",
                 }}
@@ -215,7 +209,7 @@ export default function NeonHero() {
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
           aria-label="Scroll to about section"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(244,239,255,0.5)" strokeWidth="1.6" strokeLinecap="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(244,240,235,0.5)" strokeWidth="1.6" strokeLinecap="round">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </motion.a>
@@ -225,9 +219,9 @@ export default function NeonHero() {
       <div
         className="relative z-10 overflow-hidden py-3.5"
         style={{
-          borderTop: "1px solid rgba(139,92,246,0.3)",
-          borderBottom: "1px solid rgba(139,92,246,0.3)",
-          background: "rgba(7,3,19,0.6)",
+          borderTop: "1px solid rgba(122,92,158,0.3)",
+          borderBottom: "1px solid rgba(122,92,158,0.3)",
+          background: "rgba(26,26,29,0.6)",
           backdropFilter: "blur(10px)",
         }}
       >

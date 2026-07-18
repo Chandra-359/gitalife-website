@@ -10,10 +10,10 @@ import { Icon } from "@/components/home/icons";
 import { VIBE_FACTS } from "@/data/bhajanClubbing";
 
 const ACCENT: Record<string, string> = {
-  gold: "#FFB25C",
-  saffron: "#FF7A1A",
-  peacock: "#4D9FFF",
-  lotus: "#E86BB7",
+  gold: "#E5C08D",
+  saffron: "#D98A4A",
+  peacock: "#A9B8D6",
+  lotus: "#C08CA6",
 };
 
 export default function TheVibe() {
@@ -30,7 +30,7 @@ export default function TheVibe() {
           <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
             The Vibe
           </p>
-          <h2 className="bc2-display mt-4 text-[30px] leading-[1.05] text-white sm:text-[40px]">
+          <h2 className="bc2-display mt-4 text-[30px] leading-[1.05] text-club-ink sm:text-[40px]">
             A rave where the{" "}
             <span className="bc2-headline-grad">drop is a mantra</span>
           </h2>
@@ -64,7 +64,7 @@ export default function TheVibe() {
                 >
                   <Icon name={fact.icon} size={18} />
                 </span>
-                <h3 className="mt-3 text-[15px] font-bold text-white">{fact.title}</h3>
+                <h3 className="mt-3 text-[15px] font-bold text-club-ink">{fact.title}</h3>
                 <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
                   {fact.detail}
                 </p>

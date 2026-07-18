@@ -18,7 +18,7 @@ const VenueMap = dynamic(() => import("./VenueMap"), {
   loading: () => (
     <div
       className="mt-5 h-[150px] rounded-xl sm:h-[170px]"
-      style={{ background: "rgba(7,3,19,0.55)", border: "1px solid rgba(77,159,255,0.2)" }}
+      style={{ background: "rgba(26,22,35,0.55)", border: "1px solid rgba(169,184,214,0.2)" }}
     />
   ),
 });
@@ -39,7 +39,7 @@ function BentoCountdown() {
     };
   }, []);
 
-  if (now === null) return <div className="mt-5 h-[64px] rounded-xl" style={{ background: "rgba(244,239,255,0.04)" }} />;
+  if (now === null) return <div className="mt-5 h-[64px] rounded-xl" style={{ background: "rgba(244,240,235,0.04)" }} />;
 
   const start = new Date(EVENT.startIso).getTime();
   const diff = Math.max(0, start - now);
@@ -53,8 +53,8 @@ function BentoCountdown() {
   return (
     <div className="mt-5 grid grid-cols-4 gap-2" role="timer" aria-label="Countdown to the event">
       {segs.map((s) => (
-        <div key={s.l} className="rounded-xl px-1 py-2.5 text-center" style={{ background: "rgba(244,239,255,0.055)", border: "1px solid rgba(77,159,255,0.28)" }}>
-          <div className="bc2-display text-[22px] leading-none tabular-nums" style={{ color: "#9DC8FF", fontWeight: 700 }}>
+        <div key={s.l} className="rounded-xl px-1 py-2.5 text-center" style={{ background: "rgba(244,240,235,0.055)", border: "1px solid rgba(169,184,214,0.28)" }}>
+          <div className="bc2-display text-[22px] leading-none tabular-nums" style={{ color: "#C9D4E6", fontWeight: 700 }}>
             {String(s.v).padStart(2, "0")}
           </div>
           <div className="mt-1 text-[8.5px] font-extrabold uppercase tracking-[0.2em]" style={{ color: "var(--bc2-ink-faint)" }}>
@@ -119,18 +119,18 @@ export default function BentoDetails() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           The Details
         </p>
-        <h2 className="bc2-display mt-4 text-[30px] text-white sm:text-[40px]">
+        <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
           Everything you need. <span className="bc2-headline-grad">Nothing you don&rsquo;t.</span>
         </h2>
       </motion.div>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Venue + map — wide */}
-        <Bento edge="#FF7A1A" className="sm:col-span-2" delay={0}>
+        <Bento edge="#D98A4A" className="sm:col-span-2" delay={0}>
           <BentoLabel icon="mapPin" color="var(--bc2-amber)">
             Hosted by ISKCON NYC
           </BentoLabel>
-          <h3 className="bc2-display mt-3 text-[20px] text-white sm:text-[23px]" style={{ fontWeight: 700 }}>
+          <h3 className="bc2-display mt-3 text-[20px] text-club-ink sm:text-[23px]" style={{ fontWeight: 700 }}>
             {EVENT.venue.name}
           </h3>
           <p className="mt-1.5 text-[13px]" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -155,11 +155,11 @@ export default function BentoDetails() {
         </Bento>
 
         {/* Date & time + countdown */}
-        <Bento edge="#4D9FFF" className="sm:col-span-2 lg:col-span-2" delay={0.08}>
-          <BentoLabel icon="calendar" color="#9DC8FF">
+        <Bento edge="#A9B8D6" className="sm:col-span-2 lg:col-span-2" delay={0.08}>
+          <BentoLabel icon="calendar" color="#C9D4E6">
             Time &amp; Date
           </BentoLabel>
-          <h3 className="bc2-display mt-3 text-[20px] text-white sm:text-[23px]" style={{ fontWeight: 700 }}>
+          <h3 className="bc2-display mt-3 text-[20px] text-club-ink sm:text-[23px]" style={{ fontWeight: 700 }}>
             {EVENT.dateLabel}
           </h3>
           <p className="mt-1.5 text-[13px]" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -169,25 +169,25 @@ export default function BentoDetails() {
         </Bento>
 
         {/* Dress code */}
-        <Bento edge="#E86BB7" className="lg:col-span-2" delay={0.12}>
-          <BentoLabel icon="sparkle" color="#F5AED8">
+        <Bento edge="#C08CA6" className="lg:col-span-2" delay={0.12}>
+          <BentoLabel icon="sparkle" color="#DBB8C8">
             Dress Code
           </BentoLabel>
-          <h3 className="mt-3 text-[16px] font-bold text-white">Festival fits, dance-proof</h3>
+          <h3 className="mt-3 text-[16px] font-bold text-club-ink">Festival fits, dance-proof</h3>
           <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
             {EVENT.venue.note} Kurtas, sneakers, saris, streetwear — modest and movable wins.
           </p>
         </Bento>
 
         {/* House rules */}
-        <Bento edge="#8B5CF6" className="lg:col-span-2" delay={0.16}>
-          <BentoLabel icon="lotus" color="#C9A8FF">
+        <Bento edge="#7A5C9E" className="lg:col-span-2" delay={0.16}>
+          <BentoLabel icon="lotus" color="#B7A6CE">
             House Rules
           </BentoLabel>
           <ul className="mt-3 space-y-2.5">
             {["Fully sattvic, all the way through", "All ages welcome", "Phones down during the final kirtan"].map((rule) => (
               <li key={rule} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: "var(--bc2-ink-dim)" }}>
-                <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "#8B5CF6", boxShadow: "0 0 8px #8B5CF6" }} aria-hidden />
+                <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "#7A5C9E", boxShadow: "0 0 8px #7A5C9E" }} aria-hidden />
                 {rule}
               </li>
             ))}

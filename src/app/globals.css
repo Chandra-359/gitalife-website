@@ -102,6 +102,14 @@
   --font-display: var(--font-fraunces), "Cormorant Garamond", Georgia, serif;
   --font-devanagari: var(--font-fraunces), Georgia, serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+
+  /* High-contrast editorial serif for large impact headings (use as
+     `font-heading`). Playfair Display is loaded per-route via next/font
+     (--font-playfair); routes that don't load it fall back to Fraunces. */
+  --font-heading: var(--font-playfair), "Playfair Display", var(--font-fraunces), Georgia, serif;
+
+  /* Soft off-white ink for the club pages (use as `text-club-ink`). */
+  --color-club-ink: #F4F0EB;
 }
 
 /* ------------------------------------------------------------------ */
@@ -586,30 +594,48 @@ html {
 }
 
 /* ================================================================== */
-/*  Bhajan Clubbing v2 — "Transcendental Neon" (bc2-*)                 */
-/*  Deep purple base, electric blue + saffron neon, real glass.        */
+/*  Bhajan Clubbing v2 — "Velvet Ritual" (bc2-*)                       */
+/*  High-end conscious club: deep plum/midnight canvas, soft off-white */
+/*  ink, warm candlelit accents. No pure black, no neon.               */
 /* ================================================================== */
 :root {
-  --bc2-bg: #0B0620;
-  --bc2-bg-2: #150A38;
-  --bc2-saffron: #FF7A1A;
-  --bc2-amber: #FFB25C;
-  --bc2-blue: #4D9FFF;
-  --bc2-blue-deep: #2E5BFF;
-  --bc2-purple: #8B5CF6;
-  --bc2-pink: #E86BB7;
-  --bc2-ink: #F4EFFF;
-  --bc2-ink-dim: rgba(244,239,255,0.66);
-  --bc2-ink-faint: rgba(244,239,255,0.42);
+  --bc2-bg: #1A1A1D;        /* midnight — the deepest the page ever gets */
+  --bc2-bg-2: #2A1B38;      /* rich plum */
+  --bc2-bg-mid: #231831;    /* interpolation stop for long gradients */
+  --bc2-saffron: #D98A4A;   /* burnt amber */
+  --bc2-amber: #E5C08D;     /* champagne */
+  --bc2-blue: #A9B8D6;      /* moonlit dusty blue */
+  --bc2-blue-deep: #45507E; /* muted indigo wash */
+  --bc2-purple: #7A5C9E;    /* soft violet */
+  --bc2-pink: #C08CA6;      /* dusty rose */
+  --bc2-ink: #F4F0EB;       /* soft elegant off-white */
+  --bc2-ink-dim: rgba(244,240,235,0.68);
+  --bc2-ink-faint: rgba(244,240,235,0.44);
+
+  /* Film grain tile — warm monochrome noise (see .bc2-film-grain) */
+  --bc2-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.94 0 0 0 0 0.92 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+}
+
+/* Fixed, page-wide film grain — analog warmth over the whole viewport.
+   pointer-events-none + low opacity keep it a whisper, not a veil. */
+.bc2-film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background-image: var(--bc2-grain);
+  background-size: 180px 180px;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
 }
 
 /* Frosted glass panel — the core surface of the design */
 .bc2-glass {
-  background: linear-gradient(165deg, rgba(139,92,246,0.10), rgba(21,10,56,0.42) 55%, rgba(11,6,32,0.5));
-  backdrop-filter: blur(16px) saturate(1.35);
-  -webkit-backdrop-filter: blur(16px) saturate(1.35);
-  border: 1px solid rgba(244,239,255,0.13);
-  box-shadow: inset 0 1px 0 rgba(244,239,255,0.09), 0 18px 48px -22px rgba(0,0,0,0.7);
+  background: linear-gradient(165deg, rgba(122,92,158,0.10), rgba(42,27,56,0.44) 55%, rgba(26,26,29,0.52));
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(244,240,235,0.12);
+  box-shadow: inset 0 1px 0 rgba(244,240,235,0.08), 0 18px 48px -22px rgba(16,12,20,0.6);
   border-radius: var(--radius-2xl);
 }
 .bc2-glass-hover {
@@ -617,8 +643,8 @@ html {
 }
 .bc2-glass-hover:hover {
   transform: translateY(-4px);
-  border-color: rgba(244,239,255,0.26);
-  box-shadow: inset 0 1px 0 rgba(244,239,255,0.12), 0 24px 60px -20px var(--bc2-hover-glow, rgba(255,122,26,0.4));
+  border-color: rgba(244,240,235,0.24);
+  box-shadow: inset 0 1px 0 rgba(244,240,235,0.1), 0 24px 60px -20px var(--bc2-hover-glow, rgba(217,138,74,0.3));
 }
 
 /* Aurora blobs — slow pulse + drift behind the glass */
@@ -636,58 +662,57 @@ html {
   pointer-events: none;
 }
 
-/* Club light-rig beams — conic wheel, rotated by bc-spin-slow */
+/* Ambient light wheel — candlelit washes, rotated by bc-spin-slow */
 .bc2-beams {
   background: conic-gradient(
     from 0deg,
-    transparent 0deg 14deg, rgba(255,122,26,0.12) 20deg, transparent 26deg 58deg,
-    rgba(77,159,255,0.12) 64deg, transparent 70deg 118deg,
-    rgba(139,92,246,0.13) 124deg, transparent 130deg 172deg,
-    rgba(255,178,92,0.1) 178deg, transparent 184deg 236deg,
-    rgba(77,159,255,0.1) 242deg, transparent 248deg 298deg,
-    rgba(232,107,183,0.1) 304deg, transparent 310deg 360deg
+    transparent 0deg 14deg, rgba(217,138,74,0.07) 20deg, transparent 26deg 58deg,
+    rgba(169,184,214,0.06) 64deg, transparent 70deg 118deg,
+    rgba(122,92,158,0.08) 124deg, transparent 130deg 172deg,
+    rgba(229,192,141,0.06) 178deg, transparent 184deg 236deg,
+    rgba(169,184,214,0.05) 242deg, transparent 248deg 298deg,
+    rgba(192,140,166,0.06) 304deg, transparent 310deg 360deg
   );
   mask-image: radial-gradient(circle at center, black 0%, black 55%, transparent 78%);
   -webkit-mask-image: radial-gradient(circle at center, black 0%, black 55%, transparent 78%);
 }
 
-/* Massive neon headline */
+/* Editorial display headline — high-contrast serif, sentence case */
 .bc2-display {
-  font-family: var(--font-unbounded), var(--font-inter), system-ui, sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  line-height: 0.96;
+  font-family: var(--font-playfair), "Playfair Display", var(--font-fraunces), Georgia, serif;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: -0.015em;
+  line-height: 1.06;
 }
 .bc2-headline-grad {
-  background: linear-gradient(100deg, #FFD9B0 0%, var(--bc2-saffron) 34%, var(--bc2-pink) 58%, var(--bc2-blue) 100%);
+  background: linear-gradient(105deg, var(--bc2-ink) 0%, var(--bc2-amber) 48%, #C9A248 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 26px rgba(255,122,26,0.45)) drop-shadow(0 0 60px rgba(77,159,255,0.3));
 }
 
-/* Glowing CTA */
-@keyframes bc2-btn-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,26,0.55), 0 10px 34px -8px rgba(255,122,26,0.75); }
-  50%      { box-shadow: 0 0 0 9px rgba(255,122,26,0), 0 10px 44px -6px rgba(255,122,26,0.95); }
-}
+/* Primary CTA — warm candlelit gradient, calm static shadow */
 .bc2-btn-glow {
-  background: linear-gradient(135deg, var(--bc2-amber) 0%, var(--bc2-saffron) 45%, #E8511A 100%);
-  color: #1C0A02;
-  animation: bc2-btn-pulse 2.6s ease-in-out infinite;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  background: linear-gradient(135deg, var(--bc2-amber) 0%, var(--bc2-saffron) 55%, #B06A32 100%);
+  color: #241505;
+  box-shadow: 0 1px 2px rgba(16,12,20,0.35), 0 12px 30px -12px rgba(217,138,74,0.55);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
-.bc2-btn-glow:hover { transform: translateY(-2px) scale(1.02); filter: brightness(1.07); }
+.bc2-btn-glow:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 2px 4px rgba(16,12,20,0.35), 0 16px 36px -12px rgba(217,138,74,0.65);
+}
 
 .bc2-btn-ghost {
-  border: 1px solid rgba(244,239,255,0.28);
+  border: 1px solid rgba(244,240,235,0.28);
   color: var(--bc2-ink);
-  background: rgba(244,239,255,0.05);
+  background: rgba(244,240,235,0.05);
   backdrop-filter: blur(8px);
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-.bc2-btn-ghost:hover { background: rgba(244,239,255,0.1); border-color: rgba(244,239,255,0.45); transform: translateY(-2px); }
+.bc2-btn-ghost:hover { background: rgba(244,240,235,0.1); border-color: rgba(244,240,235,0.45); transform: translateY(-2px); }
 
 /* Neon edge accent for bento / lineup cards (uses --bc2-edge) */
 .bc2-edge-top { position: relative; overflow: hidden; }
@@ -702,7 +727,7 @@ html {
 }
 
 /* Stepper dots */
-.bc2-step-line { background: linear-gradient(90deg, rgba(244,239,255,0.12), rgba(244,239,255,0.12)); }
+.bc2-step-line { background: linear-gradient(90deg, rgba(244,240,235,0.12), rgba(244,240,235,0.12)); }
 
 /* ================================================================== */
 /*  Scrollbar                                                          */

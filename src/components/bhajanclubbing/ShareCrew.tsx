@@ -119,7 +119,7 @@ export default function ShareCrew() {
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>
           Spread the Word
         </p>
-        <h2 className="bc2-display mt-4 text-[28px] text-white sm:text-[36px]">
+        <h2 className="bc2-display mt-4 text-[28px] text-club-ink sm:text-[36px]">
           Bring your <span className="bc2-headline-grad">crew</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
@@ -149,7 +149,7 @@ export default function ShareCrew() {
             >
               {tile.icon}
             </span>
-            <span className="text-[13px] font-bold text-white">{tile.label}</span>
+            <span className="text-[13px] font-bold text-club-ink">{tile.label}</span>
             <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(251,245,230,0.45)" }}>
               {tile.sub}
             </span>

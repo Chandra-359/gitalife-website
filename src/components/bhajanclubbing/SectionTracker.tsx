@@ -99,11 +99,11 @@ export default function SectionTracker() {
       <div
         className="relative overflow-hidden rounded-full"
         style={{
-          background: "linear-gradient(165deg, rgba(139,92,246,0.14), rgba(21,10,56,0.72) 55%, rgba(11,6,32,0.8))",
-          border: "1px solid rgba(244,239,255,0.14)",
+          background: "linear-gradient(165deg, rgba(122,92,158,0.14), rgba(42,27,56,0.72) 55%, rgba(26,26,29,0.8))",
+          border: "1px solid rgba(244,240,235,0.14)",
           backdropFilter: "blur(14px) saturate(1.35)",
           WebkitBackdropFilter: "blur(14px) saturate(1.35)",
-          boxShadow: "inset 0 1px 0 rgba(244,239,255,0.09), 0 14px 40px -16px rgba(0,0,0,0.75)",
+          boxShadow: "inset 0 1px 0 rgba(244,240,235,0.09), 0 14px 40px -16px rgba(16,12,20,0.75)",
         }}
       >
         <ul className="flex items-center gap-0.5 px-2 py-1">
@@ -119,23 +119,23 @@ export default function SectionTracker() {
                 >
                   <span
                     className={`h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-200 ${
-                      isActive ? "" : "group-hover:bg-[rgba(244,239,255,0.6)]"
+                      isActive ? "" : "group-hover:bg-[rgba(244,240,235,0.6)]"
                     }`}
                     style={
                       isActive
                         ? {
                             background: "var(--bc2-saffron)",
-                            boxShadow: "0 0 8px rgba(255,122,26,0.9), 0 0 18px rgba(255,122,26,0.5)",
+                            boxShadow: "0 0 8px rgba(217,138,74,0.9), 0 0 18px rgba(217,138,74,0.5)",
                           }
-                        : { background: "rgba(244,239,255,0.28)" }
+                        : { background: "rgba(244,240,235,0.28)" }
                     }
                     aria-hidden
                   />
                   <span
                     className={`text-[10px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
                       isActive
-                        ? "text-[#FFD9B0]"
-                        : "hidden text-[rgba(244,239,255,0.45)] group-hover:text-[rgba(244,239,255,0.85)] md:inline"
+                        ? "text-[#F0DEC0]"
+                        : "hidden text-[rgba(244,240,235,0.45)] group-hover:text-[rgba(244,240,235,0.85)] md:inline"
                     }`}
                   >
                     {label}
@@ -153,7 +153,7 @@ export default function SectionTracker() {
             style={{
               width: `${progress * 100}%`,
               background: "linear-gradient(90deg, var(--bc2-amber), var(--bc2-saffron), var(--bc2-pink), var(--bc2-blue))",
-              boxShadow: "0 0 8px rgba(255,122,26,0.6)",
+              boxShadow: "0 0 8px rgba(217,138,74,0.6)",
             }}
           />
         </div>
