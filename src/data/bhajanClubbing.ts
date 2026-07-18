@@ -58,8 +58,7 @@ export const EVENT = {
   },
   /** Server-side booking cap — enforced by the API, not shown on the page. */
   capacity: 200,
-  /** TEMP TEST PRICE — restore to "$49.99" before launch. */
-  priceLabel: "$1.00",
+  priceLabel: "$49.99",
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
@@ -155,9 +154,8 @@ export const TIERS: TicketTier[] = [
   {
     id: "general",
     name: "General Admission",
-    // TEMP TEST PRICE — restore to "$49.99" / 49.99 before launch.
-    tag: "$1.00",
-    priceUsd: 1,
+    tag: "$49.99",
+    priceUsd: 49.99,
     blurb: "One ticket, the whole night: the floor, the chant, the prasadam.",
     perks: ["Full floor access", "Live kirtan all night", "Free packed prasadam"],
     accent: "saffron",
