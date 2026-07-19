@@ -4,21 +4,29 @@
  * NeonLineup — streaming-platform poster rail.
  *
  * Movie-poster tiles (2:3) in a horizontal slideway: centered when the
- * lineup fits the viewport, snap-scrollable when it doesn't. Hovering
- * a poster spotlights it — the card scales up while its neighbours dim
- * and soften (opacity-40 + blur) — and quietly cross-fades the graded
- * still into a live performance loop. Tap on touch, focus on keyboard,
- * do the same and slide up the bio panel.
+ * lineup fits the viewport, snap-scrollable when it doesn't. The rail
+ * tracks which poster the mouse is on and Framer Motion runs the stage
+ * spotlight: the active card scales to 1.05 at full brightness while
+ * its neighbours dim and soften (opacity 0.4 + 4px blur). At rest each
+ * poster sits darkened (brightness 0.5, desaturated grade) with its
+ * loop paused; hover/tap/focus brightens it and plays the loop through
+ * a ref. Tap on touch, focus on keyboard, also slide up the bio panel.
  *
- * Performance footage: drop /videos/artist-<id>.mp4 (ids from
- * src/data/bhajanClubbing.ts) and that artist's hover loop plays it;
- * until then the shared ambient loop stands in. Stills come from
- * `photo` (public/lineup/); artists without one get a monogram poster.
+ * Performance footage, walked source by source per artist:
+ *   1. /videos/artist-<id>.mp4 (ids from src/data/bhajanClubbing.ts) —
+ *      drop real performance clips there and they take over.
+ *   2. A distinct portrait Pexels stock loop per artist (ARTIST_STOCK,
+ *      free license), offered at several sizes/framerates since the
+ *      exact CDN filename varies; landscape tiers ride along as a
+ *      safety net (object-cover crops either into the 2:3 tile).
+ *   3. The shared ambient webm, screen-blended as a light wash.
+ * Stills come from `photo` (public/lineup/); artists without one get a
+ * monogram poster.
  */
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing";
 
 /** Heading stays literate as the lineup grows — "Two acts", "Three acts", … */
@@ -30,6 +38,36 @@ const ACCENT: Record<AccentToken, { main: string; soft: string }> = {
   peacock: { main: "#A9B8D6", soft: "#C9D4E6" },
   lotus: { main: "#C08CA6", soft: "#DBB8C8" },
 };
+
+/* Per-artist portrait stock loop (Pexels video id), themed to the
+   artist's accent and energy. Artists without an entry skip straight
+   to the shared webm. */
+const ARTIST_STOCK: Record<string, string> = {
+  // "Man Singing at Concert" — live vocalist, stage energy
+  "govinda-krishna-prabhuji": "10050961",
+  // "Close Up Video of People Playing Hang Drums" — percussionist's hands (vertical)
+  "srikar-prabhuji": "8746933",
+  // "Close-up Video of a Woman Singing on Microphone" — intimate, soft light
+  "mayuri-gandharvika": "8043326",
+};
+
+/* Pexels CDN filenames encode size + native framerate, which isn't
+   knowable up front — offer portrait tiers first (the tiles are 2:3),
+   then a landscape safety net, and let the browser's <source>
+   fallthrough find the file that exists. */
+const STOCK_VARIANTS = ["sd_540_960", "hd_1080_1920", "sd_960_540"].flatMap((size) =>
+  [30, 25, 24].map((fps) => `${size}_${fps}fps`)
+);
+const stockSources = (id: string) =>
+  STOCK_VARIANTS.map((v) => `https://videos.pexels.com/video-files/${id}/${id}-${v}.mp4`);
+
+/* Stage-spotlight targets for the three states a tile can be in. */
+const SPOT = {
+  idle: { scale: 1, opacity: 1, filter: "blur(0px)" },
+  active: { scale: 1.05, opacity: 1, filter: "blur(0px)" },
+  dim: { scale: 1, opacity: 0.4, filter: "blur(4px)" },
+} as const;
+type SpotState = keyof typeof SPOT;
 
 function initials(name: string) {
   return name
@@ -74,8 +112,19 @@ function MonogramPoster({ artist }: { artist: ClubArtist }) {
   );
 }
 
-function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
+function ArtistTile({
+  artist,
+  index,
+  spot,
+  onSpot,
+}: {
+  artist: ClubArtist;
+  index: number;
+  spot: SpotState;
+  onSpot: (id: string | null) => void;
+}) {
   const a = ACCENT[artist.accent];
+  const reduce = useReducedMotion();
   const [revealed, setRevealed] = useState(false);
   /* True when the shared ambient loop is standing in for real footage —
      then the video screen-blends over the still as a light wash instead
@@ -88,9 +137,13 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
     if (force || !revealed) videoRef.current?.pause();
   };
 
+  /* Full brightness whenever the tile is spotlit, tapped open, or the
+     spotlight is off for reduced motion. */
+  const bright = spot === "active" || revealed || reduce;
+
   return (
-    /* Entrance animation lives on the wrapper so framer's inline opacity
-       never fights the spotlight dim classes on the article itself. */
+    /* Entrance animation lives on the wrapper so its inline opacity
+       never fights the spotlight's animated opacity on the article. */
     <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -98,14 +151,16 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       transition={{ duration: 0.6, delay: (index % 3) * 0.09 }}
       className="shrink-0 snap-center"
     >
-    <article
-      className="group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none transition-[opacity,filter,scale] duration-500 ease-in-out focus-visible:ring-2 group-hover/rail:opacity-40 group-hover/rail:blur-sm hover:scale-[1.04] hover:opacity-100! hover:blur-none! sm:w-[300px] md:w-[320px]"
+    <motion.article
+      className="group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none focus-visible:ring-2 sm:w-[300px] md:w-[320px]"
       style={
         {
           boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
+      animate={reduce ? SPOT.idle : SPOT[spot]}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       onClick={() =>
         setRevealed((v) => {
           const next = !v;
@@ -114,18 +169,32 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           return next;
         })
       }
-      onPointerEnter={playLoop}
-      onPointerLeave={() => pauseLoop()}
-      onFocus={playLoop}
-      onBlur={() => pauseLoop()}
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") onSpot(artist.id);
+        playLoop();
+      }}
+      onPointerLeave={() => {
+        onSpot(null);
+        pauseLoop();
+      }}
+      onFocus={() => {
+        onSpot(artist.id);
+        playLoop();
+      }}
+      onBlur={() => {
+        onSpot(null);
+        pauseLoop();
+      }}
       tabIndex={0}
       aria-label={`${artist.name}. Tap for artist details.`}
     >
-      {/* portrait */}
-      <div
+      {/* portrait — darkened at rest, lit when spotlit or opened */}
+      <motion.div
         className={`absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.05] group-focus-visible:scale-[1.05] ${
           revealed ? "scale-[1.05]" : ""
         }`}
+        animate={{ filter: bright ? "brightness(1)" : "brightness(0.5)" }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
       >
         {artist.photo ? (
           /* Warm, moody, desaturated grade at rest so press shots read as
@@ -170,6 +239,8 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           aria-hidden
         >
           <source src={`/videos/artist-${artist.id}.mp4`} type="video/mp4" />
+          {ARTIST_STOCK[artist.id] &&
+            stockSources(ARTIST_STOCK[artist.id]).map((src) => <source key={src} src={src} type="video/mp4" />)}
           <source src="/videos/hero-loop.webm" type="video/webm" />
         </video>
         {/* accent wash pulls any portrait into the warm palette */}
@@ -178,7 +249,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           style={{ background: `linear-gradient(180deg, ${a.main}1f, transparent 45%)`, mixBlendMode: "screen" }}
           aria-hidden
         />
-      </div>
+      </motion.div>
 
       {/* bottom scrim under the labels */}
       <div
@@ -225,12 +296,15 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
           </p>
         </div>
       </div>
-    </article>
+    </motion.article>
     </motion.div>
   );
 }
 
 export default function NeonLineup() {
+  /* Which artist the mouse (or keyboard focus) is on — drives the
+     stage spotlight across every tile in the rail. */
+  const [spotId, setSpotId] = useState<string | null>(null);
   return (
     <section id="lineup" className="relative mx-auto max-w-6xl scroll-mt-20 px-6 py-16 sm:py-24">
       <motion.div
@@ -252,11 +326,20 @@ export default function NeonLineup() {
       </motion.div>
 
       {/* poster slideway — centered while the lineup fits, snap-scroll once
-          it grows past the viewport. group/rail drives the spotlight dim. */}
-      <div className="group/rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
+          it grows past the viewport. spotId drives the stage spotlight. */}
+      {/* overflow-x:auto forces overflow-y:auto too, so the vertical
+          padding must absorb the spotlit card's 5% scale + focus ring
+          or its edges get clipped by the rail. */}
+      <div className="scrollbar-hide -mx-6 mt-10 snap-x snap-mandatory overflow-x-auto px-6 pb-6 pt-4">
         <div className="mx-auto flex w-max items-stretch gap-5 md:gap-6">
           {LINEUP.map((artist, i) => (
-            <ArtistTile key={artist.id} artist={artist} index={i} />
+            <ArtistTile
+              key={artist.id}
+              artist={artist}
+              index={i}
+              spot={spotId === artist.id ? "active" : spotId ? "dim" : "idle"}
+              onSpot={setSpotId}
+            />
           ))}
         </div>
       </div>
