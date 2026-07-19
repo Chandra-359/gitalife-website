@@ -6,13 +6,22 @@
  * The manifesto typography unfolds on scroll (heading words rise
  * word-by-word, then the serif line and paragraphs, on one staggered
  * viewport trigger). The four feature cards are media-rich magnetic
- * tiles: a dark masked video window with a floating instrument
- * line-art glyph, spring-driven 3D tilt that pulls toward the cursor,
- * and an accent glow that spills past the card onto the page on hover.
+ * tiles: a dark masked video window, spring-driven 3D tilt that pulls
+ * toward the cursor, and an accent glow that spills past the card onto
+ * the page on hover.
  *
- * Per-card footage: drop /videos/vibe-<clip>.mp4 (e.g. vibe-kirtan.mp4
- * — mridangam hands in club light) and it plays instead of the shared
- * ambient placeholder loop.
+ * Each card window walks a <source> chain until one plays:
+ *   1. /videos/vibe-<clip>.mp4 — drop real per-card footage here (e.g.
+ *      vibe-kirtan.mp4, mridangam hands in club light) and it takes
+ *      over automatically.
+ *   2. A distinct Pexels stock placeholder per card (concert crowds,
+ *      stage light, golden bokeh — free license). Each id is offered at
+ *      a few sizes/framerates since the exact CDN filename varies.
+ *   3. hero-loop.webm — the shared ambient glow loop.
+ * The uploaded instrument art (public/instruments/) is the poster
+ * frame: it shows until a per-card clip actually plays, whenever the
+ * chain bottoms out at the shared webm (so the four cards never loop
+ * identical footage), and for reduced-motion users.
  */
 
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -39,78 +48,112 @@ const rise: Variants = {
 
 const HEADLINE_WORDS = "A rave where the drop is a".split(" ");
 
-/* Per-card showcase treatment, keyed by the fact's icon id. */
+/* Per-card showcase treatment, keyed by the fact's icon id. Each card
+   gets its own Pexels stock loop (stockId) so no two windows play the
+   same footage. */
 const SHOWCASE: Record<
   (typeof VIBE_FACTS)[number]["icon"],
-  { sprite: InstrumentKind; clip: string; glow: string }
+  { sprite: InstrumentKind; clip: string; glow: string; stockId: string }
 > = {
-  music: { sprite: "mridanga", clip: "kirtan", glow: "#D98A4A" }, // warm saffron
-  sparkle: { sprite: "kartals", clip: "rave", glow: "#7A5C9E" }, // deep purple
-  food: { sprite: "bansuri", clip: "prasadam", glow: "#E5C08D" }, // warm sand
-  handshake: { sprite: "harmonium", clip: "invited", glow: "#C08CA6" }, // soft rose
+  // warm saffron — "Music on Concert": stage under warm light
+  music: { sprite: "mridanga", clip: "kirtan", glow: "#D98A4A", stockId: "13641378" },
+  // deep purple — "Crowd of People in a Concert": sea of lights at night
+  sparkle: { sprite: "kartals", clip: "rave", glow: "#7A5C9E", stockId: "3941289" },
+  // warm sand — "Bokeh of Golden Lights": drifting candlelit bokeh
+  food: { sprite: "bansuri", clip: "prasadam", glow: "#E5C08D", stockId: "9255169" },
+  // soft rose — "Crowd of People at a Concert": phone lights held together
+  handshake: { sprite: "harmonium", clip: "invited", glow: "#C08CA6", stockId: "12695733" },
 };
 
+/* Pexels CDN filenames encode size + native framerate; the framerate
+   isn't knowable up front, so offer the common variants and let the
+   browser's <source> fallthrough find the one that exists. Cards are
+   small masked windows, so try the lighter 540p tier before 1080p. */
+const STOCK_VARIANTS = ["sd_960_540", "hd_1920_1080"].flatMap((size) =>
+  [30, 25, 24].map((fps) => `${size}_${fps}fps`)
+);
+const stockSources = (id: string) =>
+  STOCK_VARIANTS.map((v) => `https://videos.pexels.com/video-files/${id}/${id}-${v}.mp4`);
+
 /* ------------------------------------------------------------------ */
-/*  Masked media window — uploaded instrument art with video fallback  */
+/*  Masked media window — per-card video loop with art poster          */
 /*                                                                     */
-/*  Tries /instruments/<sprite>.webp → .png → .jpg (see                */
-/*  public/instruments/README.md). Full-scene images fill the window   */
-/*  as card art; until one exists and loads, the ambient video loop    */
-/*  plays with the floating line-art glyph over it. The accent tint    */
-/*  and scrim sit above either, keeping the four cards graded alike.   */
+/*  The video walks local clip → per-card stock → shared webm (see     */
+/*  header comment). The uploaded instrument art (tries                */
+/*  /instruments/<sprite>.webp → .png → .jpg, see                      */
+/*  public/instruments/README.md) sits above it as the poster frame    */
+/*  and fades away only once a per-card clip is really playing — the   */
+/*  shared webm never replaces the art, so no two cards ever show the  */
+/*  same loop. The accent tint and scrim sit above either medium,      */
+/*  keeping the four cards graded alike.                               */
 /* ------------------------------------------------------------------ */
 const IMG_EXTS = ["webp", "png", "jpg"] as const;
 
-function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: string; glow: string }) {
+function ShowcaseMedia({ sprite, clip, glow, stockId }: { sprite: InstrumentKind; clip: string; glow: string; stockId: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [extIdx, setExtIdx] = useState(0);
   const [imgReady, setImgReady] = useState(false);
+  const [clipLive, setClipLive] = useState(false);
 
-  // Pause the fallback loop for users who prefer reduced motion.
+  // Pause the loop for users who prefer reduced motion (the art poster
+  // stays up in that case).
   useEffect(() => {
     const vid = ref.current;
     if (!vid) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
       if (!vid.isConnected) return;
-      if (mq.matches) vid.pause();
-      else vid.play().catch(() => {});
+      if (mq.matches) {
+        vid.pause();
+        setClipLive(false);
+      } else {
+        vid.play().catch(() => {});
+      }
     };
     sync();
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  const showArt = imgReady && !clipLive;
+
   return (
     <div className="relative aspect-[16/9] overflow-hidden">
-      {!imgReady && (
-        <video
-          ref={ref}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          disablePictureInPicture
-          aria-hidden
-        >
-          <source src={`/videos/vibe-${clip}.mp4`} type="video/mp4" />
-          <source src="/videos/hero-loop.webm" type="video/webm" />
-        </video>
-      )}
+      <video
+        ref={ref}
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        disablePictureInPicture
+        aria-hidden
+        // Promote the video above the poster only when a distinct
+        // per-card source won — not the shared ambient webm.
+        onPlaying={() => {
+          const src = ref.current?.currentSrc ?? "";
+          if (!src.endsWith("hero-loop.webm")) setClipLive(true);
+        }}
+      >
+        <source src={`/videos/vibe-${clip}.mp4`} type="video/mp4" />
+        {stockSources(stockId).map((src) => (
+          <source key={src} src={src} type="video/mp4" />
+        ))}
+        <source src="/videos/hero-loop.webm" type="video/webm" />
+      </video>
       {extIdx < IMG_EXTS.length && (
         <Image
           src={`/instruments/${sprite}.${IMG_EXTS[extIdx]}`}
           alt=""
           fill
           sizes="(min-width: 640px) 320px, 90vw"
-          className={`object-cover transition-opacity duration-700 ease-in-out ${imgReady ? "opacity-100" : "opacity-0"}`}
+          className={`object-cover transition-opacity duration-700 ease-in-out ${showArt ? "opacity-100" : "opacity-0"}`}
           onLoad={() => setImgReady(true)}
           onError={() => setExtIdx((i) => i + 1)}
           aria-hidden
         />
       )}
-      {/* accent tint + dark mask so the art and copy stay legible */}
+      {/* accent tint + dark mask so the media and copy stay legible */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -118,8 +161,8 @@ function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: s
         }}
         aria-hidden
       />
-      {/* line-art glyph, floating in the haze until real art arrives */}
-      {!imgReady && (
+      {/* line-art glyph, floating in the haze until any real media lands */}
+      {!imgReady && !clipLive && (
         <span
           className="bc-float pointer-events-none absolute inset-0 flex items-center justify-center"
           style={{ "--t": "7s" } as React.CSSProperties}
@@ -242,7 +285,7 @@ export default function TheVibe() {
                       aria-hidden
                     />
                     <div className="relative h-full overflow-hidden rounded-[22px] border border-white/10 bg-white/5 backdrop-blur-lg transition-colors duration-500 ease-in-out group-hover:bg-white/10">
-                      <ShowcaseMedia sprite={sc.sprite} clip={sc.clip} glow={sc.glow} />
+                      <ShowcaseMedia sprite={sc.sprite} clip={sc.clip} glow={sc.glow} stockId={sc.stockId} />
                       <div className="p-5">
                         <h3 className="text-[15px] font-bold text-club-ink">{fact.title}</h3>
                         <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
