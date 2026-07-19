@@ -69,6 +69,16 @@ const SPOT = {
 } as const;
 type SpotState = keyof typeof SPOT;
 
+/* Older engines throw on unknown selectors — fall back to treating any
+   focus as keyboard focus there. */
+function isFocusVisible(el: Element) {
+  try {
+    return el.matches(":focus-visible");
+  } catch {
+    return true;
+  }
+}
+
 function initials(name: string) {
   return name
     .split(" ")
@@ -117,29 +127,37 @@ function ArtistTile({
   index,
   spot,
   onSpot,
+  onSpotEnd,
 }: {
   artist: ClubArtist;
   index: number;
   spot: SpotState;
-  onSpot: (id: string | null) => void;
+  onSpot: (id: string) => void;
+  /** Owner-checked clear — only releases the spotlight if this tile holds it. */
+  onSpotEnd: (id: string) => void;
 }) {
   const a = ACCENT[artist.accent];
   const reduce = useReducedMotion();
   const [revealed, setRevealed] = useState(false);
+  const [focused, setFocused] = useState(false);
   /* True when the shared ambient loop is standing in for real footage —
      then the video screen-blends over the still as a light wash instead
      of replacing the artist's face with plain haze. */
   const [placeholder, setPlaceholder] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const playLoop = () => videoRef.current?.play().catch(() => {});
+  const playLoop = () => {
+    if (reduce) return;
+    videoRef.current?.play().catch(() => {});
+  };
   const pauseLoop = (force = false) => {
     if (force || !revealed) videoRef.current?.pause();
   };
 
-  /* Full brightness whenever the tile is spotlit, tapped open, or the
-     spotlight is off for reduced motion. */
-  const bright = spot === "active" || revealed || reduce;
+  /* Full brightness whenever the tile is spotlit, tapped open, holds
+     focus (every path that opens the bio panel), or the spotlight is
+     off for reduced motion. */
+  const bright = spot === "active" || revealed || focused || reduce;
 
   return (
     /* Entrance animation lives on the wrapper so its inline opacity
@@ -170,19 +188,25 @@ function ArtistTile({
         })
       }
       onPointerEnter={(e) => {
-        if (e.pointerType === "mouse") onSpot(artist.id);
+        /* Hovering pens behave like mice; only touch (whose taps fire
+           enter/leave transiently) must stay out of the spotlight. */
+        if (e.pointerType !== "touch") onSpot(artist.id);
         playLoop();
       }}
       onPointerLeave={() => {
-        onSpot(null);
+        onSpotEnd(artist.id);
         pauseLoop();
       }}
-      onFocus={() => {
-        onSpot(artist.id);
+      onFocus={(e) => {
+        /* Android taps focus tabindex elements after pointerleave, so
+           only keyboard-driven focus may spotlight the rail. */
+        if (isFocusVisible(e.currentTarget)) onSpot(artist.id);
+        setFocused(true);
         playLoop();
       }}
       onBlur={() => {
-        onSpot(null);
+        onSpotEnd(artist.id);
+        setFocused(false);
         pauseLoop();
       }}
       tabIndex={0}
@@ -339,6 +363,7 @@ export default function NeonLineup() {
               index={i}
               spot={spotId === artist.id ? "active" : spotId ? "dim" : "idle"}
               onSpot={setSpotId}
+              onSpotEnd={(id) => setSpotId((prev) => (prev === id ? null : prev))}
             />
           ))}
         </div>
