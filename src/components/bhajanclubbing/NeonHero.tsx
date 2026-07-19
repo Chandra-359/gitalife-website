@@ -9,11 +9,18 @@
  * theatrical serif headline whose tracking tightens on entry, meta
  * chips, ticket-stub countdown, warm CTA) → marquee ticker.
  *
- * Video sources: /videos/hero-loop.mp4 is tried first — drop the real
- * B-roll there (slow-mo mridangam hands, haze through concert lights,
- * crowd hands up; H.264, 15–30s, ideally under ~8 MB). The committed
- * hero-loop.webm is a generated ambient placeholder (drifting warm
- * glows over plum haze) that plays until real footage lands.
+ * Video sources, in fallback order (the browser walks <source> tags
+ * until one loads):
+ *   1. /videos/hero-loop.mp4 — drop the real B-roll here when it lands
+ *      (slow-mo mridangam hands, haze through concert lights, crowd
+ *      hands up; H.264, 15–30s, ideally under ~8 MB) and it takes over
+ *      automatically.
+ *   2. Pexels stock placeholder — moody concert crowd under warm stage
+ *      light (free license, no attribution required).
+ *   3. hero-loop.webm — committed generated placeholder (drifting warm
+ *      glows over plum haze); keeps the hero alive offline or if the
+ *      CDN is unreachable. The aurora layer behind covers the beat
+ *      before any source paints.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -47,7 +54,7 @@ function AmbientVideo() {
   return (
     <video
       ref={ref}
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
       autoPlay
       muted
       loop
@@ -56,6 +63,7 @@ function AmbientVideo() {
       aria-hidden
     >
       <source src="/videos/hero-loop.mp4" type="video/mp4" />
+      <source src="https://videos.pexels.com/video-files/2022395/2022395-hd_1920_1080_30fps.mp4" type="video/mp4" />
       <source src="/videos/hero-loop.webm" type="video/webm" />
     </video>
   );
@@ -71,7 +79,7 @@ function LiveBadge() {
       style={{ color: "#EC9C90", textShadow: "0 0 14px rgba(228,87,79,0.45)" }}
     >
       <span className="bc2-live-dot h-1.5 w-1.5 rounded-full" style={{ background: "#E4574F" }} aria-hidden />
-      Live · {EVENT.volume}
+      Live {EVENT.volume}
     </span>
   );
 }
@@ -173,7 +181,7 @@ export default function NeonHero() {
         }}
       >
         {/* aurora washes — ambience while the video loads, fallback if it fails */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
           <span className="bc2-aurora left-[-12%] top-[-8%] h-[540px] w-[540px]" style={{ background: "var(--bc2-saffron)", "--o": 0.3, "--t": "17s" } as React.CSSProperties} />
           <span className="bc2-aurora right-[-14%] top-[16%] h-[600px] w-[600px]" style={{ background: "var(--bc2-blue-deep)", "--o": 0.28, "--t": "21s", "--d": "-6s" } as React.CSSProperties} />
           <span className="bc2-aurora bottom-[-22%] left-[24%] h-[620px] w-[620px]" style={{ background: "var(--bc2-purple)", "--o": 0.3, "--t": "19s", "--d": "-11s" } as React.CSSProperties} />
@@ -184,7 +192,7 @@ export default function NeonHero() {
 
         {/* dark, softly blurred scrim so the type stays perfectly legible */}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1A1A1D] via-transparent to-transparent opacity-80 backdrop-blur-[2px]"
+          className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-[#1A1A1D] via-transparent to-transparent opacity-80 backdrop-blur-[2px]"
           aria-hidden
         />
 
