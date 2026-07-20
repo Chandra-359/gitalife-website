@@ -281,7 +281,7 @@ export default function NeonHero() {
             </div>
 
             <p className="mt-6 text-[11.5px] font-semibold uppercase tracking-[0.22em]" style={{ color: "var(--bc2-ink-faint)" }}>
-              {EVENT.priceLabel} · 100% sattvic
+              {EVENT.donationLabel} · 100% sattvic
             </p>
           </motion.div>
 

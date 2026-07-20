@@ -3,7 +3,7 @@ import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmationDetailed } from "@/lib/email";
 import { appendRegistrationToSheet } from "@/lib/sheets";
 import { countGuests, ensureEventProgram } from "@/lib/clubbing";
-import { EVENT, TIERS } from "@/data/bhajanClubbing";
+import { computeOrder, EVENT, GROUP_DISCOUNT, MAX_EXTRA_DONATION_USD, TIERS } from "@/data/bhajanClubbing";
 
 /**
  * Ticket checkout — Square Checkout API (payment links).
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, guests, hearAbout, emailOptIn } = await request.json();
+    const { name, email, phone, guests, hearAbout, emailOptIn, donation } = await request.json();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
@@ -94,6 +94,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Amounts are computed server-side from the phase calendar + group
+    // discount — the client only ever sends the guest count and the
+    // optional extra donation, never a price.
+    const extraDonationUsd = Math.min(
+      MAX_EXTRA_DONATION_USD,
+      Math.max(0, Number.parseFloat(String(donation ?? "")) || 0),
+    );
+    const order = computeOrder(qty, extraDonationUsd);
+    const ticketLineName =
+      `${EVENT.title} ${EVENT.volume} — ${ticket.name} (${order.phase.label} suggested donation` +
+      `${order.groupDiscount ? `, ${GROUP_DISCOUNT.percent}% family & friends discount` : ""})`;
+
     const createRes = await fetch(`${sq.base}/v2/online-checkout/payment-links`, {
       method: "POST",
       headers: squareHeaders(sq.token),
@@ -113,15 +125,27 @@ export async function POST(request: Request) {
             // Square requires metadata values to be non-empty — omit when blank
             ...(String(hearAbout ?? "").trim() ? { hear_about: String(hearAbout).trim().slice(0, 100) } : {}),
             email_opt_in: emailOptIn ? "yes" : "no",
+            price_phase: order.phase.id,
+            ...(order.donationCents > 0 ? { donation: (order.donationCents / 100).toFixed(2) } : {}),
           },
           line_items: [
             {
-              name: `${EVENT.title} ${EVENT.volume} — ${ticket.name}`,
+              name: ticketLineName,
               quantity: String(qty),
               note: "Includes the free packed prasadam",
-              // Math.round guards against float cents (49.99 * 100 = 4998.99…)
-              base_price_money: { amount: Math.round(ticket.priceUsd * 100), currency: "USD" },
+              // Per-ticket amount in exact cents (group discount already applied)
+              base_price_money: { amount: order.unitCents, currency: "USD" },
             },
+            ...(order.donationCents > 0
+              ? [
+                  {
+                    name: "Additional voluntary donation",
+                    quantity: "1",
+                    note: "Optional gift supporting future spiritual & community initiatives",
+                    base_price_money: { amount: order.donationCents, currency: "USD" },
+                  },
+                ]
+              : []),
           ],
         },
         checkout_options: {
@@ -323,7 +347,9 @@ export async function GET(request: Request) {
           hearAbout: order.metadata?.hear_about || "",
           emailOptIn: order.metadata?.email_opt_in === "yes",
           ticket: ticket?.name ?? "General Admission",
-          payment: "PAID via Square",
+          payment: order.metadata?.donation
+            ? `PAID via Square (+$${order.metadata.donation} extra donation)`
+            : "PAID via Square",
         }),
       ]);
       emailed = sent.ok;

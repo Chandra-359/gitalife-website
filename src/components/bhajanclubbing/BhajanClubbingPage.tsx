@@ -182,7 +182,7 @@ function StickyTicketBar() {
           boxShadow: "0 12px 40px -10px rgba(16,12,20,0.6)",
         }}
       >
-        <span className="text-[13px] font-bold text-club-ink">Sat Aug 15 · {EVENT.priceLabel}</span>
+        <span className="text-[13px] font-bold text-club-ink">Sat Aug 15 · {EVENT.donationShortLabel}</span>
         <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-bold tracking-[0.02em]">
           Get Tickets
           <Icon name="arrowRight" size={12} />

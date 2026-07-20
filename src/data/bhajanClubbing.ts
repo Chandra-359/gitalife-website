@@ -9,7 +9,9 @@
  *                              and set e.g. photo: "/lineup/dj-keshava.jpg". Tiles
  *                              without a photo render a neon monogram poster.
  *  - Registration capacity   → EVENT.capacity (server-side only — never shown on the page)
- *  - Ticket price            → TIERS[0].priceUsd (charged via Square checkout)
+ *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
+ *                              GROUP_DISCOUNT — computeOrder() is the single
+ *                              source of truth for what Square charges
  *  - Free prasadam section   → PRASADAM
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *  - Social profiles         → SOCIALS (footer follow buttons)
@@ -64,7 +66,10 @@ export const EVENT = {
   },
   /** Server-side booking cap — enforced by the API, not shown on the page. */
   capacity: 200,
-  priceLabel: "$49.99",
+  /** Short marketing label — hero, sticky bar, social metadata. */
+  donationLabel: "Suggested donation from $25",
+  /** Compact variant for tight spots (mobile sticky bar). */
+  donationShortLabel: "From $25",
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
@@ -149,7 +154,7 @@ export interface TicketTier {
   id: string;
   name: string;
   tag: string;
-  priceUsd: number; // 0 = free
+  priceUsd: number; // 0 = free — the amount actually charged comes from PRICE_PHASES
   blurb: string;
   perks: string[];
   accent: AccentToken;
@@ -162,13 +167,124 @@ export const TIERS: TicketTier[] = [
   {
     id: "general",
     name: "General Admission",
-    tag: "$49.99",
-    priceUsd: 49.99,
+    tag: "From $25",
+    // Minimum suggested donation — kept > 0 so the checkout route still
+    // recognises this as the paid tier. The live amount is PRICE_PHASES.
+    priceUsd: 25,
     blurb: "One ticket, the whole night: the floor, the chant, the prasadam.",
     perks: ["Full floor access", "Live kirtan all night", "Free packed prasadam"],
     accent: "saffron",
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Suggested donation — phased amounts + group discount               */
+/*                                                                     */
+/*  Everything the organisers may want to tune based on registrations  */
+/*  lives right here:                                                  */
+/*   - Extend early bird from Aug 2 to Aug 5 → change endsAtIso to     */
+/*     "2026-08-06T00:00:00-04:00" and deadlineLabel to "August 5".    */
+/*   - Drop the final-week amount from $30 back to $25 → change        */
+/*     amountUsd on the "last-week" phase.                             */
+/*  Client display and the Square charge both flow through             */
+/*  computeOrder(), so one edit updates the whole pipeline.            */
+/* ------------------------------------------------------------------ */
+export interface PricePhase {
+  id: string;
+  /** Marketing name — shown on the page and on the Square receipt. */
+  label: string;
+  /** Suggested minimum donation per ticket, in USD. */
+  amountUsd: number;
+  /** Exclusive end — the phase is active while now < endsAtIso.
+   *  Omit on the final phase (runs through the event). */
+  endsAtIso?: string;
+  /** Human copy for the deadline, e.g. "August 2". */
+  deadlineLabel?: string;
+}
+
+export const PRICE_PHASES: PricePhase[] = [
+  {
+    id: "early-bird",
+    label: "Early bird",
+    amountUsd: 25,
+    // Through end of day Sunday, August 2 (ET).
+    endsAtIso: "2026-08-03T00:00:00-04:00",
+    deadlineLabel: "August 2",
+  },
+  {
+    id: "last-week",
+    label: "Final weeks",
+    amountUsd: 30,
+  },
+];
+
+/** The phase in effect right now (falls back to the final phase). */
+export function activePhase(now: Date = new Date()): PricePhase {
+  return (
+    PRICE_PHASES.find((p) => !p.endsAtIso || now < new Date(p.endsAtIso)) ??
+    PRICE_PHASES[PRICE_PHASES.length - 1]
+  );
+}
+
+/** Celebrate with your family & friends — 5% off on 4 or 5 tickets. */
+export const GROUP_DISCOUNT = {
+  minTickets: 4,
+  percent: 5,
+  name: "Family & friends discount",
+  blurb: "Celebrate with your family & friends — book 4 or 5 tickets together and get 5% off.",
+} as const;
+
+/** Guard-rail for the optional extra donation (USD). */
+export const MAX_EXTRA_DONATION_USD = 1000;
+
+/** Shown wherever we talk about money — tickets section, FAQ. */
+export const DONATION_NOTE =
+  "This is a nonprofit, volunteer-led community event. All proceeds are used solely to cover event costs and support future spiritual and community initiatives. If you feel inspired by our mission, you are welcome to make an additional voluntary donation.";
+
+export interface OrderBreakdown {
+  phase: PricePhase;
+  /** Suggested donation per ticket before any discount, in cents. */
+  baseUnitCents: number;
+  /** Per-ticket amount actually charged (post group discount), in cents. */
+  unitCents: number;
+  groupDiscount: boolean;
+  /** Total saved by the group discount, in cents. */
+  discountCents: number;
+  /** Optional extra voluntary donation, in cents. */
+  donationCents: number;
+  totalCents: number;
+}
+
+/**
+ * The one place order math happens — used by the ticket flow for display
+ * and by the checkout API for the actual Square charge, so the number on
+ * the pay button always matches the card charge.
+ */
+export function computeOrder(qty: number, extraDonationUsd = 0, now: Date = new Date()): OrderBreakdown {
+  const phase = activePhase(now);
+  const baseUnitCents = Math.round(phase.amountUsd * 100);
+  const groupDiscount = qty >= GROUP_DISCOUNT.minTickets;
+  // 5% off per ticket — exact cents for $25 (→ $23.75) and $30 (→ $28.50)
+  const unitCents = groupDiscount
+    ? Math.round(baseUnitCents * (1 - GROUP_DISCOUNT.percent / 100))
+    : baseUnitCents;
+  const safeDonation = Number.isFinite(extraDonationUsd)
+    ? Math.min(MAX_EXTRA_DONATION_USD, Math.max(0, extraDonationUsd))
+    : 0;
+  const donationCents = Math.round(safeDonation * 100);
+  return {
+    phase,
+    baseUnitCents,
+    unitCents,
+    groupDiscount,
+    discountCents: (baseUnitCents - unitCents) * qty,
+    donationCents,
+    totalCents: unitCents * qty + donationCents,
+  };
+}
+
+/** "$23.75"-style formatter for cent amounts. */
+export const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 /* ------------------------------------------------------------------ */
 /*  Official Gita Life NYC profiles — hero buttons + FAQ links         */
@@ -217,6 +333,10 @@ export const CLUB_FAQS: ClubFaq[] = [
   {
     q: "Is food included?",
     a: "Yes. A freshly prepared vegetarian prasadam meal is included with your admission. To help the event conclude on time and give guests added flexibility, the meal will be packed in a convenient to-go box and distributed after the program.",
+  },
+  {
+    q: "Is the ticket a price or a donation?",
+    a: `Admission is a suggested minimum donation, not a price. ${DONATION_NOTE}`,
   },
   {
     q: "What is your refund policy?",
