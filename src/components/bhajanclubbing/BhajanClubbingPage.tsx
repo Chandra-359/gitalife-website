@@ -132,6 +132,18 @@ function Outro() {
         {ORGANIZER_NOTE}
       </p>
 
+      {/* contact */}
+      <p className="relative mx-auto mt-4 max-w-xl text-[13px]" style={{ color: "var(--bc2-ink-dim)" }}>
+        Questions?{" "}
+        <a
+          href={`mailto:${EVENT.contactEmail}`}
+          className="font-semibold underline decoration-[rgba(229,192,141,0.5)] underline-offset-4 transition-colors hover:text-club-ink"
+          style={{ color: "var(--bc2-amber)" }}
+        >
+          {EVENT.contactEmail}
+        </a>
+      </p>
+
       {/* official profiles — repeated at the bottom of the page */}
       <div className="relative mt-12">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-blue)" }}>

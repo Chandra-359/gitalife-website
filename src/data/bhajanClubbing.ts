@@ -66,6 +66,9 @@ export const EVENT = {
   },
   /** Server-side booking cap — enforced by the API, not shown on the page. */
   capacity: 200,
+  /** Event inbox — shown on the page + confirmation email, and used as the
+   *  Reply-To on confirmations unless SMTP_REPLY_TO overrides it. */
+  contactEmail: "bhajanclubbing@gitalifenyc.com",
   /** Short marketing label — hero, sticky bar, social metadata. */
   donationLabel: "Suggested donation from $25",
   /** Compact variant for tight spots (mobile sticky bar). */
@@ -341,6 +344,12 @@ export const CLUB_FAQS: ClubFaq[] = [
   {
     q: "What is your refund policy?",
     a: "All ticket sales are final and are non-refundable. As this is a nonprofit community event, all proceeds directly support the community and future programs. Refunds will only be issued if the event is cancelled by the organizers. If you have any questions, please contact us before purchasing your ticket.",
+    links: [{ label: EVENT.contactEmail, href: `mailto:${EVENT.contactEmail}` }],
+  },
+  {
+    q: "How can I contact the organizers?",
+    a: "For any questions about the event, your registration, or your donation, write to us — a volunteer will get back to you:",
+    links: [{ label: EVENT.contactEmail, href: `mailto:${EVENT.contactEmail}` }],
   },
   {
     q: "Are seats assigned?",
