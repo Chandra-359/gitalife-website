@@ -16,14 +16,25 @@
  * Registration rows land in the existing admin RSVP table.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Icon } from "@/components/home/icons";
-import { EVENT, SHARE, TIERS } from "@/data/bhajanClubbing";
+import {
+  activePhase,
+  computeOrder,
+  DONATION_NOTE,
+  EVENT,
+  GROUP_DISCOUNT,
+  MAX_EXTRA_DONATION_USD,
+  PRICE_PHASES,
+  SHARE,
+  TIERS,
+  usd,
+} from "@/data/bhajanClubbing";
 
-/** The one ticket on sale — price, tag, and perks live in the data file. */
+/** The one ticket on sale — suggested donation, tag, and perks live in the data file. */
 const TICKET = TIERS[0];
 
 interface DetailsForm {
@@ -35,6 +46,14 @@ interface DetailsForm {
   hearAbout: string;
   /** Required consent — "yes" | "no" to email updates about events/programs. */
   emailUpdates: string;
+  /** Optional extra voluntary donation in USD — kept as the raw input string. */
+  donation: string;
+}
+
+/** Parse the optional donation input — blank/invalid becomes 0. */
+function parseDonation(raw: string): number {
+  const n = Number.parseFloat(raw);
+  return Number.isFinite(n) && n > 0 ? Math.min(MAX_EXTRA_DONATION_USD, n) : 0;
 }
 
 const HEAR_ABOUT_OPTIONS = [
@@ -97,6 +116,45 @@ const inputStyle = (err?: boolean): React.CSSProperties => ({
   background: "rgba(244,240,235,0.06)",
   borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(244,240,235,0.16)",
 });
+
+/* ------------------------------------------------------------------ */
+/*  Suggested-donation phases — early bird vs final weeks              */
+/* ------------------------------------------------------------------ */
+function DonationPhases() {
+  // Client-only: the active phase depends on today's date, and the page's
+  // prerendered HTML may have been built while an earlier phase was live.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  if (!hydrated) return null;
+  const current = activePhase(new Date());
+  return (
+    <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-2.5">
+      {PRICE_PHASES.map((p) => {
+        const active = p.id === current.id;
+        return (
+          <span
+            key={p.id}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-bold"
+            style={
+              active
+                ? { background: "rgba(229,192,141,0.12)", border: "1px solid rgba(229,192,141,0.55)", color: "var(--bc2-amber)" }
+                : { background: "rgba(244,240,235,0.05)", border: "1px solid rgba(244,240,235,0.14)", color: "var(--bc2-ink-faint)" }
+            }
+          >
+            {active && (
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--bc2-amber)" }} aria-hidden />
+            )}
+            {p.label} · ${p.amountUsd}
+            {p.deadlineLabel ? ` — through ${p.deadlineLabel}` : ""}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Stepper header                                                     */
@@ -200,7 +258,7 @@ export default function TicketFlow() {
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailUpdates: "" } });
+  } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailUpdates: "", donation: "" } });
 
   const onConfirm = async () => {
     const d = details ?? getValues();
@@ -218,6 +276,9 @@ export default function TicketFlow() {
           guests: d.guests || 1,
           hearAbout: d.hearAbout || null,
           emailOptIn: d.emailUpdates === "yes",
+          // Only the extra voluntary donation travels to the server — the
+          // admission amount itself is computed server-side.
+          donation: parseDonation(d.donation),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -237,6 +298,10 @@ export default function TicketFlow() {
   const maxGuests = Math.max(1, Math.min(5, availability?.remaining ?? 5));
   const soldOut = availability?.remaining === 0;
   const paymentsOff = !soldOut && availability?.payments === false;
+
+  // Recomputed every render so the review step always reflects the live
+  // phase, group discount, and extra donation — same math the server runs.
+  const order = details ? computeOrder(details.guests || 1, parseDonation(details.donation)) : null;
 
   const shareText = encodeURIComponent(`${SHARE.message} ${EVENT.url}`);
   const stepMotion = {
@@ -262,7 +327,12 @@ export default function TicketFlow() {
           Lock in <span className="bc2-headline-grad">your night</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
-          {TICKET.tag} per person. Secure card checkout via Square — free packed prasadam included.
+          Suggested minimum donation {TICKET.tag.toLowerCase()} per person. Secure card checkout via Square — free
+          packed prasadam included.
+        </p>
+        <DonationPhases />
+        <p className="mx-auto mt-4 max-w-md text-[13px] font-semibold" style={{ color: "var(--bc2-amber)" }}>
+          {GROUP_DISCOUNT.blurb}
         </p>
       </motion.div>
 
@@ -398,8 +468,8 @@ export default function TicketFlow() {
             </p>
             <h3 className="bc2-display mt-5 text-[24px] text-club-ink">Ticket sales are briefly paused</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-              Online checkout is momentarily offline. Save the date and check back shortly — tickets are {TICKET.tag} per
-              person, free packed prasadam included.
+              Online checkout is momentarily offline. Save the date and check back shortly — the suggested minimum
+              donation is {TICKET.tag.toLowerCase()} per person, free packed prasadam included.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <a href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="bc2-btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-[13px] font-bold sm:w-auto">
@@ -526,6 +596,43 @@ export default function TicketFlow() {
                         </select>
                         {errors.emailUpdates && <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.emailUpdates.message}</p>}
                       </div>
+                      <div>
+                        <label htmlFor="tf-donation" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
+                          Additional voluntary donation <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
+                        </label>
+                        <div className="relative">
+                          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold" style={{ color: "var(--bc2-ink-faint)" }}>
+                            $
+                          </span>
+                          <input
+                            id="tf-donation"
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            max={MAX_EXTRA_DONATION_USD}
+                            step="1"
+                            placeholder="0"
+                            className={`${inputClass} pl-8`}
+                            style={inputStyle(!!errors.donation)}
+                            {...register("donation", {
+                              validate: (raw) => {
+                                if (!String(raw ?? "").trim()) return true;
+                                const n = Number.parseFloat(raw);
+                                if (!Number.isFinite(n) || n < 0) return "Please enter a valid amount";
+                                if (n > MAX_EXTRA_DONATION_USD) return `For donations over $${MAX_EXTRA_DONATION_USD.toLocaleString()}, please contact us directly`;
+                                return true;
+                              },
+                            })}
+                          />
+                        </div>
+                        {errors.donation ? (
+                          <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{errors.donation.message}</p>
+                        ) : (
+                          <p className="mt-1.5 text-[11px]" style={{ color: "var(--bc2-ink-faint)" }}>
+                            Completely optional — added on top of your admission donation.
+                          </p>
+                        )}
+                      </div>
                       <div className="pt-2">
                         <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
@@ -535,16 +642,23 @@ export default function TicketFlow() {
                   </motion.div>
                 )}
 
-                {step === 1 && details && (
+                {step === 1 && details && order && (
                   <motion.div key="confirm" {...stepMotion}>
                     {/* order summary */}
                     <div className="rounded-2xl p-5" style={{ background: "rgba(26,22,35,0.5)", border: "1px solid rgba(244,240,235,0.12)" }}>
                       {[
-                        { k: "Ticket", v: `${TICKET.name} · ${TICKET.tag}${details.guests > 1 ? ` × ${details.guests}` : ""}` },
+                        {
+                          k: "Admission",
+                          v: `${TICKET.name} · ${usd(order.baseUnitCents)} suggested donation${details.guests > 1 ? ` × ${details.guests}` : ""}`,
+                        },
                         { k: "Name", v: details.name },
                         { k: "Email", v: details.email },
                         { k: "Mobile", v: details.phone },
                         { k: "Tickets", v: details.guests === 1 ? "1 ticket" : `${details.guests} tickets` },
+                        ...(order.groupDiscount
+                          ? [{ k: `${GROUP_DISCOUNT.name} (${GROUP_DISCOUNT.percent}%)`, v: `−${usd(order.discountCents)}` }]
+                          : []),
+                        ...(order.donationCents > 0 ? [{ k: "Additional donation", v: `+${usd(order.donationCents)}` }] : []),
                         ...(details.hearAbout ? [{ k: "Heard via", v: details.hearAbout }] : []),
                         { k: "Email updates", v: details.emailUpdates === "yes" ? "Yes" : "No" },
                         { k: "Event", v: `${EVENT.dateLabel} · ${EVENT.doorsLabel}` },
@@ -561,7 +675,7 @@ export default function TicketFlow() {
                           Total
                         </span>
                         <span className="bc2-display text-[24px]" style={{ color: "var(--bc2-amber)", fontWeight: 700 }}>
-                          ${(TICKET.priceUsd * details.guests).toFixed(2)}
+                          {usd(order.totalCents)}
                         </span>
                       </div>
                     </div>
@@ -588,7 +702,7 @@ export default function TicketFlow() {
                             Locking it in…
                           </span>
                         ) : (
-                          `Pay $${(TICKET.priceUsd * details.guests).toFixed(2)} securely`
+                          `Pay ${usd(order.totalCents)} securely`
                         )}
                       </button>
                     </div>
@@ -602,6 +716,11 @@ export default function TicketFlow() {
           </>
         )}
       </motion.div>
+
+      {/* nonprofit transparency note — always visible under the ticket card */}
+      <p className="mx-auto mt-6 max-w-xl text-center text-[12px] leading-relaxed" style={{ color: "var(--bc2-ink-faint)" }}>
+        {DONATION_NOTE}
+      </p>
     </section>
   );
 }
