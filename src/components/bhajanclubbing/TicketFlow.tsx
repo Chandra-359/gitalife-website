@@ -720,8 +720,9 @@ export default function TicketFlow() {
         )}
       </motion.div>
 
-      {/* nonprofit transparency note — always visible under the ticket card */}
-      <p className="mx-auto mt-6 max-w-xl text-center text-[12px] leading-relaxed" style={{ color: "var(--bc2-ink-faint)" }}>
+      {/* nonprofit transparency note — always visible under the ticket card,
+          highlighted in the same amber as the group-discount callout */}
+      <p className="mx-auto mt-6 max-w-xl text-center text-[13px] font-semibold leading-relaxed" style={{ color: "var(--bc2-amber)" }}>
         {DONATION_NOTE}
       </p>
     </section>
