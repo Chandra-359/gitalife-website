@@ -55,13 +55,12 @@ export const EVENT = {
   startIso: "2026-08-15T18:00:00-04:00",
   endIso: "2026-08-15T21:00:00-04:00",
   venue: {
-    name: "Jersey City, NJ",
-    address: "Exact venue announced soon — registered guests hear it first",
-    /** Map pin — city-center until the exact venue is announced. */
-    lat: 40.7178,
-    lng: -74.0431,
-    mapsUrl: "https://maps.google.com/?q=Jersey+City,+NJ",
-    transit: "PATH-friendly — exact stop and directions land with the venue announcement",
+    name: "Saint Dominic Academy",
+    address: "2572 John F. Kennedy Blvd, Jersey City, NJ 07304",
+    lat: 40.72472,
+    lng: -74.07333,
+    mapsUrl: "https://maps.google.com/?q=Saint+Dominic+Academy,+2572+John+F.+Kennedy+Blvd,+Jersey+City,+NJ+07304",
+    transit: "PATH to Journal Square, then a short ride down Kennedy Blvd — NJ Transit buses stop along the boulevard",
     note: "Comfortable clothes you can move in. Festival fits loudly encouraged.",
   },
   /** Server-side booking cap — enforced by the API, not shown on the page. */
