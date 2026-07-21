@@ -55,17 +55,19 @@ export const EVENT = {
   startIso: "2026-08-15T18:00:00-04:00",
   endIso: "2026-08-15T21:00:00-04:00",
   venue: {
-    name: "Jersey City, NJ",
-    address: "Exact venue announced soon — registered guests hear it first",
-    /** Map pin — city-center until the exact venue is announced. */
-    lat: 40.7178,
-    lng: -74.0431,
-    mapsUrl: "https://maps.google.com/?q=Jersey+City,+NJ",
-    transit: "PATH-friendly — exact stop and directions land with the venue announcement",
+    name: "Saint Dominic Academy",
+    address: "2572 John F. Kennedy Blvd, Jersey City, NJ 07304",
+    lat: 40.72472,
+    lng: -74.07333,
+    mapsUrl: "https://maps.google.com/?q=Saint+Dominic+Academy,+2572+John+F.+Kennedy+Blvd,+Jersey+City,+NJ+07304",
+    transit: "PATH to Journal Square, then a short ride down Kennedy Blvd — NJ Transit buses stop along the boulevard",
     note: "Comfortable clothes you can move in. Festival fits loudly encouraged.",
   },
   /** Server-side booking cap — enforced by the API, not shown on the page. */
   capacity: 200,
+  /** Event inbox — shown on the page + confirmation email, and used as the
+   *  Reply-To on confirmations unless SMTP_REPLY_TO overrides it. */
+  contactEmail: "bhajanclubbing@gitalifenyc.com",
   /** Short marketing label — hero, sticky bar, social metadata. */
   donationLabel: "Suggested donation from $25",
   /** Compact variant for tight spots (mobile sticky bar). */
@@ -341,6 +343,12 @@ export const CLUB_FAQS: ClubFaq[] = [
   {
     q: "What is your refund policy?",
     a: "All ticket sales are final and are non-refundable. As this is a nonprofit community event, all proceeds directly support the community and future programs. Refunds will only be issued if the event is cancelled by the organizers. If you have any questions, please contact us before purchasing your ticket.",
+    links: [{ label: EVENT.contactEmail, href: `mailto:${EVENT.contactEmail}` }],
+  },
+  {
+    q: "How can I contact the organizers?",
+    a: "For any questions about the event, your registration, or your donation, write to us — a volunteer will get back to you:",
+    links: [{ label: EVENT.contactEmail, href: `mailto:${EVENT.contactEmail}` }],
   },
   {
     q: "Are seats assigned?",

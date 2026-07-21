@@ -42,7 +42,7 @@ export function smtpSummary() {
     port: env("SMTP_PORT") ?? "587",
     user: env("SMTP_USER") ?? null,
     from: env("SMTP_FROM") ?? env("SMTP_USER") ?? null,
-    replyTo: env("SMTP_REPLY_TO") ?? null,
+    replyTo: env("SMTP_REPLY_TO") ?? EVENT.contactEmail,
   };
 }
 
@@ -175,6 +175,11 @@ function confirmationHtml(d: ConfirmationDetails): string {
         ${EVENT.venue.transit}.<br/>
         ${EVENT.venue.note} Come early. 100% sattvic, free packed prasadam included.
       </p>
+      <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
+        Questions about the event or your registration? Write to us at
+        <a href="mailto:${EVENT.contactEmail}" style="color:${S.amber};font-weight:bold;text-decoration:none;">${EVENT.contactEmail}</a>
+        — a volunteer will get back to you.
+      </p>
     </td></tr>
     <tr><td style="padding:18px 8px 0;text-align:center;">
       <p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${S.dim};font-family:Arial,Helvetica,sans-serif;">
@@ -205,6 +210,8 @@ Venue: ${EVENT.venue.name}, ${EVENT.venue.address}
 ${seva}
 Directions: ${EVENT.venue.mapsUrl}
 ${EVENT.venue.transit}
+
+Questions? Write to us at ${EVENT.contactEmail}
 
 100% sattvic · free packed prasadam included
 ${EVENT.url}`;
@@ -238,7 +245,8 @@ export async function sendClubbingConfirmationDetailed(d: ConfirmationDetails): 
   try {
     await t.sendMail({
       from: env("SMTP_FROM") || env("SMTP_USER"),
-      replyTo: env("SMTP_REPLY_TO"),
+      // Replies land in the event inbox unless SMTP_REPLY_TO overrides it
+      replyTo: env("SMTP_REPLY_TO") || EVENT.contactEmail,
       to: d.to,
       subject:
         d.seva === "paid"

@@ -245,7 +245,7 @@ export default function TicketFlow() {
     document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth" });
 
     if (!orderId) {
-      toast.error("We couldn't identify your payment. If you were charged, your Square receipt is in your inbox — reply to it and we'll sort your ticket.");
+      toast.error(`We couldn't identify your payment. If you were charged, email us at ${EVENT.contactEmail} with your Square receipt and we'll sort your ticket.`);
       return;
     }
 
@@ -406,7 +406,10 @@ export default function TicketFlow() {
             <h3 className="bc2-display mt-5 text-[24px] text-club-ink">We couldn&rsquo;t confirm your payment yet</h3>
             <p className="mx-auto mt-3 max-w-sm text-[13.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
               Card payments can take a few seconds to settle. If you completed the payment, tap retry — your ticket is
-              issued the moment it confirms. If you were charged and this keeps failing, reply to your Square receipt
+              issued the moment it confirms. If you were charged and this keeps failing, email us at{" "}
+              <a href={`mailto:${EVENT.contactEmail}`} className="font-semibold underline underline-offset-2" style={{ color: "var(--bc2-amber)" }}>
+                {EVENT.contactEmail}
+              </a>{" "}
               and we&rsquo;ll sort it.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
@@ -717,8 +720,9 @@ export default function TicketFlow() {
         )}
       </motion.div>
 
-      {/* nonprofit transparency note — always visible under the ticket card */}
-      <p className="mx-auto mt-6 max-w-xl text-center text-[12px] leading-relaxed" style={{ color: "var(--bc2-ink-faint)" }}>
+      {/* nonprofit transparency note — always visible under the ticket card,
+          highlighted in the same amber as the group-discount callout */}
+      <p className="mx-auto mt-6 max-w-xl text-center text-[13px] font-semibold leading-relaxed" style={{ color: "var(--bc2-amber)" }}>
         {DONATION_NOTE}
       </p>
     </section>
