@@ -34,6 +34,9 @@ import { createSign } from "node:crypto";
 /** https://docs.google.com/spreadsheets/d/<id>/edit */
 const DEFAULT_SHEET_ID = "1eXP2DOKCJ6czDWXUss5ABj48W_DQ-e8uJ1dssiP_GCg";
 
+/** Weekly-program registrations (door check-in) land here by default. */
+const DEFAULT_PROGRAMS_SHEET_ID = "15n_4AU_g3LEVPzWwvkC3bptOxmqZZ4PdCiHoAqjSJ7A";
+
 function sheetsConfig() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const key = process.env.GOOGLE_SERVICE_ACCOUNT_KEY?.replace(/\\n/g, "\n");
@@ -129,7 +132,7 @@ export interface WeeklyProgramRow {
 export async function appendWeeklyRegistrationToSheet(r: WeeklyProgramRow): Promise<boolean> {
   const cfg = sheetsConfig();
   if (!cfg) return false;
-  const sheetId = process.env.GOOGLE_SHEETS_PROGRAMS_ID || cfg.sheetId;
+  const sheetId = process.env.GOOGLE_SHEETS_PROGRAMS_ID || DEFAULT_PROGRAMS_SHEET_ID;
   const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
   return appendRow(sheetId, [
     registeredAt,
