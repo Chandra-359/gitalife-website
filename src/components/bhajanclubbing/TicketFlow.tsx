@@ -110,8 +110,10 @@ function googleCalendarUrl() {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+// 16px on phones — anything smaller makes iOS Safari zoom the page when a
+// field is focused, which wrecks the registration flow on mobile.
 const inputClass =
-  "w-full rounded-xl border px-4 py-3 text-[14px] text-club-ink outline-none transition-all placeholder:text-[rgba(244,240,235,0.3)] focus:ring-2 focus:ring-[#D98A4A]/30";
+  "w-full rounded-xl border px-4 py-3 text-[16px] sm:text-[14px] text-club-ink outline-none transition-all placeholder:text-[rgba(244,240,235,0.3)] focus:ring-2 focus:ring-[#D98A4A]/30";
 const inputStyle = (err?: boolean): React.CSSProperties => ({
   background: "rgba(244,240,235,0.06)",
   borderColor: err ? "rgba(255,110,110,0.6)" : "rgba(244,240,235,0.16)",
