@@ -144,6 +144,41 @@ export async function appendWeeklyRegistrationToSheet(r: WeeklyProgramRow): Prom
   ]);
 }
 
+export interface FestivalRow {
+  event: string;     // e.g. "Ratha Yatra 2026"
+  name: string;
+  email: string;
+  phone: string;
+  guests: number;
+  hearAbout: string;
+}
+
+/**
+ * One row per festival/event registration, for door check-in.
+ * Uses GOOGLE_SHEETS_FESTIVALS_ID when set, falling back to the
+ * weekly-programs sheet so everything stays in one place by default.
+ * Columns: Registered At (ET) · Event · Full Name · Email · Mobile ·
+ * Guests · Heard Via
+ */
+export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise<boolean> {
+  const cfg = sheetsConfig();
+  if (!cfg) return false;
+  const sheetId =
+    process.env.GOOGLE_SHEETS_FESTIVALS_ID ||
+    process.env.GOOGLE_SHEETS_PROGRAMS_ID ||
+    DEFAULT_PROGRAMS_SHEET_ID;
+  const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+  return appendRow(sheetId, [
+    registeredAt,
+    r.event,
+    r.name,
+    r.email,
+    r.phone,
+    r.guests,
+    r.hearAbout || "",
+  ]);
+}
+
 export interface RegistrationRow {
   name: string;
   email: string;

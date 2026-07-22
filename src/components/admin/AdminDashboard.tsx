@@ -148,6 +148,12 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
             This Week
           </button>
           <button
+            onClick={() => router.push("/admin/festivals")}
+            className="rounded-lg border border-[#C84682]/40 bg-[#C84682]/10 px-3 py-1.5 text-xs font-medium text-[#e07aab] transition-colors hover:bg-[#C84682]/20"
+          >
+            Festivals
+          </button>
+          <button
             onClick={() => router.push("/admin/rsvps")}
             className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
           >

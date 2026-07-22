@@ -35,7 +35,7 @@ const BYDAY: Record<WeeklyProgram["dayOfWeek"], string> = {
   Thursday: "TH", Friday: "FR", Saturday: "SA",
 };
 
-function siteUrl(): string {
+export function siteUrl(): string {
   return (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/$/, "");
 }
 
@@ -126,7 +126,7 @@ export function googleCalendarUrl(program: WeeklyProgram, o: Occurrence): string
 /*  Shared template scaffolding — warm paper look                      */
 /* ------------------------------------------------------------------ */
 
-const P = {
+export const P = {
   bg: "#EFE8D6",     // paper
   card: "#FBF5E6",   // cream card
   ink: "#15224F",    // indigo ink
@@ -135,14 +135,14 @@ const P = {
   gold: "#A8842A",
 };
 
-function detailRow(label: string, value: string): string {
+export function detailRow(label: string, value: string): string {
   return `<tr>
     <td style="padding:9px 0;border-bottom:1px solid ${P.line};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${P.dim};vertical-align:top;white-space:nowrap;">${label}</td>
     <td style="padding:9px 0 9px 18px;border-bottom:1px solid ${P.line};font-size:14px;font-weight:600;color:${P.ink};text-align:right;">${value}</td>
   </tr>`;
 }
 
-function shell(accent: string, kicker: string, headline: string, bodyHtml: string, footerHtml: string): string {
+export function shell(accent: string, kicker: string, headline: string, bodyHtml: string, footerHtml: string): string {
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:${P.bg};">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${P.bg};padding:32px 12px;">
@@ -167,7 +167,7 @@ function shell(accent: string, kicker: string, headline: string, bodyHtml: strin
 </body></html>`;
 }
 
-function buttonPair(accent: string, primary: { href: string; label: string }, secondary: { href: string; label: string }): string {
+export function buttonPair(accent: string, primary: { href: string; label: string }, secondary: { href: string; label: string }): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
     <tr>
       <td style="border-radius:999px;background:${accent};">
@@ -181,7 +181,7 @@ function buttonPair(accent: string, primary: { href: string; label: string }, se
   </table>`;
 }
 
-function contactLine(): string {
+export function contactLine(): string {
   return `<p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${P.dim};">
     Questions? Write to us at
     <a href="mailto:${PROGRAMS_CONTACT_EMAIL}" style="color:${P.gold};font-weight:bold;text-decoration:none;">${PROGRAMS_CONTACT_EMAIL}</a>
