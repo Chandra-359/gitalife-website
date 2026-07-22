@@ -9,7 +9,9 @@
  * progress. Clicking an entry jumps straight to that section —
  * deliberately instant, bypassing the site-wide smooth scroll. Below
  * `md` the inactive labels collapse so only dots + the current label
- * render and the pill stays compact.
+ * render and the pill stays compact. On phones (below `sm`) the rail
+ * is hidden entirely — it overlapped headings on narrow screens, and
+ * the sticky navbar + bottom ticket bar already handle navigation.
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -93,7 +95,7 @@ export default function SectionTracker() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="fixed right-4 top-[76px] z-30 sm:right-6"
+      className="fixed right-4 top-[76px] z-30 hidden sm:right-6 sm:block"
       aria-label="Page sections"
     >
       <div
