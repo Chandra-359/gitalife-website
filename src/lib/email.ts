@@ -239,6 +239,41 @@ export async function verifySmtpConnection(): Promise<SendOutcome> {
   }
 }
 
+export interface RawEmail {
+  /** Overrides SMTP_FROM — must be on the domain verified with the provider. */
+  from?: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+  headers?: Record<string, string>;
+  attachments?: { filename: string; content: string; contentType: string }[];
+}
+
+/** Generic transactional send over the shared transporter. Never throws. */
+export async function sendEmail(msg: RawEmail): Promise<SendOutcome> {
+  const t = getTransporter();
+  if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };
+  try {
+    await t.sendMail({
+      from: msg.from || env("SMTP_FROM") || env("SMTP_USER"),
+      replyTo: msg.replyTo || env("SMTP_REPLY_TO") || undefined,
+      to: msg.to,
+      subject: msg.subject,
+      html: msg.html,
+      text: msg.text,
+      headers: msg.headers,
+      attachments: msg.attachments,
+    });
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Email to ${msg.to} ("${msg.subject}") failed:`, message);
+    return { ok: false, error: message };
+  }
+}
+
 export async function sendClubbingConfirmationDetailed(d: ConfirmationDetails): Promise<SendOutcome> {
   const t = getTransporter();
   if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };

@@ -87,6 +87,12 @@ model Rsvp {
   hearAbout String?                          // "How did you hear about this event?" (optional)
   emailOptIn Boolean @default(false)         // Agreed to receive event/program updates by email
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
+
+  // --- Weekly reminder emails (weekly programs only) ---
+  remindersEnabled Boolean   @default(true)  // Receives the weekly program reminder
+  remindersOptOutAt DateTime?                // When the person unsubscribed
+  lastReminderAt   DateTime?                 // Last reminder actually sent (dedupe guard)
+
   checkedInAt DateTime?                      // Set when the party is checked in at the door
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId String

@@ -1,44 +1,56 @@
 /**
  * Programs page — Server Component
  *
- * The public hub for every Gita Life NYC program. Distribution endpoint
- * for QR codes — must orient new visitors quickly and hand off to Luma
- * for registration.
+ * The public hub for the three flagship weekly programs (Newport,
+ * Jersey City, Brooklyn). Distribution endpoint for QR codes.
  *
- * Server-fetches the shared Luma calendar (configured at LUMA_CALENDAR_ID
- * in src/data/home.ts) so cards are rendered with full brand styling.
- * If the Luma fetch fails the section gracefully falls back to the
- * embedded calendar iframe.
+ * Registration is handled in-house (no Luma): one form per program,
+ * a welcome email with a recurring calendar invite from
+ * no-reply@gitalifenyc.com, weekly topic reminders until unsubscribe,
+ * and a Google Sheet row per registrant for door check-in.
+ *
+ * Static schedule/venue data lives in src/data/weeklyPrograms.ts; the
+ * week-to-week topic, poster, and media come from the database and are
+ * edited at /admin/weekly.
  */
 
 import type { Metadata } from "next";
 import { getPrograms } from "@/lib/programs";
-import { getLumaEvents } from "@/lib/luma";
-import ProgramsPage from "@/components/programs/ProgramsPage";
+import {
+  getWeeklyPrograms,
+  nextOccurrence,
+  occurrenceLabel,
+} from "@/lib/weeklyPrograms";
+import WeeklyProgramsPage from "@/components/programs/WeeklyProgramsPage";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Programs — Gita Life NYC",
+  title: "Weekly Programs — Gita Life NYC",
   description:
-    "Every Gita Life NYC gathering — weekly Gita classes, kirtans, festivals, retreats, and seva — opens for free registration here.",
+    "Three weekly Gita gatherings — Newport (Friday), Jersey City (Saturday), and ISKCON Brooklyn (Sunday). Register once, get a calendar invite, and just show up. Free, prasadam included.",
   openGraph: {
-    title: "Programs — Gita Life NYC",
+    title: "Weekly Programs — Gita Life NYC",
     description:
-      "Classes, volunteer opportunities, festivals, and retreats. Free, open to all, registration via Luma.",
+      "Register once for your neighborhood Gita program — Newport, Jersey City, or Brooklyn. Kirtan, wisdom, and prasadam every week.",
     type: "website",
   },
 };
 
 export default async function Page() {
-  const [programs, events] = await Promise.all([
+  const [programs, weekly] = await Promise.all([
     getPrograms(),
-    getLumaEvents({ period: "future", limit: 50 }),
+    getWeeklyPrograms(),
   ]);
 
   const testimonials = programs
     .filter((p) => p.testimonial && p.testimonialAuthor)
     .slice(0, 3);
 
-  return <ProgramsPage testimonials={testimonials} events={events} />;
+  const withNext = weekly.map((p) => ({
+    ...p,
+    nextLabel: occurrenceLabel(nextOccurrence(p)),
+  }));
+
+  return <WeeklyProgramsPage programs={withNext} testimonials={testimonials} />;
 }

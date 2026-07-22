@@ -142,6 +142,12 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => router.push("/admin/weekly")}
+            className="rounded-lg border border-[#E8751A]/40 bg-[#E8751A]/10 px-3 py-1.5 text-xs font-medium text-[#E8751A] transition-colors hover:bg-[#E8751A]/20"
+          >
+            This Week
+          </button>
+          <button
             onClick={() => router.push("/admin/rsvps")}
             className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
           >
