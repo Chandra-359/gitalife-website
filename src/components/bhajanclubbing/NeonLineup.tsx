@@ -289,7 +289,7 @@ export default function NeonLineup() {
           The Lineup
         </p>
         <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
-          {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
+          {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Pure energy.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
           Hover a card — or tap on mobile — to get to know each artist.
