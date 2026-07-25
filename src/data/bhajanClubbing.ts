@@ -8,6 +8,8 @@
  *  - Artist photos           → LINEUP[].photo — drop a 3:4 portrait in public/lineup/
  *                              and set e.g. photo: "/lineup/dj-keshava.jpg". Tiles
  *                              without a photo render a neon monogram poster.
+ *  - Artist socials          → LINEUP[].socials — Instagram / YouTube icon links
+ *                              rendered beneath each poster.
  *  - Registration capacity   → EVENT.capacity (server-side only — never shown on the page)
  *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
  *                              GROUP_DISCOUNT — computeOrder() is the single
@@ -38,6 +40,11 @@ export interface ClubArtist {
    * crop toward the left of a landscape shot). Defaults to center.
    */
   photoPosition?: string;
+  /** Official artist profiles — rendered as icon links beneath the poster. */
+  socials?: {
+    instagram?: string;
+    youtube?: string;
+  };
 }
 
 export const EVENT = {
@@ -113,6 +120,10 @@ export const LINEUP: ClubArtist[] = [
     tags: ["Kirtan", "Harmonium", "Maha-mantra"],
     accent: "saffron",
     photo: "/lineup/GKD 3.png",
+    socials: {
+      instagram: "https://www.instagram.com/govindkrsnadas",
+      youtube: "https://www.youtube.com/channel/UCJptatOLkds0ovqvFc86rjA",
+    },
   },
   {
     id: "srikar-prabhuji",
@@ -123,6 +134,10 @@ export const LINEUP: ClubArtist[] = [
     tags: ["Kirtan", "Bhajan", "Mridanga"],
     accent: "peacock",
     photo: "/lineup/srikar-prabhuji.jpg",
+    // Add socials.youtube here once his channel URL is confirmed.
+    socials: {
+      instagram: "https://www.instagram.com/srikar.music",
+    },
   },
   {
     id: "mayuri-gandharvika",
@@ -135,6 +150,10 @@ export const LINEUP: ClubArtist[] = [
     photo: "/lineup/mayuri-gandharvika.jpg",
     // Landscape source with the singer on the left third — keep her face in frame.
     photoPosition: "20% center",
+    socials: {
+      instagram: "https://www.instagram.com/mayurigandharvika",
+      youtube: "https://www.youtube.com/@MayuriGandharvika",
+    },
   },
 ];
 
