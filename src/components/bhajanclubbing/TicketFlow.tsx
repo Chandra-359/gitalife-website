@@ -62,6 +62,8 @@ const HEAR_ABOUT_OPTIONS = [
   "Friend or family",
   "Temple announcement",
   "YouTube",
+  "Gita Life Volunteer",
+  "Flyers/Posters",
   "Other",
 ];
 

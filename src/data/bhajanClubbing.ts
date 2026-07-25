@@ -106,7 +106,7 @@ export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; tit
 export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
-    name: "HG Govinda Krishna Das (GKD)",
+    name: "Govinda Krishna Das (GKD)",
     bio: "Highly energetic — call-and-response kirtan that leads the room deep into the maha-mantra and builds until everyone is on their feet.",
     instrument: "Voice · Harmonium",
     style: "High-energy call-and-response kirtan",
