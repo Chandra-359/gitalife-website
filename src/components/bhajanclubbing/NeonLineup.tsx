@@ -246,18 +246,34 @@ function ArtistTile({
 export default function NeonLineup() {
   /* Which poster's bio panel is open (tap on touch / click on desktop).
      Owned here — not per-tile — so opening one poster closes the last,
-     and a tap anywhere outside the rail closes everything. Fixes the
-     mobile "card stays stuck open until you tap it again" state. */
+     and the card never sticks: a tap anywhere that isn't a poster — the
+     gaps, the strips beside the rail, the rest of the page — closes it,
+     and so does scrolling/swiping away. */
   const [activeId, setActiveId] = useState<string | null>(null);
-  const railRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!activeId) return;
-    const close = (e: PointerEvent) => {
-      if (!railRef.current?.contains(e.target as Node)) setActiveId(null);
+    /* Snap rails emit trailing scroll events right after a tap settles —
+       give the open animation a beat before scroll-away starts closing. */
+    const armedAt = performance.now();
+
+    const closeUnlessOnPoster = (e: PointerEvent) => {
+      /* Taps on any poster are handled by that tile's own onClick
+         (toggle this card / switch to the other one). */
+      if (!(e.target instanceof Element) || !e.target.closest(".bc2-tile")) setActiveId(null);
     };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
+    /* Capture-phase listener sees non-bubbling scrolls too, so both page
+       scroll and the rail's own horizontal swipe close the card. */
+    const closeOnScroll = () => {
+      if (performance.now() - armedAt > 350) setActiveId(null);
+    };
+
+    document.addEventListener("pointerdown", closeUnlessOnPoster, true);
+    window.addEventListener("scroll", closeOnScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", closeUnlessOnPoster, true);
+      window.removeEventListener("scroll", closeOnScroll, { capture: true });
+    };
   }, [activeId]);
 
   return (
@@ -283,7 +299,7 @@ export default function NeonLineup() {
       {/* poster slideway — centered while the lineup fits, snap-scroll once
           it grows past the viewport. .bc2-rail scopes the hover spotlight
           (globals.css): only a directly-hovered poster dims the others. */}
-      <div ref={railRef} className="bc2-rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
+      <div className="bc2-rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
         <div className="mx-auto flex w-max items-stretch gap-5 md:gap-6">
           {LINEUP.map((artist, i) => (
             <ArtistTile
