@@ -10,6 +10,8 @@
  * — and quietly cross-fades the graded still into a live performance
  * loop. Tap on touch, focus on keyboard, do the same and slide up the
  * bio panel; tapping another poster or anywhere outside closes it.
+ * Beneath each poster, icon links (LINEUP[].socials) open the artist's
+ * Instagram / YouTube profile in a new tab.
  *
  * Performance footage: drop /videos/artist-<id>.mp4 (ids from
  * src/data/bhajanClubbing.ts) and that artist's hover loop plays it;
@@ -39,6 +41,30 @@ function initials(name: string) {
     .slice(0, 2)
     .map((w) => w[0])
     .join("");
+}
+
+/** Brand glyphs for the follow row — same marks as the site footer. */
+function InstagramGlyph() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function YouTubeGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+      <path
+        d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"
+        fill="currentColor"
+      />
+      {/* play triangle punches through to the page background */}
+      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" style={{ fill: "var(--bc2-bg)" }} />
+    </svg>
+  );
 }
 
 /** Placeholder portrait — accent aura, orbit rings, giant monogram. */
@@ -239,6 +265,39 @@ function ArtistTile({
         </div>
       </div>
     </article>
+
+    {/* follow row — lives outside the poster so the links never fight the
+        tap-to-open bio panel and stay reachable in every card state. */}
+    {artist.socials && (
+      <div className="mt-3 flex items-center justify-center gap-3">
+        {artist.socials.instagram && (
+          <a
+            href={artist.socials.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${artist.name} on Instagram`}
+            title="Instagram"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-club-ink/60 outline-none transition-colors hover:border-white/30 hover:bg-white/10 hover:text-club-ink focus-visible:ring-2"
+            style={{ "--tw-ring-color": a.main } as React.CSSProperties}
+          >
+            <InstagramGlyph />
+          </a>
+        )}
+        {artist.socials.youtube && (
+          <a
+            href={artist.socials.youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${artist.name} on YouTube`}
+            title="YouTube"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-club-ink/60 outline-none transition-colors hover:border-white/30 hover:bg-white/10 hover:text-club-ink focus-visible:ring-2"
+            style={{ "--tw-ring-color": a.main } as React.CSSProperties}
+          >
+            <YouTubeGlyph />
+          </a>
+        )}
+      </div>
+    )}
     </motion.div>
   );
 }
@@ -289,7 +348,7 @@ export default function NeonLineup() {
           The Lineup
         </p>
         <h2 className="bc2-display mt-4 text-[30px] text-club-ink sm:text-[40px]">
-          {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Zero proof.</span>
+          {COUNT_WORDS[LINEUP.length] ?? LINEUP.length} acts. <span className="bc2-headline-grad">Pure energy.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-[14px]" style={{ color: "var(--bc2-ink-dim)" }}>
           Hover a card — or tap on mobile — to get to know each artist.
