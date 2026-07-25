@@ -765,6 +765,17 @@ html {
 /* Stepper dots */
 .bc2-step-line { background: linear-gradient(90deg, rgba(244,240,235,0.12), rgba(244,240,235,0.12)); }
 
+/* Lineup poster rail — spotlight dim. Fires only while a poster itself is
+   under the cursor (never the rail's padding or the gaps between cards),
+   keeps the hovered poster crisp, and dims — never blurs — the neighbours
+   so they stay recognisable. Hover-gated so sticky tap-hover on touch
+   can't leave the rail stuck in a dimmed state. */
+@media (hover: hover) {
+  .bc2-rail:has(.bc2-tile:hover) .bc2-tile:not(:hover) {
+    opacity: 0.55;
+  }
+}
+
 /* ================================================================== */
 /*  Scrollbar                                                          */
 /* ================================================================== */

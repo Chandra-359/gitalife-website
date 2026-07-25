@@ -5,10 +5,11 @@
  *
  * Movie-poster tiles (2:3) in a horizontal slideway: centered when the
  * lineup fits the viewport, snap-scrollable when it doesn't. Hovering
- * a poster spotlights it — the card scales up while its neighbours dim
- * and soften (opacity-40 + blur) — and quietly cross-fades the graded
- * still into a live performance loop. Tap on touch, focus on keyboard,
- * do the same and slide up the bio panel.
+ * a poster spotlights it — the card scales up while the other posters
+ * gently dim (hover-capable screens only; see .bc2-rail in globals.css)
+ * — and quietly cross-fades the graded still into a live performance
+ * loop. Tap on touch, focus on keyboard, do the same and slide up the
+ * bio panel; tapping another poster or anywhere outside closes it.
  *
  * Performance footage: drop /videos/artist-<id>.mp4 (ids from
  * src/data/bhajanClubbing.ts) and that artist's hover loop plays it;
@@ -16,7 +17,7 @@
  * `photo` (public/lineup/); artists without one get a monogram poster.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { LINEUP, type AccentToken, type ClubArtist } from "@/data/bhajanClubbing";
@@ -74,9 +75,19 @@ function MonogramPoster({ artist }: { artist: ClubArtist }) {
   );
 }
 
-function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
+function ArtistTile({
+  artist,
+  index,
+  active,
+  onToggle,
+}: {
+  artist: ClubArtist;
+  index: number;
+  /** This tile's bio panel is open (tap / click) — owned by the rail. */
+  active: boolean;
+  onToggle: () => void;
+}) {
   const a = ACCENT[artist.accent];
-  const [revealed, setRevealed] = useState(false);
   /* True when the shared ambient loop is standing in for real footage —
      then the video screen-blends over the still as a light wash instead
      of replacing the artist's face with plain haze. */
@@ -85,8 +96,17 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
 
   const playLoop = () => videoRef.current?.play().catch(() => {});
   const pauseLoop = (force = false) => {
-    if (force || !revealed) videoRef.current?.pause();
+    if (force || !active) videoRef.current?.pause();
   };
+
+  /* The rail owns which card is open, so this tile can be closed from
+     the outside (tap another poster, tap away) — keep the loop in sync. */
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active) v.play().catch(() => {});
+    else v.pause();
+  }, [active]);
 
   return (
     /* Entrance animation lives on the wrapper so framer's inline opacity
@@ -99,21 +119,14 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       className="shrink-0 snap-center"
     >
     <article
-      className="group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none transition-[opacity,filter,scale] duration-500 ease-in-out focus-visible:ring-2 group-hover/rail:opacity-40 group-hover/rail:blur-sm hover:scale-[1.04] hover:opacity-100! hover:blur-none! sm:w-[300px] md:w-[320px]"
+      className="bc2-tile group relative aspect-[2/3] w-[68vw] max-w-[300px] cursor-pointer overflow-hidden rounded-[22px] border border-white/10 outline-none transition-[opacity,scale] duration-500 ease-in-out focus-visible:ring-2 hover:scale-[1.04] sm:w-[300px] md:w-[320px]"
       style={
         {
           boxShadow: "0 18px 48px -22px rgba(16,12,20,0.7)",
           "--tw-ring-color": a.main,
         } as React.CSSProperties
       }
-      onClick={() =>
-        setRevealed((v) => {
-          const next = !v;
-          if (next) playLoop();
-          else pauseLoop(true);
-          return next;
-        })
-      }
+      onClick={onToggle}
       onPointerEnter={playLoop}
       onPointerLeave={() => pauseLoop()}
       onFocus={playLoop}
@@ -124,7 +137,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       {/* portrait */}
       <div
         className={`absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.05] group-focus-visible:scale-[1.05] ${
-          revealed ? "scale-[1.05]" : ""
+          active ? "scale-[1.05]" : ""
         }`}
       >
         {artist.photo ? (
@@ -136,7 +149,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
             fill
             sizes="(min-width: 768px) 33vw, 50vw"
             className={`object-cover transition-[filter] duration-700 ease-in-out ${
-              revealed
+              active
                 ? "grayscale-0 sepia-0 saturate-100"
                 : "grayscale-[55%] sepia-[24%] saturate-[85%] group-hover:grayscale-0 group-hover:sepia-0 group-hover:saturate-100 group-focus-visible:grayscale-0 group-focus-visible:sepia-0 group-focus-visible:saturate-100"
             }`}
@@ -152,7 +165,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${
-            revealed
+            active
               ? placeholder
                 ? "opacity-60"
                 : "opacity-100"
@@ -190,7 +203,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       {/* resting label — name only */}
       <div
         className={`absolute inset-x-0 bottom-0 p-4 transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 sm:p-5 ${
-          revealed ? "opacity-0" : ""
+          active ? "opacity-0" : ""
         }`}
       >
         <h3 className="bc2-display text-[16px] leading-tight text-club-ink sm:text-[20px]">{artist.name}</h3>
@@ -199,7 +212,7 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
       {/* hover / tap / focus panel — the full story */}
       <div
         className={`absolute inset-0 flex translate-y-full flex-col justify-end p-4 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0 sm:p-5 ${
-          revealed ? "!translate-y-0" : ""
+          active ? "!translate-y-0" : ""
         }`}
         style={{
           background: "linear-gradient(180deg, rgba(26,22,35,0) 10%, rgba(26,22,35,0.6) 38%, rgba(26,22,35,0.95) 62%, rgba(26,22,35,0.97) 100%)",
@@ -231,6 +244,22 @@ function ArtistTile({ artist, index }: { artist: ClubArtist; index: number }) {
 }
 
 export default function NeonLineup() {
+  /* Which poster's bio panel is open (tap on touch / click on desktop).
+     Owned here — not per-tile — so opening one poster closes the last,
+     and a tap anywhere outside the rail closes everything. Fixes the
+     mobile "card stays stuck open until you tap it again" state. */
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!activeId) return;
+    const close = (e: PointerEvent) => {
+      if (!railRef.current?.contains(e.target as Node)) setActiveId(null);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [activeId]);
+
   return (
     <section id="lineup" className="relative mx-auto max-w-6xl scroll-mt-20 px-6 py-16 sm:py-24">
       <motion.div
@@ -252,11 +281,18 @@ export default function NeonLineup() {
       </motion.div>
 
       {/* poster slideway — centered while the lineup fits, snap-scroll once
-          it grows past the viewport. group/rail drives the spotlight dim. */}
-      <div className="group/rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
+          it grows past the viewport. .bc2-rail scopes the hover spotlight
+          (globals.css): only a directly-hovered poster dims the others. */}
+      <div ref={railRef} className="bc2-rail scrollbar-hide -mx-6 mt-12 snap-x snap-mandatory overflow-x-auto px-6 pb-4 pt-2">
         <div className="mx-auto flex w-max items-stretch gap-5 md:gap-6">
           {LINEUP.map((artist, i) => (
-            <ArtistTile key={artist.id} artist={artist} index={i} />
+            <ArtistTile
+              key={artist.id}
+              artist={artist}
+              index={i}
+              active={activeId === artist.id}
+              onToggle={() => setActiveId((v) => (v === artist.id ? null : artist.id))}
+            />
           ))}
         </div>
       </div>
