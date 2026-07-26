@@ -3,22 +3,24 @@
 /**
  * HomePage — Simple, mobile-first homepage.
  *
- * Sections:
+ * Sections (ordered for a first-time seeker → registration funnel):
  *   1. Navbar
- *   2. Hero
- *   3. TodayStrip (verse + japa + reading)
- *   4. WeekRail (this week's classes)
+ *   2. Hero (philosophy-first invitation)
+ *   3. BigQuestions (the questions a curious visitor is already asking)
+ *   4. WeekRail (this week's classes — the registration ask)
  *   5. UpcomingPrograms (Luma events)
- *   6. ExploreGrid (categories)
- *   7. ImpactSection (stats)
- *   8. YoutubeWall + InstagramWall
- *   9. ConnectFooter (testimonials + subscribe + footer)
+ *   6. TodayStrip (verse + japa + reading — for returning practitioners)
+ *   7. ExploreGrid (categories)
+ *   8. ImpactSection (stats)
+ *   9. YoutubeWall + InstagramWall
+ *  10. ConnectFooter (testimonials + subscribe + footer)
  */
 
 import type { Program } from "@/data/programs";
 import type { LumaEvent } from "@/lib/luma";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/home/Hero";
+import BigQuestions from "@/components/home/BigQuestions";
 import TodayStrip from "@/components/home/TodayStrip";
 import WeekRail from "@/components/home/WeekRail";
 import UpcomingPrograms from "@/components/home/UpcomingPrograms";
@@ -43,9 +45,10 @@ export default function HomePage({ programs, events }: HomePageProps) {
     <div className="min-h-screen">
       <Navbar isHomepage />
       <Hero slides={HERO_SLIDES} />
-      <TodayStrip />
+      <BigQuestions />
       <WeekRail events={events} />
       <UpcomingPrograms events={events} />
+      <TodayStrip />
       <ExploreGrid />
       <ImpactSection />
       <YoutubeWall />

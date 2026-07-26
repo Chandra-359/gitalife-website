@@ -68,7 +68,7 @@ export default function WeekRail({ events }: WeekRailProps) {
               className="section-heading mt-2 text-3xl sm:text-4xl"
               style={{ color: C.krishnaBlue }}
             >
-              Join a class, kirtan, or seva
+              Drop in this week — everyone&rsquo;s welcome
             </h2>
           </div>
           <Link href="/programs" className="btn-soft btn-soft-krishna">

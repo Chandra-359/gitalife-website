@@ -50,12 +50,21 @@ export default function Hero({ slides }: HeroProps) {
             <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-[22px] shadow-[0_24px_60px_-22px_rgba(0,0,0,0.65)] ring-1 ring-white/10 sm:max-w-sm md:order-last md:max-w-none">
               <Image
                 src={image}
-                alt=""
+                alt="Krishna and Arjuna on a chariot at Kurukshetra — the setting of the Bhagavad Gita"
                 fill
                 priority
                 className="object-cover"
                 sizes="(max-width: 768px) 60vw, 50vw"
               />
+              {/* Caption: frame the art as the story of a dialogue, so a
+                  first-time visitor reads philosophy, not iconography. */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-4 pb-4 pt-10 sm:px-5 sm:pb-5">
+                <p className="text-[12px] leading-relaxed text-white/90 sm:text-[13px]">
+                  The Gita begins with a brilliant person frozen in crisis,
+                  asking a friend what his life is for. The rest of the book is
+                  the answer.
+                </p>
+              </div>
             </div>
           )}
 

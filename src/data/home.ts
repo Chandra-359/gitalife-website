@@ -539,6 +539,71 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  BIG QUESTIONS (homepage seeker section)                            */
+/*  The questions an inquisitive first-time visitor is already asking. */
+/*  Each card anchors the question in the Gita / Bhagavatam so the     */
+/*  page reads as philosophy to explore, not a congregation to join.   */
+/* ------------------------------------------------------------------ */
+export interface BigQuestion {
+  question: string;
+  blurb: string;
+  source: string; // where the texts take this up, e.g. "Bhagavad Gita 2.13"
+  icon: "book" | "music" | "gift" | "mountain" | "food" | "handshake" | "camera" | "trophy" | "calendar" | "lotus" | "flame" | "sparkle";
+  color: "gold" | "saffron" | "peacock" | "lotus" | "krishna";
+}
+
+export const BIG_QUESTIONS: BigQuestion[] = [
+  {
+    question: "Who am I, really?",
+    blurb:
+      "Beyond the job title, the body, and the feed — is there a self that doesn't change? This is the first question the Gita answers.",
+    source: "Bhagavad Gita 2.13",
+    icon: "lotus",
+    color: "gold",
+  },
+  {
+    question: "Why is my mind so restless?",
+    blurb:
+      "Arjuna says the mind is harder to control than the wind. Krishna doesn't disagree — he gives a method.",
+    source: "Bhagavad Gita 6.34–35",
+    icon: "flame",
+    color: "saffron",
+  },
+  {
+    question: "What am I here to do?",
+    blurb:
+      "The Gita's idea of dharma: work aligned with who you are beats imitating someone else's success.",
+    source: "Bhagavad Gita 3.35",
+    icon: "mountain",
+    color: "peacock",
+  },
+  {
+    question: "Why do good people suffer?",
+    blurb:
+      "The Bhagavatam takes suffering seriously — not as punishment, but as a question that can wake us up.",
+    source: "Śrīmad Bhāgavatam 1.2.17",
+    icon: "book",
+    color: "krishna",
+  },
+  {
+    question: "What happens after death?",
+    blurb:
+      "The texts treat death as a change of state, not an ending — and reason through what that means for how we live now.",
+    source: "Bhagavad Gita 2.22",
+    icon: "sparkle",
+    color: "lotus",
+  },
+  {
+    question: "Is there more than success and stuff?",
+    blurb:
+      "You checked the boxes and something's still missing. The Bhagavatam opens with exactly this diagnosis.",
+    source: "Śrīmad Bhāgavatam 1.1.10",
+    icon: "trophy",
+    color: "gold",
+  },
+];
+
+/* ------------------------------------------------------------------ */
 /*  HERO SLIDES (rotating)                                             */
 /* ------------------------------------------------------------------ */
 /**
@@ -578,26 +643,24 @@ export interface HeroSlide {
 }
 
 export const HERO_SLIDES: HeroSlide[] = [
-  // ---- Identity slide: gradient + mandala (Option A) ----
+  // ---- Seeker slide: lead with the visitor's questions, not our identity ----
   {
-    eyebrow: "Students Living the Bhagavad Gita",
-    sanskrit: "सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज",
-    sanskritMeaning: "Abandon all varieties of duty — simply surrender unto Me",
-    heading: "In the heart of New York City",
+    eyebrow: "Ancient Philosophy · Modern New York",
+    heading: "Life's biggest questions have been asked before",
     subheading:
-      "A community of young devotees based at ISKCON Brooklyn — studying scripture, chanting, and serving every day.",
-    primaryCtaLabel: "Explore what we do",
-    primaryCtaHref: "#explore",
-    secondaryCtaLabel: "Get connected",
-    secondaryCtaHref: "#get-connected",
+      "Who am I? Why do I feel restless? What is all this for? The Bhagavad Gita and Śrīmad Bhāgavatam have explored these questions for millennia. Join young New Yorkers reading them together — no background, belief, or Sanskrit required. Just curiosity.",
+    primaryCtaLabel: "Find a free class",
+    primaryCtaHref: "/programs",
+    secondaryCtaLabel: "Start with the questions",
+    secondaryCtaHref: "#questions",
     visual: { type: "ornament", accent: "gold" },
   },
   // ---- Event slide: matted frame (Option B) ----
   {
     eyebrow: "April Youth Festival · Sat Apr 26",
-    heading: "An evening of kirtan, talks & prasadam",
+    heading: "An evening of music, ideas & dinner",
     subheading:
-      "Our monthly gathering of young devotees at ISKCON Brooklyn. Free and open to all.",
+      "Our monthly gathering at ISKCON Brooklyn — live kirtan music, a talk on Gita philosophy, and a vegetarian feast. Free and open to all.",
     primaryCtaLabel: "Reserve your spot",
     primaryCtaHref: "/festival",
     secondaryCtaLabel: "Watch recap",
@@ -613,7 +676,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     eyebrow: "This Saturday · 7 PM",
     heading: "Bhagavad Gita class in Newport",
     subheading:
-      "Weekly scripture study, kirtan, and dinner together. No prior experience needed.",
+      "Weekly philosophy discussion, music, and dinner together. No prior experience needed.",
     primaryCtaLabel: "See upcoming programs",
     primaryCtaHref: "/programs",
     secondaryCtaLabel: "What to expect",
