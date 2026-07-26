@@ -78,7 +78,7 @@ export async function PUT(
     const {
       title, category, description, dayOfWeek, time, latitude, longitude,
       type, imageUrl, subtitle, address, venueName, duration, level,
-      capacity, videoUrl, status, featured,
+      capacity, videoUrl, status, featured, eventStartAt, eventEndAt,
       whatToExpect, whyAttend, whatYouGet, whatToBring,
       lectureTopic, gitaReference,
       speakerName, speakerTitle, speakerBio, speakerImageUrl,
@@ -105,6 +105,8 @@ export async function PUT(
     if (videoUrl !== undefined) data.videoUrl = videoUrl || null;
     if (status !== undefined) data.status = String(status);
     if (featured !== undefined) data.featured = featured === true;
+    if (eventStartAt !== undefined) data.eventStartAt = eventStartAt ? new Date(eventStartAt) : null;
+    if (eventEndAt !== undefined) data.eventEndAt = eventEndAt ? new Date(eventEndAt) : null;
     if (whatToExpect !== undefined) data.whatToExpect = Array.isArray(whatToExpect) ? whatToExpect : [];
     if (whyAttend !== undefined) data.whyAttend = whyAttend || null;
     if (whatYouGet !== undefined) data.whatYouGet = Array.isArray(whatYouGet) ? whatYouGet : [];

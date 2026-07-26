@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const {
       title, category, description, dayOfWeek, time, latitude, longitude,
       type, imageUrl, subtitle, address, venueName, duration, level,
-      capacity, videoUrl, status, featured,
+      capacity, videoUrl, status, featured, eventStartAt, eventEndAt,
       whatToExpect, whyAttend, whatYouGet, whatToBring,
       lectureTopic, gitaReference,
       speakerName, speakerTitle, speakerBio, speakerImageUrl,
@@ -121,6 +121,8 @@ export async function POST(request: NextRequest) {
         videoUrl: videoUrl ? String(videoUrl) : null,
         status: status ? String(status) : "published",
         featured: featured === true,
+        eventStartAt: eventStartAt ? new Date(eventStartAt) : null,
+        eventEndAt: eventEndAt ? new Date(eventEndAt) : null,
         whatToExpect: Array.isArray(whatToExpect) ? whatToExpect : [],
         whyAttend: whyAttend ? String(whyAttend) : null,
         whatYouGet: Array.isArray(whatYouGet) ? whatYouGet : [],

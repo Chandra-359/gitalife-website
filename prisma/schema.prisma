@@ -31,7 +31,13 @@ model Program {
   imageUrl    String?  // nullable — optional program hero photo URL
 
   // --- Event type ---
-  type        String   @default("program") // "program" | "volunteer"
+  type        String   @default("program") // "program" | "volunteer" | "festival"
+
+  // --- Dated events (festivals, monthly youth festival, volunteer ops) ---
+  // Weekly programs leave these null; a non-null eventStartAt marks the
+  // row as a one-off dated event shown on /festival.
+  eventStartAt DateTime?
+  eventEndAt   DateTime?
 
   // --- Detail view fields ---
   subtitle        String?    // One-line hook, e.g. "Connecting through sacred sound"
@@ -74,6 +80,7 @@ model Program {
   @@index([dayOfWeek])
   @@index([type])
   @@index([status])
+  @@index([eventStartAt])
 }
 
 /// An RSVP submission for a program.
@@ -87,6 +94,12 @@ model Rsvp {
   hearAbout String?                          // "How did you hear about this event?" (optional)
   emailOptIn Boolean @default(false)         // Agreed to receive event/program updates by email
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
+
+  // --- Weekly reminder emails (weekly programs only) ---
+  remindersEnabled Boolean   @default(true)  // Receives the weekly program reminder
+  remindersOptOutAt DateTime?                // When the person unsubscribed
+  lastReminderAt   DateTime?                 // Last reminder actually sent (dedupe guard)
+
   checkedInAt DateTime?                      // Set when the party is checked in at the door
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId String
