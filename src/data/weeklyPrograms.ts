@@ -64,7 +64,7 @@ export const WEEKLY_PROGRAMS: WeeklyProgram[] = [
     slug: "newport",
     name: "Newport",
     area: "Jersey City, NJ",
-    title: "Newport Saturday Sanga",
+    title: "Newport Gita Night",
     tagline: "Wind down the week with wisdom, kirtan & a home-cooked dinner",
     description:
       "Our Saturday evening Gita class in a cozy Newport apartment — perfect for young professionals in Jersey City. Small-group discussion, kirtan, and a home-cooked dinner.",
@@ -89,7 +89,7 @@ export const WEEKLY_PROGRAMS: WeeklyProgram[] = [
     slug: "jersey-city",
     name: "Jersey City",
     area: "Jersey City, NJ",
-    title: "Jersey City Saturday Sanga",
+    title: "Jersey City Gita Night",
     tagline: "Scripture study, kirtan & prasadam in the heart of Jersey City",
     description:
       "Saturday evening class in the heart of Jersey City. Ideal for students at NJIT and Rutgers. Expect scripture study, kirtan, and prasadam.",

@@ -146,24 +146,32 @@ export interface WeeklyProgramLive extends WeeklyProgram {
 
 type ProgramDb = Pick<PrismaClient, "program">;
 
-/** Create the Program row if missing. Never overwrites live edits. */
+/**
+ * Create or sync the Program row. Config-owned fields (title, schedule,
+ * venue, description) follow this file so renames and schedule changes
+ * propagate; the weekly fields owned by /admin/weekly (topic, poster,
+ * gallery, speaker) are never touched.
+ */
 export async function ensureWeeklyProgram(db: ProgramDb, config: WeeklyProgram) {
-  const existing = await db.program.findUnique({ where: { id: config.id } });
-  if (existing) return existing;
-  return db.program.create({
-    data: {
+  const configOwned = {
+    title: config.title,
+    category: config.category,
+    description: config.description,
+    subtitle: config.tagline,
+    latitude: config.latitude,
+    longitude: config.longitude,
+    dayOfWeek: config.dayOfWeek,
+    time: config.timeLabel,
+    venueName: config.venueName,
+    address: config.address,
+    duration: `${Math.round(config.durationMinutes / 60)} hours`,
+  };
+  return db.program.upsert({
+    where: { id: config.id },
+    update: configOwned,
+    create: {
       id: config.id,
-      title: config.title,
-      category: config.category,
-      description: config.description,
-      subtitle: config.tagline,
-      latitude: config.latitude,
-      longitude: config.longitude,
-      dayOfWeek: config.dayOfWeek,
-      time: config.timeLabel,
-      venueName: config.venueName,
-      address: config.address,
-      duration: `${Math.round(config.durationMinutes / 60)} hours`,
+      ...configOwned,
       level: "All levels",
       whatToExpect: config.highlights,
       status: "published",
