@@ -547,59 +547,98 @@ export const EXPLORE_CATEGORIES: ExploreCategory[] = [
 export interface BigQuestion {
   question: string;
   blurb: string;
-  source: string; // where the texts take this up, e.g. "Bhagavad Gita 2.13"
+  source: string; // where the texts take this up, e.g. "Bhagavad-gītā 2.13"
+  /** vedabase.io link so the curious can read the full verse + purport */
+  sourceUrl: string;
   icon: "book" | "music" | "gift" | "mountain" | "food" | "handshake" | "camera" | "trophy" | "calendar" | "lotus" | "flame" | "sparkle";
   color: "gold" | "saffron" | "peacock" | "lotus" | "krishna";
 }
 
+/**
+ * All references are to Śrīla Prabhupāda's editions —
+ * Bhagavad-gītā As It Is and Śrīmad-Bhāgavatam — linked on vedabase.io.
+ */
 export const BIG_QUESTIONS: BigQuestion[] = [
   {
-    question: "Who am I, really?",
+    question: "Why do I feel empty a week after getting exactly what I wanted?",
     blurb:
-      "Beyond the job title, the body, and the feed — is there a self that doesn't change? This is the first question the Gita answers.",
-    source: "Bhagavad Gita 2.13",
-    icon: "lotus",
+      "The acceptance letter, the offer, the raise, the apartment — the high fades by Friday and the goalpost quietly moves. Krishna's diagnosis: pleasures born of contact have a beginning and an end, so the wise never bank on them.",
+    source: "Bhagavad-gītā 5.22",
+    sourceUrl: "https://vedabase.io/en/library/bg/5/22/",
+    icon: "sparkle",
     color: "gold",
   },
   {
-    question: "Why is my mind so restless?",
+    question: "GPA, internship, job, mortgage, 401(k), retire, die. Who wrote this script?",
     blurb:
-      "Arjuna says the mind is harder to control than the wind. Krishna doesn't disagree — he gives a method.",
-    source: "Bhagavad Gita 6.34–35",
-    icon: "flame",
+      "The Bhāgavatam is blunt: a human life spent only working hard for food, rent, and security is a life even a hog manages. This body was issued for asking a different question entirely.",
+    source: "Śrīmad-Bhāgavatam 5.5.1",
+    sourceUrl: "https://vedabase.io/en/library/sb/5/5/1/",
+    icon: "mountain",
     color: "saffron",
   },
   {
-    question: "What am I here to do?",
+    question: "Why is everyone I know anxious — in the richest society in history?",
     blurb:
-      "The Gita's idea of dharma: work aligned with who you are beats imitating someone else's success.",
-    source: "Bhagavad Gita 3.35",
-    icon: "mountain",
-    color: "peacock",
-  },
-  {
-    question: "Why do good people suffer?",
-    blurb:
-      "The Bhagavatam takes suffering seriously — not as punishment, but as a question that can wake us up.",
-    source: "Śrīmad Bhāgavatam 1.2.17",
-    icon: "book",
+      "Five thousand years ago the Bhāgavatam profiled the people of this exact age: short-lived, misguided, unlucky and, above all, always disturbed. It then says it was compiled specifically for us.",
+    source: "Śrīmad-Bhāgavatam 1.1.10",
+    sourceUrl: "https://vedabase.io/en/library/sb/1/1/10/",
+    icon: "flame",
     color: "krishna",
   },
   {
-    question: "What happens after death?",
+    question: "I know the scroll makes me miserable. Why can't I stop?",
     blurb:
-      "The texts treat death as a change of state, not an ending — and reason through what that means for how we live now.",
-    source: "Bhagavad Gita 2.22",
-    icon: "sparkle",
+      "The Gita maps the loop in two verses: dwell on something → attachment → craving → anger when it's blocked → memory and judgment gone. Written long before the algorithm; describes the algorithm exactly.",
+    source: "Bhagavad-gītā 2.62–63",
+    sourceUrl: "https://vedabase.io/en/library/bg/2/62/",
+    icon: "book",
+    color: "peacock",
+  },
+  {
+    question: "If I'm only brain chemistry, who exactly is reading this sentence?",
+    blurb:
+      "Every atom of your childhood body is gone, yet you remember being in it. The Gita starts here: bodies change continuously; the observer watching them change does not.",
+    source: "Bhagavad-gītā 2.13",
+    sourceUrl: "https://vedabase.io/en/library/bg/2/13/",
+    icon: "lotus",
     color: "lotus",
   },
   {
-    question: "Is there more than success and stuff?",
+    question: "Honestly — how much money would finally be enough?",
     blurb:
-      "You checked the boxes and something's still missing. The Bhagavatam opens with exactly this diagnosis.",
-    source: "Śrīmad Bhāgavatam 1.1.10",
+      "The Gita quotes the accumulating mind verbatim: \"So much is mine today, and more will be mine tomorrow.\" It reads like a vision board. Krishna files it under delusion — and explains why it can never complete.",
+    source: "Bhagavad-gītā 16.13–15",
+    sourceUrl: "https://vedabase.io/en/library/bg/16/13-15/",
     icon: "trophy",
     color: "gold",
+  },
+  {
+    question: "Everyone I love is one phone call away from being gone. Why do we never talk about it?",
+    blurb:
+      "The Bhāgavatam describes us guarded by family, career, and savings like soldiers — \"seeing their destruction, he does not see.\" Real intelligence, the Gita adds, begins by looking straight at birth, death, old age, and disease.",
+    source: "Śrīmad-Bhāgavatam 2.1.4",
+    sourceUrl: "https://vedabase.io/en/library/sb/2/1/4/",
+    icon: "calendar",
+    color: "krishna",
+  },
+  {
+    question: "Is deferring life until retirement at 65 actually a plan?",
+    blurb:
+      "In the Bhāgavatam a five-year-old tells his classmates, between lessons, that human life is rare, can end any afternoon, and that the real inquiry should start now — not after the career winds down.",
+    source: "Śrīmad-Bhāgavatam 7.6.1",
+    sourceUrl: "https://vedabase.io/en/library/sb/7/6/1/",
+    icon: "handshake",
+    color: "saffron",
+  },
+  {
+    question: "I hustle for happiness and collect anxiety. Did I get the math backwards?",
+    blurb:
+      "The Bhāgavatam's economics: distress finds you without any effort — and so, by the same law, does the happiness you're due. So spend your actual effort on the one thing no amount of wandering delivers.",
+    source: "Śrīmad-Bhāgavatam 1.5.18",
+    sourceUrl: "https://vedabase.io/en/library/sb/1/5/18/",
+    icon: "gift",
+    color: "peacock",
   },
 ];
 

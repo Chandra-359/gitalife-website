@@ -24,12 +24,12 @@ export default function BigQuestions() {
             className="section-heading mt-2 text-3xl sm:text-4xl"
             style={{ color: C.krishnaBlue }}
           >
-            Questions we explore every week
+            The questions you already ask at 2 a.m.
           </h2>
           <p className="mt-2 max-w-lg mx-auto text-sm text-gray-500">
-            The Bhagavad Gita is a conversation — a person in crisis asking a
-            friend what life is for. Our classes pick that conversation up where
-            it left off.
+            They&rsquo;ve been examined with total seriousness for five thousand
+            years — in the Bhagavad Gita and Śrīmad Bhāgavatam. Every card links
+            to the exact verse, so you can check us.
           </p>
         </div>
 
@@ -59,12 +59,16 @@ export default function BigQuestions() {
                 <p className="mt-2 flex-1 text-[13px] leading-relaxed text-gray-600">
                   {q.blurb}
                 </p>
-                <span
-                  className="mt-4 inline-flex w-fit items-center rounded-full px-3 py-1 text-[11px] font-semibold"
+                <a
+                  href={q.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold transition-opacity hover:opacity-75"
                   style={{ background: `${color}18`, color }}
                 >
                   {q.source}
-                </span>
+                  <Icon name="arrowRight" size={10} />
+                </a>
               </div>
             );
           })}
@@ -72,8 +76,9 @@ export default function BigQuestions() {
 
         <div className="mt-8 sm:mt-10 text-center">
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            Bring one of these to a class. Free, weekly, in person — nothing to
-            believe first, everything to ask.
+            Pick the one that stung and bring it to a class. Free, weekly, in
+            person across NYC &amp; Jersey City — nothing to believe first,
+            everything to ask.
           </p>
           <Link
             href="/programs"
