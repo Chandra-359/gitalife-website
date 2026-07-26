@@ -19,6 +19,7 @@
 import Link from "next/link";
 import type { Program } from "@/data/programs";
 import type { WeeklyProgramLive } from "@/lib/weeklyPrograms";
+import { PROGRAMS_CONTACT_EMAIL } from "@/data/weeklyPrograms";
 import { INSTAGRAM_URL } from "@/data/home";
 import Navbar from "@/components/Navbar";
 import ConnectFooter from "@/components/home/ConnectFooter";
@@ -425,6 +426,16 @@ function ClosingCta() {
             Follow @gitalifenyc
           </a>
         </div>
+        <p className="mt-6 text-xs" style={{ color: "var(--ink-dim-dark)" }}>
+          Questions about a program or your registration? Write to{" "}
+          <a
+            href={`mailto:${PROGRAMS_CONTACT_EMAIL}`}
+            className="font-bold underline-offset-2 hover:underline"
+            style={{ color: "var(--divine-gold-light)" }}
+          >
+            {PROGRAMS_CONTACT_EMAIL}
+          </a>
+        </p>
       </div>
     </section>
   );
