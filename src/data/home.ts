@@ -49,7 +49,7 @@ export const CLASS_LOCATIONS: ClassLocation[] = [
     mapsUrl: "https://maps.google.com/?q=Newport+Jersey+City",
     color: "saffron",
     description:
-      "Our Friday evening Gita class in a cozy Newport apartment — perfect for young professionals in Jersey City. Small group discussion, kirtan, and a home-cooked dinner.",
+      "Our Saturday evening Gita class in a cozy Newport apartment — perfect for young professionals in Jersey City. Small group discussion, kirtan, and a home-cooked dinner.",
     transit: "PATH to Newport station — 2 min walk",
   },
   {
@@ -78,7 +78,7 @@ export const CLASS_LOCATIONS: ClassLocation[] = [
 
 export const WEEKLY_SCHEDULE: WeeklyClass[] = [
   {
-    day: "Friday",
+    day: "Saturday",
     time: "7:00 PM",
     title: "Bhagavad Gita Class",
     location: "Newport",
@@ -312,7 +312,7 @@ export const VOLUNTEER_LADDER: VolunteerRung[] = [
       "For devotees who want to help lead — running a festival, teaching a class series, or owning a program end-to-end with mentorship from senior devotees.",
     examples: [
       "Lead the monthly Youth Festival crew",
-      "Own the Newport Friday class",
+      "Own the Newport Saturday class",
       "Coordinate a retreat",
     ],
     cta: "Talk to us",
@@ -360,8 +360,8 @@ export const IMPACT_STORIES: ImpactStory[] = [
     eyebrow: "Weekly Classes",
     heading: "52 Bhagavad Gita classes across 3 neighborhoods",
     paragraphs: [
-      "Newport on Fridays. Jersey City on Saturdays. ISKCON Brooklyn on Sundays. Three standing gatherings every week of every year — that's 156 classes in 2025.",
-      "Our Friday Newport group started as four friends in a living room; it now hosts 25–30 devotees weekly. The growth is the point — scripture spreads by word of mouth, one invitation at a time.",
+      "Newport and Jersey City on Saturdays. ISKCON Brooklyn on Sundays. Three standing gatherings every week of every year — that's 156 classes in 2025.",
+      "Our Newport group started as four friends in a living room; it now hosts 25–30 devotees weekly. The growth is the point — scripture spreads by word of mouth, one invitation at a time.",
     ],
     stat: { number: "156", label: "classes in 2025" },
     color: "gold",
@@ -608,9 +608,9 @@ export const HERO_SLIDES: HeroSlide[] = [
       side: "right",
     },
   },
-  // ---- "This Friday" slide: editorial photo (Option D) ----
+  // ---- "This Saturday" slide: editorial photo (Option D) ----
   {
-    eyebrow: "This Friday · 7 PM",
+    eyebrow: "This Saturday · 7 PM",
     heading: "Bhagavad Gita class in Newport",
     subheading:
       "Weekly scripture study, kirtan, and dinner together. No prior experience needed.",

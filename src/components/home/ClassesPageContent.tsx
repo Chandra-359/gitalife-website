@@ -91,7 +91,7 @@ export default function ClassesPageContent() {
             className="mt-5 text-[15px] sm:text-[16px] leading-[1.75] max-w-xl mx-auto"
             style={{ color: "rgba(255,251,242,0.72)" }}
           >
-            Friday in Newport, Saturday in Jersey City, Sunday at ISKCON
+            Saturday in Newport and Jersey City, Sunday at ISKCON
             Brooklyn. Free, open to all, and beginner-friendly.
           </p>
         </div>

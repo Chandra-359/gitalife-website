@@ -15,7 +15,7 @@
  * from the neon Bhajan Clubbing receipts in email.ts.
  */
 
-import { sendEmail, type SendOutcome } from "@/lib/email";
+import { sendEmail, type RawEmail, type SendOutcome } from "@/lib/email";
 import {
   PROGRAMS_CONTACT_EMAIL,
   PROGRAMS_FROM_EMAIL,
@@ -202,7 +202,8 @@ export interface WelcomeDetails {
   alreadyRegistered?: boolean;
 }
 
-export async function sendProgramWelcome(d: WelcomeDetails): Promise<SendOutcome> {
+/** Build the full welcome message (also used by the admin preview). */
+export function buildProgramWelcome(d: WelcomeDetails): RawEmail {
   const { program } = d;
   const o = nextOccurrence(program);
   const first = d.name.split(" ")[0];
@@ -261,7 +262,7 @@ Unsubscribe from reminders (your registration stays): ${unsub}
 Questions? ${PROGRAMS_CONTACT_EMAIL}
 ${siteUrl()}/programs`;
 
-  return sendEmail({
+  return {
     from: PROGRAMS_FROM_EMAIL,
     replyTo: PROGRAMS_CONTACT_EMAIL,
     to: d.to,
@@ -287,7 +288,11 @@ ${siteUrl()}/programs`;
         contentType: "text/calendar; method=PUBLISH",
       },
     ],
-  });
+  };
+}
+
+export async function sendProgramWelcome(d: WelcomeDetails): Promise<SendOutcome> {
+  return sendEmail(buildProgramWelcome(d));
 }
 
 /* ------------------------------------------------------------------ */
@@ -301,7 +306,8 @@ export interface ReminderDetails {
   program: WeeklyProgramLive;
 }
 
-export async function sendProgramReminder(d: ReminderDetails): Promise<SendOutcome> {
+/** Build the full reminder message (also used by the admin preview). */
+export function buildProgramReminder(d: ReminderDetails): RawEmail {
   const { program } = d;
   const o = nextOccurrence(program);
   const first = d.name.split(" ")[0];
@@ -360,7 +366,7 @@ Program details: ${siteUrl()}/programs
 Unsubscribe from weekly reminders: ${unsub}
 Questions? ${PROGRAMS_CONTACT_EMAIL}`;
 
-  return sendEmail({
+  return {
     from: PROGRAMS_FROM_EMAIL,
     replyTo: PROGRAMS_CONTACT_EMAIL,
     to: d.to,
@@ -379,5 +385,9 @@ Questions? ${PROGRAMS_CONTACT_EMAIL}`;
       "List-Unsubscribe": `<${unsub}>`,
       "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     },
-  });
+  };
+}
+
+export async function sendProgramReminder(d: ReminderDetails): Promise<SendOutcome> {
+  return sendEmail(buildProgramReminder(d));
 }
