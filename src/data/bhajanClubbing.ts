@@ -14,7 +14,6 @@
  *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
  *                              GROUP_DISCOUNT — computeOrder() is the single
  *                              source of truth for what Square charges
- *  - Free prasadam section   → PRASADAM
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *  - Social profiles         → SOCIALS (footer follow buttons)
  *
@@ -83,33 +82,6 @@ export const EVENT = {
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
 
-export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; title: string; detail: string; accent: AccentToken }[] = [
-  {
-    icon: "music",
-    title: "Live kirtan",
-    detail: "Harmonium, mridanga and kartals on a concert-grade sound system.",
-    accent: "saffron",
-  },
-  {
-    icon: "sparkle",
-    title: "A sattvic rave",
-    detail: "All the energy of a club night, completely pure — the high is the chant.",
-    accent: "gold",
-  },
-  {
-    icon: "food",
-    title: "Free prasadam",
-    detail: "Packed prasadam from Sri Sri Radha Govinda Temple — free for every guest.",
-    accent: "lotus",
-  },
-  {
-    icon: "handshake",
-    title: "Everyone's invited",
-    detail: "First-timers, families, seekers, skeptics. No experience needed.",
-    accent: "peacock",
-  },
-];
-
 export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
@@ -156,17 +128,6 @@ export const LINEUP: ClubArtist[] = [
     },
   },
 ];
-
-/* ------------------------------------------------------------------ */
-/*  Free prasadam — dedicated section on the page                      */
-/* ------------------------------------------------------------------ */
-export const PRASADAM = {
-  temple: "Sri Sri Radha Govinda Temple",
-  title: "Free prasadam for every guest",
-  detail:
-    "Every ticket includes packed prasadam — a sanctified vegetarian feast prepared fresh at Sri Sri Radha Govinda Temple. Grab yours before you head home; it's our gift, completely free.",
-  points: ["Cooked fresh at the temple", "100% vegetarian & sattvic", "Free with your ticket"],
-} as const;
 
 /* ------------------------------------------------------------------ */
 /*  Ticket — single paid tier, charged via Square checkout             */

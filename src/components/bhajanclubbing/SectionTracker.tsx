@@ -22,7 +22,6 @@ const SECTIONS = [
   { id: "vibe", label: "Vibe" },
   { id: "lineup", label: "Lineup" },
   { id: "details", label: "Details" },
-  { id: "prasadam", label: "Prasadam" },
   { id: "tickets", label: "Tickets" },
   { id: "crew", label: "Crew" },
   { id: "faq", label: "FAQ" },

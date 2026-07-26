@@ -7,7 +7,7 @@
  * fallback while the video loads or if it 404s) → full-screen ambient
  * video loop → dark bottom-up scrim → content (blinking LIVE badge,
  * theatrical serif headline whose tracking tightens on entry, meta
- * chips, ticket-stub countdown, warm CTA) → marquee ticker.
+ * chips, ticket-stub countdown, warm CTA).
  *
  * Video sources: /videos/hero-loop.mp4 is tried first — drop the real
  * B-roll there (slow-mo mridangam hands, haze through concert lights,
@@ -115,35 +115,6 @@ function CountdownStub() {
         {live ? "Doors open" : d > 0 ? `${d}d · ${h}h · ${m}m` : `${h}h · ${m}m · ${s}s`}
       </span>
     </span>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Marquee ticker                                                     */
-/* ------------------------------------------------------------------ */
-const TICKER = [
-  "Live kirtan",
-  "Free packed prasadam",
-  "100% sattvic",
-  "All ages",
-  "Jersey City",
-  "Sat · Aug 15",
-];
-
-function TickerStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
-  return (
-    <div className="flex items-center" aria-hidden={ariaHidden}>
-      {TICKER.map((item) => (
-        <span key={item} className="flex items-center">
-          <span className="whitespace-nowrap px-5 text-[12px] font-bold uppercase tracking-[0.24em]" style={{ color: "var(--bc2-ink-dim)" }}>
-            {item}
-          </span>
-          <span style={{ color: "var(--bc2-saffron)" }} aria-hidden>
-            ✦
-          </span>
-        </span>
-      ))}
-    </div>
   );
 }
 
@@ -298,22 +269,6 @@ export default function NeonHero() {
             </svg>
           </motion.a>
         </motion.div>
-
-        {/* marquee ticker */}
-        <div
-          className="relative z-10 overflow-hidden py-3.5"
-          style={{
-            borderTop: "1px solid rgba(122,92,158,0.3)",
-            borderBottom: "1px solid rgba(122,92,158,0.3)",
-            background: "rgba(26,26,29,0.6)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <div className="bc-marquee-track">
-            <TickerStrip />
-            <TickerStrip ariaHidden />
-          </div>
-        </div>
       </motion.div>
     </header>
   );

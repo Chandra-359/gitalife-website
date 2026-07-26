@@ -6,10 +6,10 @@
  * High-end conscious club: deep plum/midnight canvas, soft off-white
  * editorial serif, warm candlelit accents, frosted-glass panels, and a
  * fixed film-grain wash over everything. Structure follows the
- * event-page spec: hero → the vibe → lineup → bento details → free
- * prasadam → multi-step tickets → share → FAQ → outro. The festival
+ * event-page spec: hero → the vibe → lineup → bento details →
+ * multi-step tickets → share → FAQ → outro. The festival
  * layer (string lights,
- * diyas, petals, instruments, rising notes) persists underneath it all.
+ * diyas, petals, rising notes) persists underneath it all.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -23,7 +23,6 @@ import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
 import NeonLineup from "./NeonLineup";
-import PrasadamFeast from "./PrasadamFeast";
 import SectionTracker from "./SectionTracker";
 import ShareCrew from "./ShareCrew";
 import SocialLinks from "./SocialLinks";
@@ -228,14 +227,13 @@ export default function BhajanClubbingPage() {
             <span className="bc2-aurora left-[10%] top-[74%] h-[520px] w-[520px]" style={{ background: "var(--bc2-saffron)", "--o": 0.12, "--t": "26s", "--d": "-14s" } as React.CSSProperties} />
           </div>
 
-          {/* festival layer: lights, bunting, diyas, petals, instruments, notes */}
+          {/* festival layer: lights, bunting, diyas, petals, notes */}
           <FestivalBackdrop />
 
           <TheVibe />
           <NeonLineup />
           <DiyaRow />
           <BentoDetails />
-          <PrasadamFeast />
           <TicketFlow />
           <ShareCrew />
           <DiyaRow />
