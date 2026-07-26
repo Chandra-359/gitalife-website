@@ -82,33 +82,6 @@ export const EVENT = {
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
 
-export const VIBE_FACTS: { icon: "music" | "food" | "sparkle" | "handshake"; title: string; detail: string; accent: AccentToken }[] = [
-  {
-    icon: "music",
-    title: "Live kirtan",
-    detail: "Harmonium, mridanga and kartals on a concert-grade sound system.",
-    accent: "saffron",
-  },
-  {
-    icon: "sparkle",
-    title: "A sattvic rave",
-    detail: "All the energy of a club night, completely pure — the high is the chant.",
-    accent: "gold",
-  },
-  {
-    icon: "food",
-    title: "Free prasadam",
-    detail: "Packed prasadam from Sri Sri Radha Govinda Temple — free for every guest.",
-    accent: "lotus",
-  },
-  {
-    icon: "handshake",
-    title: "Everyone's invited",
-    detail: "First-timers, families, seekers, skeptics. No experience needed.",
-    accent: "peacock",
-  },
-];
-
 export const LINEUP: ClubArtist[] = [
   {
     id: "govinda-krishna-prabhuji",
