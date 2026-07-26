@@ -50,7 +50,7 @@ export interface WeeklyProgram {
   category: string;
 }
 
-export const PROGRAMS_CONTACT_EMAIL = "gitalifenyc@gmail.com";
+export const PROGRAMS_CONTACT_EMAIL = "programs@gitalifenyc.com";
 
 /** From-address for all weekly-program mail. Must be on the domain
  *  verified with the SMTP provider (see .env.example). */
