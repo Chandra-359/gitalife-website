@@ -10,8 +10,11 @@
  * deliberately instant, bypassing the site-wide smooth scroll. Below
  * `md` the inactive labels collapse so only dots + the current label
  * render and the pill stays compact. On phones (below `sm`) the rail
- * is hidden entirely — it overlapped headings on narrow screens, and
- * the sticky navbar + bottom ticket bar already handle navigation.
+ * doesn't render at all — it overlapped headings on narrow screens,
+ * the sticky navbar + bottom ticket bar already handle navigation,
+ * and skipping it entirely (rather than CSS-hiding it) keeps its
+ * per-frame scroll measurements off the main thread during touch
+ * scrolling.
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -35,14 +38,27 @@ const NAV_OFFSET = 80;
 export default function SectionTracker() {
   const [active, setActive] = useState<SectionId>("top");
   const [progress, setProgress] = useState(0);
+  // Rendered (and measured) only from `sm` up — see the header comment.
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    const sync = () => setEnabled(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
     let raf = 0;
 
     const measure = () => {
       raf = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+      // Quantised to 0.5% steps so the equal-value setState bails out of
+      // a React re-render on most scrolled frames.
+      setProgress(max > 0 ? Math.round(Math.min(1, window.scrollY / max) * 200) / 200 : 0);
 
       // Pinned to the bottom → the last section wins even if it's too
       // short to ever cross the activation line.
@@ -75,7 +91,7 @@ export default function SectionTracker() {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [enabled]);
 
   const jump = useCallback((id: SectionId) => {
     setActive(id);
@@ -89,12 +105,14 @@ export default function SectionTracker() {
     window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
   }, []);
 
+  if (!enabled) return null;
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="fixed right-4 top-[76px] z-30 hidden sm:right-6 sm:block"
+      className="fixed right-4 top-[76px] z-30 sm:right-6"
       aria-label="Page sections"
     >
       <div
