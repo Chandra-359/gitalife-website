@@ -1,22 +1,17 @@
 "use client";
 
 /**
- * TheVibe — manifesto + interactive instrument showcase.
+ * TheVibe — manifesto + four feature cards.
  *
  * The manifesto typography unfolds on scroll (heading words rise
  * word-by-word, then the serif line and paragraphs, on one staggered
- * viewport trigger). The four feature cards are media-rich magnetic
- * tiles: a dark masked video window with a floating instrument
- * line-art glyph, spring-driven 3D tilt that pulls toward the cursor,
- * and an accent glow that spills past the card onto the page on hover.
- *
- * Per-card footage: drop /videos/vibe-<clip>.mp4 (e.g. vibe-kirtan.mp4
- * — mridangam hands in club light) and it plays instead of the shared
- * ambient placeholder loop.
+ * viewport trigger). The four feature cards are magnetic glass tiles:
+ * an accent-tinted icon chip over the copy, spring-driven 3D tilt that
+ * pulls toward the cursor, and an accent glow that spills past the
+ * card onto the page on hover.
  */
 
-import { Fragment, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { Fragment, useRef } from "react";
 import {
   motion,
   useMotionValue,
@@ -25,8 +20,8 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
+import { Icon } from "@/components/home/icons";
 import { VIBE_FACTS } from "@/data/bhajanClubbing";
-import { GLYPHS, type InstrumentKind } from "./FestivalBackdrop";
 
 const unfold: Variants = {
   hidden: {},
@@ -39,110 +34,13 @@ const rise: Variants = {
 
 const HEADLINE_WORDS = "A rave where the drop is a".split(" ");
 
-/* Per-card showcase treatment, keyed by the fact's icon id. */
-const SHOWCASE: Record<
-  (typeof VIBE_FACTS)[number]["icon"],
-  { sprite: InstrumentKind; clip: string; glow: string }
-> = {
-  music: { sprite: "mridanga", clip: "kirtan", glow: "#D98A4A" }, // warm saffron
-  sparkle: { sprite: "kartals", clip: "rave", glow: "#7A5C9E" }, // deep purple
-  food: { sprite: "bansuri", clip: "prasadam", glow: "#E5C08D" }, // warm sand
-  handshake: { sprite: "harmonium", clip: "invited", glow: "#C08CA6" }, // soft rose
+/* Per-card accent — icon tint + hover glow, keyed by the fact's icon id. */
+const GLOW: Record<(typeof VIBE_FACTS)[number]["icon"], string> = {
+  music: "#D98A4A", // warm saffron
+  sparkle: "#7A5C9E", // deep purple
+  food: "#E5C08D", // warm sand
+  handshake: "#C08CA6", // soft rose
 };
-
-/* ------------------------------------------------------------------ */
-/*  Masked media window — uploaded instrument art with video fallback  */
-/*                                                                     */
-/*  Tries /instruments/<sprite>.webp → .png → .jpg (see                */
-/*  public/instruments/README.md). Full-scene images fill the window   */
-/*  as card art; until one exists and loads, the ambient video loop    */
-/*  plays with the floating line-art glyph over it. The accent tint    */
-/*  and scrim sit above either, keeping the four cards graded alike.   */
-/* ------------------------------------------------------------------ */
-const IMG_EXTS = ["webp", "png", "jpg"] as const;
-
-function ShowcaseMedia({ sprite, clip, glow }: { sprite: InstrumentKind; clip: string; glow: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const [extIdx, setExtIdx] = useState(0);
-  const [imgReady, setImgReady] = useState(false);
-
-  // Pause the fallback loop for users who prefer reduced motion.
-  useEffect(() => {
-    const vid = ref.current;
-    if (!vid) return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => {
-      if (!vid.isConnected) return;
-      if (mq.matches) vid.pause();
-      else vid.play().catch(() => {});
-    };
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  return (
-    <div className="relative aspect-[16/9] overflow-hidden">
-      {!imgReady && (
-        <video
-          ref={ref}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          disablePictureInPicture
-          aria-hidden
-        >
-          <source src={`/videos/vibe-${clip}.mp4`} type="video/mp4" />
-          <source src="/videos/hero-loop.webm" type="video/webm" />
-        </video>
-      )}
-      {extIdx < IMG_EXTS.length && (
-        <Image
-          src={`/instruments/${sprite}.${IMG_EXTS[extIdx]}`}
-          alt=""
-          fill
-          sizes="(min-width: 640px) 320px, 90vw"
-          className={`object-cover transition-opacity duration-700 ease-in-out ${imgReady ? "opacity-100" : "opacity-0"}`}
-          onLoad={() => setImgReady(true)}
-          onError={() => setExtIdx((i) => i + 1)}
-          aria-hidden
-        />
-      )}
-      {/* accent tint + dark mask so the art and copy stay legible */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: `radial-gradient(80% 90% at 50% 30%, ${glow}30, transparent 70%), linear-gradient(180deg, rgba(26,22,35,0.25), rgba(26,22,35,0.65))`,
-        }}
-        aria-hidden
-      />
-      {/* line-art glyph, floating in the haze until real art arrives */}
-      {!imgReady && (
-        <span
-          className="bc-float pointer-events-none absolute inset-0 flex items-center justify-center"
-          style={{ "--t": "7s" } as React.CSSProperties}
-          aria-hidden
-        >
-          <svg
-            viewBox="0 0 48 48"
-            width="88"
-            height="88"
-            fill="none"
-            stroke={glow}
-            strokeWidth="1.3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ filter: `drop-shadow(0 0 14px ${glow}66)` }}
-          >
-            {GLYPHS[sprite]}
-          </svg>
-        </span>
-      )}
-    </div>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /*  Magnetic wrapper — tilts and pulls the card toward the cursor      */
@@ -221,10 +119,10 @@ export default function TheVibe() {
           </motion.p>
         </motion.div>
 
-        {/* instrument showcase — magnetic, media-rich glass tiles */}
+        {/* feature cards — magnetic glass tiles */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {VIBE_FACTS.map((fact, i) => {
-            const sc = SHOWCASE[fact.icon];
+            const glow = GLOW[fact.icon];
             return (
               <motion.div
                 key={fact.title}
@@ -238,17 +136,21 @@ export default function TheVibe() {
                     {/* ambient light spill — bleeds past the card on hover */}
                     <span
                       className="pointer-events-none absolute -inset-5 rounded-[30px] opacity-0 blur-2xl transition-opacity duration-500 ease-in-out group-hover:opacity-100"
-                      style={{ background: `radial-gradient(60% 60% at 50% 50%, ${sc.glow}59, transparent 75%)` }}
+                      style={{ background: `radial-gradient(60% 60% at 50% 50%, ${glow}59, transparent 75%)` }}
                       aria-hidden
                     />
-                    <div className="relative h-full overflow-hidden rounded-[22px] border border-white/10 bg-white/5 backdrop-blur-lg transition-colors duration-500 ease-in-out group-hover:bg-white/10">
-                      <ShowcaseMedia sprite={sc.sprite} clip={sc.clip} glow={sc.glow} />
-                      <div className="p-5">
-                        <h3 className="text-[15px] font-bold text-club-ink">{fact.title}</h3>
-                        <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
-                          {fact.detail}
-                        </p>
-                      </div>
+                    <div className="relative h-full overflow-hidden rounded-[22px] border border-white/10 bg-white/5 p-5 backdrop-blur-lg transition-colors duration-500 ease-in-out group-hover:bg-white/10">
+                      <span
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        style={{ background: `${glow}1f`, border: `1px solid ${glow}4d`, color: glow }}
+                        aria-hidden
+                      >
+                        <Icon name={fact.icon} size={17} />
+                      </span>
+                      <h3 className="mt-4 text-[15px] font-bold text-club-ink">{fact.title}</h3>
+                      <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--bc2-ink-dim)" }}>
+                        {fact.detail}
+                      </p>
                     </div>
                   </div>
                 </MagneticCard>

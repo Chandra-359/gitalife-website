@@ -9,7 +9,7 @@
  * event-page spec: hero → the vibe → lineup → bento details → free
  * prasadam → multi-step tickets → share → FAQ → outro. The festival
  * layer (string lights,
- * diyas, petals, instruments, rising notes) persists underneath it all.
+ * diyas, petals, rising notes) persists underneath it all.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -228,7 +228,7 @@ export default function BhajanClubbingPage() {
             <span className="bc2-aurora left-[10%] top-[74%] h-[520px] w-[520px]" style={{ background: "var(--bc2-saffron)", "--o": 0.12, "--t": "26s", "--d": "-14s" } as React.CSSProperties} />
           </div>
 
-          {/* festival layer: lights, bunting, diyas, petals, instruments, notes */}
+          {/* festival layer: lights, bunting, diyas, petals, notes */}
           <FestivalBackdrop />
 
           <TheVibe />

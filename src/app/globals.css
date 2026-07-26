@@ -491,17 +491,6 @@ html {
   animation-delay: var(--d, 0s);
 }
 
-/* Marquee ticker — track holds two copies of the strip, shifts one width */
-@keyframes bc-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.bc-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: bc-marquee 26s linear infinite;
-}
-
 /* Soft breathing glow for the live dot + headliner aura */
 @keyframes bc-glow-pulse {
   0%, 100% { opacity: 0.55; transform: scale(1); }
@@ -545,22 +534,6 @@ html {
   animation-delay: var(--d, 0s);
   transform-box: fill-box;
   transform-origin: top center;
-}
-
-/* Floating bhajan instruments — gentle bob around base rotation --r */
-@keyframes bc-float {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
-  50%      { transform: translate3d(0, -12px, 0) rotate(calc(var(--r, 0deg) + 2.5deg)); }
-}
-.bc-float {
-  animation: bc-float var(--t, 9s) ease-in-out infinite;
-  animation-delay: var(--d, 0s);
-}
-
-/* Instrument sprites scale down on phones so gutter art stays out of text */
-.bc-sprite svg { width: var(--w, 96px); height: auto; }
-@media (max-width: 640px) {
-  .bc-sprite svg { width: calc(var(--w, 96px) * 0.6); }
 }
 
 /* Music notes rising from the floor */
