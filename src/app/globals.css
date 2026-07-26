@@ -629,6 +629,9 @@ html {
 .bc2-aurora {
   position: absolute;
   border-radius: 9999px;
+  /* Base opacity matters when the drift animation is off (phones /
+     reduced motion) — without it a stilled blob snaps to opacity 1. */
+  opacity: var(--o, 0.5);
   filter: blur(60px);
   animation: bc2-aurora var(--t, 16s) ease-in-out infinite;
   animation-delay: var(--d, 0s);
@@ -867,4 +870,40 @@ html {
     letter-spacing: -0.018em;
     color: var(--ink-primary);
   }
+}
+
+/* ================================================================== */
+/*  Bhajan Clubbing — phone scroll performance                         */
+/*                                                                     */
+/*  Phones get a lighter compositor load: the page looks the same,     */
+/*  but the effects that force per-frame re-blending or re-blurring    */
+/*  while the finger is on the glass are swapped for static            */
+/*  equivalents below the `sm` breakpoint.                             */
+/* ================================================================== */
+@media (max-width: 639px) {
+  /* Full-viewport fixed overlay with mix-blend-mode re-composites
+     against everything beneath it on every scrolled frame. */
+  .bc2-film-grain { display: none; }
+
+  /* Frosted panels: live backdrop blur re-samples the moving page
+     behind each panel. Swap for a denser static tint. */
+  .bc2-glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(165deg, rgba(78,56,102,0.45), rgba(42,27,56,0.78) 55%, rgba(26,26,29,0.86));
+  }
+
+  /* Ambient drift animations on huge blurred layers force continual
+     re-rasterisation — a still glow reads identically on a phone. */
+  .bc2-aurora,
+  .bc2-light-leak { animation: none; }
+
+  /* String-light bulbs + bunting animate inside one full-width SVG,
+     repainting the whole strand every frame. Hold them steady. */
+  .bc-strand .bc-twinkle,
+  .bc-strand .bc-sway { animation: none; }
+
+  /* Static colour washes don't need a live blur filter on top of an
+     already-soft radial gradient. */
+  .bc-wash { filter: none !important; }
 }

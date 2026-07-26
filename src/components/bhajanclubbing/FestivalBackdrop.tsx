@@ -8,6 +8,11 @@
  * only (the global prefers-reduced-motion rule stills all of it).
  *
  * Positions are index-derived (no Math.random) so SSR and client agree.
+ *
+ * Phones carry a lighter load (see the phone-perf block in globals.css):
+ * medallions and every other petal/star are hidden below `sm`, and the
+ * strand's twinkle/sway animations are stilled so the page composites
+ * cleanly during touch scrolling.
  */
 
 import { C } from "@/components/home/icons";
@@ -76,7 +81,7 @@ function StrandArt({ flags }: { flags: boolean }) {
 
 export function StringLights({ className = "", flags = true }: { className?: string; flags?: boolean }) {
   return (
-    <span className={`pointer-events-none block ${className}`} aria-hidden>
+    <span className={`bc-strand pointer-events-none block ${className}`} aria-hidden>
       {/* Desktop: full 1440-wide strand */}
       <svg viewBox="0 0 1440 96" preserveAspectRatio="none" className="hidden h-[96px] w-full sm:block">
         <StrandArt flags={flags} />
@@ -164,7 +169,7 @@ function Petal({ index }: { index: number }) {
   const sway = index % 2 === 0 ? `${3 + (index % 5)}vw` : `-${3 + (index % 4)}vw`;
   return (
     <span
-      className="bc-petal"
+      className={`bc-petal ${index % 2 === 1 ? "hidden sm:block" : ""}`}
       style={
         {
           top: `${top}%`,
@@ -200,7 +205,7 @@ function Star({ index }: { index: number }) {
   const color = index % 3 === 0 ? C.goldLight : index % 3 === 1 ? "#FBF5E6" : C.gold;
   return (
     <svg
-      className="bc-twinkle absolute"
+      className={`bc-twinkle absolute ${index % 2 === 1 ? "hidden sm:block" : ""}`}
       style={
         {
           top: `${top}%`,
@@ -263,7 +268,10 @@ export function DiyaRow() {
 function Medallion({ style }: { style: React.CSSProperties }) {
   const rays = Array.from({ length: 24 }, (_, i) => i * 15);
   return (
-    <svg viewBox="0 0 400 400" className="bc-spin-slow absolute h-[420px] w-[420px]" style={style}>
+    // Desktop-only: four continuously-spinning 420px layers are pure
+    // overdraw on a phone GPU, and at ≤0.1 opacity they barely register
+    // on a small screen anyway.
+    <svg viewBox="0 0 400 400" className="bc-spin-slow absolute hidden h-[420px] w-[420px] sm:block" style={style}>
       <g stroke={C.goldLight} fill="none" strokeWidth="0.9">
         {rays.map((deg) => (
           <line key={deg} x1="200" y1="52" x2="200" y2="86" transform={`rotate(${deg} 200 200)`} />
@@ -300,15 +308,15 @@ export default function FestivalBackdrop() {
 
       {/* Colour washes so the long dark stretch breathes */}
       <div
-        className="absolute left-[-10%] top-[30%] h-[560px] w-[560px] rounded-full"
+        className="bc-wash absolute left-[-10%] top-[30%] h-[560px] w-[560px] rounded-full"
         style={{ background: `radial-gradient(circle, ${C.lotusPink}1f, transparent 65%)`, filter: "blur(46px)" }}
       />
       <div
-        className="absolute right-[-12%] top-[55%] h-[600px] w-[600px] rounded-full"
+        className="bc-wash absolute right-[-12%] top-[55%] h-[600px] w-[600px] rounded-full"
         style={{ background: `radial-gradient(circle, ${C.peacockLight}1a, transparent 65%)`, filter: "blur(50px)" }}
       />
       <div
-        className="absolute left-[20%] top-[78%] h-[480px] w-[480px] rounded-full"
+        className="bc-wash absolute left-[20%] top-[78%] h-[480px] w-[480px] rounded-full"
         style={{ background: `radial-gradient(circle, ${C.saffron}17, transparent 65%)`, filter: "blur(44px)" }}
       />
 

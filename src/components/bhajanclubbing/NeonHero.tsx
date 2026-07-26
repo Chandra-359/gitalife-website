@@ -16,13 +16,34 @@
  * glows over plum haze) that plays until real footage lands.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Icon } from "@/components/home/icons";
 import { EVENT } from "@/data/bhajanClubbing";
 import SocialLinks from "./SocialLinks";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+/* ------------------------------------------------------------------ */
+/*  Phone detection — matches the `sm` breakpoint                      */
+/*                                                                     */
+/*  Scroll-linked motion (parallax, shell scale) writes styles on      */
+/*  every scrolled frame; on phones that fights the touch-scroll       */
+/*  compositor, so the hero renders statically there instead.          */
+/* ------------------------------------------------------------------ */
+const PHONE_QUERY = "(max-width: 639px)";
+const subscribePhone = (onChange: () => void) => {
+  const mq = window.matchMedia(PHONE_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+};
+function useIsPhone() {
+  return useSyncExternalStore(
+    subscribePhone,
+    () => window.matchMedia(PHONE_QUERY).matches,
+    () => false,
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Ambient background video — muted, looping, decorative only         */
@@ -124,6 +145,8 @@ function CountdownStub() {
 export default function NeonHero() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const isPhone = useIsPhone();
+  const still = reduce || isPhone;
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   // Parallax: content falls behind slightly as the hero scrolls out
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "42%"]);
@@ -139,8 +162,8 @@ export default function NeonHero() {
         className="relative overflow-hidden"
         style={{
           background: "linear-gradient(180deg, var(--bc2-bg) 0%, var(--bc2-bg-mid) 45%, var(--bc2-bg-2) 100%)",
-          scale: reduce ? 1 : shellScale,
-          borderRadius: reduce ? 0 : shellRadius,
+          scale: still ? 1 : shellScale,
+          borderRadius: still ? 0 : shellRadius,
         }}
       >
         {/* aurora washes — ambience while the video loads, fallback if it fails */}
@@ -153,16 +176,18 @@ export default function NeonHero() {
         {/* full-bleed ambient video */}
         <AmbientVideo />
 
-        {/* dark, softly blurred scrim so the type stays perfectly legible */}
+        {/* dark bottom-up scrim so the type stays perfectly legible.
+            (No backdrop blur here — a 2px blur over the whole video was
+            invisible on screen but re-blurred every frame of scroll.) */}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1A1A1D] via-transparent to-transparent opacity-80 backdrop-blur-[2px]"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1A1A1D] via-transparent to-transparent opacity-80"
           aria-hidden
         />
 
         {/* content */}
         <motion.div
           className="relative z-10 mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-6 pb-24 pt-28 text-center"
-          style={{ y: contentY, opacity: contentOpacity }}
+          style={{ y: still ? 0 : contentY, opacity: still ? 1 : contentOpacity }}
         >
           <motion.div
             initial={reduce ? false : { opacity: 0 }}
