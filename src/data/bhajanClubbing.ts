@@ -14,7 +14,6 @@
  *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
  *                              GROUP_DISCOUNT — computeOrder() is the single
  *                              source of truth for what Square charges
- *  - Free prasadam section   → PRASADAM
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *  - Social profiles         → SOCIALS (footer follow buttons)
  *
@@ -156,17 +155,6 @@ export const LINEUP: ClubArtist[] = [
     },
   },
 ];
-
-/* ------------------------------------------------------------------ */
-/*  Free prasadam — dedicated section on the page                      */
-/* ------------------------------------------------------------------ */
-export const PRASADAM = {
-  temple: "Sri Sri Radha Govinda Temple",
-  title: "Free prasadam for every guest",
-  detail:
-    "Every ticket includes packed prasadam — a sanctified vegetarian feast prepared fresh at Sri Sri Radha Govinda Temple. Grab yours before you head home; it's our gift, completely free.",
-  points: ["Cooked fresh at the temple", "100% vegetarian & sattvic", "Free with your ticket"],
-} as const;
 
 /* ------------------------------------------------------------------ */
 /*  Ticket — single paid tier, charged via Square checkout             */

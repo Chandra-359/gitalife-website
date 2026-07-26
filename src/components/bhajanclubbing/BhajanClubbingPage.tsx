@@ -6,8 +6,8 @@
  * High-end conscious club: deep plum/midnight canvas, soft off-white
  * editorial serif, warm candlelit accents, frosted-glass panels, and a
  * fixed film-grain wash over everything. Structure follows the
- * event-page spec: hero → the vibe → lineup → bento details → free
- * prasadam → multi-step tickets → share → FAQ → outro. The festival
+ * event-page spec: hero → the vibe → lineup → bento details →
+ * multi-step tickets → share → FAQ → outro. The festival
  * layer (string lights,
  * diyas, petals, rising notes) persists underneath it all.
  */
@@ -23,7 +23,6 @@ import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
 import NeonLineup from "./NeonLineup";
-import PrasadamFeast from "./PrasadamFeast";
 import SectionTracker from "./SectionTracker";
 import ShareCrew from "./ShareCrew";
 import SocialLinks from "./SocialLinks";
@@ -235,7 +234,6 @@ export default function BhajanClubbingPage() {
           <NeonLineup />
           <DiyaRow />
           <BentoDetails />
-          <PrasadamFeast />
           <TicketFlow />
           <ShareCrew />
           <DiyaRow />
