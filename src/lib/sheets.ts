@@ -179,6 +179,43 @@ export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise
   ]);
 }
 
+export interface EventbriteAttendeeRow {
+  event: string;     // e.g. "Bhagavad Gita Workshop"
+  name: string;
+  email: string;
+  phone: string;
+  ticket: string;    // ticket class, e.g. "General Admission"
+  orderId: string;   // Eventbrite order id, for spotting duplicates
+}
+
+/**
+ * One row per Eventbrite attendee, mirroring the festival column layout
+ * so the door check-in list stays uniform when both land on one sheet.
+ * Uses GOOGLE_SHEETS_EVENTBRITE_ID when set, falling back through the
+ * festival → programs sheets so everything stays together by default.
+ * Columns: Registered At (ET) · Event · Full Name · Email · Mobile ·
+ * Guests · Heard Via ("Eventbrite · <ticket> · order <id>")
+ */
+export async function appendEventbriteAttendeeToSheet(r: EventbriteAttendeeRow): Promise<boolean> {
+  const cfg = sheetsConfig();
+  if (!cfg) return false;
+  const sheetId =
+    process.env.GOOGLE_SHEETS_EVENTBRITE_ID ||
+    process.env.GOOGLE_SHEETS_FESTIVALS_ID ||
+    process.env.GOOGLE_SHEETS_PROGRAMS_ID ||
+    DEFAULT_PROGRAMS_SHEET_ID;
+  const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+  return appendRow(sheetId, [
+    registeredAt,
+    r.event,
+    r.name,
+    r.email,
+    r.phone,
+    1, // one row per attendee — each person is their own check-in line
+    ["Eventbrite", r.ticket, r.orderId ? `order ${r.orderId}` : ""].filter(Boolean).join(" · "),
+  ]);
+}
+
 export interface RegistrationRow {
   name: string;
   email: string;
