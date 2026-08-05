@@ -13,7 +13,10 @@
  *  - Registration capacity   → EVENT.capacity (server-side only — never shown on the page)
  *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
  *                              GROUP_DISCOUNT — computeOrder() is the single
- *                              source of truth for what Square charges
+ *                              source of truth for what Square charges, and
+ *                              every "from $X" label on the page derives from
+ *                              the phase in effect, so copy can't drift from
+ *                              the amount actually charged
  *  - Share message           → SHARE (used by WhatsApp/X/copy-link buttons)
  *  - Social profiles         → SOCIALS (footer follow buttons)
  *
@@ -46,6 +49,63 @@ export interface ClubArtist {
   };
 }
 
+/* ------------------------------------------------------------------ */
+/*  Suggested donation — phased amounts                                */
+/*                                                                     */
+/*  Everything the organisers may want to tune based on registrations  */
+/*  lives right here:                                                  */
+/*   - Extend early bird from Aug 2 to Aug 5 → change endsAtIso to     */
+/*     "2026-08-06T00:00:00-04:00" and deadlineLabel to "August 5".    */
+/*   - Drop the final-week amount from $30 back to $25 → change        */
+/*     amountUsd on the "last-week" phase.                             */
+/*  Client display and the Square charge both flow through             */
+/*  computeOrder(), and the "from $X" marketing labels (hero, sticky   */
+/*  bar, tickets copy, social metadata) derive from the live phase —   */
+/*  so one edit here updates the whole pipeline.                       */
+/* ------------------------------------------------------------------ */
+export interface PricePhase {
+  id: string;
+  /** Marketing name — shown on the page and on the Square receipt. */
+  label: string;
+  /** Suggested minimum donation per ticket, in USD. */
+  amountUsd: number;
+  /** Exclusive end — the phase is active while now < endsAtIso.
+   *  Omit on the final phase (runs through the event). */
+  endsAtIso?: string;
+  /** Human copy for the deadline, e.g. "August 2". */
+  deadlineLabel?: string;
+}
+
+export const PRICE_PHASES: PricePhase[] = [
+  {
+    id: "early-bird",
+    label: "Early bird",
+    amountUsd: 25,
+    // Through end of day Sunday, August 2 (ET).
+    endsAtIso: "2026-08-03T00:00:00-04:00",
+    deadlineLabel: "August 2",
+  },
+  {
+    id: "last-week",
+    label: "Final weeks",
+    amountUsd: 30,
+  },
+];
+
+/** The phase in effect right now (falls back to the final phase). */
+export function activePhase(now: Date = new Date()): PricePhase {
+  return (
+    PRICE_PHASES.find((p) => !p.endsAtIso || now < new Date(p.endsAtIso)) ??
+    PRICE_PHASES[PRICE_PHASES.length - 1]
+  );
+}
+
+/** Phase in effect when this module loaded — build time on the server,
+ *  page-load time in the browser. Drives the static "from $X" labels
+ *  below; the amount actually charged is always recomputed per order
+ *  via computeOrder(). */
+const CURRENT_PHASE = activePhase();
+
 export const EVENT = {
   /** Fixed Program id — keeps every registration attached to one DB row.
    *  Kept at the original (pre-spelling-fix) value so existing RSVPs stay linked. */
@@ -75,9 +135,9 @@ export const EVENT = {
    *  Reply-To on confirmations unless SMTP_REPLY_TO overrides it. */
   contactEmail: "bhajanclubbing@gitalifenyc.com",
   /** Short marketing label — hero, sticky bar, social metadata. */
-  donationLabel: "Suggested donation from $25",
+  donationLabel: `Suggested donation from $${CURRENT_PHASE.amountUsd}`,
   /** Compact variant for tight spots (mobile sticky bar). */
-  donationShortLabel: "From $25",
+  donationShortLabel: `From $${CURRENT_PHASE.amountUsd}`,
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
@@ -149,10 +209,11 @@ export const TIERS: TicketTier[] = [
   {
     id: "general",
     name: "General Admission",
-    tag: "From $25",
-    // Minimum suggested donation — kept > 0 so the checkout route still
-    // recognises this as the paid tier. The live amount is PRICE_PHASES.
-    priceUsd: 25,
+    tag: `From $${CURRENT_PHASE.amountUsd}`,
+    // Suggested donation for the live phase — must stay > 0 so the checkout
+    // route still recognises this as the paid tier. The amount actually
+    // charged always comes from computeOrder()/PRICE_PHASES.
+    priceUsd: CURRENT_PHASE.amountUsd,
     blurb: "One ticket, the whole night: the floor, the chant, the prasadam.",
     perks: ["Full floor access", "Live kirtan all night", "Free packed prasadam"],
     accent: "saffron",
@@ -160,54 +221,8 @@ export const TIERS: TicketTier[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Suggested donation — phased amounts + group discount               */
-/*                                                                     */
-/*  Everything the organisers may want to tune based on registrations  */
-/*  lives right here:                                                  */
-/*   - Extend early bird from Aug 2 to Aug 5 → change endsAtIso to     */
-/*     "2026-08-06T00:00:00-04:00" and deadlineLabel to "August 5".    */
-/*   - Drop the final-week amount from $30 back to $25 → change        */
-/*     amountUsd on the "last-week" phase.                             */
-/*  Client display and the Square charge both flow through             */
-/*  computeOrder(), so one edit updates the whole pipeline.            */
+/*  Group discount + order math                                        */
 /* ------------------------------------------------------------------ */
-export interface PricePhase {
-  id: string;
-  /** Marketing name — shown on the page and on the Square receipt. */
-  label: string;
-  /** Suggested minimum donation per ticket, in USD. */
-  amountUsd: number;
-  /** Exclusive end — the phase is active while now < endsAtIso.
-   *  Omit on the final phase (runs through the event). */
-  endsAtIso?: string;
-  /** Human copy for the deadline, e.g. "August 2". */
-  deadlineLabel?: string;
-}
-
-export const PRICE_PHASES: PricePhase[] = [
-  {
-    id: "early-bird",
-    label: "Early bird",
-    amountUsd: 25,
-    // Through end of day Sunday, August 2 (ET).
-    endsAtIso: "2026-08-03T00:00:00-04:00",
-    deadlineLabel: "August 2",
-  },
-  {
-    id: "last-week",
-    label: "Final weeks",
-    amountUsd: 30,
-  },
-];
-
-/** The phase in effect right now (falls back to the final phase). */
-export function activePhase(now: Date = new Date()): PricePhase {
-  return (
-    PRICE_PHASES.find((p) => !p.endsAtIso || now < new Date(p.endsAtIso)) ??
-    PRICE_PHASES[PRICE_PHASES.length - 1]
-  );
-}
-
 /** Celebrate with your family & friends — 5% off on 4 or 5 tickets. */
 export const GROUP_DISCOUNT = {
   minTickets: 4,
