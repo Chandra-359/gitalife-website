@@ -29,9 +29,11 @@ import {
   GROUP_DISCOUNT,
   MAX_EXTRA_DONATION_USD,
   PRICE_PHASES,
+  promoLabel,
   SHARE,
   TIERS,
   usd,
+  type PromoDiscount,
 } from "@/data/bhajanClubbing";
 
 /** The one ticket on sale — suggested donation, tag, and perks live in the data file. */
@@ -200,6 +202,12 @@ export default function TicketFlow() {
   const [step, setStep] = useState(0);
   const [details, setDetails] = useState<DetailsForm | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Promo code — applied via its own button (not part of the form submit);
+  // the server re-validates and computes the discount itself at checkout.
+  const [promo, setPromo] = useState<PromoDiscount | null>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoChecking, setPromoChecking] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<string | null>(null);
   const [done, setDone] = useState<null | { name: string; emailed: boolean }>(null);
@@ -264,6 +272,31 @@ export default function TicketFlow() {
     getValues,
   } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailUpdates: "", donation: "" } });
 
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoChecking(true);
+    setPromoError(null);
+    try {
+      const res = await fetch("/api/bhajanclubbing/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data?.valid && data.promo) {
+        setPromo(data.promo as PromoDiscount);
+        setPromoInput("");
+      } else {
+        setPromoError(String(data?.error || "That promo code isn't valid"));
+      }
+    } catch {
+      setPromoError("Couldn't check that code — please try again");
+    } finally {
+      setPromoChecking(false);
+    }
+  };
+
   const onConfirm = async () => {
     const d = details ?? getValues();
     setSubmitting(true);
@@ -280,9 +313,10 @@ export default function TicketFlow() {
           guests: d.guests || 1,
           hearAbout: d.hearAbout || null,
           emailOptIn: d.emailUpdates === "yes",
-          // Only the extra voluntary donation travels to the server — the
-          // admission amount itself is computed server-side.
+          // Only the extra voluntary donation and the promo code string
+          // travel to the server — every amount is computed server-side.
           donation: parseDonation(d.donation),
+          promoCode: promo?.code ?? null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -290,6 +324,9 @@ export default function TicketFlow() {
         window.location.href = data.url as string; // → Square, returns with ?paid=1&order=…
         return;
       }
+      // The code died between apply and pay (expired/deactivated/redeemed) —
+      // drop it so the review total recomputes without the discount.
+      if (data.promoInvalid) setPromo(null);
       throw new Error(data.error || "Couldn't start checkout — please try again");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to start checkout. Please try again.");
@@ -304,8 +341,11 @@ export default function TicketFlow() {
   const paymentsOff = !soldOut && availability?.payments === false;
 
   // Recomputed every render so the review step always reflects the live
-  // phase, group discount, and extra donation — same math the server runs.
-  const order = details ? computeOrder(details.guests || 1, parseDonation(details.donation)) : null;
+  // phase, group discount, promo code, and extra donation — same math the
+  // server runs.
+  const order = details
+    ? computeOrder(details.guests || 1, parseDonation(details.donation), new Date(), promo)
+    : null;
 
   const shareText = encodeURIComponent(`${SHARE.message} ${EVENT.url}`);
   const stepMotion = {
@@ -640,6 +680,71 @@ export default function TicketFlow() {
                           </p>
                         )}
                       </div>
+                      <div>
+                        <label htmlFor="tf-promo" className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--bc2-ink-dim)" }}>
+                          Promo code <span className="normal-case tracking-normal" style={{ color: "var(--bc2-ink-faint)" }}>(optional)</span>
+                        </label>
+                        {promo ? (
+                          <div
+                            className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+                            style={{ background: "rgba(143,207,168,0.08)", border: "1px solid rgba(143,207,168,0.4)" }}
+                          >
+                            <span className="inline-flex items-center gap-2 text-[13px] font-bold" style={{ color: "#8FCFA8" }}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+                                <path d="M5 12l5 5L19 7" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                              {promoLabel(promo)} applied
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPromo(null);
+                                setPromoError(null);
+                              }}
+                              className="text-[11px] font-bold uppercase tracking-[0.12em] underline underline-offset-2 transition-opacity hover:opacity-70"
+                              style={{ color: "var(--bc2-ink-dim)" }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2.5">
+                            <input
+                              id="tf-promo"
+                              type="text"
+                              autoCapitalize="characters"
+                              autoCorrect="off"
+                              spellCheck={false}
+                              placeholder="Have a code?"
+                              className={`${inputClass} flex-1 uppercase`}
+                              style={inputStyle(!!promoError)}
+                              value={promoInput}
+                              onChange={(e) => {
+                                setPromoInput(e.target.value);
+                                setPromoError(null);
+                              }}
+                              onKeyDown={(e) => {
+                                // Enter applies the code instead of submitting the form
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  applyPromo();
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={applyPromo}
+                              disabled={promoChecking || !promoInput.trim()}
+                              className="bc2-btn-ghost shrink-0 rounded-xl px-5 text-[12px] font-extrabold uppercase tracking-[0.08em] disabled:opacity-40"
+                            >
+                              {promoChecking ? "Checking…" : "Apply"}
+                            </button>
+                          </div>
+                        )}
+                        {promoError && (
+                          <p className="mt-1.5 text-[11px] font-medium" style={{ color: "#FF8E8E" }}>{promoError}</p>
+                        )}
+                      </div>
                       <div className="pt-2">
                         <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
                           Review order
@@ -664,6 +769,9 @@ export default function TicketFlow() {
                         { k: "Tickets", v: details.guests === 1 ? "1 ticket" : `${details.guests} tickets` },
                         ...(order.groupDiscount
                           ? [{ k: `${GROUP_DISCOUNT.name} (${GROUP_DISCOUNT.percent}%)`, v: `−${usd(order.discountCents)}` }]
+                          : []),
+                        ...(order.promo && order.promoCents > 0
+                          ? [{ k: `Promo ${promoLabel(order.promo)}`, v: `−${usd(order.promoCents)}` }]
                           : []),
                         ...(order.donationCents > 0 ? [{ k: "Additional donation", v: `+${usd(order.donationCents)}` }] : []),
                         ...(details.hearAbout ? [{ k: "Heard via", v: details.hearAbout }] : []),

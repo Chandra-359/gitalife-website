@@ -166,6 +166,12 @@ export default function AdminDashboard({ userEmail }: AdminDashboardProps) {
             Check-in
           </button>
           <button
+            onClick={() => router.push("/admin/promocodes")}
+            className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+          >
+            Promo Codes
+          </button>
+          <button
             onClick={() => signOut({ callbackUrl: "/" })}
             className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
           >

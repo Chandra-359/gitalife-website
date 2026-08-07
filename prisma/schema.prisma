@@ -83,6 +83,26 @@ model Program {
   @@index([eventStartAt])
 }
 
+/// A promo code redeemable at the Bhajan Clubbing checkout (scoped per event
+/// via programId so future events can mint their own codes).
+model PromoCode {
+  id             String    @id @default(cuid())
+  code           String    @unique              // stored uppercase; matched case-insensitively
+  programId      String                         // event the code applies to, e.g. "bajan-clubbing-vol-01"
+  kind           String                         // "percent" | "fixed"
+  percentOff     Int?                           // 1-100, set when kind = "percent"
+  amountOffCents Int?                           // discount per order in cents, set when kind = "fixed"
+  maxUses        Int?                           // null = unlimited redemptions
+  usedCount      Int       @default(0)          // incremented once per verified paid order
+  expiresAt      DateTime?                      // null = never expires
+  active         Boolean   @default(true)       // soft kill-switch without deleting history
+  note           String?                        // internal memo, e.g. "Instagram giveaway"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([programId])
+}
+
 /// An RSVP submission for a program.
 model Rsvp {
   id        String   @id @default(cuid())
