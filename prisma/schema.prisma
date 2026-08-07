@@ -140,6 +140,7 @@ model Rsvp {
   lastReminderAt   DateTime?                 // Last reminder actually sent (dedupe guard)
 
   checkedInAt DateTime?                      // Set when the party is checked in at the door
+  qrSentAt    DateTime?                      // Last time a QR ticket email went out (batch-send dedupe)
   program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId String
   createdAt DateTime @default(now())
