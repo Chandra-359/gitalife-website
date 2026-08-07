@@ -272,26 +272,63 @@ export default function TicketFlow() {
     getValues,
   } = useForm<DetailsForm>({ defaultValues: { guests: 1, hearAbout: "", emailUpdates: "", donation: "" } });
 
+  /** Validate a code server-side with whatever identity we have. */
+  const requestPromoCheck = async (code: string, email: string, phone: string) => {
+    const res = await fetch("/api/bhajanclubbing/promo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, email, phone }),
+    });
+    return (await res.json().catch(() => ({}))) as { valid?: boolean; promo?: PromoDiscount; error?: string };
+  };
+
   const applyPromo = async () => {
     const code = promoInput.trim();
     if (!code) return;
     setPromoChecking(true);
     setPromoError(null);
     try {
-      const res = await fetch("/api/bhajanclubbing/promo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json().catch(() => ({}));
+      // Email/phone ride along so a once-per-person code is rejected right
+      // here at Apply time when those fields are already filled.
+      const data = await requestPromoCheck(code, getValues("email"), getValues("phone"));
       if (data?.valid && data.promo) {
-        setPromo(data.promo as PromoDiscount);
+        setPromo(data.promo);
         setPromoInput("");
       } else {
         setPromoError(String(data?.error || "That promo code isn't valid"));
       }
     } catch {
       setPromoError("Couldn't check that code — please try again");
+    } finally {
+      setPromoChecking(false);
+    }
+  };
+
+  /**
+   * Gate before the review step: re-check the applied code with the
+   * now-complete (and possibly edited) email/phone. Catches a
+   * once-per-person code applied before those fields were filled, details
+   * changed after Apply, and codes that expired / were paused / sold out
+   * since — so the buyer never sees a review total the server would
+   * refuse. A network hiccup doesn't block the step; checkout re-validates
+   * server-side before any charge regardless.
+   */
+  const revalidatePromoFor = async (d: DetailsForm): Promise<boolean> => {
+    if (!promo) return true;
+    setPromoChecking(true);
+    try {
+      const data = await requestPromoCheck(promo.code, d.email, d.phone);
+      if (data?.valid && data.promo) {
+        setPromo(data.promo);
+        return true;
+      }
+      const message = String(data?.error || "That promo code isn't valid");
+      setPromo(null);
+      setPromoError(message);
+      toast.error(`${message} — the code was removed from your order`);
+      return false; // stay on details so the error shows right at the promo box
+    } catch {
+      return true;
     } finally {
       setPromoChecking(false);
     }
@@ -324,9 +361,15 @@ export default function TicketFlow() {
         window.location.href = data.url as string; // → Square, returns with ?paid=1&order=…
         return;
       }
-      // The code died between apply and pay (expired/deactivated/redeemed) —
-      // drop it so the review total recomputes without the discount.
-      if (data.promoInvalid) setPromo(null);
+      // Last-resort server rejection (the code died in the seconds since
+      // the review gate): drop the code and send the buyer back to the
+      // details step, where the reason shows right at the promo box — no
+      // payment has started at this point.
+      if (data.promoInvalid) {
+        setPromo(null);
+        setPromoError(String(data.error || "That promo code isn't valid"));
+        setStep(0);
+      }
       throw new Error(data.error || "Couldn't start checkout — please try again");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to start checkout. Please try again.");
@@ -533,7 +576,11 @@ export default function TicketFlow() {
                 {step === 0 && (
                   <motion.div key="details" {...stepMotion}>
                     <form
-                      onSubmit={handleSubmit((d) => {
+                      onSubmit={handleSubmit(async (d) => {
+                        // Applied promo gets a final check against the
+                        // completed email/phone before the review step shows
+                        // a discounted total.
+                        if (!(await revalidatePromoFor(d))) return;
                         setDetails(d);
                         setStep(1);
                       })}
@@ -746,8 +793,13 @@ export default function TicketFlow() {
                         )}
                       </div>
                       <div className="pt-2">
-                        <button type="submit" className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em]" style={{ animation: "none" }}>
-                          Review order
+                        <button
+                          type="submit"
+                          disabled={promoChecking}
+                          className="bc2-btn-glow w-full rounded-full py-3.5 text-[13px] font-extrabold uppercase tracking-[0.08em] disabled:opacity-60"
+                          style={{ animation: "none" }}
+                        >
+                          {promoChecking ? "Checking your code…" : "Review order"}
                         </button>
                       </div>
                     </form>
