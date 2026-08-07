@@ -115,7 +115,9 @@ export async function POST(request: Request) {
       // email/mobile), refuse rather than quietly charging the full amount.
       const check = await checkPromoCode(db, promoCode, new Date(), { email, phone });
       if (!check.ok) {
-        return NextResponse.json({ error: `${check.error} — remove it and try again`, promoInvalid: true }, { status: 400 });
+        // promoInvalid tells the client to drop the code and return the
+        // buyer to the details step — nothing has been charged.
+        return NextResponse.json({ error: check.error, promoInvalid: true }, { status: 400 });
       }
       promo = check.promo;
     }
