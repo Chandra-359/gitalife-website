@@ -238,6 +238,23 @@ export const MAX_EXTRA_DONATION_USD = 1000;
 export const DONATION_NOTE =
   "This is a nonprofit, volunteer-led community event. All proceeds are used solely to cover event costs and support future spiritual and community initiatives. If you feel inspired by our mission, you are welcome to make an additional voluntary donation.";
 
+/** A validated promo code, as returned by /api/bhajanclubbing/promo. */
+export interface PromoDiscount {
+  code: string;
+  kind: "percent" | "fixed";
+  /** 1–100, set when kind === "percent". */
+  percentOff?: number;
+  /** Discount per order in cents, set when kind === "fixed". */
+  amountOffCents?: number;
+}
+
+/** "SAVE10 (10% off)" / "FRIEND5 ($5.00 off)" — shown in the order summary. */
+export function promoLabel(promo: PromoDiscount): string {
+  return promo.kind === "percent"
+    ? `${promo.code} (${promo.percentOff}% off)`
+    : `${promo.code} (${usd(promo.amountOffCents ?? 0)} off)`;
+}
+
 export interface OrderBreakdown {
   phase: PricePhase;
   /** Suggested donation per ticket before any discount, in cents. */
@@ -247,6 +264,10 @@ export interface OrderBreakdown {
   groupDiscount: boolean;
   /** Total saved by the group discount, in cents. */
   discountCents: number;
+  /** The promo code applied to this order, if any. */
+  promo: PromoDiscount | null;
+  /** Total saved by the promo code, in cents (never exceeds the ticket subtotal). */
+  promoCents: number;
   /** Optional extra voluntary donation, in cents. */
   donationCents: number;
   totalCents: number;
@@ -256,8 +277,16 @@ export interface OrderBreakdown {
  * The one place order math happens — used by the ticket flow for display
  * and by the checkout API for the actual Square charge, so the number on
  * the pay button always matches the card charge.
+ *
+ * A promo code stacks after the group discount and only ever reduces the
+ * ticket subtotal — the optional extra donation is always charged in full.
  */
-export function computeOrder(qty: number, extraDonationUsd = 0, now: Date = new Date()): OrderBreakdown {
+export function computeOrder(
+  qty: number,
+  extraDonationUsd = 0,
+  now: Date = new Date(),
+  promo: PromoDiscount | null = null,
+): OrderBreakdown {
   const phase = activePhase(now);
   const baseUnitCents = Math.round(phase.amountUsd * 100);
   const groupDiscount = qty >= GROUP_DISCOUNT.minTickets;
@@ -265,6 +294,13 @@ export function computeOrder(qty: number, extraDonationUsd = 0, now: Date = new 
   const unitCents = groupDiscount
     ? Math.round(baseUnitCents * (1 - GROUP_DISCOUNT.percent / 100))
     : baseUnitCents;
+  const ticketCents = unitCents * qty;
+  const rawPromoCents = !promo
+    ? 0
+    : promo.kind === "percent"
+      ? Math.round(ticketCents * (Math.min(100, Math.max(0, promo.percentOff ?? 0)) / 100))
+      : Math.max(0, promo.amountOffCents ?? 0);
+  const promoCents = Math.min(ticketCents, rawPromoCents);
   const safeDonation = Number.isFinite(extraDonationUsd)
     ? Math.min(MAX_EXTRA_DONATION_USD, Math.max(0, extraDonationUsd))
     : 0;
@@ -275,8 +311,10 @@ export function computeOrder(qty: number, extraDonationUsd = 0, now: Date = new 
     unitCents,
     groupDiscount,
     discountCents: (baseUnitCents - unitCents) * qty,
+    promo: promoCents > 0 ? promo : null,
+    promoCents,
     donationCents,
-    totalCents: unitCents * qty + donationCents,
+    totalCents: ticketCents - promoCents + donationCents,
   };
 }
 

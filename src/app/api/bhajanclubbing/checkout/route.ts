@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
 import { sendClubbingConfirmationDetailed } from "@/lib/email";
 import { appendRegistrationToSheet } from "@/lib/sheets";
-import { countGuests, ensureEventProgram } from "@/lib/clubbing";
-import { computeOrder, EVENT, GROUP_DISCOUNT, MAX_EXTRA_DONATION_USD, TIERS } from "@/data/bhajanClubbing";
+import { checkPromoCode, countGuests, ensureEventProgram, redeemPromoCode } from "@/lib/clubbing";
+import {
+  computeOrder,
+  EVENT,
+  GROUP_DISCOUNT,
+  MAX_EXTRA_DONATION_USD,
+  TIERS,
+  type PromoDiscount,
+} from "@/data/bhajanClubbing";
 
 /**
  * Ticket checkout — Square Checkout API (payment links).
@@ -56,7 +63,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, guests, hearAbout, emailOptIn, donation } = await request.json();
+    const { name, email, phone, guests, hearAbout, emailOptIn, donation, promoCode } = await request.json();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
@@ -95,13 +102,31 @@ export async function POST(request: Request) {
     }
 
     // Amounts are computed server-side from the phase calendar + group
-    // discount — the client only ever sends the guest count and the
-    // optional extra donation, never a price.
+    // discount + promo code — the client only ever sends the guest count,
+    // the optional extra donation, and the code string, never a price.
     const extraDonationUsd = Math.min(
       MAX_EXTRA_DONATION_USD,
       Math.max(0, Number.parseFloat(String(donation ?? "")) || 0),
     );
-    const order = computeOrder(qty, extraDonationUsd);
+    let promo: PromoDiscount | null = null;
+    if (typeof promoCode === "string" && promoCode.trim()) {
+      // The buyer saw a discount at review time — if the code died since
+      // (expired, deactivated, fully redeemed), refuse rather than quietly
+      // charging the full amount.
+      const check = await checkPromoCode(db, promoCode);
+      if (!check.ok) {
+        return NextResponse.json({ error: `${check.error} — remove it and try again`, promoInvalid: true }, { status: 400 });
+      }
+      promo = check.promo;
+    }
+    const order = computeOrder(qty, extraDonationUsd, new Date(), promo);
+    if (order.totalCents <= 0) {
+      // Square can't charge $0 — comp tickets are handled by the organizers.
+      return NextResponse.json(
+        { error: `This code covers your whole order — email us at ${EVENT.contactEmail} and we'll register you directly` },
+        { status: 400 },
+      );
+    }
     const ticketLineName =
       `${EVENT.title} ${EVENT.volume} — ${ticket.name} (${order.phase.label} suggested donation` +
       `${order.groupDiscount ? `, ${GROUP_DISCOUNT.percent}% family & friends discount` : ""})`;
@@ -127,6 +152,7 @@ export async function POST(request: Request) {
             email_opt_in: emailOptIn ? "yes" : "no",
             price_phase: order.phase.id,
             ...(order.donationCents > 0 ? { donation: (order.donationCents / 100).toFixed(2) } : {}),
+            ...(order.promo ? { promo: order.promo.code } : {}),
           },
           line_items: [
             {
@@ -135,6 +161,9 @@ export async function POST(request: Request) {
               note: "Includes the free packed prasadam",
               // Per-ticket amount in exact cents (group discount already applied)
               base_price_money: { amount: order.unitCents, currency: "USD" },
+              // Promo scoped to the ticket line only — the extra donation
+              // below is always charged in full.
+              ...(order.promoCents > 0 ? { applied_discounts: [{ discount_uid: "promo" }] } : {}),
             },
             ...(order.donationCents > 0
               ? [
@@ -147,6 +176,21 @@ export async function POST(request: Request) {
                 ]
               : []),
           ],
+          // Sent as a fixed amount in exact cents (even for percent codes) so
+          // the Square charge always matches computeOrder() to the cent.
+          ...(order.promoCents > 0 && order.promo
+            ? {
+                discounts: [
+                  {
+                    uid: "promo",
+                    name: `Promo ${order.promo.code}`,
+                    type: "FIXED_AMOUNT",
+                    scope: "LINE_ITEM",
+                    amount_money: { amount: order.promoCents, currency: "USD" },
+                  },
+                ],
+              }
+            : {}),
         },
         checkout_options: {
           redirect_url: `${requestOrigin(request)}/bhajanclubbing?paid=1`,
@@ -329,6 +373,14 @@ export async function GET(request: Request) {
     // null → this order was already handled earlier, nothing new was sent
     let emailed: boolean | null = null;
     if (receipt) {
+      // First time this paid order is recorded — count the redemption.
+      // Re-verifies of the same order return receipt=false above, so a
+      // refresh of the confirmation page can't double-count.
+      const promoUsed = order.metadata?.promo;
+      if (promoUsed) {
+        const db = getPrismaClient();
+        if (db) await redeemPromoCode(db, promoUsed);
+      }
       const ticket = TIERS.find((t) => t.priceUsd > 0);
       // Receipt email + Google Sheet row — both best-effort, side by side
       const [sent] = await Promise.all([
@@ -347,9 +399,13 @@ export async function GET(request: Request) {
           hearAbout: order.metadata?.hear_about || "",
           emailOptIn: order.metadata?.email_opt_in === "yes",
           ticket: ticket?.name ?? "General Admission",
-          payment: order.metadata?.donation
-            ? `PAID via Square (+$${order.metadata.donation} extra donation)`
-            : "PAID via Square",
+          payment: [
+            "PAID via Square",
+            order.metadata?.donation ? `+$${order.metadata.donation} extra donation` : null,
+            order.metadata?.promo ? `code ${order.metadata.promo}` : null,
+          ]
+            .filter(Boolean)
+            .join(" · "),
         }),
       ]);
       emailed = sent.ok;
