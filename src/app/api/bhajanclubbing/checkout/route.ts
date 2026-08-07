@@ -111,9 +111,9 @@ export async function POST(request: Request) {
     let promo: PromoDiscount | null = null;
     if (typeof promoCode === "string" && promoCode.trim()) {
       // The buyer saw a discount at review time — if the code died since
-      // (expired, deactivated, fully redeemed), refuse rather than quietly
-      // charging the full amount.
-      const check = await checkPromoCode(db, promoCode);
+      // (expired, deactivated, fully redeemed, or already used by this
+      // email/mobile), refuse rather than quietly charging the full amount.
+      const check = await checkPromoCode(db, promoCode, new Date(), { email, phone });
       if (!check.ok) {
         return NextResponse.json({ error: `${check.error} — remove it and try again`, promoInvalid: true }, { status: 400 });
       }
@@ -373,13 +373,15 @@ export async function GET(request: Request) {
     // null → this order was already handled earlier, nothing new was sent
     let emailed: boolean | null = null;
     if (receipt) {
-      // First time this paid order is recorded — count the redemption.
-      // Re-verifies of the same order return receipt=false above, so a
-      // refresh of the confirmation page can't double-count.
+      // First time this paid order is recorded — count the redemption and
+      // write the per-person record behind the once-per-user check.
+      // Re-verifies of the same order return receipt=false above (and the
+      // redemption row is unique per order id), so a refresh of the
+      // confirmation page can't double-count.
       const promoUsed = order.metadata?.promo;
       if (promoUsed) {
         const db = getPrismaClient();
-        if (db) await redeemPromoCode(db, promoUsed);
+        if (db) await redeemPromoCode(db, promoUsed, { email, phone: order.metadata?.phone, orderId });
       }
       const ticket = TIERS.find((t) => t.priceUsd > 0);
       // Receipt email + Google Sheet row — both best-effort, side by side

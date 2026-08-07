@@ -278,10 +278,13 @@ export default function TicketFlow() {
     setPromoChecking(true);
     setPromoError(null);
     try {
+      // Email/phone ride along so a once-per-person code is rejected right
+      // here at Apply time (best-effort — checkout re-checks the submitted
+      // identity either way).
       const res = await fetch("/api/bhajanclubbing/promo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, email: getValues("email"), phone: getValues("phone") }),
       });
       const data = await res.json().catch(() => ({}));
       if (data?.valid && data.promo) {

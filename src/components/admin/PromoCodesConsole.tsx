@@ -22,6 +22,7 @@ interface PromoCode {
   amountOffCents: number | null;
   maxUses: number | null;
   usedCount: number;
+  oncePerUser: boolean;
   expiresAt: string | null;
   active: boolean;
   note: string | null;
@@ -67,6 +68,7 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
   const [kind, setKind] = useState<"percent" | "fixed">("percent");
   const [value, setValue] = useState("");
   const [maxUses, setMaxUses] = useState("");
+  const [oncePerUser, setOncePerUser] = useState(false);
   const [expiresAt, setExpiresAt] = useState("");
   const [note, setNote] = useState("");
 
@@ -103,6 +105,7 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
           kind,
           ...(kind === "percent" ? { percentOff: value } : { amountOffUsd: value }),
           maxUses: maxUses || null,
+          oncePerUser,
           // datetime-local values carry no zone — send as-is; the server
           // parses in its own zone, which is what "expires end of day" means
           // for a small community event.
@@ -119,6 +122,7 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
       setCode("");
       setValue("");
       setMaxUses("");
+      setOncePerUser(false);
       setExpiresAt("");
       setNote("");
       fetchCodes();
@@ -291,6 +295,18 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
               />
             </div>
           </div>
+          <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm text-white/70">
+            <input
+              type="checkbox"
+              checked={oncePerUser}
+              onChange={(e) => setOncePerUser(e.target.checked)}
+              className="h-4 w-4 cursor-pointer rounded border-white/20 bg-white/5 accent-[#E8751A]"
+            />
+            <span>
+              One use per person{" "}
+              <span className="text-white/40">— blocks repeat redemptions matching the buyer&rsquo;s email or mobile number</span>
+            </span>
+          </label>
           <button
             type="submit"
             disabled={saving}
@@ -307,6 +323,7 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
               <tr className="border-b border-white/[0.06] text-left text-xs uppercase tracking-wider text-white/30">
                 <th className="px-4 py-3 font-medium">Code</th>
                 <th className="px-4 py-3 font-medium">Discount</th>
+                <th className="px-4 py-3 font-medium">Limit</th>
                 <th className="px-4 py-3 font-medium text-center">Used</th>
                 <th className="px-4 py-3 font-medium">Expires</th>
                 <th className="px-4 py-3 font-medium">Status</th>
@@ -318,13 +335,13 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-white/30">
+                  <td colSpan={9} className="px-4 py-12 text-center text-white/30">
                     Loading promo codes...
                   </td>
                 </tr>
               ) : codes.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-white/30">
+                  <td colSpan={9} className="px-4 py-12 text-center text-white/30">
                     No promo codes yet — create one above.
                   </td>
                 </tr>
@@ -335,6 +352,9 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
                     <tr key={c.id} className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]">
                       <td className="px-4 py-3 font-mono font-bold text-white/90">{c.code}</td>
                       <td className="px-4 py-3 text-white/70">{discountLabel(c)}</td>
+                      <td className="px-4 py-3 text-xs text-white/50 whitespace-nowrap">
+                        {c.oncePerUser ? "1× per person" : "—"}
+                      </td>
                       <td className="px-4 py-3 text-center text-white/60">
                         {c.usedCount}
                         {c.maxUses !== null && <span className="text-white/30"> / {c.maxUses}</span>}
@@ -375,6 +395,8 @@ export default function PromoCodesConsole({ userEmail }: PromoCodesConsoleProps)
           Codes apply to the Bhajan Clubbing checkout. Percent codes discount the ticket subtotal (after the
           family &amp; friends discount); fixed codes take a dollar amount off the order. The optional extra
           donation is never discounted, and usage only counts up when a payment actually completes.
+          &ldquo;1× per person&rdquo; codes block repeat redemptions whose email or mobile number matches an
+          earlier paid order that used the same code.
         </p>
       </main>
     </div>

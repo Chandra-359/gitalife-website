@@ -94,13 +94,32 @@ model PromoCode {
   amountOffCents Int?                           // discount per order in cents, set when kind = "fixed"
   maxUses        Int?                           // null = unlimited redemptions
   usedCount      Int       @default(0)          // incremented once per verified paid order
+  oncePerUser    Boolean   @default(false)      // limit to one redemption per email/mobile
   expiresAt      DateTime?                      // null = never expires
   active         Boolean   @default(true)       // soft kill-switch without deleting history
   note           String?                        // internal memo, e.g. "Instagram giveaway"
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+  redemptions    PromoRedemption[]
+
   @@index([programId])
+}
+
+/// One verified paid order that redeemed a promo code — the record behind
+/// both the usedCount and the once-per-user check (matched on email/phone).
+model PromoRedemption {
+  id          String    @id @default(cuid())
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  promoCodeId String
+  email       String            // buyer email, lowercased
+  phone       String?           // buyer mobile, normalized to digits (null when unusable)
+  orderId     String            // Square order id
+  createdAt   DateTime  @default(now())
+
+  @@unique([promoCodeId, orderId]) // idempotent per verified order
+  @@index([promoCodeId, email])
+  @@index([promoCodeId, phone])
 }
 
 /// An RSVP submission for a program.

@@ -2,7 +2,7 @@
  * /api/admin/promocodes — promo code management (admin only)
  *
  *  GET    — list all codes, newest first
- *  POST   — create a code { code, kind, percentOff | amountOffUsd, maxUses?, expiresAt?, note? }
+ *  POST   — create a code { code, kind, percentOff | amountOffUsd, maxUses?, oncePerUser?, expiresAt?, note? }
  *  PATCH  — { id, active } pause/resume a code
  *  DELETE — ?id=<id> remove a code entirely
  *
@@ -101,6 +101,7 @@ export async function POST(request: NextRequest) {
         percentOff,
         amountOffCents,
         maxUses,
+        oncePerUser: body.oncePerUser === true,
         expiresAt,
         note: typeof body.note === "string" && body.note.trim() ? body.note.trim().slice(0, 300) : null,
       },
