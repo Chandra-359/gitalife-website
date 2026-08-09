@@ -2,6 +2,7 @@
  * /api/admin/checkin — door check-in for Bhajan Clubbing (admin only)
  *
  * GET    — event registrations with parsed tier/paid info + live stats
+ * POST   — { token } QR scan: verify the signed ticket, check the party in
  * PATCH  — { id, checkedIn } toggles a party's checkedInAt timestamp
  * DELETE — { id } permanently removes a registration (test rows, dupes)
  */
@@ -9,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { verifyTicketToken } from "@/lib/ticket";
 import { EVENT } from "@/data/bhajanClubbing";
 
 export const dynamic = "force-dynamic";
@@ -72,6 +74,63 @@ export async function GET() {
   } catch (error) {
     console.error("Failed to fetch check-in list:", error);
     return NextResponse.json({ error: "Failed to fetch check-in list" }, { status: 500 });
+  }
+}
+
+/**
+ * QR scan → check-in. Returns a `result` the scanner renders big:
+ *   "ok"      — party newly checked in
+ *   "already" — valid ticket, but the party is already in (screenshot
+ *               sharing / double scan — send the second presenter to a
+ *               volunteer)
+ *   "invalid" — signature check failed or no such registration
+ */
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!prisma) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  try {
+    const { token } = await request.json();
+    const rsvpId = verifyTicketToken(token);
+    if (!rsvpId) return NextResponse.json({ result: "invalid" });
+
+    const rsvp = await prisma.rsvp.findFirst({
+      where: { id: rsvpId, programId: EVENT.programId, status: "confirmed" },
+    });
+    if (!rsvp) return NextResponse.json({ result: "invalid" });
+
+    const { tier, paid } = parseNotes(rsvp.notes);
+    if (rsvp.checkedInAt) {
+      return NextResponse.json({
+        result: "already",
+        id: rsvp.id,
+        name: rsvp.name,
+        guests: rsvp.guests,
+        checkedInAt: rsvp.checkedInAt.toISOString(),
+      });
+    }
+
+    const updated = await prisma.rsvp.update({
+      where: { id: rsvp.id },
+      data: { checkedInAt: new Date() },
+    });
+    return NextResponse.json({
+      result: "ok",
+      id: updated.id,
+      name: updated.name,
+      guests: updated.guests,
+      tier,
+      paid,
+      checkedInAt: updated.checkedInAt?.toISOString() ?? null,
+    });
+  } catch (error) {
+    console.error("QR scan check-in failed:", error);
+    return NextResponse.json({ error: "Scan failed" }, { status: 500 });
   }
 }
 

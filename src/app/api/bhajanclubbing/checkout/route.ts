@@ -259,7 +259,7 @@ interface PaidOrder {
  */
 async function recordPaidRsvp(order: PaidOrder, email: string, orderId: string) {
   const db = getPrismaClient();
-  if (!db) return { receipt: false, name: null as string | null, guests: 1 };
+  if (!db) return { receipt: false, name: null as string | null, guests: 1, rsvpId: null as string | null };
 
   const ticket = TIERS.find((t) => t.priceUsd > 0);
   const ticketName = ticket?.name ?? "General Admission";
@@ -288,12 +288,12 @@ async function recordPaidRsvp(order: PaidOrder, email: string, orderId: string) 
         programId: EVENT.programId,
       },
     });
-    return { receipt: true, name: rsvp.name, guests: rsvp.guests };
+    return { receipt: true, name: rsvp.name, guests: rsvp.guests, rsvpId: rsvp.id };
   }
 
   // This exact order was already recorded — nothing new to count or send.
   if (existing.notes?.includes(orderMarker)) {
-    return { receipt: false, name: existing.name, guests: existing.guests };
+    return { receipt: false, name: existing.name, guests: existing.guests, rsvpId: existing.id };
   }
 
   if (existing.notes?.includes("PAID")) {
@@ -308,7 +308,7 @@ async function recordPaidRsvp(order: PaidOrder, email: string, orderId: string) 
       where: { id: existing.id },
       data: { guests: totalGuests, notes: `${existing.notes} ${orderMarker}` },
     });
-    return { receipt: true, name: existing.name, guests: totalGuests };
+    return { receipt: true, name: existing.name, guests: totalGuests, rsvpId: existing.id };
   }
 
   // Restamp an existing registration (e.g. from before the paid switch) as paid
@@ -321,7 +321,7 @@ async function recordPaidRsvp(order: PaidOrder, email: string, orderId: string) 
       emailOptIn: emailOptIn || existing.emailOptIn,
     },
   });
-  return { receipt: true, name: existing.name, guests: existing.guests };
+  return { receipt: true, name: existing.name, guests: existing.guests, rsvpId: existing.id };
 }
 
 /** Pull the buyer email off the order, falling back to the payment record. */
@@ -371,7 +371,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ paid: true, name: String(order.metadata?.name ?? "") });
     }
 
-    const { receipt, name, guests } = await recordPaidRsvp(order, email, orderId);
+    const { receipt, name, guests, rsvpId } = await recordPaidRsvp(order, email, orderId);
     // null → this order was already handled earlier, nothing new was sent
     let emailed: boolean | null = null;
     if (receipt) {
@@ -394,6 +394,7 @@ export async function GET(request: Request) {
           tierName: ticket?.name ?? "General Admission",
           guests,
           seva: "paid",
+          rsvpId, // door QR ticket rides in the confirmation
         }),
         appendRegistrationToSheet({
           name: name || order.metadata?.name || email,
@@ -413,6 +414,15 @@ export async function GET(request: Request) {
         }),
       ]);
       emailed = sent.ok;
+      if (sent.ok && rsvpId) {
+        // Mark the QR as delivered so the admin batch-send skips this party
+        const db = getPrismaClient();
+        if (db) {
+          await db.rsvp
+            .update({ where: { id: rsvpId }, data: { qrSentAt: new Date() } })
+            .catch((e: unknown) => console.error("qrSentAt stamp failed (non-fatal):", e));
+        }
+      }
       if (!sent.ok) {
         console.error(`Order ${orderId} registered but the confirmation email was NOT sent:`, sent.error);
       }
