@@ -122,6 +122,21 @@ model PromoRedemption {
   @@index([promoCodeId, phone])
 }
 
+/// A verified one-time donation paid via Square Checkout (/donate).
+/// Pay-first: a row only exists after Square confirms the money, keyed by
+/// the Square order id so re-verifying the same order never double-counts.
+model Donation {
+  id          String   @id @default(cuid())
+  name        String
+  email       String            // receipt destination, as entered by the donor
+  amountCents Int               // amount actually charged, in cents
+  orderId     String   @unique  // Square order id — idempotent verification
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+}
+
 /// An RSVP submission for a program.
 model Rsvp {
   id        String   @id @default(cuid())
