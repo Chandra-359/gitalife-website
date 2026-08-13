@@ -3,8 +3,7 @@
  *
  * WHERE TO EDIT EACH THING:
  *  - Preset amounts      → PRESET_AMOUNTS_USD (tiles on the page, in order).
- *                          Amounts follow the shagun tradition (ending in 1)
- *                          plus the sacred 108.
+ *                          Amounts follow the shagun tradition (ending in 1).
  *  - Amount guard-rails  → MIN/MAX_DONATION_USD — enforced server-side by
  *                          the checkout route; the client never sends a
  *                          price the server doesn't re-clamp.
@@ -20,25 +19,24 @@
 export const DONATION_REFERENCE_ID = "gitalife-donation";
 
 /** Preset tiles shown on the page, in display order. */
-export const PRESET_AMOUNTS_USD = [11, 21, 51, 108, 251] as const;
+export const PRESET_AMOUNTS_USD = [501, 1001, 2501, 5001, 10001] as const;
 
 /** Tile pre-selected when the page loads. */
-export const DEFAULT_AMOUNT_USD = 51;
+export const DEFAULT_AMOUNT_USD = 501;
 
 /** Preset highlighted with the "Most chosen" badge. */
-export const POPULAR_AMOUNT_USD = 51;
+export const POPULAR_AMOUNT_USD = 501;
 
-/** Custom-amount guard rails (USD) — also enforced server-side. */
+/** Custom-amount guard rails (USD) — also enforced server-side. Keep the
+ *  ceiling above the largest preset, or the server would quietly clamp it. */
 export const MIN_DONATION_USD = 1;
-export const MAX_DONATION_USD = 10_000;
+export const MAX_DONATION_USD = 25_000;
 
 export const DONATE = {
   eyebrow: "Support the mission",
   headline: "Keep the wisdom flowing",
   blurb:
     "Every program we run is free and volunteer-led. Your gift keeps the kirtans loud, the prasadam warm, and the Gita open for everyone in NYC.",
-  /** Tiny caption under the sacred preset. */
-  sacredCaption: "108 — a sacred number",
   /** Where the money goes — three short chips, no essays. */
   whereItGoes: [
     { icon: "book", label: "Weekly Gita programs" },

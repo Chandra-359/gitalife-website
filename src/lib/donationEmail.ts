@@ -12,11 +12,15 @@
 
 import { sendEmail, type SendOutcome } from "@/lib/email";
 import { DONATE, usd } from "@/data/donation";
+import { PROGRAMS_FROM_EMAIL } from "@/data/weeklyPrograms";
 
 export interface DonationReceiptDetails {
   to: string;
+  /** Empty for anonymous gifts — the greeting falls back to "friend". */
   name: string;
   amountCents: number;
+  /** True when the donor asked not to be named. */
+  anonymous?: boolean;
 }
 
 /* Main-site palette, email-safe */
@@ -57,6 +61,7 @@ function receiptHtml(d: DonationReceiptDetails, dateLabel: string): string {
       </p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
         ${row("Donation", usd(d.amountCents))}
+        ${d.anonymous ? row("Recorded as", "Anonymous") : ""}
         ${row("Date", dateLabel)}
         ${row("Payment", "Card via Square")}
       </table>
@@ -90,7 +95,7 @@ function receiptText(d: DonationReceiptDetails, dateLabel: string): string {
 Your donation to Gita Life NYC is confirmed.
 
 Donation: ${usd(d.amountCents)}
-Date: ${dateLabel}
+${d.anonymous ? "Recorded as: Anonymous\n" : ""}Date: ${dateLabel}
 Payment: Card via Square
 
 Keep this email for your records — your Square payment receipt arrives separately.
@@ -109,6 +114,10 @@ export async function sendDonationReceipt(d: DonationReceiptDetails): Promise<Se
     day: "numeric",
   });
   return sendEmail({
+    // Same sender as every other transactional email on the site —
+    // "Gita Life NYC <no-reply@gitalifenyc.com>" (domain must stay
+    // verified with the SMTP provider). Replies land in a real inbox.
+    from: PROGRAMS_FROM_EMAIL,
     to: d.to,
     replyTo: process.env.SMTP_REPLY_TO || DONATE.contactEmail,
     subject: `Thank you for your ${usd(d.amountCents)} donation — Gita Life NYC 🙏`,

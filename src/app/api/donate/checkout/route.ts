@@ -32,8 +32,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, amount } = await request.json();
-    if (!name || !String(name).trim()) {
+    const { name, email, amount, anonymous } = await request.json();
+    const isAnonymous = anonymous === true;
+    if (!isAnonymous && (!name || !String(name).trim())) {
       return NextResponse.json({ error: "Your name is required" }, { status: 400 });
     }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -62,10 +63,14 @@ export async function POST(request: Request) {
           location_id: sq.locationId,
           reference_id: DONATION_REFERENCE_ID,
           // The donor's details ride in metadata — the verified return
-          // trip turns them into the Donation row + receipt email.
+          // trip turns them into the Donation row + receipt email. An
+          // anonymous gift carries no name at all (Square requires
+          // metadata values to be non-empty, so the key is omitted).
           metadata: {
             kind: "donation",
-            name: String(name).trim().slice(0, 255),
+            ...(isAnonymous
+              ? { anonymous: "yes" }
+              : { name: String(name).trim().slice(0, 255) }),
             email: String(email).trim().slice(0, 255),
           },
           line_items: [
@@ -160,14 +165,20 @@ async function orderDonorEmail(
  * receipt), or null when the database is offline (paid but unrecorded —
  * reconcile via the Square dashboard).
  */
-async function recordDonation(name: string, email: string, amountCents: number, orderId: string) {
+async function recordDonation(
+  name: string,
+  email: string,
+  amountCents: number,
+  orderId: string,
+  anonymous: boolean,
+) {
   const db = getPrismaClient();
   if (!db) {
     console.error(`Paid donation order ${orderId} could not be recorded (database offline)`);
     return null;
   }
   try {
-    await db.donation.create({ data: { name, email, amountCents, orderId } });
+    await db.donation.create({ data: { name, email, amountCents, orderId, anonymous } });
     return true;
   } catch (error) {
     const code = typeof error === "object" && error !== null && "code" in error ? (error as { code: string }).code : null;
@@ -206,7 +217,8 @@ export async function GET(request: Request) {
       order?.reference_id === DONATION_REFERENCE_ID || order?.metadata?.kind === "donation";
     if (!order || !fullyPaid || !isDonation) return NextResponse.json({ paid: false });
 
-    const name = String(order.metadata?.name ?? "").trim();
+    const isAnonymous = order.metadata?.anonymous === "yes";
+    const name = isAnonymous ? "" : String(order.metadata?.name ?? "").trim();
     // Prefer what Square actually charged over what the metadata remembers.
     const amountCents = Number(order.total_money?.amount) || 0;
 
@@ -217,11 +229,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ paid: true, name, amountCents });
     }
 
-    const firstVerification = await recordDonation(name || email, email, amountCents, orderId);
+    // An anonymous gift is stored under "Anonymous" — never the donor's
+    // email standing in as a name.
+    const firstVerification = await recordDonation(
+      isAnonymous ? "Anonymous" : name || email,
+      email,
+      amountCents,
+      orderId,
+      isAnonymous,
+    );
     // null → already handled earlier (or DB offline), nothing new was sent
     let emailed: boolean | null = null;
     if (firstVerification) {
-      const sent = await sendDonationReceipt({ to: email, name: name || "friend", amountCents });
+      const sent = await sendDonationReceipt({ to: email, name, amountCents, anonymous: isAnonymous });
       emailed = sent.ok;
       if (!sent.ok) {
         console.error(`Donation ${orderId} recorded but the receipt email was NOT sent:`, sent.error);
