@@ -23,10 +23,10 @@ export const DONATION_REFERENCE_ID = "gitalife-donation";
 export const PRESET_AMOUNTS_USD = [11, 21, 51, 108, 251] as const;
 
 /** Tile pre-selected when the page loads. */
-export const DEFAULT_AMOUNT_USD = 51;
+export const DEFAULT_AMOUNT_USD = 108;
 
 /** Preset highlighted with the "Most chosen" badge. */
-export const POPULAR_AMOUNT_USD = 51;
+export const POPULAR_AMOUNT_USD = 108;
 
 /** Custom-amount guard rails (USD) — also enforced server-side. */
 export const MIN_DONATION_USD = 1;

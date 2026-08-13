@@ -127,9 +127,10 @@ model PromoRedemption {
 /// the Square order id so re-verifying the same order never double-counts.
 model Donation {
   id          String   @id @default(cuid())
-  name        String
+  name        String            // "Anonymous" when the donor checked the box
   email       String            // receipt destination, as entered by the donor
   amountCents Int               // amount actually charged, in cents
+  anonymous   Boolean  @default(false) // donor asked not to be named
   orderId     String   @unique  // Square order id — idempotent verification
   createdAt   DateTime @default(now())
 

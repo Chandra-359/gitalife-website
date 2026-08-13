@@ -112,6 +112,7 @@ export default function DonatePage() {
   const [amountChoice, setAmountChoice] = useState<AmountChoice>(DEFAULT_AMOUNT_USD);
   const [customAmount, setCustomAmount] = useState("");
   const [customError, setCustomError] = useState<string | null>(null);
+  const [anonymous, setAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<string | null>(null);
@@ -206,8 +207,14 @@ export default function DonatePage() {
       const res = await fetch("/api/donate/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // The amount is re-clamped server-side; this is a request, not a price.
-        body: JSON.stringify({ name: d.name, email: d.email, amount: selectedCents / 100 }),
+        // The amount is re-clamped server-side; this is a request, not a
+        // price. An anonymous gift sends no name at all.
+        body: JSON.stringify({
+          name: anonymous ? null : d.name,
+          email: d.email,
+          amount: selectedCents / 100,
+          anonymous,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) {
@@ -480,7 +487,7 @@ export default function DonatePage() {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="mt-3 flex items-center justify-center gap-1.5 overflow-hidden text-center text-[12px] font-semibold"
-                    style={{ color: C.gold }}
+                    style={{ color: "var(--divine-gold-deep)" }}
                   >
                     <Icon name="lotus" size={13} />
                     {DONATE.sacredCaption}
@@ -539,31 +546,56 @@ export default function DonatePage() {
                 )}
               </AnimatePresence>
 
+              {/* anonymous option */}
+              <label
+                className="mt-5 flex cursor-pointer items-center justify-center gap-2.5 rounded-xl border px-4 py-3 transition-colors"
+                style={{
+                  borderColor: anonymous ? "rgba(217,105,26,0.45)" : "rgba(154,144,120,0.6)",
+                  background: anonymous ? "rgba(217,105,26,0.07)" : "rgba(255,255,255,0.35)",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={anonymous}
+                  onChange={(e) => setAnonymous(e.target.checked)}
+                  className="h-4 w-4 cursor-pointer"
+                  style={{ accentColor: C.saffron }}
+                />
+                <span className="text-[13px] font-semibold" style={{ color: "var(--ink-primary)" }}>
+                  Make my donation anonymous
+                </span>
+              </label>
+
               {/* donor details */}
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="don-name"
-                    className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]"
-                    style={{ color: "var(--ink-secondary)" }}
-                  >
-                    Your name <span style={{ color: C.saffron }}>*</span>
-                  </label>
-                  <input
-                    id="don-name"
-                    type="text"
-                    placeholder="Full name"
-                    className={inputClass}
-                    style={inputStyle(!!errors.name)}
-                    {...register("name", { required: "Your name is required" })}
-                  />
-                  {errors.name && (
-                    <p className="mt-1.5 text-[11px] font-medium" style={{ color: ERROR_RED }}>
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-                <div>
+                {!anonymous && (
+                  <div>
+                    <label
+                      htmlFor="don-name"
+                      className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]"
+                      style={{ color: "var(--ink-secondary)" }}
+                    >
+                      Your name <span style={{ color: C.saffron }}>*</span>
+                    </label>
+                    <input
+                      id="don-name"
+                      type="text"
+                      placeholder="Full name"
+                      className={inputClass}
+                      style={inputStyle(!!errors.name)}
+                      // shouldUnregister drops the field (and its required
+                      // rule) when the anonymous toggle unmounts it — an
+                      // invisible name can never block the submit.
+                      {...register("name", { shouldUnregister: true, required: "Your name is required" })}
+                    />
+                    {errors.name && (
+                      <p className="mt-1.5 text-[11px] font-medium" style={{ color: ERROR_RED }}>
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div className={anonymous ? "sm:col-span-2" : ""}>
                   <label
                     htmlFor="don-email"
                     className="mb-1.5 block text-[10.5px] font-extrabold uppercase tracking-[0.18em]"
@@ -585,6 +617,11 @@ export default function DonatePage() {
                   {errors.email && (
                     <p className="mt-1.5 text-[11px] font-medium" style={{ color: ERROR_RED }}>
                       {errors.email.message}
+                    </p>
+                  )}
+                  {anonymous && !errors.email && (
+                    <p className="mt-1.5 text-[11.5px]" style={{ color: "var(--ink-tertiary)" }}>
+                      Only used to send your receipt — never shared or shown anywhere.
                     </p>
                   )}
                 </div>
