@@ -22,12 +22,15 @@ export const metadata: Metadata = {
     description: `${EVENT.dateLabel} · ${EVENT.venue.name}. Live kirtan and free packed prasadam from Sri Sri Radha Govinda Temple. 100% sattvic. ${EVENT.donationLabel}.`,
     url: EVENT.url,
     type: "website",
-    images: [{ url: "/krishna-arjuna-chariot.jpg", width: 1200, height: 630, alt: "Bhajan Clubbing — Gita Life NYC" }],
+    // Pre-sized 1200×630 crop (~110 KB) — the full-res chariot painting is
+    // 7.9 MB, past WhatsApp's ~600 KB limit, so previews silently dropped it.
+    images: [{ url: "/og-bhajanclubbing.jpg", width: 1200, height: 630, alt: "Bhajan Clubbing — Gita Life NYC" }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${EVENT.title} ${EVENT.volume} — ${EVENT.tagline}`,
     description: `${EVENT.dateLabel} · ${EVENT.venue.name}. The city's most blissful night out. ${EVENT.donationLabel}.`,
+    images: ["/og-bhajanclubbing.jpg"],
   },
 };
 

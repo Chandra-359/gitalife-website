@@ -17,15 +17,41 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
+const SITE_URL = "https://www.gitalifenyc.com";
+const SITE_TITLE = "Gita Life NYC — Discover Timeless Wisdom";
+const SITE_DESCRIPTION =
+  "A community of young seekers exploring the Bhagavad Gita's timeless wisdom through weekly discussions, kirtans, retreats, and deep friendships in NYC.";
+
 export const metadata: Metadata = {
-  title: "Gita Life NYC — Discover Timeless Wisdom",
-  description:
-    "A community of young seekers exploring the Bhagavad Gita's timeless wisdom through weekly discussions, kirtans, retreats, and deep friendships in NYC.",
+  // Resolves every relative og:image / icon URL to an absolute one — link
+  // previews (WhatsApp, iMessage, Slack…) ignore relative URLs entirely.
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    siteName: "Gita Life NYC",
+    type: "website",
+    // Raster PNG under 300 KB — WhatsApp rejects SVGs and images over ~600 KB.
+    images: [
+      { url: "/og-image.png", width: 1200, height: 630, alt: "Gita Life NYC" },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: [
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
       { url: "/logo.svg", type: "image/svg+xml" },
     ],
-    apple: "/logo.svg",
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
 };
 
