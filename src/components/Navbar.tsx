@@ -25,6 +25,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         { label: "Volunteer", href: "/volunteer" },
         { label: "Daily", href: "/daily" },
         { label: "Impact", href: "/impact" },
+        { label: "Donate", href: "/donate" },
       ]
     : [
         { label: "Home", href: "/" },
@@ -33,6 +34,7 @@ export default function Navbar({ isHomepage = false }: NavbarProps) {
         { label: "Bhajan Club", href: "/bhajanclubbing" },
         { label: "Volunteer", href: "/volunteer" },
         { label: "Daily", href: "/daily" },
+        { label: "Donate", href: "/donate" },
       ];
 
   const ctaHref = isHomepage ? "#get-connected" : "/#get-connected";
