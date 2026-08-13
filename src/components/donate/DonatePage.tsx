@@ -463,7 +463,7 @@ export default function DonatePage() {
                 {PRESET_AMOUNTS_USD.map((amt) => (
                   <AmountTile
                     key={amt}
-                    label={`$${amt}`}
+                    label={`$${amt.toLocaleString("en-US")}`}
                     badge={amt === POPULAR_AMOUNT_USD ? "Most chosen" : undefined}
                     selected={amountChoice === amt}
                     onClick={() => {
@@ -478,22 +478,6 @@ export default function DonatePage() {
                   onClick={() => setAmountChoice("custom")}
                 />
               </div>
-
-              {/* sacred-number nod */}
-              <AnimatePresence>
-                {amountChoice === 108 && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-3 flex items-center justify-center gap-1.5 overflow-hidden text-center text-[12px] font-semibold"
-                    style={{ color: "var(--divine-gold-deep)" }}
-                  >
-                    <Icon name="lotus" size={13} />
-                    {DONATE.sacredCaption}
-                  </motion.p>
-                )}
-              </AnimatePresence>
 
               {/* custom amount */}
               <AnimatePresence>
