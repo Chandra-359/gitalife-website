@@ -134,7 +134,7 @@ export const EVENT = {
   /** Hard booking cap for the night, counted in guests (not rows).
    *  Enforced server-side by the registration + checkout APIs, and
    *  surfaced on the page through seatMeter() once seats run low. */
-  capacity: 141,
+  capacity: 140,
   /** Event inbox — shown on the page + confirmation email, and used as the
    *  Reply-To on confirmations unless SMTP_REPLY_TO overrides it. */
   contactEmail: "bhajanclubbing@gitalifenyc.com",
