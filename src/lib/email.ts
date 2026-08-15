@@ -427,3 +427,102 @@ Questions? ${EVENT.contactEmail}`;
     attachments: [qr],
   });
 }
+
+/* ------------------------------------------------------------------ */
+/*  Event reminder — sent to every confirmed registration shortly       */
+/*  before the night, with the door QR attached (admin batch-send)      */
+/* ------------------------------------------------------------------ */
+
+export async function sendClubbingReminderEmail(d: TicketEmailDetails): Promise<SendOutcome> {
+  const t = getTransporter();
+  if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };
+  const qr = await ticketQrAttachment(d.rsvpId);
+  if (!qr) return { ok: false, error: "Ticket QR not configured (TICKET_QR_SECRET / AUTH_SECRET missing)" };
+  const first = d.name.split(" ")[0];
+  const html = `<!doctype html>
+<html><body style="margin:0;padding:0;background:${S.bg};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${S.bg};padding:32px 12px;">
+<tr><td align="center">
+  <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+    <tr><td style="padding:0 8px 18px;text-align:center;">
+      <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:${S.dim};font-family:Arial,Helvetica,sans-serif;">Gita Life NYC presents</p>
+      <h1 style="margin:10px 0 0;font-size:34px;line-height:1.1;color:${S.ink};font-family:Arial Black,Arial,Helvetica,sans-serif;">
+        Bhajan <span style="color:${S.saffron};">Clubbing</span>
+      </h1>
+      <p style="margin:8px 0 0;font-size:13px;color:${S.dim};font-family:Arial,Helvetica,sans-serif;">${EVENT.tagline}</p>
+    </td></tr>
+    <tr><td style="background:${S.card};border:1px solid ${S.line};border-radius:16px;padding:28px;font-family:Arial,Helvetica,sans-serif;">
+      <h2 style="margin:0;font-size:20px;color:${S.ink};">It's almost time, ${first} 🔥</h2>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:${S.dim};">
+        ${EVENT.dateLabel} is here — live kirtan, a room full of voices, and free packed
+        prasadam. Your door QR is below (and attached): show it at the door and you're
+        straight in, no name lookup needed.
+      </p>
+      ${ticketQrHtml(d.guests)}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
+        ${row("Crew", d.guests === 1 ? "Just you" : `${d.guests} people`)}
+        ${row("Date", EVENT.dateLabel)}
+        ${row("Time", `${EVENT.timeLabel} · ${EVENT.doorsLabel}`)}
+        ${row("Venue", EVENT.venue.name)}
+        ${row("Address", EVENT.venue.address)}
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
+        <tr>
+          <td style="border-radius:999px;background:${S.saffron};">
+            <a href="${EVENT.venue.mapsUrl}" style="display:inline-block;padding:12px 24px;font-size:13px;font-weight:bold;color:#1C0A02;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Get directions</a>
+          </td>
+          <td style="width:10px;"></td>
+          <td style="border-radius:999px;border:1px solid ${S.line};">
+            <a href="${googleCalendarUrl()}" style="display:inline-block;padding:12px 24px;font-size:13px;font-weight:bold;color:${S.ink};text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Add to calendar</a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
+        ${EVENT.venue.transit}.<br/>
+        ${EVENT.venue.note} Doors at 6 — come early for the best seats.
+      </p>
+      <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
+        Can't find this email on the night? No stress — we can check you in by name.
+        Questions? <a href="mailto:${EVENT.contactEmail}" style="color:${S.amber};font-weight:bold;text-decoration:none;">${EVENT.contactEmail}</a>
+      </p>
+    </td></tr>
+    <tr><td style="padding:18px 8px 0;text-align:center;">
+      <p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${S.dim};font-family:Arial,Helvetica,sans-serif;">
+        Gita Life NYC · A community initiative under ISKCON
+      </p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body></html>`;
+  const text = `It's almost time, ${first}!
+
+${EVENT.title} — ${EVENT.volume}
+${EVENT.dateLabel} · ${EVENT.timeLabel} (${EVENT.doorsLabel})
+${EVENT.venue.name}, ${EVENT.venue.address}
+
+Show the attached QR code (bhajan-clubbing-ticket.png) at the door for the fastest check-in — one scan covers ${d.guests === 1 ? "you" : `your whole party of ${d.guests}`}.
+
+Directions: ${EVENT.venue.mapsUrl}
+${EVENT.venue.transit}
+
+Can't find this email on the night? We can check you in by name.
+Questions? ${EVENT.contactEmail}
+
+100% sattvic · free packed prasadam included`;
+  return sendEmail({
+    replyTo: env("SMTP_REPLY_TO") || EVENT.contactEmail,
+    to: d.to,
+    subject: `Reminder: ${EVENT.title} ${EVENT.volume} is ${EVENT.dateLabel} — your QR ticket inside 🎟️`,
+    html,
+    text,
+    attachments: [
+      {
+        filename: "bhajan-clubbing.ics",
+        content: eventIcs(),
+        contentType: "text/calendar; method=PUBLISH",
+      },
+      qr,
+    ],
+  });
+}

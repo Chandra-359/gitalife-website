@@ -7,12 +7,21 @@
  *                call. Returns { sent, failed, remaining } — the admin UI
  *                keeps calling while remaining > 0, so each request stays
  *                well under serverless time limits.
+ * POST { mode: "reminder" }
+ *              — batch: send the event reminder (with the door QR
+ *                attached) to EVERY confirmed registration, whether or
+ *                not it already got a ticket email. Deduped via
+ *                lastReminderAt, so pressing the button again only
+ *                reaches people registered since the last blast (the
+ *                clubbing program is outside both daily-cron passes, so
+ *                the stamp is ours to use). Same { sent, failed,
+ *                remaining } batching contract as the ticket send.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { sendTicketQrEmail, emailConfigured } from "@/lib/email";
+import { sendTicketQrEmail, sendClubbingReminderEmail, emailConfigured } from "@/lib/email";
 import { ticketsConfigured } from "@/lib/ticket";
 import { EVENT } from "@/data/bhajanClubbing";
 
@@ -39,7 +48,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { id } = await request.json().catch(() => ({}) as { id?: unknown });
+    const body = await request.json().catch(() => ({}) as { id?: unknown; mode?: unknown });
+    const { id, mode } = body as { id?: unknown; mode?: unknown };
+    const isReminder = mode === "reminder";
 
     // Single (re)send — used from a registration row
     if (typeof id === "string" && id) {
@@ -47,15 +58,24 @@ export async function POST(request: NextRequest) {
         where: { id, programId: EVENT.programId, status: "confirmed" },
       });
       if (!rsvp) return NextResponse.json({ error: "Registration not found" }, { status: 404 });
-      const sent = await sendTicketQrEmail({ to: rsvp.email, name: rsvp.name, guests: rsvp.guests, rsvpId: rsvp.id });
+      const send = isReminder ? sendClubbingReminderEmail : sendTicketQrEmail;
+      const sent = await send({ to: rsvp.email, name: rsvp.name, guests: rsvp.guests, rsvpId: rsvp.id });
       if (!sent.ok) return NextResponse.json({ error: sent.error ?? "Send failed" }, { status: 502 });
-      await prisma.rsvp.update({ where: { id: rsvp.id }, data: { qrSentAt: new Date() } });
+      await prisma.rsvp.update({
+        where: { id: rsvp.id },
+        data: isReminder ? { lastReminderAt: new Date() } : { qrSentAt: new Date() },
+      });
       return NextResponse.json({ sent: 1, failed: 0, remaining: 0, to: rsvp.email });
     }
 
-    // Batch — everyone confirmed who hasn't been sent a QR yet
+    // Batch. Ticket mode targets rows never sent a QR (qrSentAt null);
+    // reminder mode targets rows not yet reminded (lastReminderAt null) —
+    // i.e. everyone confirmed, ticket email or not.
+    const pending = isReminder
+      ? { programId: EVENT.programId, status: "confirmed", lastReminderAt: null }
+      : { programId: EVENT.programId, status: "confirmed", qrSentAt: null };
     const batch = await prisma.rsvp.findMany({
-      where: { programId: EVENT.programId, status: "confirmed", qrSentAt: null },
+      where: pending,
       orderBy: { createdAt: "asc" },
       take: BATCH_SIZE,
     });
@@ -63,23 +83,27 @@ export async function POST(request: NextRequest) {
     let sent = 0;
     let failed = 0;
     for (const rsvp of batch) {
-      const outcome = await sendTicketQrEmail({ to: rsvp.email, name: rsvp.name, guests: rsvp.guests, rsvpId: rsvp.id });
+      const send = isReminder ? sendClubbingReminderEmail : sendTicketQrEmail;
+      const outcome = await send({ to: rsvp.email, name: rsvp.name, guests: rsvp.guests, rsvpId: rsvp.id });
       if (outcome.ok) {
         sent += 1;
-        await prisma.rsvp.update({ where: { id: rsvp.id }, data: { qrSentAt: new Date() } });
+        await prisma.rsvp.update({
+          where: { id: rsvp.id },
+          // A reminder carries the QR too, so it also counts as the
+          // ticket email — stamp both and the ticket batch skips it.
+          data: isReminder ? { lastReminderAt: new Date(), qrSentAt: rsvp.qrSentAt ?? new Date() } : { qrSentAt: new Date() },
+        });
       } else {
         // Left unstamped so a later run retries it
         failed += 1;
-        console.error(`QR ticket email to ${rsvp.email} failed:`, outcome.error);
+        console.error(`${isReminder ? "Reminder" : "QR ticket"} email to ${rsvp.email} failed:`, outcome.error);
       }
     }
 
     // Unsent rows still on the books (includes this batch's failures) —
     // the client keeps calling while remaining > 0 AND progress was made,
     // so a dead SMTP config can't loop forever.
-    const remaining = await prisma.rsvp.count({
-      where: { programId: EVENT.programId, status: "confirmed", qrSentAt: null },
-    });
+    const remaining = await prisma.rsvp.count({ where: pending });
     return NextResponse.json({ sent, failed, remaining });
   } catch (error) {
     console.error("QR ticket batch send failed:", error);
