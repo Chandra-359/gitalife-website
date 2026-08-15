@@ -181,6 +181,29 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     setQrSending(false);
   };
 
+  /** Preview the reminder: email ONE copy to an address of your choice
+   *  (defaults to the organizer inbox). Nothing is stamped — the real
+   *  blast still reaches everyone. */
+  const sendTestReminder = async () => {
+    const to = window.prompt("Send a test reminder to:", "chandravamsi169@gmail.com");
+    if (!to || !to.trim()) return;
+    setReminderSending(true);
+    try {
+      const res = await fetch("/api/admin/checkin/qr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "reminder", testTo: to.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(String(data.error || ""));
+      toast.success(`Test reminder sent to ${data.to}`, { duration: 4000 });
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Couldn't send the test");
+    } finally {
+      setReminderSending(false);
+    }
+  };
+
   /** Batch-email the event reminder (QR attached) to every confirmed
    *  registration. Deduped server-side — pressing again later only
    *  reaches people who registered after this blast. */
@@ -334,6 +357,13 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
               className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
             >
               {qrSending ? "Sending tickets…" : "✉ Email QR tickets"}
+            </button>
+            <button
+              onClick={sendTestReminder}
+              disabled={qrSending || reminderSending}
+              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+            >
+              ✎ Test reminder
             </button>
             <button
               onClick={sendReminders}

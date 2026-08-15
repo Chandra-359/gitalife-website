@@ -433,12 +433,24 @@ Questions? ${EVENT.contactEmail}`;
 /*  before the night, with the door QR attached (admin batch-send)      */
 /* ------------------------------------------------------------------ */
 
+/** Reminder-specific copy — timing/parking guidance for the night. */
+const REMINDER = {
+  /** "tomorrow, August 15" — the blast goes out the day before the event. */
+  whenLabel: "tomorrow, August 15",
+  checkinLabel: "5:00 PM",
+  programLabel: "6:00 PM",
+  mapsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Saint+Dominic+Academy%2C+2572+John+F+Kennedy+Blvd%2C+Jersey+City%2C+NJ+07304",
+} as const;
+
 export async function sendClubbingReminderEmail(d: TicketEmailDetails): Promise<SendOutcome> {
   const t = getTransporter();
   if (!t) return { ok: false, error: "SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)" };
   const qr = await ticketQrAttachment(d.rsvpId);
   if (!qr) return { ok: false, error: "Ticket QR not configured (TICKET_QR_SECRET / AUTH_SECRET missing)" };
   const first = d.name.split(" ")[0];
+  const b = (s: string) => `<strong style="color:${S.ink};">${s}</strong>`;
+  const para = `margin:16px 0 0;font-size:13.5px;line-height:1.7;color:${S.dim};`;
   const html = `<!doctype html>
 <html><body style="margin:0;padding:0;background:${S.bg};">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${S.bg};padding:32px 12px;">
@@ -452,24 +464,34 @@ export async function sendClubbingReminderEmail(d: TicketEmailDetails): Promise<
       <p style="margin:8px 0 0;font-size:13px;color:${S.dim};font-family:Arial,Helvetica,sans-serif;">${EVENT.tagline}</p>
     </td></tr>
     <tr><td style="background:${S.card};border:1px solid ${S.line};border-radius:16px;padding:28px;font-family:Arial,Helvetica,sans-serif;">
-      <h2 style="margin:0;font-size:20px;color:${S.ink};">It's almost time, ${first} 🔥</h2>
-      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:${S.dim};">
-        ${EVENT.dateLabel} is here — live kirtan, a room full of voices, and free packed
-        prasadam. Your door QR is below (and attached): show it at the door and you're
-        straight in, no name lookup needed.
+      <h2 style="margin:0;font-size:20px;color:${S.ink};">Hi ${first},</h2>
+      <p style="${para}">
+        Just a friendly reminder that your ${b("Bhajan Clubbing")} event is
+        ${b(REMINDER.whenLabel)}, at ${b(EVENT.venue.name)}!
+      </p>
+      <p style="${para}">
+        📍 ${b("Venue:")} ${EVENT.venue.name}<br/>
+        <span style="display:inline-block;padding-left:24px;">${EVENT.venue.address}</span>
+      </p>
+      <p style="${para}">
+        🗺️ ${b("Google Maps:")}
+        <a href="${REMINDER.mapsUrl}" style="color:${S.amber};font-weight:bold;text-decoration:underline;">Open directions</a>
+      </p>
+      <p style="${para}">
+        ⏰ ${b(`Check-in starts at ${REMINDER.checkinLabel}`)}, and the program will start
+        ${b(`sharply at ${REMINDER.programLabel}`)}. Please plan to arrive early and allow
+        enough time for check-in before the program begins.
+      </p>
+      <p style="${para}">
+        🚗 ${b("Parking:")} There are ${b("very limited parking spots")} available at the
+        venue. Please plan ahead and allow extra time to find parking nearby and walk to
+        the venue.
       </p>
       ${ticketQrHtml(d.guests)}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
-        ${row("Crew", d.guests === 1 ? "Just you" : `${d.guests} people`)}
-        ${row("Date", EVENT.dateLabel)}
-        ${row("Time", `${EVENT.timeLabel} · ${EVENT.doorsLabel}`)}
-        ${row("Venue", EVENT.venue.name)}
-        ${row("Address", EVENT.venue.address)}
-      </table>
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
         <tr>
           <td style="border-radius:999px;background:${S.saffron};">
-            <a href="${EVENT.venue.mapsUrl}" style="display:inline-block;padding:12px 24px;font-size:13px;font-weight:bold;color:#1C0A02;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Get directions</a>
+            <a href="${REMINDER.mapsUrl}" style="display:inline-block;padding:12px 24px;font-size:13px;font-weight:bold;color:#1C0A02;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Get directions</a>
           </td>
           <td style="width:10px;"></td>
           <td style="border-radius:999px;border:1px solid ${S.line};">
@@ -477,11 +499,10 @@ export async function sendClubbingReminderEmail(d: TicketEmailDetails): Promise<
           </td>
         </tr>
       </table>
-      <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
-        ${EVENT.venue.transit}.<br/>
-        ${EVENT.venue.note} Doors at 6 — come early for the best seats.
+      <p style="${para}text-align:center;">
+        We look forward to seeing everyone tomorrow! 🙏
       </p>
-      <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
+      <p style="margin:18px 0 0;font-size:12px;line-height:1.7;color:${S.dim};">
         Can't find this email on the night? No stress — we can check you in by name.
         Questions? <a href="mailto:${EVENT.contactEmail}" style="color:${S.amber};font-weight:bold;text-decoration:none;">${EVENT.contactEmail}</a>
       </p>
@@ -495,25 +516,29 @@ export async function sendClubbingReminderEmail(d: TicketEmailDetails): Promise<
 </td></tr>
 </table>
 </body></html>`;
-  const text = `It's almost time, ${first}!
+  const text = `Hi ${first},
 
-${EVENT.title} — ${EVENT.volume}
-${EVENT.dateLabel} · ${EVENT.timeLabel} (${EVENT.doorsLabel})
-${EVENT.venue.name}, ${EVENT.venue.address}
+Just a friendly reminder that your Bhajan Clubbing event is ${REMINDER.whenLabel}, at ${EVENT.venue.name}!
 
-Show the attached QR code (bhajan-clubbing-ticket.png) at the door for the fastest check-in — one scan covers ${d.guests === 1 ? "you" : `your whole party of ${d.guests}`}.
+📍 Venue: ${EVENT.venue.name}
+${EVENT.venue.address}
 
-Directions: ${EVENT.venue.mapsUrl}
-${EVENT.venue.transit}
+🗺️ Google Maps: ${REMINDER.mapsUrl}
+
+⏰ Check-in starts at ${REMINDER.checkinLabel}, and the program will start sharply at ${REMINDER.programLabel}. Please plan to arrive early and allow enough time for check-in before the program begins.
+
+🚗 Parking: There are very limited parking spots available at the venue. Please plan ahead and allow extra time to find parking nearby and walk to the venue.
+
+Your door QR ticket is attached (bhajan-clubbing-ticket.png) — show it at the door and one scan covers ${d.guests === 1 ? "you" : `your whole party of ${d.guests}`}.
+
+We look forward to seeing everyone tomorrow! 🙏
 
 Can't find this email on the night? We can check you in by name.
-Questions? ${EVENT.contactEmail}
-
-100% sattvic · free packed prasadam included`;
+Questions? ${EVENT.contactEmail}`;
   return sendEmail({
     replyTo: env("SMTP_REPLY_TO") || EVENT.contactEmail,
     to: d.to,
-    subject: `Reminder: ${EVENT.title} ${EVENT.volume} is ${EVENT.dateLabel} — your QR ticket inside 🎟️`,
+    subject: `Reminder: ${EVENT.title} ${EVENT.volume} is ${REMINDER.whenLabel} — your QR ticket inside 🎟️`,
     html,
     text,
     attachments: [

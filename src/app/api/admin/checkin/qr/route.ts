@@ -16,6 +16,10 @@
  *                clubbing program is outside both daily-cron passes, so
  *                the stamp is ours to use). Same { sent, failed,
  *                remaining } batching contract as the ticket send.
+ * POST { mode: "reminder", testTo: "someone@example.com" }
+ *              — preview: send ONE reminder to that address, using the
+ *                newest confirmed registration's details for realism.
+ *                Nothing is stamped, so the real blast is unaffected.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -48,9 +52,34 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json().catch(() => ({}) as { id?: unknown; mode?: unknown });
-    const { id, mode } = body as { id?: unknown; mode?: unknown };
+    const body = await request.json().catch(() => ({}) as { id?: unknown; mode?: unknown; testTo?: unknown });
+    const { id, mode, testTo } = body as { id?: unknown; mode?: unknown; testTo?: unknown };
     const isReminder = mode === "reminder";
+
+    // Test preview — one reminder to the given address, styled on the
+    // newest confirmed registration so the QR/name/guests are realistic.
+    // No stamps are written; the real blast still reaches everyone.
+    if (isReminder && typeof testTo === "string" && testTo.trim()) {
+      const to = testTo.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+        return NextResponse.json({ error: "That doesn't look like a valid email address" }, { status: 400 });
+      }
+      const sample = await prisma.rsvp.findFirst({
+        where: { programId: EVENT.programId, status: "confirmed" },
+        orderBy: { createdAt: "desc" },
+      });
+      if (!sample) {
+        return NextResponse.json({ error: "No confirmed registrations to preview with yet" }, { status: 404 });
+      }
+      const sent = await sendClubbingReminderEmail({
+        to,
+        name: sample.name,
+        guests: sample.guests,
+        rsvpId: sample.id,
+      });
+      if (!sent.ok) return NextResponse.json({ error: sent.error ?? "Send failed" }, { status: 502 });
+      return NextResponse.json({ sent: 1, failed: 0, remaining: 0, to, test: true, sampleName: sample.name });
+    }
 
     // Single (re)send — used from a registration row
     if (typeof id === "string" && id) {
