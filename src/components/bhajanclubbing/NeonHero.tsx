@@ -20,6 +20,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Icon } from "@/components/home/icons";
 import { EVENT } from "@/data/bhajanClubbing";
+import SeatMeterBadge from "./SeatMeterBadge";
 import SocialLinks from "./SocialLinks";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -264,6 +265,11 @@ export default function NeonHero() {
             {/* ticket-stub countdown */}
             <div className="mt-7">
               <CountdownStub />
+            </div>
+
+            {/* live seat meter — appears only once seats run low / sell out */}
+            <div className="mt-5 empty:mt-0">
+              <SeatMeterBadge />
             </div>
 
             {/* CTAs */}

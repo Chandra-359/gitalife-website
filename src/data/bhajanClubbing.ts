@@ -10,7 +10,9 @@
  *                              without a photo render a neon monogram poster.
  *  - Artist socials          → LINEUP[].socials — Instagram / YouTube icon links
  *                              rendered beneath each poster.
- *  - Registration capacity   → EVENT.capacity (server-side only — never shown on the page)
+ *  - Registration capacity   → EVENT.capacity (hard seat cap, enforced server-side)
+ *  - Seats-left urgency copy → SEATS_LEFT_THRESHOLD + seatMeter() (the
+ *                              "only N left" / "sold out" banners on the page)
  *  - Suggested donation      → PRICE_PHASES (early-bird deadline + amounts) and
  *                              GROUP_DISCOUNT — computeOrder() is the single
  *                              source of truth for what Square charges, and
@@ -129,8 +131,10 @@ export const EVENT = {
     transit: "PATH to Journal Square, then a short ride down Kennedy Blvd — NJ Transit buses stop along the boulevard",
     note: "Comfortable clothes you can move in. Festival fits loudly encouraged.",
   },
-  /** Server-side booking cap — enforced by the API, not shown on the page. */
-  capacity: 200,
+  /** Hard booking cap for the night, counted in guests (not rows).
+   *  Enforced server-side by the registration + checkout APIs, and
+   *  surfaced on the page through seatMeter() once seats run low. */
+  capacity: 141,
   /** Event inbox — shown on the page + confirmation email, and used as the
    *  Reply-To on confirmations unless SMTP_REPLY_TO overrides it. */
   contactEmail: "bhajanclubbing@gitalifenyc.com",
@@ -141,6 +145,45 @@ export const EVENT = {
   /** Canonical URL used for social sharing + JSON-LD. */
   url: "https://www.gitalifenyc.com/bhajanclubbing",
 } as const;
+
+/* ------------------------------------------------------------------ */
+/*  Seats-left meter — the public face of EVENT.capacity               */
+/* ------------------------------------------------------------------ */
+/**
+ * How few seats must be left before the page starts saying so. Above
+ * this the meter stays silent (no point advertising a half-empty room);
+ * at or below it every ticket surface shows "only N left"; at zero the
+ * page flips to sold out. Raise it to start the urgency push earlier.
+ */
+export const SEATS_LEFT_THRESHOLD = 40;
+
+export interface SeatMeter {
+  tone: "urgent" | "sold-out";
+  /** Tight copy for the mobile sticky bar / hero pill. */
+  short: string;
+  /** Full sentence for the tickets section banner. */
+  long: string;
+}
+
+/**
+ * Public seat copy for a live remaining count (from GET /api/bhajanclubbing).
+ * Returns null when there's nothing to say — plenty left, or the count is
+ * unknown because the DB is offline, in which case the page falls back to
+ * its normal copy rather than inventing a number.
+ */
+export function seatMeter(remaining: number | null | undefined): SeatMeter | null {
+  if (remaining == null || !Number.isFinite(remaining)) return null;
+  if (remaining <= 0) {
+    return { tone: "sold-out", short: "Sold out", long: "Sold out — every seat is claimed" };
+  }
+  if (remaining > SEATS_LEFT_THRESHOLD) return null;
+  const seats = `${remaining} seat${remaining === 1 ? "" : "s"}`;
+  return {
+    tone: "urgent",
+    short: `Only ${remaining} left`,
+    long: `Hurry — only ${seats} left`,
+  };
+}
 
 export const LINEUP: ClubArtist[] = [
   {

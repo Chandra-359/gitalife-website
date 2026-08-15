@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
 import { Icon } from "@/components/home/icons";
-import { CLUB_FAQS, EVENT, ORGANIZER_NOTE } from "@/data/bhajanClubbing";
+import { CLUB_FAQS, EVENT, ORGANIZER_NOTE, seatMeter } from "@/data/bhajanClubbing";
 import BentoDetails from "./BentoDetails";
 import FestivalBackdrop, { DiyaRow } from "./FestivalBackdrop";
 import NeonHero from "./NeonHero";
@@ -28,6 +28,7 @@ import ShareCrew from "./ShareCrew";
 import SocialLinks from "./SocialLinks";
 import TheVibe from "./TheVibe";
 import TicketFlow from "./TicketFlow";
+import { useAvailability } from "./useAvailability";
 
 /* ------------------------------------------------------------------ */
 /*  FAQ — compact glass accordions                                     */
@@ -166,6 +167,9 @@ function Outro() {
 function StickyTicketBar() {
   const [hidden, setHidden] = useState(false);
   const observed = useRef<IntersectionObserver | null>(null);
+  const { availability } = useAvailability();
+  const meter = seatMeter(availability?.remaining);
+  const soldOut = meter?.tone === "sold-out";
 
   useEffect(() => {
     const target = document.getElementById("tickets");
@@ -193,9 +197,19 @@ function StickyTicketBar() {
           boxShadow: "0 12px 40px -10px rgba(16,12,20,0.6)",
         }}
       >
-        <span className="text-[13px] font-bold text-club-ink">Sat Aug 15 · {EVENT.donationShortLabel}</span>
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[13px] font-bold text-club-ink">Sat Aug 15 · {EVENT.donationShortLabel}</span>
+          {meter && (
+            <span
+              className="text-[10px] font-extrabold uppercase tracking-[0.16em]"
+              style={{ color: soldOut ? "#FF9E9E" : "var(--bc2-amber)" }}
+            >
+              {meter.short}
+            </span>
+          )}
+        </span>
         <span className="bc2-btn-glow flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-bold tracking-[0.02em]">
-          Get Tickets
+          {soldOut ? "See details" : "Get Tickets"}
           <Icon name="arrowRight" size={12} />
         </span>
       </a>
