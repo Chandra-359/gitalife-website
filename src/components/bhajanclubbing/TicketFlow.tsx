@@ -36,7 +36,6 @@ import {
   usd,
   type PromoDiscount,
 } from "@/data/bhajanClubbing";
-import SeatMeterBadge from "./SeatMeterBadge";
 import { useAvailability } from "./useAvailability";
 
 /** The one ticket on sale — suggested donation, tag, and perks live in the data file. */
@@ -392,14 +391,19 @@ export default function TicketFlow() {
         <p className="mx-auto mt-4 max-w-md text-[13px] font-semibold" style={{ color: "var(--bc2-amber)" }}>
           {GROUP_DISCOUNT.blurb}
         </p>
-        {/* Live seat meter — silent until seats run low, then "only N left".
-            At zero the sold-out panel below says it instead, and it goes
-            quiet again once this visitor is in. */}
-        {!done && meter?.tone === "urgent" && (
-          <div className="mt-6">
-            <SeatMeterBadge />
-            <p className="mx-auto mt-2.5 max-w-sm text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
-              {EVENT.venue.name} holds {EVENT.capacity} — once these go, we&rsquo;re full.
+        {/* Live seat meter — silent until seats run low, then the remaining
+            count in big type. At zero the sold-out panel below takes over,
+            and it goes quiet again once this visitor is in. */}
+        {!done && meter?.tone === "urgent" && availability?.remaining != null && (
+          <div className="mt-6" role="status">
+            <p
+              className="bc2-display text-[56px] leading-none sm:text-[64px]"
+              style={{ color: "var(--bc2-amber)", textShadow: "0 0 28px rgba(229,192,141,0.45)" }}
+            >
+              {availability.remaining}
+            </p>
+            <p className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.3em]" style={{ color: "var(--bc2-amber)" }}>
+              seats left — hurry
             </p>
           </div>
         )}
