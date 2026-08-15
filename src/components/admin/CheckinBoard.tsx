@@ -56,6 +56,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [qrSending, setQrSending] = useState(false);
+  const [reminderSending, setReminderSending] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   // An unconfirmed delete quietly disarms after a few seconds
@@ -130,10 +131,11 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** Batch-email QR tickets to everyone who hasn't received one yet. */
-  const sendQrTickets = async () => {
-    if (!window.confirm("Email QR door tickets to every confirmed registration that hasn't received one yet?")) return;
-    setQrSending(true);
+  /** Shared batch-send loop for the two email blasts (tickets / reminder). */
+  const runEmailBlast = async (
+    payload: Record<string, string>,
+    labels: { sent: (n: number) => string; nothingToDo: string; failGeneric: string },
+  ) => {
     let total = 0;
     try {
       // Server sends in small batches; keep going while it reports more
@@ -143,27 +145,85 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
         const res = await fetch("/api/admin/checkin/qr", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify(payload),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          toast.error(String(data.error || "Couldn't send tickets"));
+          toast.error(String(data.error || labels.failGeneric));
           break;
         }
         total += data.sent ?? 0;
         if (data.failed) toast.error(`${data.failed} email${data.failed === 1 ? "" : "s"} failed — press again later to retry`);
         if (!data.remaining || !data.sent) {
-          if (total > 0) toast.success(`QR tickets sent to ${total} ${total === 1 ? "party" : "parties"}`);
-          else if (!data.failed) toast(`Everyone already has their QR ticket`, { icon: "✓" });
+          if (total > 0) toast.success(labels.sent(total));
+          else if (!data.failed) toast(labels.nothingToDo, { icon: "✓" });
           break;
         }
         toast(`${total} sent, ${data.remaining} to go…`, { icon: "📤", duration: 1500 });
       }
     } catch {
-      toast.error("Couldn't send tickets");
-    } finally {
-      setQrSending(false);
+      toast.error(labels.failGeneric);
     }
+  };
+
+  /** Batch-email QR tickets to everyone who hasn't received one yet. */
+  const sendQrTickets = async () => {
+    if (!window.confirm("Email QR door tickets to every confirmed registration that hasn't received one yet?")) return;
+    setQrSending(true);
+    await runEmailBlast(
+      {},
+      {
+        sent: (n) => `QR tickets sent to ${n} ${n === 1 ? "party" : "parties"}`,
+        nothingToDo: "Everyone already has their QR ticket",
+        failGeneric: "Couldn't send tickets",
+      },
+    );
+    setQrSending(false);
+  };
+
+  /** Preview the reminder: email ONE copy to an address of your choice
+   *  (defaults to the organizer inbox). Nothing is stamped — the real
+   *  blast still reaches everyone. */
+  const sendTestReminder = async () => {
+    const to = window.prompt("Send a test reminder to:", "chandravamsi169@gmail.com");
+    if (!to || !to.trim()) return;
+    setReminderSending(true);
+    try {
+      const res = await fetch("/api/admin/checkin/qr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "reminder", testTo: to.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(String(data.error || ""));
+      toast.success(`Test reminder sent to ${data.to}`, { duration: 4000 });
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Couldn't send the test");
+    } finally {
+      setReminderSending(false);
+    }
+  };
+
+  /** Batch-email the event reminder (QR attached) to every confirmed
+   *  registration. Deduped server-side — pressing again later only
+   *  reaches people who registered after this blast. */
+  const sendReminders = async () => {
+    if (
+      !window.confirm(
+        "Send the event reminder (with each party's QR ticket) to EVERY confirmed registration? Each party gets it once — pressing again later only emails new registrations.",
+      )
+    )
+      return;
+    setReminderSending(true);
+    await runEmailBlast(
+      { mode: "reminder" },
+      {
+        sent: (n) => `Reminder sent to ${n} ${n === 1 ? "party" : "parties"}`,
+        nothingToDo: "Everyone has already been reminded",
+        failGeneric: "Couldn't send reminders",
+      },
+    );
+    setReminderSending(false);
   };
 
   const toggle = async (r: Registration) => {
@@ -293,10 +353,24 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
           <div className="flex items-center gap-4">
             <button
               onClick={sendQrTickets}
-              disabled={qrSending}
+              disabled={qrSending || reminderSending}
               className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
             >
               {qrSending ? "Sending tickets…" : "✉ Email QR tickets"}
+            </button>
+            <button
+              onClick={sendTestReminder}
+              disabled={qrSending || reminderSending}
+              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+            >
+              ✎ Test reminder
+            </button>
+            <button
+              onClick={sendReminders}
+              disabled={qrSending || reminderSending}
+              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+            >
+              {reminderSending ? "Sending reminders…" : "🔔 Send reminder"}
             </button>
             <button onClick={() => fetchList()} className="text-xs text-white/40 transition-colors hover:text-white">
               ↻ Refresh

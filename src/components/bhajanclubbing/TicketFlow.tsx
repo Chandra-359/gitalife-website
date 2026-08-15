@@ -30,11 +30,14 @@ import {
   MAX_EXTRA_DONATION_USD,
   PRICE_PHASES,
   promoLabel,
+  seatMeter,
   SHARE,
   TIERS,
   usd,
   type PromoDiscount,
 } from "@/data/bhajanClubbing";
+import SeatMeterBadge from "./SeatMeterBadge";
+import { useAvailability } from "./useAvailability";
 
 /** The one ticket on sale — suggested donation, tag, and perks live in the data file. */
 const TICKET = TIERS[0];
@@ -68,39 +71,6 @@ const HEAR_ABOUT_OPTIONS = [
   "Flyers/Posters",
   "Other",
 ];
-
-/* ------------------------------------------------------------------ */
-/*  Live availability — GET /api/bhajanclubbing                         */
-/* ------------------------------------------------------------------ */
-interface TierAvailability {
-  limit: number;
-  taken: number;
-  remaining: number;
-}
-
-interface Availability {
-  capacity: number;
-  confirmed: number | null;
-  remaining: number | null; // null → DB offline, fall back to static copy
-  tiers: Record<string, TierAvailability> | null;
-  payments?: boolean; // false → Square unconfigured, paid tiers unavailable
-}
-
-function useAvailability() {
-  const [availability, setAvailability] = useState<Availability | null>(null);
-  const refresh = useCallback(() => {
-    fetch("/api/bhajanclubbing", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => data && setAvailability(data))
-      .catch(() => {
-        /* the meter is progressive enhancement — static copy still stands */
-      });
-  }, []);
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-  return { availability, refresh };
-}
 
 function googleCalendarUrl() {
   const toStamp = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -382,6 +352,7 @@ export default function TicketFlow() {
   const maxGuests = Math.max(1, Math.min(5, availability?.remaining ?? 5));
   const soldOut = availability?.remaining === 0;
   const paymentsOff = !soldOut && availability?.payments === false;
+  const meter = seatMeter(availability?.remaining);
 
   // Recomputed every render so the review step always reflects the live
   // phase, group discount, promo code, and extra donation — same math the
@@ -421,6 +392,17 @@ export default function TicketFlow() {
         <p className="mx-auto mt-4 max-w-md text-[13px] font-semibold" style={{ color: "var(--bc2-amber)" }}>
           {GROUP_DISCOUNT.blurb}
         </p>
+        {/* Live seat meter — silent until seats run low, then "only N left".
+            At zero the sold-out panel below says it instead, and it goes
+            quiet again once this visitor is in. */}
+        {!done && meter?.tone === "urgent" && (
+          <div className="mt-6">
+            <SeatMeterBadge />
+            <p className="mx-auto mt-2.5 max-w-sm text-[12.5px]" style={{ color: "var(--bc2-ink-dim)" }}>
+              {EVENT.venue.name} holds {EVENT.capacity} — once these go, we&rsquo;re full.
+            </p>
+          </div>
+        )}
       </motion.div>
 
       <motion.div
