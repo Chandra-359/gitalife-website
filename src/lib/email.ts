@@ -551,3 +551,96 @@ Questions? ${EVENT.contactEmail}`;
     ],
   });
 }
+
+/* ------------------------------------------------------------------ */
+/*  Post-event thank-you — personal note + feedback form               */
+/*                                                                     */
+/*  Deliberately plain: white background, simple type, no poster       */
+/*  header — it should read like a note a volunteer typed, not a       */
+/*  marketing blast. Only the feedback button gets brand color.        */
+/* ------------------------------------------------------------------ */
+
+/** Where "Share your thoughts" points — the Jotform feedback form. */
+export const FEEDBACK_FORM_URL = "https://form.jotform.com/262272316925054";
+
+export interface ThanksEmailDetails {
+  to: string;
+  name: string;
+}
+
+export async function sendClubbingThanksEmail(d: ThanksEmailDetails): Promise<SendOutcome> {
+  const first = d.name.split(" ")[0];
+  const p = `margin:18px 0 0;font-size:15px;line-height:1.75;color:#2b2b33;`;
+  const html = `<!doctype html>
+<html><body style="margin:0;padding:0;background:#f6f4f0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f4f0;padding:36px 12px;">
+<tr><td align="center">
+  <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:14px;border:1px solid #e8e3da;">
+    <tr><td style="padding:36px 34px;font-family:Georgia,'Times New Roman',serif;">
+      <p style="margin:0;font-size:15px;line-height:1.75;color:#2b2b33;">Hi ${first},</p>
+      <p style="${p}">
+        We're still coming down from Saturday night. The whole hall singing as one voice,
+        hands in the air through the final kirtan — that wasn't us on stage, that was
+        <em>you</em>.
+      </p>
+      <p style="${p}">
+        Thank you for being part of Bhajan Clubbing Vol.&nbsp;01. This night was put
+        together entirely by volunteers, and seeing the room full made every late
+        planning night worth it.
+      </p>
+      <p style="${p}">
+        One small ask: we want Vol.&nbsp;02 to be even better, and your honest feedback
+        is how we get there. It takes about two minutes — whatever you loved, whatever
+        fell flat, tell us straight. We read every single response.
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px auto 0;">
+        <tr><td style="border-radius:999px;background:#E8751A;">
+          <a href="${FEEDBACK_FORM_URL}" style="display:inline-block;padding:13px 30px;font-size:14px;font-weight:bold;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;">Share your thoughts</a>
+        </td></tr>
+      </table>
+      <p style="margin:26px 0 0;font-size:15px;line-height:1.75;color:#2b2b33;">
+        Until next time — keep the mantra with you. 🙏
+      </p>
+      <p style="${p}">
+        With gratitude,<br/>
+        <strong>The Gita Life NYC volunteers</strong>
+      </p>
+      <p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #eee9e0;font-size:13px;line-height:1.7;color:#8a8577;font-family:Arial,Helvetica,sans-serif;">
+        P.S. If you took photos or videos, tag
+        <a href="https://www.instagram.com/gitalifenyc" style="color:#E8751A;font-weight:bold;text-decoration:none;">@gitalifenyc</a>
+        — we'd love to see the night through your eyes. And if the form button doesn't
+        work, here's the link:
+        <a href="${FEEDBACK_FORM_URL}" style="color:#E8751A;text-decoration:underline;">${FEEDBACK_FORM_URL}</a>
+      </p>
+    </td></tr>
+  </table>
+  <p style="margin:16px 0 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a39e90;font-family:Arial,Helvetica,sans-serif;">
+    Gita Life NYC · A community initiative under ISKCON
+  </p>
+</td></tr>
+</table>
+</body></html>`;
+  const text = `Hi ${first},
+
+We're still coming down from Saturday night. The whole hall singing as one voice, hands in the air through the final kirtan — that wasn't us on stage, that was you.
+
+Thank you for being part of Bhajan Clubbing Vol. 01. This night was put together entirely by volunteers, and seeing the room full made every late planning night worth it.
+
+One small ask: we want Vol. 02 to be even better, and your honest feedback is how we get there. It takes about two minutes — whatever you loved, whatever fell flat, tell us straight. We read every single response:
+
+${FEEDBACK_FORM_URL}
+
+Until next time — keep the mantra with you. 🙏
+
+With gratitude,
+The Gita Life NYC volunteers
+
+P.S. If you took photos or videos, tag @gitalifenyc on Instagram — we'd love to see the night through your eyes.`;
+  return sendEmail({
+    replyTo: env("SMTP_REPLY_TO") || EVENT.contactEmail,
+    to: d.to,
+    subject: `Thank you for Saturday night 🙏`,
+    html,
+    text,
+  });
+}

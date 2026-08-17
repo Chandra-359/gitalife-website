@@ -181,22 +181,22 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     setQrSending(false);
   };
 
-  /** Preview the reminder: email ONE copy to an address of your choice
+  /** Preview a blast: email ONE copy to an address of your choice
    *  (defaults to the organizer inbox). Nothing is stamped — the real
    *  blast still reaches everyone. */
-  const sendTestReminder = async () => {
-    const to = window.prompt("Send a test reminder to:", "chandravamsi169@gmail.com");
+  const sendTest = async (mode: "reminder" | "thanks", label: string) => {
+    const to = window.prompt(`Send a test ${label} to:`, "chandravamsi169@gmail.com");
     if (!to || !to.trim()) return;
     setReminderSending(true);
     try {
       const res = await fetch("/api/admin/checkin/qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "reminder", testTo: to.trim() }),
+        body: JSON.stringify({ mode, testTo: to.trim() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(String(data.error || ""));
-      toast.success(`Test reminder sent to ${data.to}`, { duration: 4000 });
+      toast.success(`Test ${label} sent to ${data.to}`, { duration: 4000 });
     } catch (e) {
       toast.error(e instanceof Error && e.message ? e.message : "Couldn't send the test");
     } finally {
@@ -221,6 +221,28 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
         sent: (n) => `Reminder sent to ${n} ${n === 1 ? "party" : "parties"}`,
         nothingToDo: "Everyone has already been reminded",
         failGeneric: "Couldn't send reminders",
+      },
+    );
+    setReminderSending(false);
+  };
+
+  /** Batch-email the post-event thank-you + feedback form to every
+   *  confirmed registration. Deduped server-side (thanksSentAt) — safe
+   *  to press again after a partial run. */
+  const sendThanks = async () => {
+    if (
+      !window.confirm(
+        "Send the thank-you note + feedback form to EVERY confirmed registration? Each party gets it once.",
+      )
+    )
+      return;
+    setReminderSending(true);
+    await runEmailBlast(
+      { mode: "thanks" },
+      {
+        sent: (n) => `Thank-you sent to ${n} ${n === 1 ? "party" : "parties"}`,
+        nothingToDo: "Everyone has already been thanked",
+        failGeneric: "Couldn't send thank-yous",
       },
     );
     setReminderSending(false);
@@ -359,7 +381,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
               {qrSending ? "Sending tickets…" : "✉ Email QR tickets"}
             </button>
             <button
-              onClick={sendTestReminder}
+              onClick={() => sendTest("reminder", "reminder")}
               disabled={qrSending || reminderSending}
               className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
             >
@@ -370,7 +392,21 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
               disabled={qrSending || reminderSending}
               className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
             >
-              {reminderSending ? "Sending reminders…" : "🔔 Send reminder"}
+              {reminderSending ? "Sending…" : "🔔 Send reminder"}
+            </button>
+            <button
+              onClick={() => sendTest("thanks", "thank-you")}
+              disabled={qrSending || reminderSending}
+              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+            >
+              ✎ Test thank-you
+            </button>
+            <button
+              onClick={sendThanks}
+              disabled={qrSending || reminderSending}
+              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+            >
+              🙏 Send thank-you
             </button>
             <button onClick={() => fetchList()} className="text-xs text-white/40 transition-colors hover:text-white">
               ↻ Refresh
