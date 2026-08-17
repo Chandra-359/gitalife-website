@@ -560,8 +560,9 @@ Questions? ${EVENT.contactEmail}`;
 /*  marketing blast. Only the feedback button gets brand color.        */
 /* ------------------------------------------------------------------ */
 
-/** Where "Share your thoughts" points — the Jotform feedback form. */
-export const FEEDBACK_FORM_URL = "https://form.jotform.com/262272316925054";
+/** Where "Share your thoughts" points — the on-site feedback page, whose
+ *  responses land in the "reviews" tab of the registrations spreadsheet. */
+export const FEEDBACK_FORM_URL = `${EVENT.url}/feedback`;
 
 export interface ThanksEmailDetails {
   to: string;
