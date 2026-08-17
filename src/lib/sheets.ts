@@ -210,3 +210,107 @@ export async function appendRegistrationToSheet(r: RegistrationRow): Promise<boo
     r.payment,
   ]);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Post-event feedback — a "reviews" tab in the SAME spreadsheet the  */
+/*  Bhajan Clubbing registrations land in                              */
+/* ------------------------------------------------------------------ */
+
+const REVIEWS_TAB = "reviews";
+const REVIEWS_HEADER = [
+  "Submitted At (ET)",
+  "Name",
+  "Overall Rating",
+  "Enjoyed Most",
+  "Interested in Programs",
+  "Programs",
+  "INSPIRE Charity",
+  "Suggestions",
+];
+
+/** Append one row to a named tab (returns false on any failure). */
+async function appendToTab(
+  sheetId: string,
+  token: string,
+  tab: string,
+  values: (string | number)[],
+): Promise<boolean> {
+  const range = encodeURIComponent(`${tab}!A1`);
+  const res = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ values: [values] }),
+    },
+  );
+  if (!res.ok) {
+    // Expected once per spreadsheet: the tab doesn't exist yet
+    console.error(`Google Sheets append to "${tab}" failed:`, res.status, await res.text());
+    return false;
+  }
+  return true;
+}
+
+/** Create the reviews tab with its header row. Tolerates "already exists". */
+async function createReviewsTab(sheetId: string, token: string): Promise<boolean> {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}:batchUpdate`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: REVIEWS_TAB } } }] }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    // A concurrent submission may have just created it — that's fine
+    if (!text.includes("already exists")) {
+      console.error("Google Sheets addSheet failed:", res.status, text);
+      return false;
+    }
+    return true;
+  }
+  await appendToTab(sheetId, token, REVIEWS_TAB, REVIEWS_HEADER);
+  return true;
+}
+
+export interface ReviewRow {
+  name: string;
+  /** 1–5 */
+  rating: number;
+  enjoyed: string;
+  programsInterest: string;
+  programs: string;
+  inspire: string;
+  suggestions: string;
+}
+
+/**
+ * Append one feedback response to the "reviews" tab of the registrations
+ * spreadsheet, creating the tab (with a header row) on first use.
+ * Never throws.
+ */
+export async function appendReviewToSheet(r: ReviewRow): Promise<boolean> {
+  try {
+    const cfg = sheetsConfig();
+    if (!cfg) return false;
+    const token = await accessToken(cfg);
+    if (!token) return false;
+    const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+    const values = [
+      submittedAt,
+      r.name,
+      r.rating,
+      r.enjoyed,
+      r.programsInterest,
+      r.programs,
+      r.inspire,
+      r.suggestions,
+    ];
+    if (await appendToTab(cfg.sheetId, token, REVIEWS_TAB, values)) return true;
+    // Most likely the tab doesn't exist yet — create it and retry once.
+    if (!(await createReviewsTab(cfg.sheetId, token))) return false;
+    return appendToTab(cfg.sheetId, token, REVIEWS_TAB, values);
+  } catch (error) {
+    console.error("Google Sheets review append error:", error);
+    return false;
+  }
+}

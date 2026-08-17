@@ -560,8 +560,9 @@ Questions? ${EVENT.contactEmail}`;
 /*  marketing blast. Only the feedback button gets brand color.        */
 /* ------------------------------------------------------------------ */
 
-/** Where "Share your thoughts" points — the Jotform feedback form. */
-export const FEEDBACK_FORM_URL = "https://form.jotform.com/262272316925054";
+/** Where "Share your thoughts" points — the on-site feedback page, whose
+ *  responses land in the "reviews" tab of the registrations spreadsheet. */
+export const FEEDBACK_FORM_URL = `${EVENT.url}/feedback`;
 
 export interface ThanksEmailDetails {
   to: string;
@@ -584,14 +585,28 @@ export async function sendClubbingThanksEmail(d: ThanksEmailDetails): Promise<Se
         <em>you</em>.
       </p>
       <p style="${p}">
-        Thank you for being part of Bhajan Clubbing Vol.&nbsp;01. This night was put
-        together entirely by volunteers, and seeing the room full made every late
-        planning night worth it.
+        Thank you for being part of Bhajan Clubbing Vol.&nbsp;01. The whole night was
+        put together by volunteers, and seeing the room full made every late planning
+        night worth it.
       </p>
       <p style="${p}">
-        One small ask: we want Vol.&nbsp;02 to be even better, and your honest feedback
-        is how we get there. It takes about two minutes — whatever you loved, whatever
-        fell flat, tell us straight. We read every single response.
+        If Saturday left you wanting more — that's honestly how most of us found our
+        way here. The same community meets every week for Gita nights in Newport,
+        Jersey City, and at our Brooklyn temple: an evening of Bhagavad Gita
+        discussion, kirtan, and a home-cooked dinner. Once a month there's a bigger
+        youth festival, a few times a year we leave the city noise behind for a
+        retreat, and there's always room on the volunteer crew that builds nights
+        like Saturday.
+      </p>
+      <p style="${p}">
+        All of it runs on INSPIRE, our charity program. Contributions there are what
+        let us keep the Gita classes, events like this one, the retreats, and the
+        free prasadam going — volunteer-led, and open to everyone.
+      </p>
+      <p style="${p}">
+        We'd love to know how the night was for you, and which of these you might
+        want to be part of. The form takes about two minutes, and we read every
+        response.
       </p>
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px auto 0;">
         <tr><td style="border-radius:999px;background:#E8751A;">
@@ -599,7 +614,7 @@ export async function sendClubbingThanksEmail(d: ThanksEmailDetails): Promise<Se
         </td></tr>
       </table>
       <p style="margin:26px 0 0;font-size:15px;line-height:1.75;color:#2b2b33;">
-        Until next time — keep the mantra with you. 🙏
+        Until next time — keep the mantra with you.
       </p>
       <p style="${p}">
         With gratitude,<br/>
@@ -624,13 +639,17 @@ export async function sendClubbingThanksEmail(d: ThanksEmailDetails): Promise<Se
 
 We're still coming down from Saturday night. The whole hall singing as one voice, hands in the air through the final kirtan — that wasn't us on stage, that was you.
 
-Thank you for being part of Bhajan Clubbing Vol. 01. This night was put together entirely by volunteers, and seeing the room full made every late planning night worth it.
+Thank you for being part of Bhajan Clubbing Vol. 01. The whole night was put together by volunteers, and seeing the room full made every late planning night worth it.
 
-One small ask: we want Vol. 02 to be even better, and your honest feedback is how we get there. It takes about two minutes — whatever you loved, whatever fell flat, tell us straight. We read every single response:
+If Saturday left you wanting more — that's honestly how most of us found our way here. The same community meets every week for Gita nights in Newport, Jersey City, and at our Brooklyn temple: an evening of Bhagavad Gita discussion, kirtan, and a home-cooked dinner. Once a month there's a bigger youth festival, a few times a year we leave the city noise behind for a retreat, and there's always room on the volunteer crew that builds nights like Saturday.
+
+All of it runs on INSPIRE, our charity program. Contributions there are what let us keep the Gita classes, events like this one, the retreats, and the free prasadam going — volunteer-led, and open to everyone.
+
+We'd love to know how the night was for you, and which of these you might want to be part of. The form takes about two minutes, and we read every response:
 
 ${FEEDBACK_FORM_URL}
 
-Until next time — keep the mantra with you. 🙏
+Until next time — keep the mantra with you.
 
 With gratitude,
 The Gita Life NYC volunteers
@@ -639,7 +658,7 @@ P.S. If you took photos or videos, tag @gitalifenyc on Instagram — we'd love t
   return sendEmail({
     replyTo: env("SMTP_REPLY_TO") || EVENT.contactEmail,
     to: d.to,
-    subject: `Thank you for Saturday night 🙏`,
+    subject: "Thank you for Saturday night",
     html,
     text,
   });
