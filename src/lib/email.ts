@@ -600,7 +600,14 @@ export async function sendClubbingThanksEmail(d: ThanksEmailDetails): Promise<Se
       </ul>
       <p style="${p}">
         All of it runs on INSPIRE, our charity program — contributions keep the Gita
-        classes, events like this one, the retreats, and the free prasadam going.
+        classes, events like this one, the retreats, and the free prasadam going. If
+        you'd like to support us:
+        <a href="https://www.gitalifenyc.com/donate" style="color:#E8751A;font-weight:bold;text-decoration:underline;">gitalifenyc.com/donate</a>
+      </p>
+      <p style="${p}">
+        And whenever you're in Brooklyn — we also run Govinda's, a volunteer-run
+        restaurant serving the best dosas and Indian food. Come by:
+        <a href="https://govindaskitchen.us/" style="color:#E8751A;font-weight:bold;text-decoration:underline;">govindaskitchen.us</a>
       </p>
       <p style="${p}">
         Tell us how the night was for you, and what you'd like to be part of — two
@@ -646,7 +653,9 @@ If Saturday left you wanting more, here's what we're up to all year:
 - Retreats a few times a year, out of the city noise
 - Volunteering — join the crew behind nights like Saturday
 
-All of it runs on INSPIRE, our charity program — contributions keep the Gita classes, events like this one, the retreats, and the free prasadam going.
+All of it runs on INSPIRE, our charity program — contributions keep the Gita classes, events like this one, the retreats, and the free prasadam going. If you'd like to support us: https://www.gitalifenyc.com/donate
+
+And whenever you're in Brooklyn — we also run Govinda's, a volunteer-run restaurant serving the best dosas and Indian food. Come by: https://govindaskitchen.us/
 
 Tell us how the night was for you, and what you'd like to be part of — two minutes, and we read every response:
 
