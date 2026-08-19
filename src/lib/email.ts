@@ -118,9 +118,21 @@ export interface ConfirmationDetails {
 /*  Door QR ticket                                                     */
 /* ------------------------------------------------------------------ */
 
+export interface TicketQrAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+  /** Always "ticket-qr" — reference it as <img src="cid:ticket-qr" />. */
+  cid: string;
+}
+
 /** Inline QR PNG for a registration, as a CID attachment — or null when
- *  the ticket secret isn't configured. */
-async function ticketQrAttachment(rsvpId: string) {
+ *  the ticket secret isn't configured. Shared by every event's emails
+ *  (Bhajan Clubbing here, dated events in festivalEmail.ts). */
+export async function ticketQrAttachment(
+  rsvpId: string,
+  filename = "bhajan-clubbing-ticket.png",
+): Promise<TicketQrAttachment | null> {
   const url = ticketScanUrl(rsvpId);
   if (!url) return null;
   try {
@@ -130,12 +142,7 @@ async function ticketQrAttachment(rsvpId: string) {
       width: 480,
       color: { dark: "#000000", light: "#ffffff" },
     });
-    return {
-      filename: "bhajan-clubbing-ticket.png",
-      content: png,
-      contentType: "image/png",
-      cid: "ticket-qr",
-    };
+    return { filename, content: png, contentType: "image/png", cid: "ticket-qr" };
   } catch (error) {
     console.error("Ticket QR generation failed (email goes out without it):", error);
     return null;

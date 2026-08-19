@@ -151,6 +151,20 @@ export async function getAllFestivalEvents(): Promise<FestivalEventLive[]> {
   }
 }
 
+/** One dated event by id regardless of status or date — admin tooling
+ *  (check-in board email resends work even after the event starts). */
+export async function getFestivalEventById(id: string): Promise<FestivalEventLive | null> {
+  if (!prisma?.program) return null;
+  try {
+    const row = await prisma.program.findUnique({ where: { id }, select: EVENT_SELECT });
+    if (!row || !row.eventStartAt) return null;
+    return toLive(row as ProgramRow);
+  } catch (err) {
+    console.warn("festival event fetch failed:", err);
+    return null;
+  }
+}
+
 /** One published, still-upcoming event by id (registration target). */
 export async function getOpenFestivalEvent(id: string): Promise<FestivalEventLive | null> {
   if (!prisma?.program) return null;
