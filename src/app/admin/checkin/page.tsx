@@ -1,5 +1,6 @@
 /**
- * /admin/checkin — door check-in dashboard for Bhajan Clubbing
+ * /admin/checkin — door check-in dashboard for Bhajan Clubbing and
+ * every dated /festival event (switchable on the board).
  */
 
 import { auth } from "@/lib/auth";

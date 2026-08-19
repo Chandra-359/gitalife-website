@@ -50,6 +50,7 @@ interface DueRsvp {
   id: string;
   name: string;
   email: string;
+  guests: number;
 }
 
 /** Un-reminded, subscribed, confirmed RSVPs for one program/event. */
@@ -62,7 +63,7 @@ async function dueRsvps(db: PrismaClient, programId: string): Promise<DueRsvp[]>
       remindersEnabled: true,
       OR: [{ lastReminderAt: null }, { lastReminderAt: { lt: cutoff } }],
     },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, guests: true },
   });
 }
 
@@ -132,7 +133,7 @@ export async function GET(request: Request) {
   for (const event of dueEvents) {
     const due = await dueRsvps(db, event.id);
     const { sent, failed } = await sendBatch(db, due, (rsvp) =>
-      sendFestivalReminder({ to: rsvp.email, name: rsvp.name, rsvpId: rsvp.id, event }),
+      sendFestivalReminder({ to: rsvp.email, name: rsvp.name, rsvpId: rsvp.id, event, guests: rsvp.guests }),
     );
     results.push({ program: event.id, sent, failed });
   }

@@ -127,8 +127,8 @@ export default function EventRegisterForm({
         </h4>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--ink-secondary)" }}>
           {done.emailed
-            ? `Your calendar invite for ${dateLabel} is on its way from no-reply@gitalifenyc.com, and we'll remind you the day before.`
-            : `You're registered for ${dateLabel}. Check your spam folder in a few minutes for the calendar invite.`}
+            ? `Your QR entry pass and calendar invite for ${dateLabel} are on their way from no-reply@gitalifenyc.com — show the QR at the door, and we'll remind you the day before.`
+            : `You're registered for ${dateLabel}. Check your spam folder in a few minutes for your QR entry pass and calendar invite.`}
         </p>
       </div>
     );
@@ -304,7 +304,8 @@ export default function EventRegisterForm({
       </button>
 
       <p className="mt-3 text-center text-[11px] leading-relaxed" style={{ color: "var(--ink-tertiary)" }}>
-        You&apos;ll get a calendar invite by email and one reminder the day before.
+        You&apos;ll get your QR entry pass and a calendar invite by email, plus one
+        reminder the day before.
       </p>
     </form>
   );

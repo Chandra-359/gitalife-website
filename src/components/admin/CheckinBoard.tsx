@@ -1,7 +1,10 @@
 "use client";
 
 /**
- * CheckinBoard — door check-in for Bhajan Clubbing.
+ * CheckinBoard — door check-in for Bhajan Clubbing and every dated
+ * /festival event (MYF editions, big festivals). An event picker at the
+ * top switches the board; the server defaults to whichever event is
+ * happening next.
  *
  * Built for a phone at the door: huge search box, card rows with big
  * one-tap check-in buttons, undo, live guest counters, auto-refresh.
@@ -26,8 +29,15 @@ interface Registration {
   createdAt: string;
 }
 
+interface EventOption {
+  id: string;
+  title: string;
+  dateLabel: string;
+}
+
 interface CheckinData {
-  event: { title: string; capacity: number };
+  event: { id: string; title: string; capacity: number | null; kind: "clubbing" | "festival" };
+  events: EventOption[];
   stats: { parties: number; partiesIn: number; guests: number; guestsIn: number; vipPaid: number };
   registrations: Registration[];
 }
@@ -57,6 +67,8 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [qrSending, setQrSending] = useState(false);
   const [reminderSending, setReminderSending] = useState(false);
+  // null = let the server pick the most door-relevant event
+  const [eventId, setEventId] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   // An unconfirmed delete quietly disarms after a few seconds
@@ -69,7 +81,10 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
   const fetchList = useCallback(async (quiet = false) => {
     if (!quiet) setLoading(true);
     try {
-      const res = await fetch("/api/admin/checkin", { cache: "no-store" });
+      const res = await fetch(
+        `/api/admin/checkin${eventId ? `?event=${encodeURIComponent(eventId)}` : ""}`,
+        { cache: "no-store" },
+      );
       if (res.ok) setData(await res.json());
       else if (!quiet) toast.error("Failed to load registrations");
     } catch {
@@ -77,7 +92,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     fetchList();
@@ -104,6 +119,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
             name: data.name,
             guests: data.guests,
             checkedInAt: data.checkedInAt,
+            eventTitle: data.eventTitle,
           };
         }
         return { kind: "invalid" };
@@ -123,7 +139,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     if (!token) return;
     window.history.replaceState(null, "", window.location.pathname);
     scanToken(token).then((v) => {
-      if (v.kind === "ok") toast.success(`${v.name ?? "Guest"} checked in${v.guests && v.guests > 1 ? ` (party of ${v.guests})` : ""}`, { duration: 4000 });
+      if (v.kind === "ok") toast.success(`${v.name ?? "Guest"} checked in${v.guests && v.guests > 1 ? ` (party of ${v.guests})` : ""}${v.eventTitle ? ` — ${v.eventTitle}` : ""}`, { duration: 4000 });
       else if (v.kind === "already") toast(`${v.name ?? "Guest"} was already checked in`, { icon: "⚠️", duration: 5000 });
       else if (v.kind === "invalid") toast.error("Not a valid ticket");
       else toast.error("Scan failed — try again");
@@ -166,12 +182,16 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
     }
   };
 
+  /** The event every write/send targets — the one the board is showing. */
+  const selectedEvent = data?.event;
+  const eventScope: Record<string, string> = selectedEvent ? { programId: selectedEvent.id } : {};
+
   /** Batch-email QR tickets to everyone who hasn't received one yet. */
   const sendQrTickets = async () => {
-    if (!window.confirm("Email QR door tickets to every confirmed registration that hasn't received one yet?")) return;
+    if (!window.confirm(`Email QR door tickets for "${selectedEvent?.title}" to every confirmed registration that hasn't received one yet?`)) return;
     setQrSending(true);
     await runEmailBlast(
-      {},
+      { ...eventScope },
       {
         sent: (n) => `QR tickets sent to ${n} ${n === 1 ? "party" : "parties"}`,
         nothingToDo: "Everyone already has their QR ticket",
@@ -192,7 +212,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
       const res = await fetch("/api/admin/checkin/qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, testTo: to.trim() }),
+        body: JSON.stringify({ mode, testTo: to.trim(), ...eventScope }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(String(data.error || ""));
@@ -210,13 +230,13 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
   const sendReminders = async () => {
     if (
       !window.confirm(
-        "Send the event reminder (with each party's QR ticket) to EVERY confirmed registration? Each party gets it once — pressing again later only emails new registrations.",
+        `Send the "${selectedEvent?.title}" reminder (with each party's QR ticket) to EVERY confirmed registration? Each party gets it once — pressing again later only emails new registrations.`,
       )
     )
       return;
     setReminderSending(true);
     await runEmailBlast(
-      { mode: "reminder" },
+      { mode: "reminder", ...eventScope },
       {
         sent: (n) => `Reminder sent to ${n} ${n === 1 ? "party" : "parties"}`,
         nothingToDo: "Everyone has already been reminded",
@@ -238,7 +258,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
       return;
     setReminderSending(true);
     await runEmailBlast(
-      { mode: "thanks" },
+      { mode: "thanks", ...eventScope },
       {
         sent: (n) => `Thank-you sent to ${n} ${n === 1 ? "party" : "parties"}`,
         nothingToDo: "Everyone has already been thanked",
@@ -266,7 +286,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
       const res = await fetch("/api/admin/checkin", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: r.id, checkedIn: next }),
+        body: JSON.stringify({ id: r.id, checkedIn: next, ...eventScope }),
       });
       if (!res.ok) throw new Error();
       if (next) {
@@ -290,7 +310,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
       const res = await fetch("/api/admin/checkin/qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: r.id }),
+        body: JSON.stringify({ id: r.id, ...eventScope }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(String(data.error || ""));
@@ -309,7 +329,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
       const res = await fetch("/api/admin/checkin", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: r.id }),
+        body: JSON.stringify({ id: r.id, ...eventScope }),
       });
       if (!res.ok) throw new Error();
       setData((d) => (d ? { ...d, registrations: d.registrations.filter((x) => x.id !== r.id) } : d));
@@ -371,7 +391,7 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
 
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="mb-1 flex items-baseline justify-between">
-          <h2 className="text-xl font-bold">{data?.event.title ?? "Bhajan Clubbing"}</h2>
+          <h2 className="text-xl font-bold">{data?.event.title ?? "Check-in"}</h2>
           <div className="flex items-center gap-4">
             <button
               onClick={sendQrTickets}
@@ -394,25 +414,43 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
             >
               {reminderSending ? "Sending…" : "🔔 Send reminder"}
             </button>
-            <button
-              onClick={() => sendTest("thanks", "thank-you")}
-              disabled={qrSending || reminderSending}
-              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
-            >
-              ✎ Test thank-you
-            </button>
-            <button
-              onClick={sendThanks}
-              disabled={qrSending || reminderSending}
-              className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
-            >
-              🙏 Send thank-you
-            </button>
+            {selectedEvent?.kind === "clubbing" && (
+              <>
+                <button
+                  onClick={() => sendTest("thanks", "thank-you")}
+                  disabled={qrSending || reminderSending}
+                  className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+                >
+                  ✎ Test thank-you
+                </button>
+                <button
+                  onClick={sendThanks}
+                  disabled={qrSending || reminderSending}
+                  className="text-xs text-white/40 transition-colors hover:text-white disabled:opacity-50"
+                >
+                  🙏 Send thank-you
+                </button>
+              </>
+            )}
             <button onClick={() => fetchList()} className="text-xs text-white/40 transition-colors hover:text-white">
               ↻ Refresh
             </button>
           </div>
         </div>
+        {data && data.events.length > 1 && (
+          <select
+            value={data.event.id}
+            onChange={(e) => setEventId(e.target.value)}
+            aria-label="Switch event"
+            className="mb-3 w-full rounded-xl border border-white/10 bg-[#0c0c20] px-3 py-2.5 text-sm font-semibold text-white focus:border-[#E8751A]/50 focus:outline-none sm:w-auto"
+          >
+            {data.events.map((ev) => (
+              <option key={ev.id} value={ev.id}>
+                {ev.title} · {ev.dateLabel}
+              </option>
+            ))}
+          </select>
+        )}
         <p className="mb-4 text-sm text-white/40">
           Scan a guest&rsquo;s QR ticket, or tap a card to check the whole party in. Tap again to undo. The trash button deletes a registration — tap it twice to confirm.
         </p>

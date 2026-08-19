@@ -12,7 +12,9 @@
  */
 
 import type { Metadata } from "next";
+import { getPrismaClient } from "@/lib/prisma";
 import { getFestivalEvents } from "@/lib/festivals";
+import { ensureSeededFestivalEvents } from "@/lib/myf";
 import FestivalsPage from "@/components/festival/FestivalsPage";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +32,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  // Code-managed events (MYF editions in src/data/myf.ts) sync here so
+  // they appear without any /admin/festivals setup.
+  await ensureSeededFestivalEvents(getPrismaClient());
   const { upcoming, past } = await getFestivalEvents();
   return <FestivalsPage upcoming={upcoming} past={past} />;
 }

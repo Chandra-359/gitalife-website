@@ -18,6 +18,9 @@ export interface ScanVerdict {
   name?: string;
   guests?: number;
   checkedInAt?: string;
+  /** Which event the ticket belongs to — catches a ticket for a
+   *  different event than the one on the board. */
+  eventTitle?: string;
 }
 
 /** Accept both the full check-in URL from the email QR and a bare token. */
@@ -187,6 +190,9 @@ export default function QrScanner({
                 `Already checked in${verdict.checkedInAt ? ` at ${timeOf(verdict.checkedInAt)}` : ""} — send them to a volunteer`}
               {verdict.kind === "invalid" && "Check them in by name from the list"}
             </p>
+            {(verdict.kind === "ok" || verdict.kind === "already") && verdict.eventTitle && (
+              <p className="mt-3 text-sm font-bold uppercase tracking-wider text-white/75">{verdict.eventTitle}</p>
+            )}
           </div>
         </div>
       )}

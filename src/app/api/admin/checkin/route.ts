@@ -1,10 +1,19 @@
 /**
- * /api/admin/checkin — door check-in for Bhajan Clubbing (admin only)
+ * /api/admin/checkin — door check-in (admin only)
  *
- * GET    — event registrations with parsed tier/paid info + live stats
- * POST   — { token } QR scan: verify the signed ticket, check the party in
- * PATCH  — { id, checkedIn } toggles a party's checkedInAt timestamp
- * DELETE — { id } permanently removes a registration (test rows, dupes)
+ * Serves Bhajan Clubbing AND every dated event on /festival (MYF
+ * editions, big festivals) from one board.
+ *
+ * GET    — ?event=<programId> selects the event (default: the most
+ *          door-relevant one — soonest upcoming, else latest past).
+ *          Returns the pickable event list, the selected event's
+ *          registrations with parsed tier/paid info, and live stats.
+ * POST   — { token } QR scan: verify the signed ticket and check the
+ *          party in. Works across events — the response says which
+ *          event the ticket belongs to.
+ * PATCH  — { id, checkedIn, programId? } toggles a party's checkedInAt
+ * DELETE — { id, programId? } permanently removes a registration
+ *          (programId defaults to Bhajan Clubbing on both)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -12,6 +21,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { verifyTicketToken } from "@/lib/ticket";
 import { EVENT } from "@/data/bhajanClubbing";
+import { ET_TZ } from "@/lib/weeklyPrograms";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +36,66 @@ function parseNotes(notes: string | null): { tier: string | null; paid: boolean;
   return { tier, paid, rest: match[2] || null };
 }
 
-export async function GET() {
+interface CheckableEvent {
+  id: string;
+  title: string;
+  dateLabel: string;
+  startAt: Date;
+  capacity: number | null;
+  kind: "clubbing" | "festival";
+}
+
+function dateLabel(at: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: ET_TZ,
+    weekday: "short", month: "short", day: "numeric",
+  }).format(at);
+}
+
+/**
+ * Events the door board can work: Bhajan Clubbing (a fixed Program row
+ * without eventStartAt) plus every dated /festival event. Ordered by
+ * door relevance — upcoming soonest-first, then past latest-first — so
+ * the default selection is whatever is happening next.
+ */
+async function checkableEvents(): Promise<CheckableEvent[]> {
+  const clubbing: CheckableEvent = {
+    id: EVENT.programId,
+    title: `${EVENT.title} — ${EVENT.volume}`,
+    dateLabel: dateLabel(new Date(EVENT.startIso)),
+    startAt: new Date(EVENT.startIso),
+    capacity: EVENT.capacity,
+    kind: "clubbing",
+  };
+  const dated = await prisma!.program.findMany({
+    where: { eventStartAt: { not: null }, id: { not: EVENT.programId } },
+    orderBy: { eventStartAt: "desc" },
+    take: 12,
+    select: { id: true, title: true, eventStartAt: true, capacity: true },
+  });
+  const events: CheckableEvent[] = [
+    clubbing,
+    ...dated.map((e) => ({
+      id: e.id,
+      title: e.title,
+      dateLabel: dateLabel(e.eventStartAt as Date),
+      startAt: e.eventStartAt as Date,
+      capacity: e.capacity,
+      kind: "festival" as const,
+    })),
+  ];
+  // Events stay "upcoming" at the door until 6h after start
+  const horizon = Date.now() - 6 * 3600_000;
+  const upcoming = events
+    .filter((e) => e.startAt.getTime() >= horizon)
+    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+  const past = events
+    .filter((e) => e.startAt.getTime() < horizon)
+    .sort((a, b) => b.startAt.getTime() - a.startAt.getTime());
+  return [...upcoming, ...past];
+}
+
+export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,8 +105,12 @@ export async function GET() {
   }
 
   try {
+    const events = await checkableEvents();
+    const requested = request.nextUrl.searchParams.get("event");
+    const selected = events.find((e) => e.id === requested) ?? events[0];
+
     const rsvps = await prisma.rsvp.findMany({
-      where: { programId: EVENT.programId, status: "confirmed" },
+      where: { programId: selected.id, status: "confirmed" },
       orderBy: { name: "asc" },
     });
 
@@ -61,7 +134,13 @@ export async function GET() {
     const checkedInGuests = registrations.filter((r) => r.checkedInAt).reduce((sum, r) => sum + r.guests, 0);
 
     return NextResponse.json({
-      event: { title: `${EVENT.title} — ${EVENT.volume}`, capacity: EVENT.capacity },
+      event: {
+        id: selected.id,
+        title: selected.title,
+        capacity: selected.capacity,
+        kind: selected.kind,
+      },
+      events: events.map((e) => ({ id: e.id, title: e.title, dateLabel: e.dateLabel })),
       stats: {
         parties: registrations.length,
         partiesIn: registrations.filter((r) => r.checkedInAt).length,
@@ -84,6 +163,8 @@ export async function GET() {
  *               sharing / double scan — send the second presenter to a
  *               volunteer)
  *   "invalid" — signature check failed or no such registration
+ * The eventTitle in the response lets the door volunteer catch a ticket
+ * from a different event than the one on their board.
  */
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -100,9 +181,13 @@ export async function POST(request: NextRequest) {
     if (!rsvpId) return NextResponse.json({ result: "invalid" });
 
     const rsvp = await prisma.rsvp.findFirst({
-      where: { id: rsvpId, programId: EVENT.programId, status: "confirmed" },
+      where: { id: rsvpId, status: "confirmed" },
+      include: { program: { select: { id: true, title: true } } },
     });
     if (!rsvp) return NextResponse.json({ result: "invalid" });
+
+    const eventTitle =
+      rsvp.programId === EVENT.programId ? `${EVENT.title} — ${EVENT.volume}` : rsvp.program.title;
 
     const { tier, paid } = parseNotes(rsvp.notes);
     if (rsvp.checkedInAt) {
@@ -111,6 +196,7 @@ export async function POST(request: NextRequest) {
         id: rsvp.id,
         name: rsvp.name,
         guests: rsvp.guests,
+        eventTitle,
         checkedInAt: rsvp.checkedInAt.toISOString(),
       });
     }
@@ -126,6 +212,7 @@ export async function POST(request: NextRequest) {
       guests: updated.guests,
       tier,
       paid,
+      eventTitle,
       checkedInAt: updated.checkedInAt?.toISOString() ?? null,
     });
   } catch (error) {
@@ -144,13 +231,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const { id, checkedIn } = await request.json();
+    const { id, checkedIn, programId } = await request.json();
     if (typeof id !== "string" || !id || typeof checkedIn !== "boolean") {
       return NextResponse.json({ error: "id and checkedIn are required" }, { status: 400 });
     }
 
     const rsvp = await prisma.rsvp.update({
-      where: { id, programId: EVENT.programId },
+      // Scoped to the board's event so the endpoint can't touch other RSVPs
+      where: { id, programId: typeof programId === "string" && programId ? programId : EVENT.programId },
       data: { checkedInAt: checkedIn ? new Date() : null },
     });
 
@@ -177,13 +265,15 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const { id } = await request.json();
+    const { id, programId } = await request.json();
     if (typeof id !== "string" || !id) {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
 
-    // Scoped to this event's program so the endpoint can't touch other RSVPs
-    await prisma.rsvp.delete({ where: { id, programId: EVENT.programId } });
+    // Scoped to the board's event so the endpoint can't touch other RSVPs
+    await prisma.rsvp.delete({
+      where: { id, programId: typeof programId === "string" && programId ? programId : EVENT.programId },
+    });
 
     return NextResponse.json({ deleted: id });
   } catch (error) {

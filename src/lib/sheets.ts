@@ -145,7 +145,7 @@ export async function appendWeeklyRegistrationToSheet(r: WeeklyProgramRow): Prom
 }
 
 export interface FestivalRow {
-  event: string;     // e.g. "Ratha Yatra 2026"
+  event: string;     // e.g. "Prerana Festival" — becomes the tab name
   name: string;
   email: string;
   phone: string;
@@ -153,24 +153,40 @@ export interface FestivalRow {
   hearAbout: string;
 }
 
+const FESTIVAL_HEADER = [
+  "Registered At (ET)",
+  "Full Name",
+  "Email",
+  "Mobile",
+  "Guests",
+  "Heard Via",
+];
+
+/**
+ * Sheets tab titles can't contain []/\?*: and cap at 100 chars — keep
+ * event-named tabs safe whatever the title says.
+ */
+function tabTitle(raw: string): string {
+  const cleaned = raw.replace(/[[\]/\\?*:]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  return cleaned || "Event registrations";
+}
+
 /**
  * One row per festival/event registration, for door check-in.
- * Uses GOOGLE_SHEETS_FESTIVALS_ID when set, falling back to the
- * weekly-programs sheet so everything stays in one place by default.
- * Columns: Registered At (ET) · Event · Full Name · Email · Mobile ·
- * Guests · Heard Via
+ * Lands in the SAME spreadsheet as the Bhajan Clubbing registrations
+ * (GOOGLE_SHEETS_ID / its default), on a tab named after the event —
+ * created with a header row the first time someone registers.
+ * GOOGLE_SHEETS_FESTIVALS_ID still overrides the spreadsheet if set.
+ * Columns: Registered At (ET) · Full Name · Email · Mobile · Guests ·
+ * Heard Via
  */
 export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise<boolean> {
   const cfg = sheetsConfig();
   if (!cfg) return false;
-  const sheetId =
-    process.env.GOOGLE_SHEETS_FESTIVALS_ID ||
-    process.env.GOOGLE_SHEETS_PROGRAMS_ID ||
-    DEFAULT_PROGRAMS_SHEET_ID;
+  const sheetId = process.env.GOOGLE_SHEETS_FESTIVALS_ID || cfg.sheetId;
   const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-  return appendRow(sheetId, [
+  return appendToTabEnsuring(sheetId, tabTitle(r.event), FESTIVAL_HEADER, [
     registeredAt,
-    r.event,
     r.name,
     r.email,
     r.phone,
@@ -235,7 +251,8 @@ async function appendToTab(
   tab: string,
   values: (string | number)[],
 ): Promise<boolean> {
-  const range = encodeURIComponent(`${tab}!A1`);
+  // Quoted A1 notation so tab names with spaces ("Prerana Festival") work
+  const range = encodeURIComponent(`'${tab.replace(/'/g, "''")}'!A1`);
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
     {
@@ -245,19 +262,24 @@ async function appendToTab(
     },
   );
   if (!res.ok) {
-    // Expected once per spreadsheet: the tab doesn't exist yet
+    // Expected once per spreadsheet+tab: the tab doesn't exist yet
     console.error(`Google Sheets append to "${tab}" failed:`, res.status, await res.text());
     return false;
   }
   return true;
 }
 
-/** Create the reviews tab with its header row. Tolerates "already exists". */
-async function createReviewsTab(sheetId: string, token: string): Promise<boolean> {
+/** Create a tab with a header row. Tolerates "already exists". */
+async function createTab(
+  sheetId: string,
+  token: string,
+  tab: string,
+  header: string[],
+): Promise<boolean> {
   const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}:batchUpdate`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: REVIEWS_TAB } } }] }),
+    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: tab } } }] }),
   });
   if (!res.ok) {
     const text = await res.text();
@@ -268,8 +290,33 @@ async function createReviewsTab(sheetId: string, token: string): Promise<boolean
     }
     return true;
   }
-  await appendToTab(sheetId, token, REVIEWS_TAB, REVIEWS_HEADER);
+  await appendToTab(sheetId, token, tab, header);
   return true;
+}
+
+/**
+ * Append one row to a named tab, creating the tab (with its header row)
+ * on first use. Never throws.
+ */
+async function appendToTabEnsuring(
+  sheetId: string,
+  tab: string,
+  header: string[],
+  values: (string | number)[],
+): Promise<boolean> {
+  try {
+    const cfg = sheetsConfig();
+    if (!cfg) return false;
+    const token = await accessToken(cfg);
+    if (!token) return false;
+    if (await appendToTab(sheetId, token, tab, values)) return true;
+    // Most likely the tab doesn't exist yet — create it and retry once.
+    if (!(await createTab(sheetId, token, tab, header))) return false;
+    return appendToTab(sheetId, token, tab, values);
+  } catch (error) {
+    console.error(`Google Sheets append to "${tab}" error:`, error);
+    return false;
+  }
 }
 
 export interface ReviewRow {
@@ -289,28 +336,17 @@ export interface ReviewRow {
  * Never throws.
  */
 export async function appendReviewToSheet(r: ReviewRow): Promise<boolean> {
-  try {
-    const cfg = sheetsConfig();
-    if (!cfg) return false;
-    const token = await accessToken(cfg);
-    if (!token) return false;
-    const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-    const values = [
-      submittedAt,
-      r.name,
-      r.rating,
-      r.enjoyed,
-      r.programsInterest,
-      r.programs,
-      r.inspire,
-      r.suggestions,
-    ];
-    if (await appendToTab(cfg.sheetId, token, REVIEWS_TAB, values)) return true;
-    // Most likely the tab doesn't exist yet — create it and retry once.
-    if (!(await createReviewsTab(cfg.sheetId, token))) return false;
-    return appendToTab(cfg.sheetId, token, REVIEWS_TAB, values);
-  } catch (error) {
-    console.error("Google Sheets review append error:", error);
-    return false;
-  }
+  const cfg = sheetsConfig();
+  if (!cfg) return false;
+  const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+  return appendToTabEnsuring(cfg.sheetId, REVIEWS_TAB, REVIEWS_HEADER, [
+    submittedAt,
+    r.name,
+    r.rating,
+    r.enjoyed,
+    r.programsInterest,
+    r.programs,
+    r.inspire,
+    r.suggestions,
+  ]);
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/lib/prisma";
 import { getOpenFestivalEvent } from "@/lib/festivals";
+import { ensureSeededFestivalEvents } from "@/lib/myf";
 import { sendFestivalConfirmation } from "@/lib/festivalEmail";
 import { appendFestivalRegistrationToSheet } from "@/lib/sheets";
 
@@ -33,6 +34,10 @@ export async function POST(request: Request) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
     }
+
+    // Seeded events (src/data/myf.ts) may not be in the DB yet — e.g. a
+    // registration racing the first page load after a deploy.
+    await ensureSeededFestivalEvents(getPrismaClient());
 
     const event = await getOpenFestivalEvent(eventId);
     if (!event) {

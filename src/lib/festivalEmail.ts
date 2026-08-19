@@ -2,16 +2,19 @@
  * festivalEmail.ts — mail for dated events (festivals, youth festival,
  * volunteering ops). Sent from no-reply@gitalifenyc.com.
  *
- *  1. Confirmation — at registration, with a single-occurrence calendar
- *     invite (.ics, UTC stamps — no recurrence) plus date, venue, and
- *     guest count.
- *  2. Reminder — the day before the event, sent by /api/cron/reminders,
- *     with the poster and a one-click unsubscribe.
+ *  1. Confirmation — at registration, with the door QR entry pass, a
+ *     single-occurrence calendar invite (.ics, UTC stamps — no
+ *     recurrence), plus date, venue, and guest count.
+ *  2. Reminder — the day before the event, sent by /api/cron/reminders
+ *     (or the admin check-in board), with the poster, the QR pass, and
+ *     a one-click unsubscribe.
  *
+ * The QR is the same signed check-in ticket Bhajan Clubbing uses
+ * (lib/ticket.ts) — it quietly drops out when no secret is configured.
  * Reuses the warm-paper template scaffolding from programEmail.ts.
  */
 
-import { sendEmail, type SendOutcome } from "@/lib/email";
+import { sendEmail, ticketQrAttachment, type SendOutcome } from "@/lib/email";
 import {
   PROGRAMS_CONTACT_EMAIL,
   PROGRAMS_FROM_EMAIL,
@@ -73,6 +76,30 @@ export function festivalGoogleCalendarUrl(event: FestivalEventLive): string {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Door QR entry pass — warm-paper rendition of the clubbing block    */
+/* ------------------------------------------------------------------ */
+
+function qrFilename(event: FestivalEventLive): string {
+  return `${event.id}-entry-pass.png`;
+}
+
+function ticketQrHtml(accent: string, guests: number | null): string {
+  const who =
+    guests == null ? "your whole party" : guests === 1 ? "you" : `your whole party of ${guests}`;
+  return `<div style="margin-top:22px;padding:20px;background:rgba(168,132,42,0.08);border:1px solid rgba(168,132,42,0.35);border-radius:14px;text-align:center;">
+    <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${accent};font-family:Arial,Helvetica,sans-serif;">Your entry pass</p>
+    <img src="cid:ticket-qr" width="180" height="180" alt="Check-in QR code" style="display:inline-block;margin-top:14px;border-radius:12px;background:#ffffff;padding:10px;border:1px solid ${P.line};" />
+    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:${P.dim};font-family:Arial,Helvetica,sans-serif;">
+      Show this QR at the door — one scan checks in ${who}.<br/>
+      Arrive together; no printout needed, your phone screen is fine.
+    </p>
+  </div>`;
+}
+
+const QR_TEXT_NOTE =
+  "Your QR entry pass is attached — show it at the door for the fastest check-in (phone screen is fine).";
+
+/* ------------------------------------------------------------------ */
 /*  1. Confirmation (at registration)                                  */
 /* ------------------------------------------------------------------ */
 
@@ -91,12 +118,13 @@ export async function sendFestivalConfirmation(d: FestivalConfirmationDetails): 
   const gcal = festivalGoogleCalendarUrl(event);
   const unsub = unsubscribeUrl(d.rsvpId);
   const isVolunteering = event.category === "Volunteering";
+  const qr = await ticketQrAttachment(d.rsvpId, qrFilename(event));
 
   const intro = d.alreadyRegistered
-    ? `You're already registered for <strong>${event.title}</strong> — here are your details and a fresh calendar invite.`
+    ? `You're already registered for <strong>${event.title}</strong> — here are your details${qr ? ", your entry pass," : ""} and a fresh calendar invite.`
     : isVolunteering
       ? `Thank you for stepping up, ${first} — your spot on the <strong>${event.title}</strong> crew is confirmed.`
-      : `Your spot at <strong>${event.title}</strong> is confirmed. Say your name at the door — that's your ticket.`;
+      : `Your spot at <strong>${event.title}</strong> is confirmed. ${qr ? "Your QR entry pass is below — show it at the door for the fastest check-in." : "Say your name at the door — that's your ticket."}`;
 
   const body = `
     <h2 style="margin:0;font-size:20px;color:${P.ink};">${isVolunteering ? `You're on the crew, ${first} 🙌` : `You're in, ${first} 🎉`}</h2>
@@ -109,10 +137,12 @@ export async function sendFestivalConfirmation(d: FestivalConfirmationDetails): 
       ${detailRow("Venue", event.venueName)}
       ${detailRow("Address", event.address)}
     </table>
+    ${qr ? ticketQrHtml(event.accent, d.guests) : ""}
     ${buttonPair(event.accent, { href: gcal, label: "Add to Google Calendar" }, { href: event.mapsUrl, label: "Get directions" })}
     <p style="margin:22px 0 0;font-size:12px;line-height:1.7;color:${P.dim};">
       The invite is attached for your calendar. We'll send one reminder the day
       before${isVolunteering ? " with everything you need to know" : " — free entry, prasadam included"}.
+      ${qr ? "Lost this email on the day? No stress — we can check you in by name." : ""}
     </p>
     ${contactLine()}`;
 
@@ -128,7 +158,7 @@ Time: ${event.timeLabel}
 Party: ${d.guests === 1 ? "Just you" : `${d.guests} people`}
 Venue: ${event.venueName}
 Address: ${event.address}
-
+${qr ? `\n${QR_TEXT_NOTE}\n` : ""}
 Add to Google Calendar: ${gcal}
 Directions: ${event.mapsUrl}
 
@@ -157,6 +187,7 @@ ${siteUrl()}/festival`;
         content: festivalIcs(event),
         contentType: "text/calendar; method=PUBLISH",
       },
+      ...(qr ? [qr] : []),
     ],
   });
 }
@@ -170,12 +201,15 @@ export interface FestivalReminderDetails {
   name: string;
   rsvpId: string;
   event: FestivalEventLive;
+  /** Party size — makes the QR caption say who one scan covers. */
+  guests?: number;
 }
 
 export async function sendFestivalReminder(d: FestivalReminderDetails): Promise<SendOutcome> {
   const { event } = d;
   const first = d.name.split(" ")[0];
   const unsub = unsubscribeUrl(d.rsvpId);
+  const qr = await ticketQrAttachment(d.rsvpId, qrFilename(event));
 
   const poster = event.posterUrl
     ? `<img src="${event.posterUrl}" alt="${event.title} poster" width="504" style="display:block;width:100%;max-width:504px;border-radius:12px;margin:0 0 20px;border:1px solid ${P.line};" />`
@@ -197,6 +231,7 @@ export async function sendFestivalReminder(d: FestivalReminderDetails): Promise<
       ${detailRow("Venue", event.venueName)}
       ${detailRow("Address", event.address)}
     </table>
+    ${qr ? ticketQrHtml(event.accent, d.guests ?? null) : ""}
     ${buttonPair(event.accent, { href: event.mapsUrl, label: "Get directions" }, { href: `${siteUrl()}/festival`, label: "Event details" })}
     ${contactLine()}`;
 
@@ -212,7 +247,7 @@ ${event.dateLabel} · ${event.timeLabel}
 ${event.venueName}, ${event.address}
 
 ${event.description}
-
+${qr ? `\n${QR_TEXT_NOTE}\n` : ""}
 Directions: ${event.mapsUrl}
 Details: ${siteUrl()}/festival
 
@@ -230,5 +265,6 @@ Questions? ${PROGRAMS_CONTACT_EMAIL}`;
       "List-Unsubscribe": `<${unsub}>`,
       "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     },
+    attachments: qr ? [qr] : undefined,
   });
 }
