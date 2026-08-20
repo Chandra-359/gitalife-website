@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, BlobError } from "@vercel/blob";
 import { auth } from "@/lib/auth";
 
 /**
@@ -58,6 +58,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: blob.url });
   } catch (error) {
     console.error("Upload failed:", error);
+    // Surface the Blob service's own reason to the (admin-only) UI — e.g. a
+    // private-mode store rejecting public uploads, or a bad token — instead
+    // of a generic message nobody can act on.
+    if (error instanceof BlobError) {
+      return NextResponse.json({ error: `Vercel Blob: ${error.message}` }, { status: 502 });
+    }
     return NextResponse.json({ error: "Upload failed — please try again" }, { status: 500 });
   }
 }
