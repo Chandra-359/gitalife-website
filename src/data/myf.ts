@@ -60,7 +60,7 @@ export const MYF_PRERANA: FestivalEventSeed = {
   address: "305 Schermerhorn St, Brooklyn, NY 11217",
   lat: 40.68761,
   lng: -73.98252,
-  posterUrl: null,
+  posterUrl: "/festival/prerana-aug-2026.jpg",
   highlights: [
     "Talk: Winning Over Stress & Handling Failures",
     "Speaker: Govinda Krishna Das (GKD)",
