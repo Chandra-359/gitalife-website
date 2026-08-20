@@ -37,6 +37,10 @@ export interface FestivalEventSeed {
   lng: number;
   /** Path under public/ or an uploaded URL; null keeps any console upload. */
   posterUrl: string | null;
+  /** Exact Google Sheet tab name registrations land on — must match the
+   *  tab in the spreadsheet character-for-character (a miss silently
+   *  creates a new tab with this name). Omit to use the event title. */
+  sheetTab?: string;
   /** Chips on the event card + bullets in the reminder email. */
   highlights: string[];
   /** Hard cap counted in guests; null = unlimited. */
@@ -61,6 +65,7 @@ export const MYF_PRERANA: FestivalEventSeed = {
   lat: 40.68761,
   lng: -73.98252,
   posterUrl: "/festival/prerana-aug-2026.jpg",
+  sheetTab: "Prerana Festival Aug 2026 Registrations",
   highlights: [
     "Talk: Winning Over Stress & Handling Failures",
     "Speaker: Govinda Krishna Das (GKD)",
