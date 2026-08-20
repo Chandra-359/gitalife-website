@@ -121,28 +121,36 @@ function EventCard({ event, flip }: { event: FestivalEventLive; flip: boolean })
     >
       <div className={`grid grid-cols-1 lg:grid-cols-2 ${flip ? "lg:[direction:rtl]" : ""}`}>
         {/* ----- Poster / visual ----- */}
-        <div className="relative min-h-[260px] lg:min-h-full lg:[direction:ltr]">
+        <div
+          className="relative flex min-h-[260px] items-center justify-center overflow-hidden px-8 lg:min-h-full lg:[direction:ltr]"
+          style={{
+            background: `linear-gradient(150deg, ${event.accent}22 0%, ${event.accent}08 60%), var(--krishna-blue-deep)`,
+          }}
+        >
           {event.posterUrl ? (
+            // The whole poster, uncropped — laid on the card like a print
+            // left on a table: slightly tilted (mirrored on flipped cards),
+            // white photo border, deep shadow. Straightens on hover.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={event.posterUrl}
               alt={`${event.title} poster`}
-              className="absolute inset-0 h-full w-full object-cover"
+              className={`my-10 w-full max-w-[400px] transition-transform duration-300 ease-out hover:rotate-0 ${
+                flip ? "rotate-[2.5deg]" : "rotate-[-2.5deg]"
+              }`}
+              style={{
+                border: "10px solid #FDFBF4",
+                borderRadius: "4px",
+                boxShadow: "0 30px 50px -18px rgba(0,0,0,0.55), 0 6px 16px rgba(0,0,0,0.28)",
+              }}
             />
           ) : (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                background: `linear-gradient(150deg, ${event.accent}22 0%, ${event.accent}08 60%), var(--krishna-blue-deep)`,
-              }}
+            <span
+              className="px-6 py-20 text-center font-serif text-3xl leading-snug"
+              style={{ color: "var(--ink-onDark)", fontWeight: 600 }}
             >
-              <span
-                className="px-6 text-center font-serif text-3xl leading-snug"
-                style={{ color: "var(--ink-onDark)", fontWeight: 600 }}
-              >
-                {event.title}
-              </span>
-            </div>
+              {event.title}
+            </span>
           )}
           <span
             className="absolute left-4 top-4 rounded-full px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white"
