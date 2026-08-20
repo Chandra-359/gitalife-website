@@ -6,8 +6,8 @@
  *
  * Same one-and-done contract as the weekly programs form: duplicates
  * re-send the confirmation instead of double-booking, and success is
- * remembered in localStorage per event. Adds a party-size selector
- * (prasadam planning!) that volunteering ops hide.
+ * remembered in localStorage per event. Registrations are individual —
+ * everyone in a group registers themselves (no party-size field).
  */
 
 import { useEffect, useState } from "react";
@@ -59,7 +59,6 @@ export default function EventRegisterForm({
   const [whatsapp, setWhatsapp] = useState("");
   const [location, setLocation] = useState("");
   const [organization, setOrganization] = useState("");
-  const [guests, setGuests] = useState(1);
   const [hearAbout, setHearAbout] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [done, setDone] = useState<DoneState | null>(null);
@@ -91,7 +90,6 @@ export default function EventRegisterForm({
           whatsapp,
           location,
           organization,
-          guests: volunteering ? 1 : guests,
           hearAbout,
         }),
       });
@@ -160,7 +158,7 @@ export default function EventRegisterForm({
         >
           You already registered for this event from this device,{" "}
           <strong style={{ color: "var(--ink-primary)" }}>{rememberedName.split(" ")[0]}</strong>.
-          Registering again just re-sends your invite (and updates your party size).
+          Registering again just re-sends your invite.
         </div>
       )}
 
@@ -297,54 +295,28 @@ export default function EventRegisterForm({
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 gap-3 ${volunteering ? "" : "sm:grid-cols-2"}`}>
-          {!volunteering && (
-            <div>
-              <label
-                htmlFor={`${eventId}-guests`}
-                className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
-                style={{ color: "var(--ink-tertiary)" }}
-              >
-                Party size
-              </label>
-              <select
-                id={`${eventId}-guests`}
-                value={guests}
-                onChange={(e) => setGuests(parseInt(e.target.value))}
-                className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                style={inputStyle}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <option key={n} value={n}>
-                    {n === 1 ? "Just me" : `${n} people`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor={`${eventId}-hear`}
-              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
-              style={{ color: "var(--ink-tertiary)" }}
-            >
-              How did you find us?
-            </label>
-            <select
-              id={`${eventId}-hear`}
-              value={hearAbout}
-              onChange={(e) => setHearAbout(e.target.value)}
-              className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-              style={inputStyle}
-            >
-              <option value="">Select…</option>
-              {HEAR_ABOUT_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label
+            htmlFor={`${eventId}-hear`}
+            className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+            style={{ color: "var(--ink-tertiary)" }}
+          >
+            How did you find us?
+          </label>
+          <select
+            id={`${eventId}-hear`}
+            value={hearAbout}
+            onChange={(e) => setHearAbout(e.target.value)}
+            className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+            style={inputStyle}
+          >
+            <option value="">Select…</option>
+            {HEAR_ABOUT_OPTIONS.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

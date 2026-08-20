@@ -155,7 +155,6 @@ export interface FestivalRow {
   whatsapp: string;      // blank = same as mobile
   location: string;      // "City, State"
   organization: string;  // university or company
-  guests: number;
   hearAbout: string;
 }
 
@@ -167,7 +166,6 @@ const FESTIVAL_HEADER = [
   "WhatsApp",
   "Location",
   "University / Company",
-  "Guests",
   "Heard Via",
   "Follow-up",
 ];
@@ -262,11 +260,12 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
         fields: "userEnteredValue",
       },
     });
-    // Clear any stale dropdown left of Follow-up (the column moves when
-    // new columns are added), then apply it on the current column.
+    // Clear any stale dropdown wherever it used to live (the Follow-up
+    // column moves when columns are added or removed), then re-apply it
+    // on the current column below.
     requests.push({
       setDataValidation: {
-        range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: FOLLOWUP_COLUMN },
+        range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 26 },
       },
     });
     requests.push({
@@ -339,8 +338,8 @@ export async function ensureFestivalSheetSetup(
  * time someone registers.
  * GOOGLE_SHEETS_FESTIVALS_ID still overrides the spreadsheet if set.
  * Columns: Registered At (ET) · Full Name · Email · Mobile · WhatsApp ·
- * Location · University / Company · Guests · Heard Via · Follow-up
- * (dropdown, starts as "Registered")
+ * Location · University / Company · Heard Via · Follow-up (dropdown,
+ * starts as "Registered")
  */
 export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise<boolean> {
   const cfg = sheetsConfig();
@@ -356,7 +355,6 @@ export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise
     r.whatsapp || "",
     r.location || "",
     r.organization || "",
-    r.guests,
     r.hearAbout || "",
     FOLLOWUP_OPTIONS[0],
   ]);

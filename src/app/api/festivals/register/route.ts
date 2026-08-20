@@ -9,10 +9,11 @@ import { appendFestivalRegistrationToSheet, ensureFestivalSheetSetup } from "@/l
  * Festival / dated-event registration.
  *
  * POST { eventId, name, email, phone, whatsapp?, location, organization?,
- *        guests?, hearAbout? }
+ *        hearAbout? }
  *
  * - Registration targets a published, still-upcoming dated event.
- * - Capacity is enforced on total people (sum of guests).
+ * - Registrations are individual (one person per signup); capacity is
+ *   enforced on total people, so legacy multi-guest rows still count.
  * - One registration per email per event: repeats re-send the
  *   confirmation (and update the party size) instead of duplicating.
  * - Confirmation email carries a single-occurrence calendar invite from
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     const location = String(body.location ?? "").trim().slice(0, 120);
     const organization = String(body.organization ?? "").trim().slice(0, 120);
     const hearAbout = String(body.hearAbout ?? "").trim().slice(0, 120);
-    const guests = Math.min(10, Math.max(1, parseInt(String(body.guests)) || 1));
+    // Individual registrations — the form has no party-size field.
+    const guests = 1;
 
     if (!name) {
       return NextResponse.json({ error: "Please tell us your name" }, { status: 400 });
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
           status: "confirmed",
           remindersEnabled: true,
           remindersOptOutAt: null,
-          guests, // latest party size wins — simplest mental model
+          // guests untouched — legacy party-size registrations keep theirs
           name: name || existing.name,
           phone: phone || existing.phone,
           whatsapp: whatsapp || existing.whatsapp,
@@ -143,7 +145,7 @@ export async function POST(request: Request) {
         to: email,
         name,
         rsvpId,
-        guests,
+        guests: existing?.guests ?? guests,
         event,
         alreadyRegistered,
       }),
@@ -160,7 +162,6 @@ export async function POST(request: Request) {
             whatsapp,
             location,
             organization,
-            guests,
             hearAbout,
           }),
     ]);
