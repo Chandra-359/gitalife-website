@@ -22,6 +22,7 @@ import {
   occurrenceLabel,
 } from "@/lib/weeklyPrograms";
 import WeeklyProgramsPage from "@/components/programs/WeeklyProgramsPage";
+import { mintFormToken } from "@/lib/formGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -52,5 +53,6 @@ export default async function Page() {
     nextLabel: occurrenceLabel(nextOccurrence(p)),
   }));
 
-  return <WeeklyProgramsPage programs={withNext} testimonials={testimonials} />;
+  // Spam guard: signed render timestamp echoed back by the forms
+  return <WeeklyProgramsPage programs={withNext} testimonials={testimonials} formToken={mintFormToken()} />;
 }
