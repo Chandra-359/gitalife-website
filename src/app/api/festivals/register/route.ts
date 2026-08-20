@@ -8,7 +8,7 @@ import { appendFestivalRegistrationToSheet } from "@/lib/sheets";
 /**
  * Festival / dated-event registration.
  *
- * POST { eventId, name, email, phone?, guests?, hearAbout? }
+ * POST { eventId, name, email, phone, guests?, hearAbout? }
  *
  * - Registration targets a published, still-upcoming dated event.
  * - Capacity is enforced on total people (sum of guests).
@@ -33,6 +33,13 @@ export async function POST(request: Request) {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
+    }
+    // Mobile is mandatory — the door team needs a way to reach a party.
+    // Accept any formatting but insist on a plausible digit count (E.164
+    // tops out at 15).
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+      return NextResponse.json({ error: "A valid mobile number is required" }, { status: 400 });
     }
 
     // Seeded events (src/data/myf.ts) may not be in the DB yet — e.g. a
