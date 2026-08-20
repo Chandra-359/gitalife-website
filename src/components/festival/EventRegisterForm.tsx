@@ -21,12 +21,17 @@ interface EventRegisterFormProps {
   volunteering: boolean;
 }
 
+// Same list as the Bhajan Clubbing ticket flow, plus Bhajan Clubbing
+// itself now that it feeds people into the festivals.
 const HEAR_ABOUT_OPTIONS = [
-  "A friend brought me",
   "Instagram",
-  "Flyer / QR code",
-  "Google search",
-  "I've been before",
+  "WhatsApp",
+  "Friend or family",
+  "Temple announcement",
+  "YouTube",
+  "Gita Life Volunteer",
+  "Flyers/Posters",
+  "Bhajan Clubbing",
   "Other",
 ];
 
@@ -51,6 +56,9 @@ export default function EventRegisterForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [location, setLocation] = useState("");
+  const [organization, setOrganization] = useState("");
   const [guests, setGuests] = useState(1);
   const [hearAbout, setHearAbout] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -80,6 +88,9 @@ export default function EventRegisterForm({
           name,
           email,
           phone,
+          whatsapp,
+          location,
+          organization,
           guests: volunteering ? 1 : guests,
           hearAbout,
         }),
@@ -205,7 +216,7 @@ export default function EventRegisterForm({
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 gap-3 ${volunteering ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label
               htmlFor={`${eventId}-phone`}
@@ -226,6 +237,67 @@ export default function EventRegisterForm({
               style={inputStyle}
             />
           </div>
+          <div>
+            <label
+              htmlFor={`${eventId}-whatsapp`}
+              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-tertiary)" }}
+            >
+              WhatsApp <span className="font-normal normal-case tracking-normal">(if different from mobile)</span>
+            </label>
+            <input
+              id={`${eventId}-whatsapp`}
+              type="tel"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              placeholder="Same as mobile? Leave blank"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor={`${eventId}-location`}
+              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-tertiary)" }}
+            >
+              Location <span className="font-normal normal-case tracking-normal">(City, State)</span>
+            </label>
+            <input
+              id={`${eventId}-location`}
+              required
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Brooklyn, NY"
+              autoComplete="address-level2"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor={`${eventId}-organization`}
+              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-tertiary)" }}
+            >
+              University / Company
+            </label>
+            <input
+              id={`${eventId}-organization`}
+              value={organization}
+              onChange={(e) => setOrganization(e.target.value)}
+              placeholder="University if student, company if working"
+              autoComplete="organization"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        <div className={`grid grid-cols-1 gap-3 ${volunteering ? "" : "sm:grid-cols-2"}`}>
           {!volunteering && (
             <div>
               <label

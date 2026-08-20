@@ -147,6 +147,11 @@ model Rsvp {
   guests    Int      @default(1)             // Total attendees including the person
   notes     String?                          // Dietary restrictions, accessibility needs, etc.
   hearAbout String?                          // "How did you hear about this event?" (optional)
+
+  // --- Outreach fields (festival registrations) ---
+  whatsapp     String?                       // WhatsApp number, when different from mobile
+  location     String?                       // "City, State"
+  organization String?                       // University (student) or company (working)
   emailOptIn Boolean @default(false)         // Agreed to receive event/program updates by email
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
 
