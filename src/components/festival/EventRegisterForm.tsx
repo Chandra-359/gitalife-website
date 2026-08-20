@@ -212,10 +212,11 @@ export default function EventRegisterForm({
               className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
               style={{ color: "var(--ink-tertiary)" }}
             >
-              Mobile <span className="font-normal normal-case tracking-normal">(optional)</span>
+              Mobile
             </label>
             <input
               id={`${eventId}-phone`}
+              required
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
