@@ -128,8 +128,9 @@ export async function POST(request: Request) {
       alreadyRegistered
         ? // No new row, but still make sure the tab has its header row and
           // Follow-up dropdown (also retrofits tabs from before they existed)
-          ensureFestivalSheetSetup(event.title).then(() => true)
+          ensureFestivalSheetSetup(event.id, event.title).then(() => true)
         : appendFestivalRegistrationToSheet({
+            eventId: event.id,
             event: event.title,
             name,
             email,

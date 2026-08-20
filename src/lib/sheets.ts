@@ -30,6 +30,7 @@
  */
 
 import { createSign } from "node:crypto";
+import { SEEDED_FESTIVAL_EVENTS } from "@/data/myf";
 
 /** https://docs.google.com/spreadsheets/d/<id>/edit */
 const DEFAULT_SHEET_ID = "1eXP2DOKCJ6czDWXUss5ABj48W_DQ-e8uJ1dssiP_GCg";
@@ -145,7 +146,9 @@ export async function appendWeeklyRegistrationToSheet(r: WeeklyProgramRow): Prom
 }
 
 export interface FestivalRow {
-  event: string;     // e.g. "Prerana Festival" — becomes the tab name
+  /** Program id — resolves a seeded event's custom sheetTab. */
+  eventId?: string;
+  event: string;     // e.g. "Prerana Festival" — fallback tab name
   name: string;
   email: string;
   phone: string;
@@ -181,6 +184,15 @@ function tabTitle(raw: string): string {
 
 function festivalSheetId(cfg: NonNullable<ReturnType<typeof sheetsConfig>>): string {
   return process.env.GOOGLE_SHEETS_FESTIVALS_ID || cfg.sheetId;
+}
+
+/** The tab an event's registrations land on: the seed's exact sheetTab
+ *  when the event is code-managed (src/data/myf.ts), else its title. */
+function festivalTab(eventId: string | undefined, eventTitle: string): string {
+  const seed = eventId
+    ? SEEDED_FESTIVAL_EVENTS.find((s) => s.programId === eventId)
+    : undefined;
+  return tabTitle(seed?.sheetTab || eventTitle);
 }
 
 /** Tabs verified this server instance (header present, dropdown set). */
@@ -295,17 +307,21 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
  * bold header, Follow-up dropdown) without appending anything — used by
  * repeat registrations, which don't add a row. Never throws.
  */
-export async function ensureFestivalSheetSetup(eventTitle: string): Promise<void> {
+export async function ensureFestivalSheetSetup(
+  eventId: string | undefined,
+  eventTitle: string,
+): Promise<void> {
   const cfg = sheetsConfig();
   if (!cfg) return;
-  await decorateFestivalTab(festivalSheetId(cfg), tabTitle(eventTitle));
+  await decorateFestivalTab(festivalSheetId(cfg), festivalTab(eventId, eventTitle));
 }
 
 /**
  * One row per festival/event registration, for door check-in.
  * Lands in the SAME spreadsheet as the Bhajan Clubbing registrations
- * (GOOGLE_SHEETS_ID / its default), on a tab named after the event —
- * created with a header row the first time someone registers.
+ * (GOOGLE_SHEETS_ID / its default), on the event's tab (the seed's
+ * sheetTab, else the event title) — created with a header row the first
+ * time someone registers.
  * GOOGLE_SHEETS_FESTIVALS_ID still overrides the spreadsheet if set.
  * Columns: Registered At (ET) · Full Name · Email · Mobile · Guests ·
  * Heard Via · Follow-up (dropdown, starts as "Registered")
@@ -314,7 +330,7 @@ export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise
   const cfg = sheetsConfig();
   if (!cfg) return false;
   const sheetId = festivalSheetId(cfg);
-  const tab = tabTitle(r.event);
+  const tab = festivalTab(r.eventId, r.event);
   const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
   const ok = await appendToTabEnsuring(sheetId, tab, FESTIVAL_HEADER, [
     registeredAt,
@@ -366,7 +382,8 @@ export async function appendRegistrationToSheet(r: RegistrationRow): Promise<boo
 /*  Bhajan Clubbing registrations land in                              */
 /* ------------------------------------------------------------------ */
 
-const REVIEWS_TAB = "reviews";
+/** Exact tab name — the organizers renamed the original "reviews" tab. */
+const REVIEWS_TAB = "Bhajan Clubbing Aug 2026 Reviews";
 const REVIEWS_HEADER = [
   "Submitted At (ET)",
   "Name",
