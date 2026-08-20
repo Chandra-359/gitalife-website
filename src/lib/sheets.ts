@@ -152,7 +152,9 @@ export interface FestivalRow {
   name: string;
   email: string;
   phone: string;
-  guests: number;
+  whatsapp: string;      // blank = same as mobile
+  location: string;      // "City, State"
+  organization: string;  // university or company
   hearAbout: string;
 }
 
@@ -161,7 +163,9 @@ const FESTIVAL_HEADER = [
   "Full Name",
   "Email",
   "Mobile",
-  "Guests",
+  "WhatsApp",
+  "Location",
+  "University / Company",
   "Heard Via",
   "Follow-up",
 ];
@@ -237,23 +241,33 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
 
     const requests: unknown[] = [];
     if (!hasHeader) {
-      // Push existing rows down and write the header into the new row 1
+      // Push existing rows down before writing the header into row 1
       requests.push({
         insertDimension: {
           range: { sheetId: gid, dimension: "ROWS", startIndex: 0, endIndex: 1 },
           inheritFromBefore: false,
         },
       });
-      requests.push({
-        updateCells: {
-          start: { sheetId: gid, rowIndex: 0, columnIndex: 0 },
-          rows: [
-            { values: FESTIVAL_HEADER.map((h) => ({ userEnteredValue: { stringValue: h } })) },
-          ],
-          fields: "userEnteredValue",
-        },
-      });
     }
+    // (Re)write the header row every time — upgrades tabs created before
+    // new columns existed. Row 1 is always the header by this point.
+    requests.push({
+      updateCells: {
+        start: { sheetId: gid, rowIndex: 0, columnIndex: 0 },
+        rows: [
+          { values: FESTIVAL_HEADER.map((h) => ({ userEnteredValue: { stringValue: h } })) },
+        ],
+        fields: "userEnteredValue",
+      },
+    });
+    // Clear any stale dropdown wherever it used to live (the Follow-up
+    // column moves when columns are added or removed), then re-apply it
+    // on the current column below.
+    requests.push({
+      setDataValidation: {
+        range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 26 },
+      },
+    });
     requests.push({
       updateSheetProperties: {
         properties: { sheetId: gid, gridProperties: { frozenRowCount: 1 } },
@@ -323,8 +337,9 @@ export async function ensureFestivalSheetSetup(
  * sheetTab, else the event title) — created with a header row the first
  * time someone registers.
  * GOOGLE_SHEETS_FESTIVALS_ID still overrides the spreadsheet if set.
- * Columns: Registered At (ET) · Full Name · Email · Mobile · Guests ·
- * Heard Via · Follow-up (dropdown, starts as "Registered")
+ * Columns: Registered At (ET) · Full Name · Email · Mobile · WhatsApp ·
+ * Location · University / Company · Heard Via · Follow-up (dropdown,
+ * starts as "Registered")
  */
 export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise<boolean> {
   const cfg = sheetsConfig();
@@ -337,7 +352,9 @@ export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise
     r.name,
     r.email,
     r.phone,
-    r.guests,
+    r.whatsapp || "",
+    r.location || "",
+    r.organization || "",
     r.hearAbout || "",
     FOLLOWUP_OPTIONS[0],
   ]);

@@ -6,8 +6,8 @@
  *
  * Same one-and-done contract as the weekly programs form: duplicates
  * re-send the confirmation instead of double-booking, and success is
- * remembered in localStorage per event. Adds a party-size selector
- * (prasadam planning!) that volunteering ops hide.
+ * remembered in localStorage per event. Registrations are individual —
+ * everyone in a group registers themselves (no party-size field).
  */
 
 import { useEffect, useState } from "react";
@@ -21,12 +21,17 @@ interface EventRegisterFormProps {
   volunteering: boolean;
 }
 
+// Same list as the Bhajan Clubbing ticket flow, plus Bhajan Clubbing
+// itself now that it feeds people into the festivals.
 const HEAR_ABOUT_OPTIONS = [
-  "A friend brought me",
   "Instagram",
-  "Flyer / QR code",
-  "Google search",
-  "I've been before",
+  "WhatsApp",
+  "Friend or family",
+  "Temple announcement",
+  "YouTube",
+  "Gita Life Volunteer",
+  "Flyers/Posters",
+  "Bhajan Clubbing",
   "Other",
 ];
 
@@ -51,7 +56,9 @@ export default function EventRegisterForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [guests, setGuests] = useState(1);
+  const [whatsapp, setWhatsapp] = useState("");
+  const [location, setLocation] = useState("");
+  const [organization, setOrganization] = useState("");
   const [hearAbout, setHearAbout] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [done, setDone] = useState<DoneState | null>(null);
@@ -80,7 +87,9 @@ export default function EventRegisterForm({
           name,
           email,
           phone,
-          guests: volunteering ? 1 : guests,
+          whatsapp,
+          location,
+          organization,
           hearAbout,
         }),
       });
@@ -149,7 +158,7 @@ export default function EventRegisterForm({
         >
           You already registered for this event from this device,{" "}
           <strong style={{ color: "var(--ink-primary)" }}>{rememberedName.split(" ")[0]}</strong>.
-          Registering again just re-sends your invite (and updates your party size).
+          Registering again just re-sends your invite.
         </div>
       )}
 
@@ -205,7 +214,7 @@ export default function EventRegisterForm({
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 gap-3 ${volunteering ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label
               htmlFor={`${eventId}-phone`}
@@ -226,53 +235,88 @@ export default function EventRegisterForm({
               style={inputStyle}
             />
           </div>
-          {!volunteering && (
-            <div>
-              <label
-                htmlFor={`${eventId}-guests`}
-                className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
-                style={{ color: "var(--ink-tertiary)" }}
-              >
-                Party size
-              </label>
-              <select
-                id={`${eventId}-guests`}
-                value={guests}
-                onChange={(e) => setGuests(parseInt(e.target.value))}
-                className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                style={inputStyle}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <option key={n} value={n}>
-                    {n === 1 ? "Just me" : `${n} people`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
           <div>
             <label
-              htmlFor={`${eventId}-hear`}
+              htmlFor={`${eventId}-whatsapp`}
               className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
               style={{ color: "var(--ink-tertiary)" }}
             >
-              How did you find us?
+              WhatsApp <span className="font-normal normal-case tracking-normal">(if different from mobile)</span>
             </label>
-            <select
-              id={`${eventId}-hear`}
-              value={hearAbout}
-              onChange={(e) => setHearAbout(e.target.value)}
-              className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+            <input
+              id={`${eventId}-whatsapp`}
+              type="tel"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              placeholder="Same as mobile? Leave blank"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
               style={inputStyle}
-            >
-              <option value="">Select…</option>
-              {HEAR_ABOUT_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor={`${eventId}-location`}
+              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-tertiary)" }}
+            >
+              Location <span className="font-normal normal-case tracking-normal">(City, State)</span>
+            </label>
+            <input
+              id={`${eventId}-location`}
+              required
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Brooklyn, NY"
+              autoComplete="address-level2"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor={`${eventId}-organization`}
+              className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: "var(--ink-tertiary)" }}
+            >
+              University / Company
+            </label>
+            <input
+              id={`${eventId}-organization`}
+              value={organization}
+              onChange={(e) => setOrganization(e.target.value)}
+              placeholder="University if student, company if working"
+              autoComplete="organization"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor={`${eventId}-hear`}
+            className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+            style={{ color: "var(--ink-tertiary)" }}
+          >
+            How did you find us?
+          </label>
+          <select
+            id={`${eventId}-hear`}
+            value={hearAbout}
+            onChange={(e) => setHearAbout(e.target.value)}
+            className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+            style={inputStyle}
+          >
+            <option value="">Select…</option>
+            {HEAR_ABOUT_OPTIONS.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

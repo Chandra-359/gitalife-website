@@ -8,10 +8,12 @@ import { appendFestivalRegistrationToSheet, ensureFestivalSheetSetup } from "@/l
 /**
  * Festival / dated-event registration.
  *
- * POST { eventId, name, email, phone, guests?, hearAbout? }
+ * POST { eventId, name, email, phone, whatsapp?, location, organization?,
+ *        hearAbout? }
  *
  * - Registration targets a published, still-upcoming dated event.
- * - Capacity is enforced on total people (sum of guests).
+ * - Registrations are individual (one person per signup); capacity is
+ *   enforced on total people, so legacy multi-guest rows still count.
  * - One registration per email per event: repeats re-send the
  *   confirmation (and update the party size) instead of duplicating.
  * - Confirmation email carries a single-occurrence calendar invite from
@@ -25,8 +27,12 @@ export async function POST(request: Request) {
     const name = String(body.name ?? "").trim().slice(0, 120);
     const email = String(body.email ?? "").trim().toLowerCase().slice(0, 255);
     const phone = String(body.phone ?? "").trim().slice(0, 40);
+    const whatsapp = String(body.whatsapp ?? "").trim().slice(0, 40);
+    const location = String(body.location ?? "").trim().slice(0, 120);
+    const organization = String(body.organization ?? "").trim().slice(0, 120);
     const hearAbout = String(body.hearAbout ?? "").trim().slice(0, 120);
-    const guests = Math.min(10, Math.max(1, parseInt(String(body.guests)) || 1));
+    // Individual registrations — the form has no party-size field.
+    const guests = 1;
 
     if (!name) {
       return NextResponse.json({ error: "Please tell us your name" }, { status: 400 });
@@ -40,6 +46,18 @@ export async function POST(request: Request) {
     const phoneDigits = phone.replace(/\D/g, "");
     if (phoneDigits.length < 7 || phoneDigits.length > 15) {
       return NextResponse.json({ error: "A valid mobile number is required" }, { status: 400 });
+    }
+    // WhatsApp is optional (blank = same as mobile) but must look like a
+    // number when given.
+    const whatsappDigits = whatsapp.replace(/\D/g, "");
+    if (whatsapp && (whatsappDigits.length < 7 || whatsappDigits.length > 15)) {
+      return NextResponse.json(
+        { error: "That WhatsApp number doesn't look right — leave it blank if it's the same as your mobile" },
+        { status: 400 },
+      );
+    }
+    if (!location) {
+      return NextResponse.json({ error: "Please tell us your city and state" }, { status: 400 });
     }
 
     // Seeded events (src/data/myf.ts) may not be in the DB yet — e.g. a
@@ -96,9 +114,12 @@ export async function POST(request: Request) {
           status: "confirmed",
           remindersEnabled: true,
           remindersOptOutAt: null,
-          guests, // latest party size wins — simplest mental model
+          // guests untouched — legacy party-size registrations keep theirs
           name: name || existing.name,
           phone: phone || existing.phone,
+          whatsapp: whatsapp || existing.whatsapp,
+          location: location || existing.location,
+          organization: organization || existing.organization,
         },
       });
     } else {
@@ -107,6 +128,9 @@ export async function POST(request: Request) {
           name,
           email,
           phone: phone || null,
+          whatsapp: whatsapp || null,
+          location: location || null,
+          organization: organization || null,
           guests,
           hearAbout: hearAbout || null,
           emailOptIn: true,
@@ -121,7 +145,7 @@ export async function POST(request: Request) {
         to: email,
         name,
         rsvpId,
-        guests,
+        guests: existing?.guests ?? guests,
         event,
         alreadyRegistered,
       }),
@@ -135,7 +159,9 @@ export async function POST(request: Request) {
             name,
             email,
             phone,
-            guests,
+            whatsapp,
+            location,
+            organization,
             hearAbout,
           }),
     ]);
