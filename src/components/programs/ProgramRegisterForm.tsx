@@ -17,6 +17,8 @@ interface ProgramRegisterFormProps {
   programName: string;
   dayOfWeek: string;
   accent: string;
+  /** Spam-guard token from the server render — echoed back on submit. */
+  formToken: string | null;
 }
 
 const HEAR_ABOUT_OPTIONS = [
@@ -43,11 +45,14 @@ export default function ProgramRegisterForm({
   programName,
   dayOfWeek,
   accent,
+  formToken,
 }: ProgramRegisterFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [hearAbout, setHearAbout] = useState("");
+  // Honeypot — humans never see or fill this; bots stuff every field
+  const [website, setWebsite] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [done, setDone] = useState<DoneState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +75,7 @@ export default function ProgramRegisterForm({
       const res = await fetch("/api/programs/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, name, email, phone, hearAbout }),
+        body: JSON.stringify({ programId, name, email, phone, hearAbout, website, formToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -148,6 +153,21 @@ export default function ProgramRegisterForm({
 
   return (
     <form onSubmit={submit} aria-label={`Register for ${programName}`}>
+      {/* Honeypot — visually removed and skipped by keyboard/screen
+          readers; only auto-form-fillers ever put a value here */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor={`${programId}-website`}>Website</label>
+        <input
+          id={`${programId}-website`}
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </div>
+
       {returningBanner}
 
       <div className="space-y-3">

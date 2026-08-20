@@ -330,6 +330,124 @@ export async function ensureFestivalSheetSetup(
   await decorateFestivalTab(festivalSheetId(cfg), festivalTab(eventId, eventTitle));
 }
 
+/* ------------------------------------------------------------------ */
+/*  Row removal — spam cleanup keeps the sheet in step with the DB     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Delete every row of a tab the matcher flags (bottom-up, one batch).
+ * Targets a tab by exact title, or the spreadsheet's first tab.
+ * Never throws; returns how many rows were removed.
+ */
+async function deleteRowsWhere(
+  spreadsheetId: string,
+  tab: { title: string } | { first: true },
+  match: (row: string[], rowIndex: number) => boolean,
+): Promise<number> {
+  try {
+    const cfg = sheetsConfig();
+    if (!cfg) return 0;
+    const token = await accessToken(cfg);
+    if (!token) return 0;
+    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+
+    const metaRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties(sheetId,title,index)`,
+      { headers },
+    );
+    if (!metaRes.ok) return 0;
+    const meta = (await metaRes.json()) as {
+      sheets?: { properties: { sheetId: number; title: string; index: number } }[];
+    };
+    const sheets = meta.sheets ?? [];
+    const target =
+      "title" in tab
+        ? sheets.find((s) => s.properties.title === tab.title)
+        : sheets.slice().sort((a, b) => a.properties.index - b.properties.index)[0];
+    if (!target) return 0;
+
+    const range = encodeURIComponent(`'${target.properties.title.replace(/'/g, "''")}'!A1:Z`);
+    const valRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`,
+      { headers },
+    );
+    if (!valRes.ok) return 0;
+    const rows = (((await valRes.json()) as { values?: string[][] }).values ?? []);
+
+    const doomed: number[] = [];
+    rows.forEach((row, i) => {
+      if (match(row, i)) doomed.push(i);
+    });
+    if (doomed.length === 0) return 0;
+
+    // Bottom-up so earlier deletions don't shift later indexes
+    const requests = doomed
+      .sort((a, b) => b - a)
+      .map((i) => ({
+        deleteDimension: {
+          range: { sheetId: target.properties.sheetId, dimension: "ROWS", startIndex: i, endIndex: i + 1 },
+        },
+      }));
+    const res = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      { method: "POST", headers, body: JSON.stringify({ requests }) },
+    );
+    if (!res.ok) {
+      console.error("Google Sheets row delete failed:", res.status, await res.text());
+      return 0;
+    }
+    return doomed.length;
+  } catch (error) {
+    console.error("Google Sheets row delete error:", error);
+    return 0;
+  }
+}
+
+/**
+ * Remove an event tab's registration rows for the given emails
+ * (column C). The header row is never touched. Never throws.
+ */
+export async function removeFestivalSheetRows(
+  eventId: string | undefined,
+  eventTitle: string,
+  emails: string[],
+): Promise<number> {
+  const cfg = sheetsConfig();
+  if (!cfg || emails.length === 0) return 0;
+  const wanted = new Set(emails.map((e) => e.trim().toLowerCase()));
+  return deleteRowsWhere(
+    festivalSheetId(cfg),
+    { title: festivalTab(eventId, eventTitle) },
+    (row, i) => {
+      if (i === 0 && String(row[0] ?? "") === FESTIVAL_HEADER[0]) return false;
+      return wanted.has(String(row[2] ?? "").trim().toLowerCase());
+    },
+  );
+}
+
+/**
+ * Remove weekly-program registration rows for one program + emails from
+ * the programs spreadsheet's first tab. Rows there are
+ * Registered At · Program · Full Name · Email · Mobile · Heard Via.
+ * Never throws.
+ */
+export async function removeWeeklySheetRows(
+  programTitle: string,
+  emails: string[],
+): Promise<number> {
+  const cfg = sheetsConfig();
+  if (!cfg || emails.length === 0) return 0;
+  const sheetId = process.env.GOOGLE_SHEETS_PROGRAMS_ID || DEFAULT_PROGRAMS_SHEET_ID;
+  const wanted = new Set(emails.map((e) => e.trim().toLowerCase()));
+  return deleteRowsWhere(
+    sheetId,
+    { first: true },
+    (row) =>
+      String(row[1] ?? "").trim() === programTitle &&
+      wanted.has(String(row[3] ?? "").trim().toLowerCase()),
+  );
+}
+
 /**
  * One row per festival/event registration, for door check-in.
  * Lands in the SAME spreadsheet as the Bhajan Clubbing registrations

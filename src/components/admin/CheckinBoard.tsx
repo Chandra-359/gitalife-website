@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import toast, { Toaster } from "react-hot-toast";
 import QrScanner, { type ScanVerdict } from "@/components/admin/QrScanner";
+import { isSpamRegistration } from "@/lib/spam";
 
 interface Registration {
   id: string;
@@ -185,6 +186,46 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
   /** The event every write/send targets — the one the board is showing. */
   const selectedEvent = data?.event;
   const eventScope: Record<string, string> = selectedEvent ? { programId: selectedEvent.id } : {};
+
+  /** Registrations matching the bot heuristics — previewed, then purged
+   *  server-side (DB + sheet rows) on confirmation. */
+  const spamCandidates = useMemo(
+    () => (data?.registrations ?? []).filter((r) => isSpamRegistration(r.name, r.email)),
+    [data],
+  );
+
+  const purgeSpam = async () => {
+    if (!selectedEvent || spamCandidates.length === 0) return;
+    const preview = spamCandidates
+      .slice(0, 12)
+      .map((r) => `• ${r.name} — ${r.email}`)
+      .join("\n");
+    if (
+      !window.confirm(
+        `Delete ${spamCandidates.length} spam-looking registration${spamCandidates.length === 1 ? "" : "s"} from "${selectedEvent.title}" AND their Google Sheet rows?\n\n${preview}${spamCandidates.length > 12 ? "\n…" : ""}`,
+      )
+    )
+      return;
+    setBusyId("purge");
+    try {
+      const res = await fetch("/api/admin/spam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ programId: selectedEvent.id }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(String(result.error || ""));
+      toast.success(
+        `Purged ${result.purged} registration${result.purged === 1 ? "" : "s"} (${result.sheetRows} sheet row${result.sheetRows === 1 ? "" : "s"})`,
+        { duration: 5000 },
+      );
+      fetchList(true);
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Purge failed — try again");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   /** Batch-email QR tickets to everyone who hasn't received one yet. */
   const sendQrTickets = async () => {
@@ -431,6 +472,15 @@ export default function CheckinBoard({ userEmail }: { userEmail: string }) {
                   🙏 Send thank-you
                 </button>
               </>
+            )}
+            {selectedEvent?.kind !== "clubbing" && spamCandidates.length > 0 && (
+              <button
+                onClick={purgeSpam}
+                disabled={busyId === "purge"}
+                className="text-xs font-bold text-red-400/80 transition-colors hover:text-red-300 disabled:opacity-50"
+              >
+                {busyId === "purge" ? "Purging…" : `🧹 Purge spam (${spamCandidates.length})`}
+              </button>
             )}
             <button onClick={() => fetchList()} className="text-xs text-white/40 transition-colors hover:text-white">
               ↻ Refresh

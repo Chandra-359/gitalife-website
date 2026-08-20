@@ -7,6 +7,7 @@ import {
 } from "@/lib/weeklyPrograms";
 import { sendProgramWelcome } from "@/lib/programEmail";
 import { appendWeeklyRegistrationToSheet } from "@/lib/sheets";
+import { checkFormGuard, FORM_GUARD_MESSAGES } from "@/lib/formGuard";
 
 /**
  * Weekly program registration — register once, come every week.
@@ -27,6 +28,18 @@ import { appendWeeklyRegistrationToSheet } from "@/lib/sheets";
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
+
+    // Spam guard — bots stuffing the honeypot get a FAKE success (so
+    // they move on quietly); missing/forged/too-fast tokens get a
+    // humane retry message. Real registrations are unaffected.
+    const guard = checkFormGuard(body);
+    if (!guard.ok) {
+      if (guard.reason === "honeypot") {
+        return NextResponse.json({ ok: true, alreadyRegistered: false, emailed: true });
+      }
+      return NextResponse.json({ error: FORM_GUARD_MESSAGES[guard.reason] }, { status: 400 });
+    }
+
     const programId = String(body.programId ?? "");
     const name = String(body.name ?? "").trim().slice(0, 120);
     const email = String(body.email ?? "").trim().toLowerCase().slice(0, 255);

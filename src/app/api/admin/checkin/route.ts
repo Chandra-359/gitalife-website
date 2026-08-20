@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { verifyTicketToken } from "@/lib/ticket";
+import { removeFestivalSheetRows } from "@/lib/sheets";
 import { EVENT } from "@/data/bhajanClubbing";
 import { ET_TZ } from "@/lib/weeklyPrograms";
 
@@ -271,9 +272,16 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Scoped to the board's event so the endpoint can't touch other RSVPs
-    await prisma.rsvp.delete({
+    const removed = await prisma.rsvp.delete({
       where: { id, programId: typeof programId === "string" && programId ? programId : EVENT.programId },
+      include: { program: { select: { title: true, eventStartAt: true } } },
     });
+
+    // Keep the registrations sheet in step — dated events only (the
+    // clubbing sheet predates per-event tabs). Best-effort.
+    if (removed.program.eventStartAt) {
+      await removeFestivalSheetRows(removed.programId, removed.program.title, [removed.email]);
+    }
 
     return NextResponse.json({ deleted: id });
   } catch (error) {

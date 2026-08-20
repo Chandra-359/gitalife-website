@@ -26,6 +26,8 @@ import EventRegisterForm from "./EventRegisterForm";
 interface FestivalsPageProps {
   upcoming: FestivalEventLive[];
   past: FestivalEventLive[];
+  /** Spam-guard token minted per render — echoed back on registration. */
+  formToken: string | null;
 }
 
 /* ================================================================== */
@@ -111,7 +113,15 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EventCard({ event, flip }: { event: FestivalEventLive; flip: boolean }) {
+function EventCard({
+  event,
+  flip,
+  formToken,
+}: {
+  event: FestivalEventLive;
+  flip: boolean;
+  formToken: string | null;
+}) {
   const volunteering = event.category === "Volunteering";
   return (
     <article
@@ -206,6 +216,7 @@ function EventCard({ event, flip }: { event: FestivalEventLive; flip: boolean })
             dateLabel={event.dateLabel}
             spotsLeft={event.spotsLeft}
             volunteering={volunteering}
+            formToken={formToken}
           />
 
           <div className="mt-4 flex items-center justify-between gap-3">
@@ -381,7 +392,7 @@ function Faq() {
 /* ================================================================== */
 /*  Composed page                                                      */
 /* ================================================================== */
-export default function FestivalsPage({ upcoming, past }: FestivalsPageProps) {
+export default function FestivalsPage({ upcoming, past, formToken }: FestivalsPageProps) {
   return (
     <div className="surface-paper min-h-screen">
       <Navbar />
@@ -392,7 +403,9 @@ export default function FestivalsPage({ upcoming, past }: FestivalsPageProps) {
           {upcoming.length === 0 ? (
             <EmptyState />
           ) : (
-            upcoming.map((event, i) => <EventCard key={event.id} event={event} flip={i % 2 === 1} />)
+            upcoming.map((event, i) => (
+              <EventCard key={event.id} event={event} flip={i % 2 === 1} formToken={formToken} />
+            ))
           )}
         </div>
       </section>

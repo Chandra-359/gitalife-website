@@ -10,6 +10,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import toast, { Toaster } from "react-hot-toast";
+import { isSpamRegistration } from "@/lib/spam";
+import { EVENT as CLUBBING } from "@/data/bhajanClubbing";
 
 interface Rsvp {
   id: string;
@@ -84,6 +86,47 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
   }, [selectedProgram, search, programs.length]);
 
   useEffect(() => { fetchRsvps(); }, [fetchRsvps]);
+
+  // Registrations matching the bot heuristics (clubbing excluded — those
+  // are paid). Previewed here, purged server-side (DB + sheet rows).
+  const spamCandidates = rsvps.filter(
+    (r) => r.status === "confirmed" && r.program.id !== CLUBBING.programId && isSpamRegistration(r.name, r.email),
+  );
+  const [purging, setPurging] = useState(false);
+
+  async function purgeSpam() {
+    if (spamCandidates.length === 0) return;
+    const preview = spamCandidates
+      .slice(0, 12)
+      .map((r) => `• ${r.name} — ${r.email} (${r.program.title})`)
+      .join("\n");
+    const scope = selectedProgram ? "this program" : "ALL programs";
+    if (
+      !window.confirm(
+        `Delete ${spamCandidates.length} spam-looking registration${spamCandidates.length === 1 ? "" : "s"} across ${scope} AND their Google Sheet rows?\n\n${preview}${spamCandidates.length > 12 ? "\n…" : ""}`,
+      )
+    )
+      return;
+    setPurging(true);
+    try {
+      const res = await fetch("/api/admin/spam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedProgram ? { programId: selectedProgram } : {}),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(String(result.error || ""));
+      toast.success(
+        `Purged ${result.purged} registration${result.purged === 1 ? "" : "s"} (${result.sheetRows} sheet row${result.sheetRows === 1 ? "" : "s"})`,
+        { duration: 5000 },
+      );
+      fetchRsvps();
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Purge failed — try again");
+    } finally {
+      setPurging(false);
+    }
+  }
 
   // Stats
   const totalRsvps = rsvps.length;
@@ -199,6 +242,17 @@ export default function RsvpTable({ userEmail }: RsvpTableProps) {
               className="w-full rounded-lg border border-white/10 bg-white/5 pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-[#E8751A]/50 focus:outline-none"
             />
           </div>
+
+          {/* Spam purge — only shows when the heuristics flag rows */}
+          {spamCandidates.length > 0 && (
+            <button
+              onClick={purgeSpam}
+              disabled={purging}
+              className="rounded-lg border border-red-500/30 px-4 py-2 text-xs font-bold text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50 whitespace-nowrap"
+            >
+              {purging ? "Purging…" : `🧹 Purge spam (${spamCandidates.length})`}
+            </button>
+          )}
 
           {/* Export */}
           <button

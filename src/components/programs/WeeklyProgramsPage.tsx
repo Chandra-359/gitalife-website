@@ -30,6 +30,8 @@ export type WeeklyProgramView = WeeklyProgramLive & { nextLabel: string };
 interface WeeklyProgramsPageProps {
   programs: WeeklyProgramView[];
   testimonials: Program[];
+  /** Spam-guard token minted per render — echoed back on registration. */
+  formToken: string | null;
 }
 
 /* ================================================================== */
@@ -268,7 +270,7 @@ function GalleryStrip({ p }: { p: WeeklyProgramView }) {
   );
 }
 
-function Chapter({ p, index }: { p: WeeklyProgramView; index: number }) {
+function Chapter({ p, index, formToken }: { p: WeeklyProgramView; index: number; formToken: string | null }) {
   const flip = index % 2 === 1;
   return (
     <section
@@ -368,6 +370,7 @@ function Chapter({ p, index }: { p: WeeklyProgramView; index: number }) {
                 programName={p.title}
                 dayOfWeek={p.dayOfWeek}
                 accent={p.accent}
+                formToken={formToken}
               />
 
               <a
@@ -444,14 +447,14 @@ function ClosingCta() {
 /* ================================================================== */
 /*  Composed page                                                      */
 /* ================================================================== */
-export default function WeeklyProgramsPage({ programs, testimonials }: WeeklyProgramsPageProps) {
+export default function WeeklyProgramsPage({ programs, testimonials, formToken }: WeeklyProgramsPageProps) {
   return (
     <div className="surface-paper min-h-screen">
       <Navbar />
       <Hero programs={programs} />
       <HowItWorks />
       {programs.map((p, i) => (
-        <Chapter key={p.id} p={p} index={i} />
+        <Chapter key={p.id} p={p} index={i} formToken={formToken} />
       ))}
       <ClosingCta />
       <ConnectFooter testimonials={testimonials} />
