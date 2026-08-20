@@ -19,6 +19,8 @@ interface EventRegisterFormProps {
   dateLabel: string;
   spotsLeft: number | null;
   volunteering: boolean;
+  /** Spam-guard token from the server render — echoed back on submit. */
+  formToken: string | null;
 }
 
 // Same list as the Bhajan Clubbing ticket flow, plus Bhajan Clubbing
@@ -52,6 +54,7 @@ export default function EventRegisterForm({
   dateLabel,
   spotsLeft,
   volunteering,
+  formToken,
 }: EventRegisterFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -60,6 +63,8 @@ export default function EventRegisterForm({
   const [location, setLocation] = useState("");
   const [organization, setOrganization] = useState("");
   const [hearAbout, setHearAbout] = useState("");
+  // Honeypot — humans never see or fill this; bots stuff every field
+  const [website, setWebsite] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [done, setDone] = useState<DoneState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +96,8 @@ export default function EventRegisterForm({
           location,
           organization,
           hearAbout,
+          website,
+          formToken,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -170,6 +177,21 @@ export default function EventRegisterForm({
           Only {spotsLeft} spot{spotsLeft === 1 ? "" : "s"} left
         </p>
       )}
+
+      {/* Honeypot — visually removed and skipped by keyboard/screen
+          readers; only auto-form-fillers ever put a value here */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor={`${eventId}-website`}>Website</label>
+        <input
+          id={`${eventId}-website`}
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </div>
 
       <div className="space-y-3">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

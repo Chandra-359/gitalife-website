@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import { getPrismaClient } from "@/lib/prisma";
 import { getFestivalEvents } from "@/lib/festivals";
 import { ensureSeededFestivalEvents } from "@/lib/myf";
+import { mintFormToken } from "@/lib/formGuard";
 import FestivalsPage from "@/components/festival/FestivalsPage";
 
 export const dynamic = "force-dynamic";
@@ -36,5 +37,6 @@ export default async function Page() {
   // they appear without any /admin/festivals setup.
   await ensureSeededFestivalEvents(getPrismaClient());
   const { upcoming, past } = await getFestivalEvents();
-  return <FestivalsPage upcoming={upcoming} past={past} />;
+  // Spam guard: signed render timestamp echoed back by the forms
+  return <FestivalsPage upcoming={upcoming} past={past} formToken={mintFormToken()} />;
 }
