@@ -160,7 +160,15 @@ const FESTIVAL_HEADER = [
   "Mobile",
   "Guests",
   "Heard Via",
+  "Follow-up",
 ];
+
+/** Dropdown options for the Follow-up column — how the outreach team
+ *  tracks each party. New rows start as "Registered". */
+const FOLLOWUP_OPTIONS = ["Registered", "Called", "Did not pick", "Confirmed", "Not coming"];
+
+/** Zero-based index of the Follow-up column (G). */
+const FOLLOWUP_COLUMN = FESTIVAL_HEADER.length - 1;
 
 /**
  * Sheets tab titles can't contain []/\?*: and cap at 100 chars — keep
@@ -171,6 +179,128 @@ function tabTitle(raw: string): string {
   return cleaned || "Event registrations";
 }
 
+function festivalSheetId(cfg: NonNullable<ReturnType<typeof sheetsConfig>>): string {
+  return process.env.GOOGLE_SHEETS_FESTIVALS_ID || cfg.sheetId;
+}
+
+/** Tabs verified this server instance (header present, dropdown set). */
+const decoratedTabs = new Set<string>();
+
+/**
+ * Self-healing formatting for an event's registrations tab: make sure
+ * row 1 holds the header (inserting it above existing rows when it's
+ * missing), freeze and bold it, and (re)apply the Follow-up dropdown to
+ * column G. Runs once per tab per server instance; never throws.
+ */
+async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<void> {
+  const key = `${spreadsheetId}/${tab}`;
+  if (decoratedTabs.has(key)) return;
+  try {
+    const cfg = sheetsConfig();
+    if (!cfg) return;
+    const token = await accessToken(cfg);
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+
+    // batchUpdate addresses tabs by numeric id, not title
+    const metaRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties(sheetId,title)`,
+      { headers },
+    );
+    if (!metaRes.ok) return;
+    const meta = (await metaRes.json()) as {
+      sheets?: { properties: { sheetId: number; title: string } }[];
+    };
+    const gid = meta.sheets?.find((s) => s.properties.title === tab)?.properties.sheetId;
+    if (gid == null) return;
+
+    const range = encodeURIComponent(`'${tab.replace(/'/g, "''")}'!A1:A1`);
+    const rowRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`,
+      { headers },
+    );
+    if (!rowRes.ok) return;
+    const rowData = (await rowRes.json()) as { values?: string[][] };
+    const hasHeader = (rowData.values?.[0]?.[0] ?? "") === FESTIVAL_HEADER[0];
+
+    const requests: unknown[] = [];
+    if (!hasHeader) {
+      // Push existing rows down and write the header into the new row 1
+      requests.push({
+        insertDimension: {
+          range: { sheetId: gid, dimension: "ROWS", startIndex: 0, endIndex: 1 },
+          inheritFromBefore: false,
+        },
+      });
+      requests.push({
+        updateCells: {
+          start: { sheetId: gid, rowIndex: 0, columnIndex: 0 },
+          rows: [
+            { values: FESTIVAL_HEADER.map((h) => ({ userEnteredValue: { stringValue: h } })) },
+          ],
+          fields: "userEnteredValue",
+        },
+      });
+    }
+    requests.push({
+      updateSheetProperties: {
+        properties: { sheetId: gid, gridProperties: { frozenRowCount: 1 } },
+        fields: "gridProperties.frozenRowCount",
+      },
+    });
+    requests.push({
+      repeatCell: {
+        range: { sheetId: gid, startRowIndex: 0, endRowIndex: 1 },
+        cell: { userEnteredFormat: { textFormat: { bold: true } } },
+        fields: "userEnteredFormat.textFormat.bold",
+      },
+    });
+    // Dropdown chips on every Follow-up cell below the header. strict is
+    // off so a hand-typed note doesn't get rejected.
+    requests.push({
+      setDataValidation: {
+        range: {
+          sheetId: gid,
+          startRowIndex: 1,
+          startColumnIndex: FOLLOWUP_COLUMN,
+          endColumnIndex: FOLLOWUP_COLUMN + 1,
+        },
+        rule: {
+          condition: {
+            type: "ONE_OF_LIST",
+            values: FOLLOWUP_OPTIONS.map((v) => ({ userEnteredValue: v })),
+          },
+          showCustomUi: true,
+          strict: false,
+        },
+      },
+    });
+
+    const res = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      { method: "POST", headers, body: JSON.stringify({ requests }) },
+    );
+    if (!res.ok) {
+      console.error(`Google Sheets decorate of "${tab}" failed:`, res.status, await res.text());
+      return; // left uncached so the next append retries
+    }
+    decoratedTabs.add(key);
+  } catch (error) {
+    console.error(`Google Sheets decorate of "${tab}" error:`, error);
+  }
+}
+
+/**
+ * Make sure an event's registrations tab is set up (header row, frozen
+ * bold header, Follow-up dropdown) without appending anything — used by
+ * repeat registrations, which don't add a row. Never throws.
+ */
+export async function ensureFestivalSheetSetup(eventTitle: string): Promise<void> {
+  const cfg = sheetsConfig();
+  if (!cfg) return;
+  await decorateFestivalTab(festivalSheetId(cfg), tabTitle(eventTitle));
+}
+
 /**
  * One row per festival/event registration, for door check-in.
  * Lands in the SAME spreadsheet as the Bhajan Clubbing registrations
@@ -178,21 +308,25 @@ function tabTitle(raw: string): string {
  * created with a header row the first time someone registers.
  * GOOGLE_SHEETS_FESTIVALS_ID still overrides the spreadsheet if set.
  * Columns: Registered At (ET) · Full Name · Email · Mobile · Guests ·
- * Heard Via
+ * Heard Via · Follow-up (dropdown, starts as "Registered")
  */
 export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise<boolean> {
   const cfg = sheetsConfig();
   if (!cfg) return false;
-  const sheetId = process.env.GOOGLE_SHEETS_FESTIVALS_ID || cfg.sheetId;
+  const sheetId = festivalSheetId(cfg);
+  const tab = tabTitle(r.event);
   const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-  return appendToTabEnsuring(sheetId, tabTitle(r.event), FESTIVAL_HEADER, [
+  const ok = await appendToTabEnsuring(sheetId, tab, FESTIVAL_HEADER, [
     registeredAt,
     r.name,
     r.email,
     r.phone,
     r.guests,
     r.hearAbout || "",
+    FOLLOWUP_OPTIONS[0],
   ]);
+  if (ok) await decorateFestivalTab(sheetId, tab);
+  return ok;
 }
 
 export interface RegistrationRow {

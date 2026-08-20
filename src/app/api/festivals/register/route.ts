@@ -3,7 +3,7 @@ import { getPrismaClient } from "@/lib/prisma";
 import { getOpenFestivalEvent } from "@/lib/festivals";
 import { ensureSeededFestivalEvents } from "@/lib/myf";
 import { sendFestivalConfirmation } from "@/lib/festivalEmail";
-import { appendFestivalRegistrationToSheet } from "@/lib/sheets";
+import { appendFestivalRegistrationToSheet, ensureFestivalSheetSetup } from "@/lib/sheets";
 
 /**
  * Festival / dated-event registration.
@@ -126,7 +126,9 @@ export async function POST(request: Request) {
         alreadyRegistered,
       }),
       alreadyRegistered
-        ? Promise.resolve(true)
+        ? // No new row, but still make sure the tab has its header row and
+          // Follow-up dropdown (also retrofits tabs from before they existed)
+          ensureFestivalSheetSetup(event.title).then(() => true)
         : appendFestivalRegistrationToSheet({
             event: event.title,
             name,
