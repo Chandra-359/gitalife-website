@@ -71,7 +71,7 @@ export const CLASS_LOCATIONS: ClassLocation[] = [
     mapsUrl: "https://maps.google.com/?q=ISKCON+Brooklyn",
     color: "krishna",
     description:
-      "Our home temple — Sunday morning class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's packed prasadam.",
+      "Our home temple — Sunday evening class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's packed prasadam.",
     transit: "2, 3, 4, 5, B, Q trains — Hoyt-Schermerhorn or Atlantic",
   },
 ];
@@ -95,7 +95,7 @@ export const WEEKLY_SCHEDULE: WeeklyClass[] = [
   },
   {
     day: "Sunday",
-    time: "10:00 AM",
+    time: "7:00 PM",
     title: "Bhagavad Gita Class",
     location: "ISKCON Brooklyn",
     neighborhood: "Brooklyn, NY",
