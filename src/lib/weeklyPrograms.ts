@@ -153,6 +153,7 @@ type ProgramDb = Pick<PrismaClient, "program">;
  * gallery, speaker) are never touched.
  */
 export async function ensureWeeklyProgram(db: ProgramDb, config: WeeklyProgram) {
+  const hours = config.durationMinutes / 60;
   const configOwned = {
     title: config.title,
     category: config.category,
@@ -164,7 +165,7 @@ export async function ensureWeeklyProgram(db: ProgramDb, config: WeeklyProgram) 
     time: config.timeLabel,
     venueName: config.venueName,
     address: config.address,
-    duration: `${Math.round(config.durationMinutes / 60)} hours`,
+    duration: `${Number.isInteger(hours) ? hours : hours.toFixed(1)} ${hours === 1 ? "hour" : "hours"}`,
   };
   return db.program.upsert({
     where: { id: config.id },

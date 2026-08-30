@@ -117,11 +117,11 @@ export const WEEKLY_PROGRAMS: WeeklyProgram[] = [
     title: "ISKCON Brooklyn Sunday Program",
     tagline: "The full temple experience — deities, kirtan & Govinda's prasadam",
     description:
-      "Our home temple — Sunday morning class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's prasadam.",
+      "Our home temple — Sunday evening class in a historic 50-year-old ISKCON center. Deities, kirtan, full temple experience, and Govinda's prasadam.",
     dayOfWeek: "Sunday",
-    timeLabel: "10:00 AM – 12:00 PM",
-    startTime: "10:00",
-    durationMinutes: 120,
+    timeLabel: "7:00 PM – 8:30 PM",
+    startTime: "19:00",
+    durationMinutes: 90,
     venueName: "ISKCON Brooklyn Temple",
     address: "305 Schermerhorn Street, Brooklyn, NY 11217",
     mapsUrl: "https://maps.google.com/?q=ISKCON+Brooklyn",
@@ -131,7 +131,7 @@ export const WEEKLY_PROGRAMS: WeeklyProgram[] = [
     accent: "#1B2A6B",       // krishna blue
     accentSoft: "#8DA2E8",   // light periwinkle — stays readable on the dark hero
     chapterMark: "३",   // ३
-    highlights: ["Temple morning program", "Full kirtan with deities", "Govinda's prasadam feast"],
+    highlights: ["Temple evening program", "Full kirtan with deities", "Govinda's prasadam feast"],
     category: "Wisdom Session",
   },
 ];
