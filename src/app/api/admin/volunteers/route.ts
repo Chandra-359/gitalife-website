@@ -4,6 +4,8 @@
  * GET  — signups for one drive (default: first configured) plus the
  *        drive's live per-shift fill and the drive picker list.
  *        Query: ?driveId=…&search=… (name/email, case-insensitive)
+ * PATCH — { id, shiftKey, checked } → mark a volunteer present (or not)
+ *        for one of their shifts; returns the updated signup.
  * DELETE — { ids: string[] } → hard-delete those signups and remove
  *        their Google Sheet rows (spam cleanup from the console).
  *
@@ -66,6 +68,51 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Failed to fetch volunteer signups:", error);
     return NextResponse.json({ error: "Failed to fetch volunteer signups" }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!prisma?.volunteerSignup) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  try {
+    const body = await request.json().catch(() => ({}));
+    const id = String(body.id ?? "");
+    const shiftKey = String(body.shiftKey ?? "");
+    const checked = !!body.checked;
+    if (!id || !shiftKey) {
+      return NextResponse.json({ error: "id and shiftKey are required" }, { status: 400 });
+    }
+
+    const signup = await prisma.volunteerSignup.findUnique({ where: { id } });
+    if (!signup) {
+      return NextResponse.json({ error: "Signup not found" }, { status: 404 });
+    }
+
+    const current = new Set(signup.checkedInShiftKeys);
+    if (checked) current.add(shiftKey);
+    else current.delete(shiftKey);
+
+    const updated = await prisma.volunteerSignup.update({
+      where: { id },
+      data: { checkedInShiftKeys: Array.from(current) },
+    });
+
+    return NextResponse.json({
+      signup: {
+        ...updated,
+        createdAt: updated.createdAt.toISOString(),
+        updatedAt: updated.updatedAt.toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Failed to update volunteer check-in:", error);
+    return NextResponse.json({ error: "Failed to update check-in" }, { status: 500 });
   }
 }
 

@@ -45,7 +45,9 @@ export interface VolunteerShift {
   /** ET-offset ISO instants, e.g. "2026-09-05T10:00:00-04:00". */
   startIso: string;
   endIso: string;
-  /** Max volunteers for this shift; null = no cap. */
+  /** Volunteers needed — the target on the admin fill board. Signups
+   *  are never blocked by it, and the public page doesn't show it;
+   *  null = no target. */
   capacity: number | null;
   /** Optional one-liner shown under the shift, e.g. "Aprons provided". */
   note?: string;
@@ -82,8 +84,10 @@ export interface VolunteerDrive {
 
 /* ------------------------------------------------------------------ */
 /*  Sri Krishna Janmashtami 2026 — ISKCON Brooklyn                     */
-/*  Festival day Saturday Sep 5; prep from Thursday, Nandotsava +      */
-/*  restore on Sunday. Adjust shifts to the temple's final schedule.   */
+/*  Temple schedule: Kitchen seva Thursday Sep 3 (8 volunteers) and    */
+/*  all day Friday Sep 4 (15 volunteers, most needed after 4 PM);      */
+/*  Govinda's outside stalls run Friday (open to guests from 4 PM)     */
+/*  with volunteer shifts 9 AM – 11 PM.                                */
 /* ------------------------------------------------------------------ */
 
 export const JANMASHTAMI_2026: VolunteerDrive = {
@@ -92,7 +96,7 @@ export const JANMASHTAMI_2026: VolunteerDrive = {
   title: "Janmashtami 2026 Seva Crew",
   tagline: "The biggest night of the year doesn't happen without you.",
   description:
-    "Thousands come through the temple doors for Krishna's appearance day — and every garland, every plate of prasadam, and every warm welcome is a volunteer's seva. Pick the crew and shifts that fit your week; we'll confirm by email and the coordinators will take it from there.",
+    "Thousands come through the temple doors for Krishna's appearance day — and every plate of prasadam served is a volunteer's seva. Kitchen seva starts Thursday; on festival Friday the kitchen runs all day and Govinda's outside stalls serve from 4 PM. Tick every shift you're available for; we'll confirm by email and the coordinators will take it from there.",
   venueName: "Sri Sri Radha Govinda Mandir",
   address: "305 Schermerhorn St, Brooklyn, NY 11217",
   status: "published",
@@ -100,132 +104,81 @@ export const JANMASHTAMI_2026: VolunteerDrive = {
   activities: [
     {
       id: "kitchen",
-      title: "Kitchen & Prasadam",
+      title: "Kitchen",
       description:
-        "Chop, cook, and plate the feast offered to Krishna and served to every guest. No cooking experience needed — the kitchen leads will place you.",
-      icon: "food",
+        "Chop, cook, and prep the feast offered to Krishna and served to every guest. No cooking experience needed — the kitchen leads will place you. Friday is the big push: the kitchen runs all day, with the most hands needed after 4 PM.",
+      icon: "flame",
       color: "peacock",
       shifts: [
         {
-          id: "thu-prep",
-          startIso: "2026-09-03T18:00:00-04:00",
-          endIso: "2026-09-03T21:00:00-04:00",
-          capacity: 10,
-          note: "Veg prep for the feast",
+          id: "thu-morning",
+          startIso: "2026-09-03T10:00:00-04:00",
+          endIso: "2026-09-03T13:00:00-04:00",
+          capacity: 8,
+          note: "Feast prep with the kitchen team",
         },
         {
-          id: "fri-cooking",
-          startIso: "2026-09-04T18:00:00-04:00",
-          endIso: "2026-09-04T22:00:00-04:00",
-          capacity: 12,
-          note: "Cooking marathon with the kitchen team",
-        },
-        {
-          id: "sat-cooking",
-          startIso: "2026-09-05T10:00:00-04:00",
-          endIso: "2026-09-05T14:00:00-04:00",
-          capacity: 12,
-        },
-        {
-          id: "sat-serving",
-          startIso: "2026-09-05T18:00:00-04:00",
-          endIso: "2026-09-05T22:00:00-04:00",
-          capacity: 15,
-          note: "Serving prasadam to guests",
-        },
-      ],
-    },
-    {
-      id: "decoration",
-      title: "Decoration & Altar",
-      description:
-        "Garlands, flowers, lights, and the festival altar — turn the temple into Vrindavan for Krishna's birthday.",
-      icon: "lotus",
-      color: "lotus",
-      shifts: [
-        {
-          id: "fri-garlands",
-          startIso: "2026-09-04T18:00:00-04:00",
-          endIso: "2026-09-04T22:00:00-04:00",
-          capacity: 15,
-          note: "Garland stringing & hall decor",
-        },
-        {
-          id: "sat-touches",
-          startIso: "2026-09-05T09:00:00-04:00",
-          endIso: "2026-09-05T13:00:00-04:00",
-          capacity: 10,
-          note: "Final touches before doors open",
-        },
-      ],
-    },
-    {
-      id: "welcome",
-      title: "Guest Welcome & Registration",
-      description:
-        "Be the first smile guests meet — greet, guide first-timers, and help at the welcome desk as the crowd builds toward midnight.",
-      icon: "handshake",
-      color: "gold",
-      shifts: [
-        {
-          id: "sat-early",
-          startIso: "2026-09-05T16:00:00-04:00",
-          endIso: "2026-09-05T20:00:00-04:00",
+          id: "thu-evening",
+          startIso: "2026-09-03T15:00:00-04:00",
+          endIso: "2026-09-03T20:00:00-04:00",
           capacity: 8,
         },
         {
-          id: "sat-late",
-          startIso: "2026-09-05T20:00:00-04:00",
-          endIso: "2026-09-06T00:00:00-04:00",
-          capacity: 8,
-          note: "Through the midnight arati crowd",
+          id: "fri-day",
+          startIso: "2026-09-04T09:00:00-04:00",
+          endIso: "2026-09-04T16:00:00-04:00",
+          capacity: 15,
+          note: "Full-day cooking — come for any stretch",
+        },
+        {
+          id: "fri-evening",
+          startIso: "2026-09-04T16:00:00-04:00",
+          endIso: "2026-09-04T21:00:00-04:00",
+          capacity: 15,
+          note: "Most hands needed — festival rush",
         },
       ],
     },
     {
-      id: "operations",
-      title: "Festival Operations",
+      id: "govindas",
+      title: "Govinda's — Outside Stalls",
       description:
-        "Keep the festival flowing — darshan lines, shoe racks, aisles, and a calm pair of hands wherever the moment needs one.",
-      icon: "flame",
+        "Run the outdoor food stalls with the Govinda's team on festival Friday — setup in the morning, then serving and keeping the lines moving once stalls open to guests at 4 PM.",
+      icon: "food",
       color: "saffron",
       shifts: [
         {
-          id: "sat-early",
-          startIso: "2026-09-05T16:00:00-04:00",
-          endIso: "2026-09-05T20:00:00-04:00",
-          capacity: 10,
+          id: "fri-9-12",
+          startIso: "2026-09-04T09:00:00-04:00",
+          endIso: "2026-09-04T12:00:00-04:00",
+          capacity: null,
+          note: "Stall setup & prep",
         },
         {
-          id: "sat-midnight",
-          startIso: "2026-09-05T20:00:00-04:00",
-          endIso: "2026-09-06T00:30:00-04:00",
-          capacity: 10,
-          note: "Includes the midnight abhisheka rush",
-        },
-      ],
-    },
-    {
-      id: "cleanup",
-      title: "Cleanup & Restore",
-      description:
-        "The unsung heroes. Close down festival night and reset the temple for Nandotsava and Srila Prabhupada's Vyasa-puja on Sunday.",
-      icon: "sparkle",
-      color: "krishna",
-      shifts: [
-        {
-          id: "sat-night",
-          startIso: "2026-09-05T22:00:00-04:00",
-          endIso: "2026-09-06T01:00:00-04:00",
-          capacity: 12,
-          note: "Late-night crew — prasadam and kirtan included",
+          id: "fri-12-3",
+          startIso: "2026-09-04T12:00:00-04:00",
+          endIso: "2026-09-04T15:00:00-04:00",
+          capacity: null,
         },
         {
-          id: "sun-restore",
-          startIso: "2026-09-06T10:00:00-04:00",
-          endIso: "2026-09-06T13:00:00-04:00",
-          capacity: 10,
-          note: "Sunday reset + Nandotsava",
+          id: "fri-3-6",
+          startIso: "2026-09-04T15:00:00-04:00",
+          endIso: "2026-09-04T18:00:00-04:00",
+          capacity: null,
+          note: "Stalls open to guests at 4 PM",
+        },
+        {
+          id: "fri-6-9",
+          startIso: "2026-09-04T18:00:00-04:00",
+          endIso: "2026-09-04T21:00:00-04:00",
+          capacity: null,
+        },
+        {
+          id: "fri-9-11",
+          startIso: "2026-09-04T21:00:00-04:00",
+          endIso: "2026-09-04T23:00:00-04:00",
+          capacity: null,
+          note: "Closing crew",
         },
       ],
     },

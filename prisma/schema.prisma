@@ -148,10 +148,13 @@ model VolunteerSignup {
   name      String
   email     String                          // lowercased
   phone     String
-  whatsapp  String?                         // blank = same as mobile
-  shiftKeys String[]                        // ["kitchen:sat-morning", ...]
-  notes     String?                         // skills, constraints, anything they told us
-  hearAbout String?
+  whatsapp   String?                        // blank = same as mobile
+  location   String?                        // "City, State"
+  occupation String?                        // "Student" | "Working professional" | "Other"
+  shiftKeys  String[]                       // ["kitchen:thu-morning", ...]
+  /// Shifts this volunteer was marked present for (/admin/volunteers).
+  checkedInShiftKeys String[] @default([])
+  notes      String?                        // skills, constraints, anything they told us
   status    String   @default("confirmed")  // "confirmed" | "cancelled"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
