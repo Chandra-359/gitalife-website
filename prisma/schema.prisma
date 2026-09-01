@@ -138,6 +138,28 @@ model Donation {
   @@index([createdAt])
 }
 
+/// One volunteer's signup for a volunteer drive (src/data/volunteer.ts).
+/// A single row per volunteer per drive — re-submitting the form updates
+/// the chosen shifts instead of duplicating. Shift selections are stored
+/// as "activityId:shiftId" keys that resolve against the drive config.
+model VolunteerSignup {
+  id        String   @id @default(cuid())
+  driveId   String                          // VolunteerDrive.id, e.g. "janmashtami-2026"
+  name      String
+  email     String                          // lowercased
+  phone     String
+  whatsapp  String?                         // blank = same as mobile
+  shiftKeys String[]                        // ["kitchen:sat-morning", ...]
+  notes     String?                         // skills, constraints, anything they told us
+  hearAbout String?
+  status    String   @default("confirmed")  // "confirmed" | "cancelled"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, driveId]) // one signup per volunteer per drive
+  @@index([driveId])
+}
+
 /// An RSVP submission for a program.
 model Rsvp {
   id        String   @id @default(cuid())

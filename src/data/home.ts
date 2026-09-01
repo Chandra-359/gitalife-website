@@ -235,32 +235,9 @@ export const RETREATS: Retreat[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  VOLUNTEER EVENTS                                                   */
-/*  One entry per upcoming Luma event the youth crew is helping run.   */
-/*  Add a new entry → it shows up at /volunteer with a Luma RSVP card. */
+/*  Volunteer drives (festival seva crews with shifts + signups) live  */
+/*  in src/data/volunteer.ts — add the next drive there.               */
 /* ------------------------------------------------------------------ */
-export interface VolunteerEvent {
-  id: string;
-  title: string;
-  dateLabel: string;
-  timeLabel: string;
-  location: string;
-  /** Luma event URL — supports both lu.ma/<slug> and luma.com/<slug>. */
-  lumaUrl: string;
-  status: "upcoming" | "past";
-}
-
-export const VOLUNTEER_EVENTS: VolunteerEvent[] = [
-  {
-    id: "nrisingha-chaturdashi-2026",
-    title: "Nrisingha Chaturdashi Volunteering",
-    dateLabel: "Thursday, April 30",
-    timeLabel: "8:00 AM – 9:00 PM EDT",
-    location: "ISKCON Brooklyn Temple",
-    lumaUrl: "https://lu.ma/tk1tl0vi",
-    status: "upcoming",
-  },
-];
 
 /* ------------------------------------------------------------------ */
 /*  VOLUNTEER LADDER                                                   */

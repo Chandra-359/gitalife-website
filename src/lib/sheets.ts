@@ -480,6 +480,95 @@ export async function appendFestivalRegistrationToSheet(r: FestivalRow): Promise
   return ok;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Volunteer drives — one tab per drive (src/data/volunteer.ts)       */
+/* ------------------------------------------------------------------ */
+
+const VOLUNTEER_HEADER = [
+  "Submitted At (ET)",
+  "Full Name",
+  "Email",
+  "Mobile",
+  "WhatsApp",
+  "Shifts",
+  "Notes",
+  "Heard Via",
+  "Status",
+];
+
+export interface VolunteerSheetRow {
+  /** Drive id — resolves the tab via the drive's sheetTab. */
+  driveId: string;
+  /** Drive title — fallback tab name. */
+  drive: string;
+  name: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  /** Human-readable shift list, e.g. "Kitchen — Sat, Sep 5 · 10:00 AM – 2:00 PM". */
+  shifts: string;
+  notes: string;
+  hearAbout: string;
+  /** "Signed up" first time, "Updated shifts" on a re-submission. */
+  status: string;
+}
+
+function volunteerTab(sheetTab: string | undefined, driveTitle: string): string {
+  return tabTitle(sheetTab || `${driveTitle} Volunteers`);
+}
+
+/**
+ * One row per volunteer signup submission, on the drive's own tab of the
+ * festivals spreadsheet (created with a header on first use). Repeat
+ * submissions append an "Updated shifts" row — the sheet is an audit
+ * trail for coordinators; the database and /admin/volunteers hold the
+ * canonical current state. Never throws.
+ */
+export async function appendVolunteerSignupToSheet(
+  r: VolunteerSheetRow,
+  sheetTab?: string,
+): Promise<boolean> {
+  const cfg = sheetsConfig();
+  if (!cfg) return false;
+  const sheetId = festivalSheetId(cfg);
+  const tab = volunteerTab(sheetTab, r.drive);
+  const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+  return appendToTabEnsuring(sheetId, tab, VOLUNTEER_HEADER, [
+    submittedAt,
+    r.name,
+    r.email,
+    r.phone,
+    r.whatsapp || "",
+    r.shifts,
+    r.notes || "",
+    r.hearAbout || "",
+    r.status,
+  ]);
+}
+
+/**
+ * Remove a drive tab's rows for the given emails (column C) — keeps the
+ * sheet in step when spam signups are purged from the console. The
+ * header row is never touched. Never throws.
+ */
+export async function removeVolunteerSheetRows(
+  sheetTab: string | undefined,
+  driveTitle: string,
+  emails: string[],
+): Promise<number> {
+  const cfg = sheetsConfig();
+  if (!cfg || emails.length === 0) return 0;
+  const wanted = new Set(emails.map((e) => e.trim().toLowerCase()));
+  return deleteRowsWhere(
+    festivalSheetId(cfg),
+    { title: volunteerTab(sheetTab, driveTitle) },
+    (row, i) => {
+      if (i === 0 && String(row[0] ?? "") === VOLUNTEER_HEADER[0]) return false;
+      return wanted.has(String(row[2] ?? "").trim().toLowerCase());
+    },
+  );
+}
+
 export interface RegistrationRow {
   name: string;
   email: string;
