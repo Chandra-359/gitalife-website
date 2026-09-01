@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Volunteer — Gita Life NYC",
   description:
-    "Join the Janmashtami seva crew at ISKCON Brooklyn — kitchen, decoration, guest welcome, festival operations, and cleanup shifts across the festival week. Pick the shifts that fit your life.",
+    "Join the Janmashtami seva crew at ISKCON Brooklyn — kitchen seva Thursday and Friday, and Govinda's outside stalls all day Friday. Pick the shifts that fit your life.",
   openGraph: {
     title: "Volunteer — Gita Life NYC",
     description:

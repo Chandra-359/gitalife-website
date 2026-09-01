@@ -24,16 +24,7 @@ interface DriveSignupProps {
   formToken: string | null;
 }
 
-const HEAR_ABOUT_OPTIONS = [
-  "Instagram",
-  "WhatsApp",
-  "Friend or family",
-  "Temple announcement",
-  "YouTube",
-  "Weekly program",
-  "Flyers/Posters",
-  "Other",
-];
+const OCCUPATION_OPTIONS = ["Student", "Working professional", "Other"];
 
 type Phase = "idle" | "submitting" | "done";
 
@@ -52,8 +43,9 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [location, setLocation] = useState("");
+  const [occupation, setOccupation] = useState("");
   const [notes, setNotes] = useState("");
-  const [hearAbout, setHearAbout] = useState("");
   // Honeypot — humans never see or fill this; bots stuff every field
   const [website, setWebsite] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -106,8 +98,9 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
           email,
           phone,
           whatsapp,
+          location,
+          occupation,
           notes,
-          hearAbout,
           shiftKeys: Array.from(selected),
           website,
           formToken,
@@ -464,6 +457,52 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor={`${drive.id}-location`}
+                    className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+                    style={{ color: "var(--ink-tertiary)" }}
+                  >
+                    Location <span className="font-normal normal-case tracking-normal">(City, State)</span>
+                  </label>
+                  <input
+                    id={`${drive.id}-location`}
+                    required
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Brooklyn, NY"
+                    autoComplete="address-level2"
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor={`${drive.id}-occupation`}
+                    className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
+                    style={{ color: "var(--ink-tertiary)" }}
+                  >
+                    You are
+                  </label>
+                  <select
+                    id={`${drive.id}-occupation`}
+                    required
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
+                    style={inputStyle}
+                  >
+                    <option value="">Student or working?</option>
+                    {OCCUPATION_OPTIONS.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label
                   htmlFor={`${drive.id}-notes`}
@@ -485,29 +524,6 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor={`${drive.id}-hear`}
-                  className="mb-1 block text-[11px] font-bold uppercase tracking-[0.14em]"
-                  style={{ color: "var(--ink-tertiary)" }}
-                >
-                  How did you find us?
-                </label>
-                <select
-                  id={`${drive.id}-hear`}
-                  value={hearAbout}
-                  onChange={(e) => setHearAbout(e.target.value)}
-                  className="w-full appearance-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                  style={inputStyle}
-                >
-                  <option value="">Select…</option>
-                  {HEAR_ABOUT_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             {error && (

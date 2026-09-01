@@ -9,8 +9,8 @@ import { checkFormGuard, FORM_GUARD_MESSAGES } from "@/lib/formGuard";
 /**
  * Volunteer drive signup.
  *
- * POST { driveId, name, email, phone, whatsapp?, shiftKeys: string[],
- *        notes?, hearAbout? }
+ * POST { driveId, name, email, phone, whatsapp?, location, occupation,
+ *        shiftKeys: string[], notes? }
  *
  * - Signups target a published drive from src/data/volunteer.ts; shift
  *   keys are validated against its config (stale ones are dropped).
@@ -42,8 +42,9 @@ export async function POST(request: Request) {
     const email = String(body.email ?? "").trim().toLowerCase().slice(0, 255);
     const phone = String(body.phone ?? "").trim().slice(0, 40);
     const whatsapp = String(body.whatsapp ?? "").trim().slice(0, 40);
+    const location = String(body.location ?? "").trim().slice(0, 120);
+    const occupation = String(body.occupation ?? "").trim().slice(0, 40);
     const notes = String(body.notes ?? "").trim().slice(0, 500);
-    const hearAbout = String(body.hearAbout ?? "").trim().slice(0, 120);
     const submittedKeys: string[] = Array.isArray(body.shiftKeys)
       ? body.shiftKeys.filter((k: unknown): k is string => typeof k === "string").slice(0, 40)
       : [];
@@ -63,6 +64,15 @@ export async function POST(request: Request) {
     if (whatsapp && (whatsappDigits.length < 7 || whatsappDigits.length > 15)) {
       return NextResponse.json(
         { error: "That WhatsApp number doesn't look right — leave it blank if it's the same as your mobile" },
+        { status: 400 },
+      );
+    }
+    if (!location) {
+      return NextResponse.json({ error: "Please tell us your city and state" }, { status: 400 });
+    }
+    if (!occupation) {
+      return NextResponse.json(
+        { error: "Please tell us whether you're a student or working" },
         { status: 400 },
       );
     }
@@ -129,8 +139,9 @@ export async function POST(request: Request) {
           name: name || existing.name,
           phone: phone || existing.phone,
           whatsapp: whatsapp || existing.whatsapp,
+          location: location || existing.location,
+          occupation: occupation || existing.occupation,
           notes: notes || existing.notes,
-          hearAbout: hearAbout || existing.hearAbout,
           shiftKeys,
         },
       });
@@ -142,8 +153,9 @@ export async function POST(request: Request) {
           email,
           phone,
           whatsapp: whatsapp || null,
+          location,
+          occupation,
           notes: notes || null,
-          hearAbout: hearAbout || null,
           shiftKeys,
         },
       });
@@ -169,9 +181,10 @@ export async function POST(request: Request) {
           email,
           phone,
           whatsapp,
+          location,
+          occupation,
           shifts: shiftSummary,
           notes,
-          hearAbout,
           status: alreadyRegistered ? "Updated shifts" : "Signed up",
         },
         config.sheetTab,

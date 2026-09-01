@@ -490,9 +490,10 @@ const VOLUNTEER_HEADER = [
   "Email",
   "Mobile",
   "WhatsApp",
+  "Location",
+  "Working / Student",
   "Shifts",
   "Notes",
-  "Heard Via",
   "Status",
 ];
 
@@ -505,10 +506,13 @@ export interface VolunteerSheetRow {
   email: string;
   phone: string;
   whatsapp: string;
-  /** Human-readable shift list, e.g. "Kitchen — Sat, Sep 5 · 10:00 AM – 2:00 PM". */
+  /** "City, State" */
+  location: string;
+  /** "Student" | "Working professional" | "Other" */
+  occupation: string;
+  /** Human-readable shift list, e.g. "Kitchen — Fri, Sep 4 · 9:00 AM – 4:00 PM". */
   shifts: string;
   notes: string;
-  hearAbout: string;
   /** "Signed up" first time, "Updated shifts" on a re-submission. */
   status: string;
 }
@@ -539,9 +543,10 @@ export async function appendVolunteerSignupToSheet(
     r.email,
     r.phone,
     r.whatsapp || "",
+    r.location || "",
+    r.occupation || "",
     r.shifts,
     r.notes || "",
-    r.hearAbout || "",
     r.status,
   ]);
 }

@@ -53,9 +53,10 @@ interface Signup {
   email: string;
   phone: string;
   whatsapp: string | null;
+  location: string | null;
+  occupation: string | null;
   shiftKeys: string[];
   notes: string | null;
-  hearAbout: string | null;
   status: string;
   createdAt: string;
 }
@@ -166,16 +167,17 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
   }
 
   function exportCsv() {
-    const header = "Name,Email,Mobile,WhatsApp,Shifts,Notes,Heard Via,Status,Signed Up\n";
+    const header = "Name,Email,Mobile,WhatsApp,Location,Working / Student,Shifts,Notes,Status,Signed Up\n";
     const rows = signups.map((s) =>
       [
         `"${s.name.replace(/"/g, '""')}"`,
         s.email,
         s.phone,
         s.whatsapp || "",
+        `"${(s.location || "").replace(/"/g, '""')}"`,
+        `"${(s.occupation || "").replace(/"/g, '""')}"`,
         `"${s.shiftKeys.map(shiftLabel).join("; ").replace(/"/g, '""')}"`,
         `"${(s.notes || "").replace(/"/g, '""')}"`,
-        `"${(s.hearAbout || "").replace(/"/g, '""')}"`,
         s.status,
         formatDatetime(s.createdAt),
       ].join(","),
@@ -341,9 +343,9 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
               <tr className="border-b border-white/[0.06] text-left text-xs uppercase tracking-wider text-white/30">
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
+                <th className="px-4 py-3 font-medium">Location</th>
                 <th className="px-4 py-3 font-medium">Shifts</th>
                 <th className="px-4 py-3 font-medium">Notes</th>
-                <th className="px-4 py-3 font-medium">Heard Via</th>
                 <th className="px-4 py-3 font-medium">Signed Up</th>
                 <th className="px-4 py-3 font-medium" aria-label="Actions" />
               </tr>
@@ -372,6 +374,14 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
                       <span className="mt-0.5 block text-white/40">{s.phone}</span>
                       {s.whatsapp && <span className="mt-0.5 block text-white/30">WA: {s.whatsapp}</span>}
                     </td>
+                    <td className="px-4 py-3 align-top text-xs">
+                      <span className="block max-w-[130px] truncate text-white/60">{s.location || "—"}</span>
+                      {s.occupation && (
+                        <span className="mt-1 inline-block rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/50">
+                          {s.occupation === "Working professional" ? "Working" : s.occupation}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 align-top">
                       <div className="flex max-w-[320px] flex-wrap gap-1.5">
                         {s.shiftKeys.map((key) => (
@@ -386,9 +396,6 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
                     </td>
                     <td className="max-w-[180px] truncate px-4 py-3 align-top text-xs text-white/40">
                       {s.notes || "—"}
-                    </td>
-                    <td className="max-w-[110px] truncate px-4 py-3 align-top text-xs text-white/50">
-                      {s.hearAbout || "—"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 align-top text-xs text-white/40">
                       {formatDatetime(s.createdAt)}
