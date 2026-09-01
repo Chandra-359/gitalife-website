@@ -4,10 +4,10 @@
  * VolunteersConsole — admin view of volunteer drive signups.
  *
  * Per drive: shift-fill board (who's needed where), searchable signup
- * table with each volunteer's shifts, CSV export, spam purge (same
- * heuristics as the RSVP console), and per-row delete. Drives come from
- * src/data/volunteer.ts; rows from the VolunteerSignup table via
- * /api/admin/volunteers.
+ * table with each volunteer's shifts, tap-to-check-in per shift (green
+ * chip = present), CSV export, spam purge (same heuristics as the RSVP
+ * console), and per-row delete. Drives come from src/data/volunteer.ts;
+ * rows from the VolunteerSignup table via /api/admin/volunteers.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -56,6 +56,7 @@ interface Signup {
   location: string | null;
   occupation: string | null;
   shiftKeys: string[];
+  checkedInShiftKeys: string[];
   notes: string | null;
   status: string;
   createdAt: string;
@@ -122,14 +123,49 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
 
   const confirmed = signups.filter((s) => s.status === "confirmed");
   const shiftSlots = confirmed.reduce((n, s) => n + s.shiftKeys.length, 0);
+  const checkedInCount = confirmed.filter((s) => s.checkedInShiftKeys.length > 0).length;
   const allShifts = useMemo(() => (drive?.activities ?? []).flatMap((a) => a.shifts), [drive]);
   const cappedShifts = allShifts.filter((s) => s.capacity != null);
   const filledCapacity = cappedShifts.reduce((n, s) => n + Math.min(s.signedUp, s.capacity ?? 0), 0);
   const totalCapacity = cappedShifts.reduce((n, s) => n + (s.capacity ?? 0), 0);
 
+  /** shift key → volunteers checked in for it (from the loaded rows). */
+  const checkedPerShift = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const s of confirmed) {
+      for (const key of s.checkedInShiftKeys) {
+        map.set(key, (map.get(key) ?? 0) + 1);
+      }
+    }
+    return map;
+  }, [confirmed]);
+
   const spamCandidates = signups.filter(
     (s) => s.status === "confirmed" && isSpamRegistration(s.name, s.email),
   );
+
+  /** Flip one shift's presence for a volunteer; syncs from the response. */
+  async function toggleCheckin(signup: Signup, shiftKey: string) {
+    const checked = !signup.checkedInShiftKeys.includes(shiftKey);
+    try {
+      const res = await fetch("/api/admin/volunteers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: signup.id, shiftKey, checked }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(String(result.error || ""));
+      setSignups((prev) => prev.map((s) => (s.id === signup.id ? result.signup : s)));
+      toast.success(
+        checked
+          ? `${signup.name.split(" ")[0]} checked in ✓`
+          : `Check-in removed for ${signup.name.split(" ")[0]}`,
+        { duration: 2000 },
+      );
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Check-in failed — try again");
+    }
+  }
 
   async function deleteSignups(ids: string[], confirmText: string) {
     if (ids.length === 0) return;
@@ -167,7 +203,7 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
   }
 
   function exportCsv() {
-    const header = "Name,Email,Mobile,WhatsApp,Location,Working / Student,Shifts,Notes,Status,Signed Up\n";
+    const header = "Name,Email,Mobile,WhatsApp,Location,Working / Student,Shifts,Checked In,Notes,Status,Signed Up\n";
     const rows = signups.map((s) =>
       [
         `"${s.name.replace(/"/g, '""')}"`,
@@ -177,6 +213,7 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
         `"${(s.location || "").replace(/"/g, '""')}"`,
         `"${(s.occupation || "").replace(/"/g, '""')}"`,
         `"${s.shiftKeys.map(shiftLabel).join("; ").replace(/"/g, '""')}"`,
+        `"${s.checkedInShiftKeys.map(shiftLabel).join("; ").replace(/"/g, '""')}"`,
         `"${(s.notes || "").replace(/"/g, '""')}"`,
         s.status,
         formatDatetime(s.createdAt),
@@ -228,14 +265,15 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         {/* ---- Stats ---- */}
-        <div className="mb-8 grid grid-cols-3 gap-4">
+        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
             { label: "Volunteers", value: drive?.volunteerCount ?? confirmed.length, color: "#E8751A" },
             { label: "Shift Signups", value: shiftSlots, color: "#D4A843" },
+            { label: "Checked In", value: checkedInCount, color: "#2D8F4E" },
             {
-              label: "Capacity Filled",
+              label: "Target Filled",
               value: totalCapacity > 0 ? `${filledCapacity}/${totalCapacity}` : "—",
-              color: "#2D8F4E",
+              color: "#4a9eda",
             },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-white/[0.06] bg-[#0c0c20]/60 p-4">
@@ -314,6 +352,9 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
                           </span>
                           <span className={s.spotsLeft === 0 ? "font-bold text-emerald-400" : "text-white/40"}>
                             {s.capacity != null ? `${s.signedUp}/${s.capacity}` : `${s.signedUp}`}
+                            {(checkedPerShift.get(s.key) ?? 0) > 0 && (
+                              <span className="ml-1.5 text-emerald-400">✓{checkedPerShift.get(s.key)}</span>
+                            )}
                           </span>
                         </div>
                         {pct != null && (
@@ -337,6 +378,9 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
         )}
 
         {/* ---- Signup table ---- */}
+        <p className="mb-2 text-xs text-white/40">
+          Tap a shift chip to check a volunteer in (or out) for that shift — green means present.
+        </p>
         <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#0c0c20]/40">
           <table className="w-full text-sm">
             <thead>
@@ -383,15 +427,25 @@ export default function VolunteersConsole({ userEmail }: VolunteersConsoleProps)
                       )}
                     </td>
                     <td className="px-4 py-3 align-top">
-                      <div className="flex max-w-[320px] flex-wrap gap-1.5">
-                        {s.shiftKeys.map((key) => (
-                          <span
-                            key={key}
-                            className="rounded-full bg-white/[0.06] px-2 py-1 text-[10.5px] leading-tight text-white/70"
-                          >
-                            {shiftLabel(key)}
-                          </span>
-                        ))}
+                      <div className="flex max-w-[340px] flex-wrap gap-1.5">
+                        {s.shiftKeys.map((key) => {
+                          const checkedIn = s.checkedInShiftKeys.includes(key);
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => toggleCheckin(s, key)}
+                              title={checkedIn ? "Checked in — tap to undo" : "Tap to check in for this shift"}
+                              className={`rounded-full px-2 py-1 text-[10.5px] leading-tight transition-colors ${
+                                checkedIn
+                                  ? "bg-emerald-500/20 font-semibold text-emerald-300 hover:bg-emerald-500/30"
+                                  : "bg-white/[0.06] text-white/70 hover:bg-white/[0.12]"
+                              }`}
+                            >
+                              {checkedIn && <span aria-hidden>✓ </span>}
+                              {shiftLabel(key)}
+                            </button>
+                          );
+                        })}
                       </div>
                     </td>
                     <td className="max-w-[180px] truncate px-4 py-3 align-top text-xs text-white/40">

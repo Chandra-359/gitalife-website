@@ -152,6 +152,8 @@ model VolunteerSignup {
   location   String?                        // "City, State"
   occupation String?                        // "Student" | "Working professional" | "Other"
   shiftKeys  String[]                       // ["kitchen:thu-morning", ...]
+  /// Shifts this volunteer was marked present for (/admin/volunteers).
+  checkedInShiftKeys String[] @default([])
   notes      String?                        // skills, constraints, anything they told us
   status    String   @default("confirmed")  // "confirmed" | "cancelled"
   createdAt DateTime @default(now())

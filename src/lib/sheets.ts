@@ -203,12 +203,17 @@ function festivalTab(eventId: string | undefined, eventTitle: string): string {
 const decoratedTabs = new Set<string>();
 
 /**
- * Self-healing formatting for an event's registrations tab: make sure
- * row 1 holds the header (inserting it above existing rows when it's
- * missing), freeze and bold it, and (re)apply the Follow-up dropdown to
- * column G. Runs once per tab per server instance; never throws.
+ * Self-healing formatting for a registrations tab: make sure row 1
+ * holds the given header (inserting it above existing rows when it's
+ * missing), freeze and bold it, and optionally (re)apply a dropdown to
+ * one column. Runs once per tab per server instance; never throws.
  */
-async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<void> {
+async function decorateTab(
+  spreadsheetId: string,
+  tab: string,
+  header: string[],
+  dropdown: { column: number; options: string[] } | null,
+): Promise<void> {
   const key = `${spreadsheetId}/${tab}`;
   if (decoratedTabs.has(key)) return;
   try {
@@ -237,7 +242,7 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
     );
     if (!rowRes.ok) return;
     const rowData = (await rowRes.json()) as { values?: string[][] };
-    const hasHeader = (rowData.values?.[0]?.[0] ?? "") === FESTIVAL_HEADER[0];
+    const hasHeader = (rowData.values?.[0]?.[0] ?? "") === header[0];
 
     const requests: unknown[] = [];
     if (!hasHeader) {
@@ -255,19 +260,21 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
       updateCells: {
         start: { sheetId: gid, rowIndex: 0, columnIndex: 0 },
         rows: [
-          { values: FESTIVAL_HEADER.map((h) => ({ userEnteredValue: { stringValue: h } })) },
+          { values: header.map((h) => ({ userEnteredValue: { stringValue: h } })) },
         ],
         fields: "userEnteredValue",
       },
     });
-    // Clear any stale dropdown wherever it used to live (the Follow-up
-    // column moves when columns are added or removed), then re-apply it
-    // on the current column below.
-    requests.push({
-      setDataValidation: {
-        range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 26 },
-      },
-    });
+    if (dropdown) {
+      // Clear any stale dropdown wherever it used to live (the column
+      // moves when columns are added or removed), then re-apply it on
+      // the current column below.
+      requests.push({
+        setDataValidation: {
+          range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 26 },
+        },
+      });
+    }
     requests.push({
       updateSheetProperties: {
         properties: { sheetId: gid, gridProperties: { frozenRowCount: 1 } },
@@ -281,26 +288,28 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
         fields: "userEnteredFormat.textFormat.bold",
       },
     });
-    // Dropdown chips on every Follow-up cell below the header. strict is
-    // off so a hand-typed note doesn't get rejected.
-    requests.push({
-      setDataValidation: {
-        range: {
-          sheetId: gid,
-          startRowIndex: 1,
-          startColumnIndex: FOLLOWUP_COLUMN,
-          endColumnIndex: FOLLOWUP_COLUMN + 1,
-        },
-        rule: {
-          condition: {
-            type: "ONE_OF_LIST",
-            values: FOLLOWUP_OPTIONS.map((v) => ({ userEnteredValue: v })),
+    if (dropdown) {
+      // Dropdown chips on every cell of the column below the header.
+      // strict is off so a hand-typed note doesn't get rejected.
+      requests.push({
+        setDataValidation: {
+          range: {
+            sheetId: gid,
+            startRowIndex: 1,
+            startColumnIndex: dropdown.column,
+            endColumnIndex: dropdown.column + 1,
           },
-          showCustomUi: true,
-          strict: false,
+          rule: {
+            condition: {
+              type: "ONE_OF_LIST",
+              values: dropdown.options.map((v) => ({ userEnteredValue: v })),
+            },
+            showCustomUi: true,
+            strict: false,
+          },
         },
-      },
-    });
+      });
+    }
 
     const res = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
@@ -314,6 +323,14 @@ async function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<
   } catch (error) {
     console.error(`Google Sheets decorate of "${tab}" error:`, error);
   }
+}
+
+/** Festival tabs: FESTIVAL_HEADER plus the Follow-up dropdown. */
+function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<void> {
+  return decorateTab(spreadsheetId, tab, FESTIVAL_HEADER, {
+    column: FOLLOWUP_COLUMN,
+    options: FOLLOWUP_OPTIONS,
+  });
 }
 
 /**
@@ -522,11 +539,12 @@ function volunteerTab(sheetTab: string | undefined, driveTitle: string): string 
 }
 
 /**
- * One row per volunteer signup submission, on the drive's own tab of the
- * festivals spreadsheet (created with a header on first use). Repeat
- * submissions append an "Updated shifts" row — the sheet is an audit
- * trail for coordinators; the database and /admin/volunteers hold the
- * canonical current state. Never throws.
+ * One row per volunteer signup submission, on the drive's own tab of
+ * the SAME spreadsheet the Bhajan Clubbing registrations land in
+ * (GOOGLE_SHEETS_ID / its default) — created with a bold frozen header
+ * row on first use. Repeat submissions append an "Updated shifts" row —
+ * the sheet is an audit trail for coordinators; the database and
+ * /admin/volunteers hold the canonical current state. Never throws.
  */
 export async function appendVolunteerSignupToSheet(
   r: VolunteerSheetRow,
@@ -534,10 +552,10 @@ export async function appendVolunteerSignupToSheet(
 ): Promise<boolean> {
   const cfg = sheetsConfig();
   if (!cfg) return false;
-  const sheetId = festivalSheetId(cfg);
+  const sheetId = cfg.sheetId;
   const tab = volunteerTab(sheetTab, r.drive);
   const submittedAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-  return appendToTabEnsuring(sheetId, tab, VOLUNTEER_HEADER, [
+  const ok = await appendToTabEnsuring(sheetId, tab, VOLUNTEER_HEADER, [
     submittedAt,
     r.name,
     r.email,
@@ -549,6 +567,8 @@ export async function appendVolunteerSignupToSheet(
     r.notes || "",
     r.status,
   ]);
+  if (ok) await decorateTab(sheetId, tab, VOLUNTEER_HEADER, null);
+  return ok;
 }
 
 /**
@@ -565,7 +585,7 @@ export async function removeVolunteerSheetRows(
   if (!cfg || emails.length === 0) return 0;
   const wanted = new Set(emails.map((e) => e.trim().toLowerCase()));
   return deleteRowsWhere(
-    festivalSheetId(cfg),
+    cfg.sheetId,
     { title: volunteerTab(sheetTab, driveTitle) },
     (row, i) => {
       if (i === 0 && String(row[0] ?? "") === VOLUNTEER_HEADER[0]) return false;

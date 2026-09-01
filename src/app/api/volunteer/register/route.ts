@@ -16,8 +16,8 @@ import { checkFormGuard, FORM_GUARD_MESSAGES } from "@/lib/formGuard";
  *   keys are validated against its config (stale ones are dropped).
  * - One signup per email per drive: re-submitting REPLACES the chosen
  *   shifts (the "edit my shifts" path) and re-sends the confirmation.
- * - Per-shift capacity is enforced on shifts the volunteer doesn't
- *   already hold; full shifts name themselves in the error.
+ * - Shift capacities are coordinator targets for the admin fill board,
+ *   not caps — signups never block on them.
  * - Confirmation email carries every shift plus a calendar invite; each
  *   submission also lands as an audit row on the drive's Google Sheet
  *   tab ("Signed up" / "Updated shifts").
@@ -114,20 +114,10 @@ export async function POST(request: Request) {
     const existing = await db.volunteerSignup.findUnique({
       where: { email_driveId: { email, driveId } },
     });
-    const held = new Set(existing?.status === "confirmed" ? existing.shiftKeys : []);
 
-    // Capacity per shift, only on shifts this volunteer doesn't already
-    // hold — keeping a shift you're on never bounces you.
-    for (const s of shifts) {
-      if (held.has(s.key) || s.capacity == null) continue;
-      if (s.signedUp >= s.capacity) {
-        return NextResponse.json(
-          { error: `${s.activityTitle} on ${s.dayChip} (${s.timeLabel}) just filled up — pick another shift` },
-          { status: 400 },
-        );
-      }
-    }
-
+    // Shift capacities are coordinator TARGETS (the /admin/volunteers
+    // fill board tracks them) — extra hands are never turned away, so
+    // signups don't block on them.
     const shiftKeys = shifts.map((s) => s.key);
     const alreadyRegistered = !!existing;
 

@@ -187,8 +187,7 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
                 <div className="mt-4 space-y-2">
                   {activity.shifts.map((shift) => {
                     const isSelected = selected.has(shift.key);
-                    const isFull = shift.spotsLeft === 0 && !isSelected;
-                    const disabled = closed || isFull || phase !== "idle";
+                    const disabled = closed || phase !== "idle";
                     return (
                       <label
                         key={shift.key}
@@ -223,20 +222,6 @@ export default function DriveSignup({ drive, formToken }: DriveSignupProps) {
                               {shift.note}
                             </span>
                           )}
-                        </span>
-                        <span
-                          className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]"
-                          style={
-                            isFull
-                              ? { background: "rgba(21,34,79,0.08)", color: "var(--ink-tertiary)" }
-                              : { background: `${accent}18`, color: accent }
-                          }
-                        >
-                          {isFull
-                            ? "Full"
-                            : shift.spotsLeft == null
-                              ? "Open"
-                              : `${shift.spotsLeft} spot${shift.spotsLeft === 1 ? "" : "s"} left`}
                         </span>
                       </label>
                     );

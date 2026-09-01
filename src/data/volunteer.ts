@@ -45,7 +45,9 @@ export interface VolunteerShift {
   /** ET-offset ISO instants, e.g. "2026-09-05T10:00:00-04:00". */
   startIso: string;
   endIso: string;
-  /** Max volunteers for this shift; null = no cap. */
+  /** Volunteers needed — the target on the admin fill board. Signups
+   *  are never blocked by it, and the public page doesn't show it;
+   *  null = no target. */
   capacity: number | null;
   /** Optional one-liner shown under the shift, e.g. "Aprons provided". */
   note?: string;
