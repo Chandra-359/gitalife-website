@@ -106,6 +106,137 @@ function AmountTile({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Bank transfer — larger gifts without card fees                     */
+/* ------------------------------------------------------------------ */
+function BankRow({
+  label,
+  value,
+  mono = true,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  onCopy?: () => void;
+}) {
+  return (
+    <div
+      className="flex items-center justify-between gap-3 border-b py-2.5 last:border-0"
+      style={{ borderColor: "rgba(21,34,79,0.08)" }}
+    >
+      <span className="text-[10.5px] font-extrabold uppercase tracking-[0.18em]" style={{ color: "var(--ink-secondary)" }}>
+        {label}
+      </span>
+      <span className="flex items-center gap-2">
+        <span className={`${mono ? "font-mono tracking-wide" : ""} text-[14px] font-semibold`} style={{ color: "var(--ink-primary)" }}>
+          {value}
+        </span>
+        {onCopy && (
+          <button
+            type="button"
+            onClick={onCopy}
+            aria-label={`Copy ${label.toLowerCase()}`}
+            className="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] transition-opacity hover:opacity-70"
+            style={{ borderColor: "rgba(21,34,79,0.25)", color: "var(--ink-primary)", background: "rgba(255,255,255,0.4)" }}
+          >
+            Copy
+          </button>
+        )}
+      </span>
+    </div>
+  );
+}
+
+function BankTransferPanel() {
+  const [open, setOpen] = useState(false);
+  const copy = (label: string, value: string) => {
+    navigator.clipboard?.writeText(value).then(
+      () => toast.success(`${label} copied`),
+      () => toast.error("Couldn't copy — please copy it manually"),
+    );
+  };
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5 }}
+      className="glass-card mx-auto mt-6 max-w-xl rounded-3xl p-5 sm:p-6"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 text-left"
+      >
+        <span className="flex items-center gap-3.5">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+            style={{ background: "rgba(0,109,91,0.1)", color: C.peacock }}
+          >
+            <Icon name="handshake" size={19} />
+          </span>
+          <span>
+            <span className="block font-serif text-[18px] font-semibold" style={{ color: C.krishnaBlue }}>
+              Giving a larger amount?
+            </span>
+            <span className="mt-0.5 block text-[12.5px]" style={{ color: "var(--ink-secondary)" }}>
+              Send it by direct bank transfer — no card fees, every dollar reaches the mission.
+            </span>
+          </span>
+        </span>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="shrink-0 transition-transform"
+          style={{ color: "var(--ink-tertiary)", transform: open ? "rotate(180deg)" : undefined }}
+          aria-hidden
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div
+              className="mt-4 rounded-2xl px-4 py-1"
+              style={{ background: "rgba(255,255,255,0.45)", border: "1px solid rgba(154,144,120,0.5)" }}
+            >
+              <BankRow label="Bank" value={DONATE.bank.bankName} mono={false} />
+              <BankRow
+                label="Routing number"
+                value={DONATE.bank.routingNumber}
+                onCopy={() => copy("Routing number", DONATE.bank.routingNumber)}
+              />
+              <BankRow
+                label="Account number"
+                value={DONATE.bank.accountNumber}
+                onCopy={() => copy("Account number", DONATE.bank.accountNumber)}
+              />
+            </div>
+            <p className="mt-3 text-[11.5px] leading-relaxed" style={{ color: "var(--ink-tertiary)" }}>
+              Please include your name and email in the transfer memo so we can thank you and send your receipt —
+              bank transfers are recorded by our volunteers rather than instantly.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Page                                                               */
 /* ------------------------------------------------------------------ */
 export default function DonatePage() {
@@ -519,11 +650,8 @@ export default function DonatePage() {
                       </p>
                     ) : (
                       <p className="mt-1.5 text-[11.5px]" style={{ color: "var(--ink-tertiary)" }}>
-                        Between ${MIN_DONATION_USD} and ${MAX_DONATION_USD.toLocaleString()} — for larger gifts,{" "}
-                        <a href={`mailto:${DONATE.contactEmail}`} className="underline underline-offset-2">
-                          email us
-                        </a>
-                        .
+                        Between ${MIN_DONATION_USD} and ${MAX_DONATION_USD.toLocaleString()} — larger gifts can go
+                        by bank transfer below.
                       </p>
                     )}
                   </motion.div>
@@ -646,6 +774,9 @@ export default function DonatePage() {
             </form>
           )}
         </motion.div>
+
+        {/* larger gifts — direct bank transfer */}
+        <BankTransferPanel />
 
         {/* transparency note */}
         <p

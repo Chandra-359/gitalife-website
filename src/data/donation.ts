@@ -9,6 +9,7 @@
  *                          price the server doesn't re-clamp.
  *  - Page copy           → DONATE (headline, blurb, where-it-goes chips,
  *                          transparency note) — kept deliberately short.
+ *  - Bank transfer       → DONATE.bank (routing/account for large gifts).
  *  - Contact inbox       → DONATE.contactEmail (page + receipt Reply-To).
  *
  * The checkout API (src/app/api/donate/checkout/route.ts) verifies the
@@ -47,6 +48,13 @@ export const DONATE = {
   note: "Gita Life NYC is a volunteer-led community initiative. Every donation goes directly toward our programs, prasadam, festivals, and future spiritual & community initiatives.",
   contactEmail: "hello@gitalifenyc.com",
   url: "https://www.gitalifenyc.com/donate",
+  /** Direct bank transfer (ACH) for larger gifts — revealed on tap in the
+   *  "Giving a larger amount?" panel. Card fees don't apply to these. */
+  bank: {
+    bankName: "TD Bank",
+    routingNumber: "026013673",
+    accountNumber: "4457166118",
+  },
 } as const;
 
 /**

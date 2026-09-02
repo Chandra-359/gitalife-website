@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
     if (amountCents > MAX_DONATION_USD * 100) {
       return NextResponse.json(
-        { error: `For gifts over $${MAX_DONATION_USD.toLocaleString()}, please contact us directly` },
+        { error: `For gifts over $${MAX_DONATION_USD.toLocaleString()}, please use the bank transfer option on this page` },
         { status: 400 },
       );
     }
