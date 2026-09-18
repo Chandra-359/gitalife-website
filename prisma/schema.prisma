@@ -177,8 +177,14 @@ model Rsvp {
   whatsapp     String?                       // WhatsApp number, when different from mobile
   location     String?                       // "City, State"
   organization String?                       // University (student) or company (working)
+  occupation   String?                       // "Student" | "Working professional" (paid events pick the price tier by it)
   emailOptIn Boolean @default(false)         // Agreed to receive event/program updates by email
   status    String   @default("confirmed")   // "confirmed" | "cancelled" | "waitlisted"
+
+  // --- Paid events settled outside the site (retreats via Zelle) ---
+  // null for free events. "pending" = owes payment; "reported" = the
+  // attendee ticked "I've sent it" (organizers verify on the sheet).
+  paymentStatus String?
 
   // --- Weekly reminder emails (weekly programs only) ---
   remindersEnabled Boolean   @default(true)  // Receives the weekly program reminder
