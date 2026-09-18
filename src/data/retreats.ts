@@ -104,12 +104,12 @@ export const FALL_RETREAT_2026: RetreatConfig = {
     "Working professional": 75,
   },
   zelle: {
-    // TODO: fill in before sharing the link — the number Zelle payments
-    // go to, the name Zelle shows for it, and the QR exported from the
-    // bank app saved as public/retreat/zelle-qr.png.
-    phone: "",
-    recipientName: "Gita Life NYC",
-    qrUrl: null,
+    // The number enrolled with Zelle (it's what the QR below encodes);
+    // the QR is the "Send Money with Zelle" code exported from the bank
+    // app, cropped to just the code.
+    phone: "(551) 998-7444",
+    recipientName: "Kaushal Solanki",
+    qrUrl: "/retreat/zelle-qr.png",
   },
   capacity: null,
   status: "published",
