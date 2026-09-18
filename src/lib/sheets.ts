@@ -202,17 +202,23 @@ function festivalTab(eventId: string | undefined, eventTitle: string): string {
 /** Tabs verified this server instance (header present, dropdown set). */
 const decoratedTabs = new Set<string>();
 
+interface ColumnDropdown {
+  /** Zero-based column index. */
+  column: number;
+  options: string[];
+}
+
 /**
  * Self-healing formatting for a registrations tab: make sure row 1
  * holds the given header (inserting it above existing rows when it's
- * missing), freeze and bold it, and optionally (re)apply a dropdown to
- * one column. Runs once per tab per server instance; never throws.
+ * missing), freeze and bold it, and optionally (re)apply dropdowns to
+ * given columns. Runs once per tab per server instance; never throws.
  */
 async function decorateTab(
   spreadsheetId: string,
   tab: string,
   header: string[],
-  dropdown: { column: number; options: string[] } | null,
+  dropdowns: ColumnDropdown[],
 ): Promise<void> {
   const key = `${spreadsheetId}/${tab}`;
   if (decoratedTabs.has(key)) return;
@@ -265,10 +271,10 @@ async function decorateTab(
         fields: "userEnteredValue",
       },
     });
-    if (dropdown) {
+    if (dropdowns.length > 0) {
       // Clear any stale dropdown wherever it used to live (the column
-      // moves when columns are added or removed), then re-apply it on
-      // the current column below.
+      // moves when columns are added or removed), then re-apply them on
+      // the current columns below.
       requests.push({
         setDataValidation: {
           range: { sheetId: gid, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 26 },
@@ -288,7 +294,7 @@ async function decorateTab(
         fields: "userEnteredFormat.textFormat.bold",
       },
     });
-    if (dropdown) {
+    for (const dropdown of dropdowns) {
       // Dropdown chips on every cell of the column below the header.
       // strict is off so a hand-typed note doesn't get rejected.
       requests.push({
@@ -327,10 +333,9 @@ async function decorateTab(
 
 /** Festival tabs: FESTIVAL_HEADER plus the Follow-up dropdown. */
 function decorateFestivalTab(spreadsheetId: string, tab: string): Promise<void> {
-  return decorateTab(spreadsheetId, tab, FESTIVAL_HEADER, {
-    column: FOLLOWUP_COLUMN,
-    options: FOLLOWUP_OPTIONS,
-  });
+  return decorateTab(spreadsheetId, tab, FESTIVAL_HEADER, [
+    { column: FOLLOWUP_COLUMN, options: FOLLOWUP_OPTIONS },
+  ]);
 }
 
 /**
@@ -567,8 +572,165 @@ export async function appendVolunteerSignupToSheet(
     r.notes || "",
     r.status,
   ]);
-  if (ok) await decorateTab(sheetId, tab, VOLUNTEER_HEADER, null);
+  if (ok) await decorateTab(sheetId, tab, VOLUNTEER_HEADER, []);
   return ok;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Retreats — one tab per retreat (src/data/retreats.ts), in the SAME */
+/*  spreadsheet as the Bhajan Clubbing / festival / volunteer tabs      */
+/* ------------------------------------------------------------------ */
+
+const RETREAT_HEADER = [
+  "Registered At (ET)",
+  "Full Name",
+  "Email",
+  "Mobile",
+  "WhatsApp",
+  "Location",
+  "Student / Working",
+  "University / Company",
+  "Amount",
+  "Payment",
+  "Notes",
+  "Follow-up",
+];
+
+/** Payment column dropdown. Rows start as "Not paid" or "Reported by
+ *  attendee" (when they ticked "I've sent it"); organizers flip to
+ *  "Verified" once the Zelle transfer shows up. */
+export const RETREAT_PAYMENT_OPTIONS = ["Not paid", "Reported by attendee", "Verified"] as const;
+export type RetreatPaymentCell = (typeof RETREAT_PAYMENT_OPTIONS)[number];
+
+const RETREAT_EMAIL_COLUMN = RETREAT_HEADER.indexOf("Email");
+const RETREAT_PAYMENT_COLUMN = RETREAT_HEADER.indexOf("Payment");
+const RETREAT_FOLLOWUP_COLUMN = RETREAT_HEADER.indexOf("Follow-up");
+
+export interface RetreatSheetRow {
+  /** Exact tab name from the retreat config. */
+  sheetTab: string;
+  name: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  location: string;
+  /** "Student" | "Working professional" */
+  occupation: string;
+  organization: string;
+  /** e.g. "$50" */
+  amount: string;
+  payment: RetreatPaymentCell;
+  notes: string;
+}
+
+function decorateRetreatTab(spreadsheetId: string, tab: string): Promise<void> {
+  return decorateTab(spreadsheetId, tab, RETREAT_HEADER, [
+    { column: RETREAT_PAYMENT_COLUMN, options: [...RETREAT_PAYMENT_OPTIONS] },
+    { column: RETREAT_FOLLOWUP_COLUMN, options: FOLLOWUP_OPTIONS },
+  ]);
+}
+
+/**
+ * One row per retreat registration on the retreat's own tab of the
+ * shared spreadsheet (GOOGLE_SHEETS_ID / its default) — created with a
+ * bold frozen header, a Payment dropdown, and a Follow-up dropdown on
+ * first use. Never throws.
+ */
+export async function appendRetreatRegistrationToSheet(r: RetreatSheetRow): Promise<boolean> {
+  const cfg = sheetsConfig();
+  if (!cfg) return false;
+  const tab = tabTitle(r.sheetTab);
+  const registeredAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+  const ok = await appendToTabEnsuring(cfg.sheetId, tab, RETREAT_HEADER, [
+    registeredAt,
+    r.name,
+    r.email,
+    r.phone,
+    r.whatsapp || "",
+    r.location || "",
+    r.occupation,
+    r.organization || "",
+    r.amount,
+    r.payment,
+    r.notes || "",
+    FOLLOWUP_OPTIONS[0],
+  ]);
+  if (ok) await decorateRetreatTab(cfg.sheetId, tab);
+  return ok;
+}
+
+/**
+ * Flip the Payment cell of an existing registration row (matched by
+ * email) to "Reported by attendee" — used when someone re-submits the
+ * form to say they've paid. A cell an organizer already set to
+ * "Verified" is left alone. Returns true when a cell was written.
+ * Never throws.
+ */
+export async function markRetreatSheetPaymentReported(
+  sheetTab: string,
+  email: string,
+): Promise<boolean> {
+  try {
+    const cfg = sheetsConfig();
+    if (!cfg) return false;
+    const token = await accessToken(cfg);
+    if (!token) return false;
+    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+    const tab = tabTitle(sheetTab);
+    const quoted = `'${tab.replace(/'/g, "''")}'`;
+
+    const valRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${encodeURIComponent(`${quoted}!A1:Z`)}`,
+      { headers },
+    );
+    if (!valRes.ok) return false;
+    const rows = ((await valRes.json()) as { values?: string[][] }).values ?? [];
+    const wanted = email.trim().toLowerCase();
+    // Bottom-up: the newest row for that email wins
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const row = rows[i];
+      if (i === 0 && String(row[0] ?? "") === RETREAT_HEADER[0]) break;
+      if (String(row[RETREAT_EMAIL_COLUMN] ?? "").trim().toLowerCase() !== wanted) continue;
+      const current = String(row[RETREAT_PAYMENT_COLUMN] ?? "").trim();
+      if (current === "Verified" || current === "Reported by attendee") return false;
+      const cell = `${String.fromCharCode(65 + RETREAT_PAYMENT_COLUMN)}${i + 1}`;
+      const res = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${encodeURIComponent(`${quoted}!${cell}`)}?valueInputOption=USER_ENTERED`,
+        { method: "PUT", headers, body: JSON.stringify({ values: [["Reported by attendee"]] }) },
+      );
+      if (!res.ok) {
+        console.error(`Google Sheets payment update on "${tab}" failed:`, res.status, await res.text());
+        return false;
+      }
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`Google Sheets payment update on "${sheetTab}" error:`, error);
+    return false;
+  }
+}
+
+/**
+ * Remove a retreat tab's rows for the given emails (column C) — keeps
+ * the sheet in step when spam registrations are purged. The header row
+ * is never touched. Never throws.
+ */
+export async function removeRetreatSheetRows(
+  sheetTab: string,
+  emails: string[],
+): Promise<number> {
+  const cfg = sheetsConfig();
+  if (!cfg || emails.length === 0) return 0;
+  const wanted = new Set(emails.map((e) => e.trim().toLowerCase()));
+  return deleteRowsWhere(
+    cfg.sheetId,
+    { title: tabTitle(sheetTab) },
+    (row, i) => {
+      if (i === 0 && String(row[0] ?? "") === RETREAT_HEADER[0]) return false;
+      return wanted.has(String(row[RETREAT_EMAIL_COLUMN] ?? "").trim().toLowerCase());
+    },
+  );
 }
 
 /**
