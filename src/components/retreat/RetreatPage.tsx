@@ -53,8 +53,8 @@ function Hero({ retreat }: { retreat: RetreatLive }) {
             <Image
               src={retreat.posterUrl}
               alt={`${retreat.title} poster`}
-              width={926}
-              height={1188}
+              width={1200}
+              height={1600}
               priority
               className="h-auto w-full"
             />
